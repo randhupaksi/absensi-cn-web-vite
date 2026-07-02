@@ -1,32 +1,43 @@
-# React + TypeScript + Vite
+# Absensi CN Web — React Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend SPA Absensi CN untuk siswa, guru/wali kelas, BK, dan admin. Project ini merupakan migrasi feature-parity dari frontend Next.js ke React 19 + Vite, dengan backend Go yang sama.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript
+- Vite 8
+- React Router
+- Tailwind CSS 4
+- TanStack Query dan TanStack Table
+- React Hook Form + Zod
+- Motion, Recharts, jsPDF, dan Sonner
 
-## React Compiler
+## Menjalankan project
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+copy .env.example .env
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Atur API backend di `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080/api/v1
+```
+
+## Validasi
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
+
+## Deployment
+
+Project dapat dideploy sebagai SPA di Vercel. `vercel.json` sudah mengarahkan seluruh deep link ke `index.html`. Tambahkan `VITE_API_BASE_URL` pada environment Vercel dan pastikan origin domain frontend diizinkan oleh konfigurasi CORS API Railway.
+
+## Feature parity
+
+Route yang tersedia mencakup landing page, login, dashboard siswa, dashboard guru/walas dan manajemen mapel, dashboard BK, serta seluruh manajemen admin. Services, types, validation, report PDF, import Excel, tabel, modal, dan protected API assets menggunakan kontrak API yang sama dengan frontend sebelumnya.

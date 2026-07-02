@@ -1,0 +1,16 @@
+{
+  "name": "Absensi CN",
+  "short_name": "Absensi CN",
+  "description": "Sistem absensi digital SMK Citra Negara",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#047857",
+  "icons": [
+    {
+      "src": "/images/optimized/logo-cn.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

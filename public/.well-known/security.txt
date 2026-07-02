@@ -1,0 +1,3 @@
+Acknowledgments: Absensi CN by RBAR Team, led by Randhu Paksi Membumi - Creator & Lead Fullstack Developer.
+Policy: Hak cipta dan penggunaan project memerlukan izin tertulis dari RBAR Team.
+Preferred-Languages: id, en

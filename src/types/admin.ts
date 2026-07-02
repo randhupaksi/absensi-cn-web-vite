@@ -1,0 +1,301 @@
+export type AdminDashboardData = {
+  attendance_percentage: number;
+  counts: {
+    total_users: number;
+    total_students: number;
+    total_teachers: number;
+    total_bk: number;
+    total_admins: number;
+  };
+  today_status: {
+    present: number;
+    late: number;
+    permission: number;
+    sick: number;
+    alpha: number;
+  };
+  semester_trend: Array<{
+    label: string;
+    present: number;
+    late: number;
+    alpha: number;
+  }>;
+  class_performance: Array<{
+    class_name: string;
+    percentage: number;
+    present_text: string;
+  }>;
+  announcements: Array<{
+    id: string;
+    title: string;
+    description: string;
+    tone: "warning" | "success" | "info" | string;
+  }>;
+};
+
+export type AdminUser = {
+  id: string;
+  name: string;
+  role: "STUDENT" | "TEACHER" | "BK" | "ADMIN";
+  nis?: string;
+  username?: string;
+};
+
+export type AdminUserPayload = {
+  name: string;
+  role: AdminUser["role"];
+  username: string;
+  nis: string;
+  password: string;
+};
+
+export type AdminTeacherDirectory = {
+  no: string;
+  id: string;
+  name: string;
+  role: string;
+  class: string;
+  avatar_label: string;
+};
+
+export type AdminTeacherProfile = {
+  id: string;
+  user_id: string;
+  name: string;
+  username?: string;
+  gender?: string;
+  is_active: boolean;
+};
+
+export type AdminTeacherProfilePayload = {
+  user_id: string;
+  gender: string;
+  is_active: boolean;
+};
+
+export type AdminTeacherAccountPayload = {
+  name: string;
+  username: string;
+  password: string;
+  gender: string;
+  is_active: boolean;
+};
+
+export type AdminSubjectSchedule = {
+  id: string;
+  hari: string;
+  jam_mulai: string;
+  jam_selesai: string;
+};
+
+export type AdminSubjectScheduleInput = {
+  hari: string;
+  jam_mulai: string;
+  jam_selesai: string;
+};
+
+export type AdminTeacherSubjectAssignment = {
+  id: string;
+  teacher_id: string;
+  teacher_name: string;
+  subject_id: string;
+  subject_code: string;
+  subject_name: string;
+  class_id: string;
+  class_name: string;
+  school_year_id: string;
+  school_year_name: string;
+  is_active: boolean;
+  schedules: AdminSubjectSchedule[];
+};
+
+export type AdminTeacherSubjectAssignmentPayload = {
+  teacher_id: string;
+  subject_id: string;
+  class_id: string;
+  school_year_id: string;
+  is_active: boolean;
+  schedules?: AdminSubjectScheduleInput[];
+};
+
+export type AdminHomeroomAssignment = {
+  id: string;
+  teacher_id: string;
+  teacher_name: string;
+  class_id: string;
+  class_name: string;
+  school_year_id: string;
+  school_year_name: string;
+  is_active: boolean;
+};
+
+export type AdminHomeroomAssignmentPayload = {
+  teacher_id: string;
+  class_id: string;
+  school_year_id: string;
+  is_active: boolean;
+};
+
+export type AdminSubject = {
+  id: string;
+  code: string;
+  name: string;
+  group?: string;
+  is_active: boolean;
+  assignment_count: number;
+  teacher_count: number;
+  class_count: number;
+  schedule_count: number;
+};
+
+export type AdminSubjectPayload = {
+  code: string;
+  name: string;
+  group: string;
+  is_active: boolean;
+};
+
+export type AdminSubjectScheduleOverview = {
+  id: string;
+  assignment_id: string;
+  teacher_id: string;
+  teacher_name: string;
+  subject_id: string;
+  subject_code: string;
+  subject_name: string;
+  class_id: string;
+  class_name: string;
+  school_year_id: string;
+  school_year_name: string;
+  hari: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  is_active: boolean;
+};
+
+export type AdminSubjectScheduleFilters = {
+  query?: string;
+  teacher_id?: string;
+  subject_id?: string;
+  class_id?: string;
+  school_year_id?: string;
+  day?: string;
+  status?: string;
+};
+
+export type AdminSchoolYear = {
+  id: string;
+  name: string;
+  start_year: number;
+  end_year: number;
+  is_active: boolean;
+};
+
+export type AdminMajor = {
+  id: string;
+  code: string;
+  name: string;
+  is_active: boolean;
+};
+
+export type AdminClass = {
+  id: string;
+  grade: string;
+  name: string;
+  major_id: string;
+  major_code: string;
+  major_name: string;
+  school_year_id: string;
+  school_year_name: string;
+  display_name: string;
+  student_count: number;
+  subject_assignment_count: number;
+  homeroom_assignment_id?: string;
+  homeroom_teacher_id?: string;
+  homeroom_teacher_name?: string;
+  attendance_record_count: number;
+  is_active: boolean;
+};
+
+export type AdminClassPayload = {
+  grade: string;
+  name: string;
+  major_id: string;
+  school_year_id: string;
+  is_active: boolean;
+};
+
+export type AdminStudent = {
+  id: string;
+  user_id: string;
+  name: string;
+  nis: string;
+  nisn?: string;
+  gender?: string;
+  is_active: boolean;
+};
+
+export type AdminStudentPayload = {
+  name: string;
+  nis: string;
+  nisn: string;
+  password: string;
+  gender: string;
+  class_id: string;
+  is_active: boolean;
+};
+
+export type AdminStudentClassMembership = {
+  id: string;
+  student_id: string;
+  student_name: string;
+  nis: string;
+  class_id: string;
+  class_name: string;
+  school_year_id: string;
+  school_year_name: string;
+  status: string;
+  joined_at?: string;
+  left_at?: string;
+  is_active: boolean;
+};
+
+export type AdminStudentClassMembershipPayload = {
+  student_id: string;
+  class_id: string;
+  school_year_id: string;
+  status: string;
+  joined_at: string;
+  left_at: string;
+  is_active: boolean;
+};
+
+export type AdminAttendanceRule = {
+  id: string;
+  school_year_id: string;
+  school_year: string;
+  check_in_start: string;
+  on_time_until: string;
+  late_until: string;
+  is_active: boolean;
+};
+
+export type AdminAttendanceRulePayload = {
+  school_year_id: string;
+  check_in_start: string;
+  on_time_until: string;
+  late_until: string;
+  is_active: boolean;
+};
+
+export type ImportError = {
+  row: number;
+  field: string;
+  message: string;
+};
+
+export type ImportResult = {
+  imported: number;
+  skipped: number;
+  errors: ImportError[];
+};

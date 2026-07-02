@@ -1,0 +1,113 @@
+"use client";
+
+import {
+  clearAuthSession,
+  getAuthSession,
+  getDashboardPathForRole,
+  mapApiRoleToDashboardRole,
+} from "@/lib/auth";
+import type { AuthSession, DashboardRole } from "@/types/auth";
+import { usePathname, useRouter } from "@/lib/router";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { StaffSidebar, type StaffSidebarItem } from "./staff-sidebar";
+import { StaffTopbar } from "./staff-topbar";
+
+type StaffShellProps = {
+  expectedRole: DashboardRole;
+  sidebarItems: StaffSidebarItem[];
+  userLabel: string;
+  resolveTitle: (pathname: string) => string;
+  eyebrow?: string;
+  children: (session: AuthSession) => ReactNode;
+};
+
+const subscribeToHydration = () => () => {};
+
+export function StaffShell({
+  expectedRole,
+  sidebarItems,
+  userLabel,
+  resolveTitle,
+  eyebrow,
+  children,
+}: StaffShellProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
+  const session = useMemo(() => (isHydrated ? getAuthSession() : null), [isHydrated]);
+
+  const currentRole = session ? mapApiRoleToDashboardRole(session.user.role) : null;
+  const isExpectedRole = session && currentRole === expectedRole;
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    if (!session) {
+      router.replace("/login");
+      return;
+    }
+
+    if (!isExpectedRole) {
+      router.replace(getDashboardPathForRole(session.user.role));
+    }
+  }, [isExpectedRole, isHydrated, router, session]);
+
+  if (!isHydrated || !session || !isExpectedRole) {
+    return <StaffShellFallback />;
+  }
+
+  const handleLogout = () => {
+    clearAuthSession();
+    router.replace("/");
+  };
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800">
+      <div className="min-h-screen lg:pl-[272px]">
+        <StaffSidebar
+          items={sidebarItems}
+          activePath={pathname}
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+          onLogout={handleLogout}
+        />
+
+        <main className="min-w-0 space-y-5 p-4 md:p-5">
+          <StaffTopbar
+            userName={session.user.name}
+            userLabel={userLabel}
+            title={resolveTitle(pathname)}
+            eyebrow={eyebrow ?? getDashboardEyebrow(expectedRole)}
+            onToggleSidebar={() => setMobileSidebarOpen(true)}
+          />
+
+          {children(session)}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function StaffShellFallback() {
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)]" />
+  );
+}
+
+function getDashboardEyebrow(role: DashboardRole) {
+  switch (role) {
+    case "admin":
+      return "Admin Dashboard";
+    case "walas":
+      return "Walas Dashboard";
+    case "bk":
+      return "BK Dashboard";
+    case "siswa":
+      return "Siswa Dashboard";
+    default:
+      return "Dashboard";
+  }
+}

@@ -1,0 +1,40 @@
+.landingAccentText {
+  color: var(--landing-accent);
+}
+
+.landingInkText {
+  color: var(--landing-ink);
+}
+
+.landingMutedText {
+  color: var(--landing-ink-soft);
+}
+
+.landingReviewCard {
+  background: var(--landing-surface-strong);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1.125rem;
+  box-shadow: var(--landing-shadow-soft);
+}
+
+.landingReviewQuote {
+  background: var(--landing-accent-soft);
+  color: rgba(16, 185, 129, 0.7);
+}
+
+.landingReviewNav {
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  background: var(--landing-surface-strong);
+  color: var(--landing-accent);
+}
+
+.landingReviewNav:hover {
+  border-color: rgba(16, 185, 129, 0.55);
+  background: var(--landing-accent);
+  color: white;
+}
+
+.landingAvatarBadge {
+  background: linear-gradient(135deg, #16a34a 0%, #6ee7b7 100%);
+  color: white;
+}

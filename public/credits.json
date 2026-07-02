@@ -1,0 +1,31 @@
+{
+  "project": "Absensi CN",
+  "team": "RBAR Team",
+  "copyright": "Copyright 2026 RBAR Team. All rights reserved.",
+  "lead_creator": {
+    "name": "Randhu Paksi Membumi",
+    "roles": [
+      "Creator",
+      "Lead Fullstack Developer",
+      "System Analyst",
+      "UI/UX Designer",
+      "Frontend Engineer",
+      "Backend Engineer"
+    ]
+  },
+  "contributors": [
+    {
+      "name": "Ilham Rae Utomo",
+      "role": "Backend Developer, Hosting & Deployment Engineer"
+    },
+    {
+      "name": "Abiansyah Putra",
+      "role": "Backend Developer, Hosting & Deployment Engineer"
+    },
+    {
+      "name": "Fabian Nanday Ghanian",
+      "role": "UI/UX Designer"
+    }
+  ],
+  "statement": "Absensi CN dibuat oleh RBAR Team dan dipimpin oleh Randhu Paksi Membumi sebagai Creator, Lead Fullstack Developer, System Analyst, UI/UX Designer, Frontend Engineer, dan Backend Engineer."
+}

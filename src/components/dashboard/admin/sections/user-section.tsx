@@ -1,0 +1,345 @@
+"use client";
+
+import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
+import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
+import {
+  ActionButtons,
+  DataTableCard,
+  StatCard,
+  getInitials,
+} from "@/components/dashboard/admin/sections/section-ui";
+import {
+  UserCreateModal,
+  UserEditModal,
+  UserRoleBadge,
+  roleDescription,
+} from "@/components/dashboard/admin/sections/user-modals";
+import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  createAdminUser,
+  deleteAdminUser,
+  updateAdminUser,
+} from "@/services/admin.service";
+import type { AdminUser, AdminUserPayload } from "@/types/admin";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  GraduationCap,
+  LayoutPanelTop,
+  LineChart,
+  Plus,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  UserCog,
+  UsersRound,
+} from "lucide-react";
+import { useDeferredValue, useMemo, useState } from "react";
+import { toast } from "sonner";
+
+type UserSectionProps = {
+  users: AdminUser[];
+  isLoading?: boolean;
+  errorMessage?: string;
+};
+
+type UserTab = "all" | "admins" | "bk" | "teachers";
+
+export function UserSection({
+  users,
+  isLoading = false,
+  errorMessage,
+}: UserSectionProps) {
+  const queryClient = useQueryClient();
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const [activeTab, setActiveTab] = useState<UserTab>("all");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+
+  const createUserMutation = useMutation({
+    mutationFn: createAdminUser,
+    onSuccess: () => {
+      toast.success("Akun baru berhasil ditambahkan.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setModalOpen(false);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: AdminUserPayload }) =>
+      updateAdminUser(id, payload),
+    onSuccess: () => {
+      toast.success("Akun staff berhasil diperbarui.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setEditingUser(null);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: deleteAdminUser,
+    onSuccess: () => {
+      toast.success("Akun staff berhasil dihapus.");
+      setDeleteTarget(null);
+      void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const staffUsers = useMemo(
+    () => users.filter((user) => user.role !== "STUDENT"),
+    [users],
+  );
+
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
+
+  const filteredUsers = useMemo(() => {
+    const base = staffUsers.filter((user) => {
+      if (activeTab === "admins") return user.role === "ADMIN";
+      if (activeTab === "bk") return user.role === "BK";
+      if (activeTab === "teachers") return user.role === "TEACHER";
+      return true;
+    });
+
+    return base.filter(
+      (user) =>
+        normalizedQuery.length === 0 ||
+        user.name.toLowerCase().includes(normalizedQuery) ||
+        user.role.toLowerCase().includes(normalizedQuery) ||
+        (user.username ?? "").toLowerCase().includes(normalizedQuery),
+    );
+  }, [activeTab, normalizedQuery, staffUsers]);
+
+  const kpiCards = [
+    {
+      label: "Akun Staff",
+      value: staffUsers.length,
+      icon: UsersRound,
+      accentClass: "from-emerald-500 via-teal-500 to-cyan-500",
+    },
+    {
+      label: "Admin",
+      value: staffUsers.filter((user) => user.role === "ADMIN").length,
+      icon: ShieldCheck,
+      accentClass: "from-teal-500 via-emerald-500 to-green-500",
+    },
+    {
+      label: "BK",
+      value: staffUsers.filter((user) => user.role === "BK").length,
+      icon: UserCog,
+      accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
+    },
+    {
+      label: "Akun Guru",
+      value: staffUsers.filter((user) => user.role === "TEACHER").length,
+      icon: GraduationCap,
+      accentClass: "from-amber-400 via-orange-400 to-emerald-500",
+    },
+  ];
+
+  return (
+    <>
+      <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
+        <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
+
+        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+                <LayoutPanelTop className="size-3.5" />
+                Role Workspace
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                  Role Management
+                </h2>
+                <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+                  Kelola distribusi role administrator, BK, dan guru dari endpoint admin users
+                  dengan pola kerja yang konsisten dengan section lain.
+                </p>
+              </div>
+            </div>
+
+            <div className="lg:w-[390px]">
+              <div className="flex items-center gap-3 rounded-[22px] border border-slate-200/75 bg-white/76 px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#effcf6_0%,#e0f7ee_100%)] text-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                  <LineChart className="size-4.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800">Ringkasan distribusi role</p>
+                  <p className="text-xs leading-5 text-slate-500">
+                    Fokus ke sebaran role dan akun staff yang dipakai lintas modul sistem.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+            {kpiCards.map((card) => (
+              <StatCard
+                key={card.label}
+                label={card.label}
+                value={card.value}
+                icon={card.icon}
+                accentClass={card.accentClass}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="text-xs font-medium text-slate-400">
+              {staffUsers.length} akun staff dengan role operasional tersedia
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+              <div className="flex h-14 items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]">
+                <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
+                  <SlidersHorizontal className="size-4" />
+                </span>
+                <Search className="size-4 text-slate-400" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Cari nama, role, username"
+                  className="w-full min-w-[180px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:min-w-[240px]"
+                />
+              </div>
+
+              <Button
+                variant="outline"
+                className="h-14 rounded-[22px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-5 text-sm font-semibold text-emerald-900 shadow-[0_16px_30px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(228,250,239,1)_100%)] hover:text-emerald-950"
+                onClick={() => setModalOpen(true)}
+              >
+                <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.18)]">
+                  <Plus className="size-4" />
+                </span>
+                Tambah
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {errorMessage ? (
+          <div className="mt-5">
+            <EmptyState icon={ShieldCheck} title="Data admin belum bisa dimuat" description={errorMessage} compact />
+          </div>
+        ) : null}
+
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as UserTab)} className="mt-5 gap-4">
+          <ScrollableTabsWrapper>
+            <TabsList className="flex min-w-max gap-2 rounded-[24px] border border-emerald-100/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(242,250,246,0.92)_100%)] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_16px_30px_rgba(15,23,42,0.04)] xl:min-w-0 xl:grid xl:w-full xl:grid-cols-4">
+              <TabsTrigger value="all" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
+                <UsersRound className="size-4" />
+                Semua Akun
+              </TabsTrigger>
+              <TabsTrigger value="admins" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
+                <ShieldCheck className="size-4" />
+                Administrator
+              </TabsTrigger>
+              <TabsTrigger value="bk" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
+                <UserCog className="size-4" />
+                BK
+              </TabsTrigger>
+              <TabsTrigger value="teachers" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
+                <GraduationCap className="size-4" />
+                Guru
+              </TabsTrigger>
+            </TabsList>
+          </ScrollableTabsWrapper>
+
+          {(["all", "admins", "bk", "teachers"] as UserTab[]).map((tab) => (
+            <TabsContent key={tab} value={tab} className="mt-4">
+              <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan akun baru untuk admin, BK, atau guru dari section ini." icon={ShieldCheck}>
+                <table className="min-w-full border-separate border-spacing-0 text-left">
+                  <thead>
+                    <tr className="bg-[#f3fbf6] text-sm text-slate-700">
+                      {["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"].map((label) => (
+                        <th key={label} className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}>
+                          {label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((user) => (
+                      <tr key={user.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
+                        <td className="border-t border-slate-100 px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                              {getInitials(user.name)}
+                            </span>
+                            <div>
+                              <p className="font-medium text-slate-700">{user.name}</p>
+                              <p className="text-xs text-slate-400">{user.id}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="border-t border-slate-100 px-4 py-4">
+                          <UserRoleBadge role={user.role} />
+                        </td>
+                        <td className="border-t border-slate-100 px-4 py-4">{user.username || "-"}</td>
+                        <td className="border-t border-slate-100 px-4 py-4">{user.username || user.nis || "-"}</td>
+                        <td className="border-t border-slate-100 px-4 py-4">{roleDescription(user.role)}</td>
+                        <td className="border-t border-slate-100 px-4 py-4">
+                          <ActionButtons
+                            onEdit={() => setEditingUser(user)}
+                            onDelete={() => setDeleteTarget(user)}
+                            isDeletePending={deleteUserMutation.isPending}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DataTableCard>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </section>
+
+      <UserCreateModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        isPending={createUserMutation.isPending}
+        onSubmit={(payload) => createUserMutation.mutate(payload)}
+      />
+      <UserEditModal
+        key={editingUser?.id ?? "user-edit-closed"}
+        user={editingUser}
+        open={Boolean(editingUser)}
+        onOpenChange={(open) => {
+          if (!open) setEditingUser(null);
+        }}
+        isPending={updateUserMutation.isPending}
+        onSubmit={(payload) => {
+          if (!editingUser) return;
+          updateUserMutation.mutate({ id: editingUser.id, payload });
+        }}
+      />
+      <DeleteConfirmationModal
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Hapus Role Staff?"
+        description={
+          deleteTarget
+            ? `Akun "${deleteTarget.name}" dengan role ${deleteTarget.role} akan dihapus permanen.`
+            : "Akun staff ini akan dihapus permanen."
+        }
+        isPending={deleteUserMutation.isPending}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          deleteUserMutation.mutate(deleteTarget.id);
+        }}
+      />
+    </>
+  );
+}
