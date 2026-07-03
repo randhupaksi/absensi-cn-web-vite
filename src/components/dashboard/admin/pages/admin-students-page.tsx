@@ -36,7 +36,7 @@ export function AdminStudentsPage() {
   });
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
-    queryFn: getAdminClasses,
+    queryFn: () => getAdminClasses(),
   });
   const schoolYearsQuery = useQuery({
     queryKey: ["admin-school-years"],

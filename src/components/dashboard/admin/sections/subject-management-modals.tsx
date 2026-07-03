@@ -3,6 +3,8 @@
 import { FieldError } from "@/components/ui/field-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   PremiumModal,
   premiumModalFieldClassName,
@@ -17,6 +19,8 @@ import {
 } from "@/lib/validations/subject-schema";
 import type {
   AdminClass,
+  AdminMajor,
+  AdminRoom,
   AdminSchoolYear,
   AdminSubject,
   AdminTeacherProfile,
@@ -50,6 +54,7 @@ type SubjectModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
+  programs: AdminMajor[];
   onSubmit: (values: SubjectFormValues) => void;
 };
 
@@ -58,6 +63,7 @@ export function SubjectFormModal({
   open,
   onOpenChange,
   isPending,
+  programs,
   onSubmit,
 }: SubjectModalProps) {
   const form = useForm<SubjectFormValues>({
@@ -124,6 +130,38 @@ export function SubjectFormModal({
           <FieldError message={form.formState.errors.name?.message} />
         </div>
 
+		<div className="grid gap-4 sm:grid-cols-2">
+		  <div className={premiumModalFieldClassName}>
+		    <label className={premiumModalLabelClassName}>Cakupan Unit</label>
+		    <Controller control={form.control} name="scope" render={({ field }) => (
+		      <RadixSelectField value={field.value} onValueChange={field.onChange} placeholder="Pilih cakupan" options={[
+		        { value: "ALL", label: "Semua Unit" }, { value: "SMK", label: "SMK" }, { value: "SMA", label: "SMA" },
+		      ]} />
+		    )} />
+		  </div>
+		  <div className={premiumModalFieldClassName}>
+		    <label htmlFor="subject-description" className={premiumModalLabelClassName}>Deskripsi</label>
+		    <Textarea id="subject-description" className="min-h-14 rounded-[1.25rem] border-slate-200/80 bg-white" placeholder="Keterangan singkat mapel" {...form.register("description")} />
+		  </div>
+		</div>
+
+		<div className={premiumModalFieldClassName}>
+		  <label className={premiumModalLabelClassName}>Program/Jurusan Khusus (opsional)</label>
+		  <div className="grid max-h-36 gap-2 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-3 sm:grid-cols-2">
+		    {programs.filter((program) => program.is_active).map((program) => {
+		      const selected = form.watch("program_ids").includes(program.id);
+		      return <label key={program.id} className="flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-700 hover:bg-emerald-50">
+		        <Checkbox checked={selected} onCheckedChange={(checked) => {
+		          const current = form.getValues("program_ids");
+		          form.setValue("program_ids", checked ? [...current, program.id] : current.filter((id) => id !== program.id), { shouldDirty: true });
+		        }} />
+		        <span>{program.school_unit_code} · {program.code}</span>
+		      </label>;
+		    })}
+		    {programs.length === 0 ? <p className="text-sm text-slate-400">Belum ada program aktif.</p> : null}
+		  </div>
+		</div>
+
         <div className={premiumModalFieldClassName}>
           <label className={premiumModalLabelClassName}>Status Mapel</label>
           <Controller
@@ -152,6 +190,7 @@ type AssignmentModalProps = {
   subjects: AdminSubject[];
   classes: AdminClass[];
   schoolYears: AdminSchoolYear[];
+  rooms: AdminRoom[];
   isPending: boolean;
   onSubmit: (values: TeachingAssignmentFormValues) => void;
 };
@@ -164,6 +203,7 @@ export function TeachingAssignmentFormModal({
   subjects,
   classes,
   schoolYears,
+  rooms,
   isPending,
   onSubmit,
 }: AssignmentModalProps) {
@@ -261,6 +301,19 @@ export function TeachingAssignmentFormModal({
           />
         </div>
 
+		<div className="grid gap-4 md:grid-cols-3">
+		  <div className={premiumModalFieldClassName}>
+		    <label className={premiumModalLabelClassName}>Peran Guru</label>
+		    <Controller control={form.control} name="assignment_role" render={({ field }) => (
+		      <RadixSelectField value={field.value} onValueChange={(value) => { field.onChange(value); form.setValue("is_primary", value === "PRIMARY"); }} placeholder="Pilih peran" options={[
+		        { value: "PRIMARY", label: "Guru Utama" }, { value: "ASSISTANT", label: "Guru Pendamping" }, { value: "SUBSTITUTE", label: "Guru Pengganti" },
+		      ]} />
+		    )} />
+		  </div>
+		  <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Berlaku Mulai</label><Input type="date" className={INPUT_CN} {...form.register("effective_from")} /></div>
+		  <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Berlaku Sampai</label><Input type="date" className={INPUT_CN} {...form.register("effective_until")} /></div>
+		</div>
+
         {/* Slot Jadwal */}
         <div className="rounded-[26px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,248,0.96)_100%)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.05)]">
           <div className="mb-4 flex items-center justify-between gap-3">
@@ -272,7 +325,7 @@ export function TeachingAssignmentFormModal({
               type="button"
               variant="outline"
               className="h-10 gap-2.5 rounded-[18px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-3.5 text-sm font-semibold text-emerald-900 shadow-[0_10px_20px_rgba(15,23,42,0.04)] hover:border-emerald-300"
-              onClick={() => schedules.append({ hari: "senin", jam_mulai: "", jam_selesai: "" })}
+              onClick={() => schedules.append({ hari: "senin", jam_mulai: "", jam_selesai: "", room_id: "", effective_from: "", effective_until: "", is_active: true })}
             >
               <span className="flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_6px_12px_rgba(16,185,129,0.2)]">
                 <Plus className="size-3" />
@@ -285,7 +338,7 @@ export function TeachingAssignmentFormModal({
             {schedules.fields.map((field, index) => (
               <div
                 key={field.id}
-                className="grid gap-3 rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcfa_100%)] p-4 shadow-[0_6px_14px_rgba(15,23,42,0.03)] md:grid-cols-[1fr_1fr_1fr_auto] md:items-start"
+			  className="grid gap-3 rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcfa_100%)] p-4 shadow-[0_6px_14px_rgba(15,23,42,0.03)] md:grid-cols-4 md:items-start"
               >
                 <div className={premiumModalFieldClassName}>
                   <label className={premiumModalLabelClassName}>Hari</label>
@@ -302,6 +355,12 @@ export function TeachingAssignmentFormModal({
                     )}
                   />
                 </div>
+				<div className={premiumModalFieldClassName}>
+				  <label className={premiumModalLabelClassName}>Ruangan</label>
+				  <Controller control={form.control} name={`schedules.${index}.room_id`} render={({ field: roomField }) => (
+				    <RadixSelectField value={roomField.value || "none"} onValueChange={(value) => roomField.onChange(value === "none" ? "" : value)} placeholder="Opsional" options={[{ value: "none", label: "Tanpa ruangan" }, ...rooms.filter((room) => room.is_active).map((room) => ({ value: room.id, label: room.name, description: `${room.school_unit_code} · ${room.code}` }))]} />
+				  )} />
+				</div>
                 <div className={premiumModalFieldClassName}>
                   <label htmlFor={`schedule-start-${index}`} className={premiumModalLabelClassName}>Jam Mulai</label>
                   <Input
@@ -327,7 +386,7 @@ export function TeachingAssignmentFormModal({
                   variant="outline"
                   size="icon-sm"
                   aria-label={`Hapus slot jadwal ${index + 1}`}
-                  className="size-10 rounded-[14px] border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,242,242,0.98)_100%)] text-rose-500 shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-rose-300 hover:bg-rose-50 md:mt-7"
+				  className="size-10 rounded-[14px] border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,242,242,0.98)_100%)] text-rose-500 shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-rose-300 hover:bg-rose-50 md:mt-7"
                   onClick={() => schedules.remove(index)}
                 >
                   <Trash2 className="size-4" />
@@ -402,6 +461,9 @@ function subjectValues(subject: AdminSubject | null): SubjectFormValues {
     code: subject?.code ?? "",
     name: subject?.name ?? "",
     group: subject?.group ?? "",
+    description: subject?.description ?? "",
+    scope: subject?.scope === "SMA" || subject?.scope === "SMK" ? subject.scope : "ALL",
+    program_ids: subject?.program_ids ?? [],
     is_active: subject?.is_active ?? true,
   };
 }
@@ -412,9 +474,13 @@ function assignmentValues(assignment: AdminTeacherSubjectAssignment | null): Tea
     subject_id: assignment?.subject_id ?? "",
     class_id: assignment?.class_id ?? "",
     school_year_id: assignment?.school_year_id ?? "",
+    assignment_role: assignment?.assignment_role === "ASSISTANT" || assignment?.assignment_role === "SUBSTITUTE" ? assignment.assignment_role : "PRIMARY",
+    is_primary: assignment?.is_primary ?? true,
+    effective_from: assignment?.effective_from ?? "",
+    effective_until: assignment?.effective_until ?? "",
     is_active: assignment?.is_active ?? true,
-    schedules: assignment?.schedules.map(({ hari, jam_mulai, jam_selesai }) => ({ hari, jam_mulai, jam_selesai })) ?? [
-      { hari: "senin", jam_mulai: "", jam_selesai: "" },
+    schedules: assignment?.schedules.map(({ hari, jam_mulai, jam_selesai, room_id, effective_from, effective_until, is_active }) => ({ hari, jam_mulai, jam_selesai, room_id: room_id ?? "", effective_from: effective_from ?? "", effective_until: effective_until ?? "", is_active })) ?? [
+	  { hari: "senin", jam_mulai: "", jam_selesai: "", room_id: "", effective_from: "", effective_until: "", is_active: true },
     ],
   };
 }

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { createAdminClass, deleteAdminClass, updateAdminClass } from "@/services/admin.service";
-import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolYear } from "@/types/admin";
+import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, Plus, Search, ShieldCheck, SlidersHorizontal, Users } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -22,6 +22,7 @@ type ClassManagementSectionProps = {
   classes: AdminClass[];
   majors: AdminMajor[];
   schoolYears: AdminSchoolYear[];
+  schoolUnits: AdminSchoolUnit[];
   isLoading?: boolean;
   errorMessage?: string;
 };
@@ -36,6 +37,7 @@ export function ClassManagementSection({
   classes,
   majors,
   schoolYears,
+  schoolUnits,
   isLoading = false,
   errorMessage,
 }: ClassManagementSectionProps) {
@@ -315,6 +317,7 @@ export function ClassManagementSection({
         description="Buat rombel baru yang langsung bisa dipakai untuk assignment walas, mapel, dan penempatan siswa."
         open={modalOpen}
         majors={majors}
+        schoolUnits={schoolUnits}
         schoolYears={schoolYears}
         isSubmitting={createMutation.isPending}
         onOpenChange={setModalOpen}
@@ -328,6 +331,7 @@ export function ClassManagementSection({
         open={Boolean(editingClass)}
         initialData={editingClass ?? undefined}
         majors={majors}
+        schoolUnits={schoolUnits}
         schoolYears={schoolYears}
         isSubmitting={updateMutation.isPending}
         onOpenChange={(open) => {

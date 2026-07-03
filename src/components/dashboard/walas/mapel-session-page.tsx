@@ -3,11 +3,15 @@
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { WalasShell } from "@/components/dashboard/staff/walas-shell";
 import { KoreksiModal } from "@/components/dashboard/walas/mapel-session-modals";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
   overrideTeacherSubjectAttendance,
   submitTeacherSubjectValidation,
+  updateTeacherSubjectSessionDetails,
 } from "@/services/staff.service";
 import type { StaffSubjectAttendanceRecord } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,10 +24,12 @@ import {
   FilePenLine,
   Loader2,
   Send,
+  Save,
   Users,
 } from "lucide-react";
 import { useSearchParams } from "@/lib/router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 function getDayIndonesian(date: Date): string {
   return ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"][date.getDay()];
@@ -87,6 +93,8 @@ export function MapelSessionPage() {
   const [koreksiTarget, setKoreksiTarget] = useState<StaffSubjectAttendanceRecord | null>(null);
   const [koreksiStatus, setKoreksiStatus] = useState("");
   const [koreksiAlasan, setKoreksiAlasan] = useState("");
+  const [topic, setTopic] = useState("");
+  const [sessionNotes, setSessionNotes] = useState("");
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["subject-current-session"] });
@@ -126,8 +134,19 @@ export function MapelSessionPage() {
   });
 
   const session = overviewQuery.data?.session ?? autoSessionQuery.data ?? null;
-  const records = overviewQuery.data?.records ?? [];
+  const records = useMemo(() => overviewQuery.data?.records ?? [], [overviewQuery.data?.records]);
   const isValidated = session?.status === "sudah_divalidasi" || session?.status === "diedit";
+
+  useEffect(() => {
+    setTopic(session?.topic ?? "");
+    setSessionNotes(session?.notes ?? "");
+  }, [session?.session_id, session?.notes, session?.topic]);
+
+  const detailsMutation = useMutation({
+    mutationFn: () => updateTeacherSubjectSessionDetails(sessionId!, { topic, notes: sessionNotes }),
+    onSuccess: () => { toast.success("Detail pertemuan berhasil disimpan."); invalidate(); },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const stats = useMemo(() => {
     const statuses = records.map((r) => pendingOverrides[r.student_id] ?? r.status_mapel);
@@ -199,6 +218,11 @@ export function MapelSessionPage() {
 
           {session && (
             <>
+			  <section className="grid gap-4 rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm lg:grid-cols-[1fr_1.4fr_auto] lg:items-end">
+				<div><label htmlFor="session-topic" className="mb-2 block text-sm font-semibold text-slate-700">Topik Pertemuan</label><Input id="session-topic" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Contoh: Persamaan kuadrat" disabled={isValidated} className="h-12 rounded-[18px]" /></div>
+				<div><label htmlFor="session-notes" className="mb-2 block text-sm font-semibold text-slate-700">Catatan Pengajaran</label><Textarea id="session-notes" value={sessionNotes} onChange={(event) => setSessionNotes(event.target.value)} placeholder="Catatan materi, tugas, atau kendala kelas" disabled={isValidated} className="min-h-12 rounded-[18px]" /></div>
+				<Button type="button" className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white" disabled={isValidated || detailsMutation.isPending} onClick={() => detailsMutation.mutate()}><Save className="size-4" />{detailsMutation.isPending ? "Menyimpan..." : "Simpan Detail"}</Button>
+			  </section>
               {/* KPI row */}
               <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
                 {[

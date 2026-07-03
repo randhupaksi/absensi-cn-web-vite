@@ -107,7 +107,7 @@ export function TeacherSection({
 
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
-    queryFn: getAdminClasses,
+    queryFn: () => getAdminClasses(),
   });
   const schoolYearsQuery = useQuery({
     queryKey: ["admin-school-years"],

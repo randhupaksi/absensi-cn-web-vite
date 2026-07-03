@@ -86,16 +86,26 @@ export type AdminSubjectSchedule = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
+  room_id?: string;
+  room_name?: string;
+  effective_from?: string;
+  effective_until?: string;
+  is_active: boolean;
 };
 
 export type AdminSubjectScheduleInput = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
+  room_id?: string;
+  effective_from?: string;
+  effective_until?: string;
+  is_active?: boolean;
 };
 
 export type AdminTeacherSubjectAssignment = {
   id: string;
+  offering_id?: string;
   teacher_id: string;
   teacher_name: string;
   subject_id: string;
@@ -105,15 +115,26 @@ export type AdminTeacherSubjectAssignment = {
   class_name: string;
   school_year_id: string;
   school_year_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  assignment_role: "PRIMARY" | "ASSISTANT" | "SUBSTITUTE" | string;
+  is_primary: boolean;
+  effective_from?: string;
+  effective_until?: string;
   is_active: boolean;
   schedules: AdminSubjectSchedule[];
 };
 
 export type AdminTeacherSubjectAssignmentPayload = {
+  offering_id?: string;
   teacher_id: string;
   subject_id: string;
   class_id: string;
   school_year_id: string;
+  assignment_role?: "PRIMARY" | "ASSISTANT" | "SUBSTITUTE";
+  is_primary?: boolean;
+  effective_from?: string;
+  effective_until?: string;
   is_active: boolean;
   schedules?: AdminSubjectScheduleInput[];
 };
@@ -141,6 +162,9 @@ export type AdminSubject = {
   code: string;
   name: string;
   group?: string;
+  description?: string;
+  scope: "ALL" | "SMA" | "SMK" | string;
+  program_ids: string[];
   is_active: boolean;
   assignment_count: number;
   teacher_count: number;
@@ -152,6 +176,9 @@ export type AdminSubjectPayload = {
   code: string;
   name: string;
   group: string;
+  description: string;
+  scope: "ALL" | "SMA" | "SMK";
+  program_ids: string[];
   is_active: boolean;
 };
 
@@ -167,9 +194,15 @@ export type AdminSubjectScheduleOverview = {
   class_name: string;
   school_year_id: string;
   school_year_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
+  room_id?: string;
+  room_name?: string;
+  effective_from?: string;
+  effective_until?: string;
   is_active: boolean;
 };
 
@@ -179,6 +212,7 @@ export type AdminSubjectScheduleFilters = {
   subject_id?: string;
   class_id?: string;
   school_year_id?: string;
+  school_unit_id?: string;
   day?: string;
   status?: string;
 };
@@ -193,13 +227,19 @@ export type AdminSchoolYear = {
 
 export type AdminMajor = {
   id: string;
+  school_unit_id: string;
+  school_unit_code: string;
   code: string;
   name: string;
+  program_type: "VOCATIONAL" | "GENERAL" | "SCIENCE" | "SOCIAL" | string;
   is_active: boolean;
 };
 
 export type AdminClass = {
   id: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  school_unit_name: string;
   grade: string;
   name: string;
   major_id: string;
@@ -214,15 +254,99 @@ export type AdminClass = {
   homeroom_teacher_id?: string;
   homeroom_teacher_name?: string;
   attendance_record_count: number;
+  capacity: number;
   is_active: boolean;
 };
 
 export type AdminClassPayload = {
+  school_unit_id: string;
   grade: string;
   name: string;
   major_id: string;
   school_year_id: string;
+  capacity: number;
   is_active: boolean;
+};
+
+export type AdminSchoolUnit = {
+  id: string;
+  code: string;
+  name: string;
+  education_level: string;
+  is_active: boolean;
+};
+
+export type AdminSchoolUnitPayload = Omit<AdminSchoolUnit, "id">;
+
+export type AdminMajorPayload = {
+  school_unit_id: string;
+  code: string;
+  name: string;
+  program_type: "VOCATIONAL" | "GENERAL" | "SCIENCE" | "SOCIAL";
+  is_active: boolean;
+};
+
+export type AdminSubjectOffering = {
+  id: string;
+  subject_id: string;
+  subject_code: string;
+  subject_name: string;
+  class_id: string;
+  class_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  school_year_id: string;
+  school_year_name: string;
+  weekly_hours: number;
+  is_required: boolean;
+  is_active: boolean;
+};
+
+export type AdminSubjectOfferingPayload = {
+  subject_id: string;
+  class_id: string;
+  school_year_id: string;
+  weekly_hours: number;
+  is_required: boolean;
+  is_active: boolean;
+};
+
+export type AdminRoom = {
+  id: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  code: string;
+  name: string;
+  room_type: string;
+  capacity: number;
+  is_active: boolean;
+};
+
+export type AdminRoomPayload = Omit<AdminRoom, "id" | "school_unit_code">;
+
+export type AdminScheduleOverride = {
+  id: string;
+  schedule_id: string;
+  original_date: string;
+  override_type: "CANCELLED" | "RESCHEDULED" | "SUBSTITUTE" | "ROOM_CHANGED" | string;
+  replacement_date?: string;
+  replacement_start_time?: string;
+  replacement_end_time?: string;
+  replacement_room_id?: string;
+  substitute_teacher_id?: string;
+  reason: string;
+  status: "ACTIVE" | "CANCELLED" | "APPLIED" | string;
+};
+
+export type AdminScheduleOverridePayload = Omit<AdminScheduleOverride, "id">;
+
+export type AdminBKUnitScope = {
+  id: string;
+  user_id: string;
+  user_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  school_unit_name: string;
 };
 
 export type AdminStudent = {

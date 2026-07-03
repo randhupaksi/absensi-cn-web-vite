@@ -370,6 +370,13 @@ export async function getTeacherSubjectAttendance(sessionId: string) {
   }
 }
 
+export async function updateTeacherSubjectSessionDetails(sessionId: string, payload: { topic: string; notes: string }) {
+  try {
+    const response = await apiClient.put<ApiEnvelope<StaffSubjectCurrentSession>>(`/teacher/subject/sessions/${sessionId}/details`, payload);
+    return response.data.data;
+  } catch (error) { throw new Error(getErrorMessage(error)); }
+}
+
 export async function submitTeacherSubjectValidation(payload: StaffSubjectValidationPayload) {
   try {
     const response = await apiClient.post<ApiEnvelope<StaffSubjectCurrentSession>>(

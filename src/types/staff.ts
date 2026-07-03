@@ -70,6 +70,8 @@ export type StaffStudentSummary = {
   gender?: string;
   class_id?: string;
   class_name?: string;
+  school_unit_id?: string;
+  school_unit_code?: string;
   school_year_id?: string;
   school_year_name?: string;
   membership_id?: string;
@@ -89,6 +91,10 @@ export type StaffAttendanceRecord = {
   nis: string;
   class_id: string;
   class_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  major_id: string;
+  major_code: string;
   school_year_id: string;
   school_year_name: string;
   attendance_date: string;
@@ -134,6 +140,8 @@ export type StaffHomeroomSubmissionOverview = {
 export type StaffBKClassSummary = {
   class_id: string;
   class_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
   school_year_id?: string;
   school_year_name?: string;
 };
@@ -246,6 +254,11 @@ export type StaffSubjectSchedule = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
+  room_id?: string;
+  room_name?: string;
+  effective_from?: string;
+  effective_until?: string;
+  is_active: boolean;
 };
 
 export type StaffSubjectAssignment = {
@@ -257,6 +270,12 @@ export type StaffSubjectAssignment = {
   class_name: string;
   school_year_id: string;
   school_year_name: string;
+  school_unit_id: string;
+  school_unit_code: string;
+  assignment_role: string;
+  is_primary: boolean;
+  effective_from?: string;
+  effective_until?: string;
   is_active: boolean;
   schedules: StaffSubjectSchedule[];
 };
@@ -270,6 +289,10 @@ export type StaffSubjectCurrentSession = {
   jam_selesai: string;
   tanggal: string;
   status: string;
+  topic?: string;
+  notes?: string;
+  opened_at?: string;
+  closed_at?: string;
   divalidasi_oleh?: string;
   divalidasi_at?: string;
 };
@@ -339,6 +362,10 @@ export type StaffSubjectSessionListItem = {
   jam_selesai: string;
   tanggal: string;
   status: string;
+  topic?: string;
+  notes?: string;
+  opened_at?: string;
+  closed_at?: string;
   divalidasi_oleh?: string;
   divalidasi_at?: string;
 };

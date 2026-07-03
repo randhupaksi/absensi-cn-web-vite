@@ -10,6 +10,8 @@ export type StudentProfile = {
   is_active: boolean;
   class_id?: string;
   class_name?: string;
+  school_unit_id?: string;
+  school_unit_code?: string;
   major_code?: string;
   major_name?: string;
   school_year_id?: string;

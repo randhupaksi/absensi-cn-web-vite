@@ -23,7 +23,7 @@ export function AdminTeachersPage() {
   });
   const teacherSubjectAssignmentsQuery = useQuery({
     queryKey: ["admin-teacher-subject-assignments"],
-    queryFn: getAdminTeacherSubjectAssignments,
+    queryFn: () => getAdminTeacherSubjectAssignments(),
   });
   const homeroomAssignmentsQuery = useQuery({
     queryKey: ["admin-homeroom-assignments"],

@@ -26,6 +26,8 @@ import {
 } from "@/services/admin.service";
 import type {
   AdminClass,
+  AdminMajor,
+  AdminRoom,
   AdminSchoolYear,
   AdminSubject,
   AdminSubjectScheduleOverview,
@@ -54,6 +56,8 @@ type SubjectManagementSectionProps = {
   teachers: AdminTeacherProfile[];
   classes: AdminClass[];
   schoolYears: AdminSchoolYear[];
+  programs: AdminMajor[];
+  rooms: AdminRoom[];
   isLoading: boolean;
   errorMessage?: string;
 };
@@ -67,6 +71,8 @@ export function SubjectManagementSection({
   teachers,
   classes,
   schoolYears,
+  programs,
+  rooms,
   isLoading,
   errorMessage,
 }: SubjectManagementSectionProps) {
@@ -484,6 +490,7 @@ export function SubjectManagementSection({
         open={subjectModalOpen || Boolean(editingSubject)}
         onOpenChange={(open) => { if (!open) { setSubjectModalOpen(false); setEditingSubject(null); } }}
         isPending={createSubjectMutation.isPending || updateSubjectMutation.isPending}
+        programs={programs}
         onSubmit={(values) => editingSubject ? updateSubjectMutation.mutate({ id: editingSubject.id, values }) : createSubjectMutation.mutate(values)}
       />
       <TeachingAssignmentFormModal
@@ -495,6 +502,7 @@ export function SubjectManagementSection({
         subjects={subjects}
         classes={classes}
         schoolYears={schoolYears}
+        rooms={rooms}
         isPending={createAssignmentMutation.isPending || updateAssignmentMutation.isPending}
         onSubmit={(values) => editingAssignment ? updateAssignmentMutation.mutate({ id: editingAssignment.id, values }) : createAssignmentMutation.mutate(values)}
       />

@@ -2,12 +2,14 @@
 
 import { AdminShell } from "@/components/dashboard/admin/shell/admin-shell";
 import { ClassManagementSection } from "@/components/dashboard/admin/sections/class-management-section";
+import { AcademicStructureSection } from "@/components/dashboard/admin/sections/academic-structure-section";
 import {
   getAdminClasses,
   getAdminMajors,
   getAdminSchoolYears,
+  getAdminSchoolUnits,
 } from "@/services/admin.service";
-import type { AdminClass, AdminMajor, AdminSchoolYear } from "@/types/admin";
+import type { AdminClass, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -16,36 +18,41 @@ export function AdminClassesPage() {
 
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
-    queryFn: getAdminClasses,
+    queryFn: () => getAdminClasses(),
   });
   const majorsQuery = useQuery({
     queryKey: ["admin-majors"],
-    queryFn: getAdminMajors,
+    queryFn: () => getAdminMajors(),
   });
   const schoolYearsQuery = useQuery({
     queryKey: ["admin-school-years"],
     queryFn: getAdminSchoolYears,
   });
+	const schoolUnitsQuery = useQuery({ queryKey: ["admin-school-units"], queryFn: getAdminSchoolUnits });
 
   const classes: AdminClass[] = classesQuery.data ?? [];
   const majors: AdminMajor[] = majorsQuery.data ?? [];
   const schoolYears: AdminSchoolYear[] = schoolYearsQuery.data ?? [];
+	const schoolUnits: AdminSchoolUnit[] = schoolUnitsQuery.data ?? [];
 
   return (
     <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
-      {() => (
+      {() => (<>
         <ClassManagementSection
           classes={classes}
           majors={majors}
           schoolYears={schoolYears}
-          isLoading={classesQuery.isLoading || majorsQuery.isLoading || schoolYearsQuery.isLoading}
+          schoolUnits={schoolUnits}
+          isLoading={classesQuery.isLoading || majorsQuery.isLoading || schoolYearsQuery.isLoading || schoolUnitsQuery.isLoading}
           errorMessage={
             classesQuery.error?.message ??
             majorsQuery.error?.message ??
             schoolYearsQuery.error?.message
+			?? schoolUnitsQuery.error?.message
           }
         />
-      )}
+		<AcademicStructureSection units={schoolUnits} programs={majors} isLoading={majorsQuery.isLoading || schoolUnitsQuery.isLoading} />
+	  </>)}
     </AdminShell>
   );
 }

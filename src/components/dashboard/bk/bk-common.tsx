@@ -6,11 +6,11 @@ import { formatDisplayLabel } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 
-export const classFilterOptions = (classes: Array<{ class_id: string; class_name: string }>) => [
+export const classFilterOptions = (classes: Array<{ class_id: string; class_name: string; school_unit_code?: string }>) => [
   { value: "Semua", label: "Semua kelas" },
   ...classes.map((item) => ({
     value: item.class_id,
-    label: item.class_name,
+    label: item.school_unit_code ? `[${item.school_unit_code}] ${item.class_name}` : item.class_name,
   })),
 ];
 

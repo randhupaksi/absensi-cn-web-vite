@@ -11,25 +11,29 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
-import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolYear } from "@/types/admin";
+import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
 import { Building2 } from "lucide-react";
 import { useState } from "react";
 
 type ClassFormState = {
+  school_unit_id: string;
   grade: string;
   name: string;
   major_id: string;
   school_year_id: string;
+  capacity: number;
   is_active: boolean;
 };
 
 type ClassFormField = keyof ClassFormState;
 
 const EMPTY_FORM: ClassFormState = {
+  school_unit_id: "",
   grade: "",
   name: "",
   major_id: "",
   school_year_id: "",
+  capacity: 36,
   is_active: true,
 };
 
@@ -55,6 +59,7 @@ export function ClassFormModal({
   open,
   initialData,
   majors,
+  schoolUnits,
   schoolYears,
   isSubmitting,
   onOpenChange,
@@ -65,6 +70,7 @@ export function ClassFormModal({
   open: boolean;
   initialData?: AdminClass;
   majors: AdminMajor[];
+  schoolUnits: AdminSchoolUnit[];
   schoolYears: AdminSchoolYear[];
   isSubmitting?: boolean;
   onOpenChange: (open: boolean) => void;
@@ -73,10 +79,12 @@ export function ClassFormModal({
   const [form, setForm] = useState<ClassFormState>(() =>
     initialData
       ? {
+          school_unit_id: initialData.school_unit_id,
           grade: initialData.grade,
           name: initialData.name,
           major_id: initialData.major_id,
           school_year_id: initialData.school_year_id,
+          capacity: initialData.capacity || 36,
           is_active: initialData.is_active,
         }
       : EMPTY_FORM,
@@ -86,6 +94,7 @@ export function ClassFormModal({
   const validate = () => {
     const nextErrors: FieldErrors<ClassFormField> = {};
     validateRequired(nextErrors, "grade", form.grade, "Tingkat kelas");
+	validateRequired(nextErrors, "school_unit_id", form.school_unit_id, "Unit sekolah");
     validateRequired(nextErrors, "name", form.name, "Nama rombel");
     validateRequired(nextErrors, "major_id", form.major_id, "Jurusan");
     validateRequired(nextErrors, "school_year_id", form.school_year_id, "Tahun ajaran");
@@ -96,10 +105,12 @@ export function ClassFormModal({
   const handleSubmit = () => {
     if (!validate()) return;
     onSubmit({
+      school_unit_id: form.school_unit_id,
       grade: form.grade,
       name: form.name.trim(),
       major_id: form.major_id,
       school_year_id: form.school_year_id,
+      capacity: form.capacity,
       is_active: form.is_active,
     });
   };
@@ -139,6 +150,13 @@ export function ClassFormModal({
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
+		  <FieldGroup label="Unit Sekolah">
+			<Select value={form.school_unit_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_unit_id: v ?? "", major_id: "" }))}>
+			  <SelectTrigger className={SELECT_TRIGGER_CN} style={SELECT_TRIGGER_STYLE}><span className={form.school_unit_id ? "text-slate-700" : "text-slate-400"}>{schoolUnits.find((unit) => unit.id === form.school_unit_id)?.name ?? "Pilih unit"}</span></SelectTrigger>
+			  <SelectContent className={SELECT_CONTENT_CN}>{schoolUnits.filter((unit) => unit.is_active).map((unit) => <SelectItem key={unit.id} value={unit.id} className={SELECT_ITEM_CN}>{unit.code} - {unit.name}</SelectItem>)}</SelectContent>
+			</Select>
+			<FieldError message={errors.school_unit_id} />
+		  </FieldGroup>
           <FieldGroup label="Jurusan">
             <Select value={form.major_id} onValueChange={(v) => setForm((prev) => ({ ...prev, major_id: v ?? "" }))}>
               <SelectTrigger className={SELECT_TRIGGER_CN} style={SELECT_TRIGGER_STYLE}>
@@ -147,7 +165,7 @@ export function ClassFormModal({
                 </span>
               </SelectTrigger>
               <SelectContent className={SELECT_CONTENT_CN}>
-                {majors.map((major) => (
+                {majors.filter((major) => !form.school_unit_id || major.school_unit_id === form.school_unit_id).map((major) => (
                   <SelectItem key={major.id} value={major.id} className={SELECT_ITEM_CN}>
                     {major.code} - {major.name}
                   </SelectItem>
@@ -173,6 +191,10 @@ export function ClassFormModal({
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
         </div>
+
+		<FieldGroup label="Kapasitas Kelas">
+		  <Input type="number" min={1} value={form.capacity} onChange={(e) => setForm((prev) => ({ ...prev, capacity: Number(e.target.value) || 36 }))} className={INPUT_CN} />
+		</FieldGroup>
 
         <FieldGroup label="Status Kelas">
           <Select value={form.is_active ? "active" : "inactive"} onValueChange={(v) => setForm((prev) => ({ ...prev, is_active: v === "active" }))}>
