@@ -54,7 +54,7 @@ export function PremiumModal({
           className,
         )}
       >
-        <div className="relative flex items-start gap-4 overflow-hidden border-b border-slate-300/22 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(244,250,246,0.82)_100%)] px-[1.3rem] pt-[1.25rem] pb-[1.1rem] after:absolute after:inset-x-[1.3rem] after:bottom-0 after:h-px after:bg-[linear-gradient(90deg,rgba(16,185,129,0.08)_0%,rgba(16,185,129,0.18)_22%,rgba(148,163,184,0.16)_52%,rgba(16,185,129,0.18)_78%,rgba(16,185,129,0.08)_100%)]">
+        <div className="relative flex shrink-0 items-start gap-4 border-b border-slate-300/22 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(244,250,246,0.82)_100%)] px-[1.3rem] pt-[1.25rem] pb-[1.1rem] after:absolute after:inset-x-[1.3rem] after:bottom-0 after:h-px after:bg-[linear-gradient(90deg,rgba(16,185,129,0.08)_0%,rgba(16,185,129,0.18)_22%,rgba(148,163,184,0.16)_52%,rgba(16,185,129,0.18)_78%,rgba(16,185,129,0.08)_100%)]">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#8df0c1_0%,#34d399_38%,#0f766e_100%)] text-white shadow-[0_14px_24px_rgba(16,185,129,0.2)]">
             <Icon className="size-5" />
           </span>

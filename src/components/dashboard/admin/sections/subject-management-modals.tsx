@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   PremiumModal,
   premiumModalFieldClassName,
@@ -27,9 +35,11 @@ import type {
   AdminTeacherSubjectAssignment,
 } from "@/types/admin";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpenCheck, Plus, Sparkles, Trash2 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { id as localeID } from "date-fns/locale";
+import { BookOpenCheck, CalendarIcon, Plus, Sparkles, Trash2 } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const INPUT_CN =
   "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)]";
@@ -310,8 +320,70 @@ export function TeachingAssignmentFormModal({
 		      ]} />
 		    )} />
 		  </div>
-		  <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Berlaku Mulai</label><Input type="date" className={INPUT_CN} {...form.register("effective_from")} /></div>
-		  <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Berlaku Sampai</label><Input type="date" className={INPUT_CN} {...form.register("effective_until")} /></div>
+		  <div className={premiumModalFieldClassName}>
+		    <label className={premiumModalLabelClassName}>Berlaku Mulai</label>
+		    <Controller
+		      control={form.control}
+		      name="effective_from"
+		      render={({ field }) => {
+		        const [open, setOpen] = useState(false);
+		        const parsed = field.value ? parseISO(field.value) : undefined;
+		        return (
+		          <Popover open={open} onOpenChange={setOpen}>
+		            <PopoverTrigger render={<Button type="button" variant="outline" />} className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30">
+		              <div className="flex items-center gap-3">
+		                <span className="flex size-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+		                  <CalendarIcon className="size-4" />
+		                </span>
+		                <div>
+		                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Berlaku Mulai</p>
+		                  <p className="text-sm font-medium text-slate-700">{parsed ? format(parsed, "d MMMM yyyy", { locale: localeID }) : "Pilih tanggal"}</p>
+		                </div>
+		              </div>
+		            </PopoverTrigger>
+		            <PopoverContent sideOffset={10} className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]">
+		              <PopoverHeader className="px-4 pt-3 pb-2">
+		                <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal</PopoverTitle>
+		              </PopoverHeader>
+		              <Calendar mode="single" selected={parsed} onSelect={(date) => { field.onChange(date ? format(date, "yyyy-MM-dd") : ""); setOpen(false); }} locale={localeID} buttonVariant="ghost" />
+		            </PopoverContent>
+		          </Popover>
+		        );
+		      }}
+		    />
+		  </div>
+		  <div className={premiumModalFieldClassName}>
+		    <label className={premiumModalLabelClassName}>Berlaku Sampai</label>
+		    <Controller
+		      control={form.control}
+		      name="effective_until"
+		      render={({ field }) => {
+		        const [open, setOpen] = useState(false);
+		        const parsed = field.value ? parseISO(field.value) : undefined;
+		        return (
+		          <Popover open={open} onOpenChange={setOpen}>
+		            <PopoverTrigger render={<Button type="button" variant="outline" />} className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30">
+		              <div className="flex items-center gap-3">
+		                <span className="flex size-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+		                  <CalendarIcon className="size-4" />
+		                </span>
+		                <div>
+		                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Berlaku Sampai</p>
+		                  <p className="text-sm font-medium text-slate-700">{parsed ? format(parsed, "d MMMM yyyy", { locale: localeID }) : "Pilih tanggal"}</p>
+		                </div>
+		              </div>
+		            </PopoverTrigger>
+		            <PopoverContent sideOffset={10} className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]">
+		              <PopoverHeader className="px-4 pt-3 pb-2">
+		                <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal</PopoverTitle>
+		              </PopoverHeader>
+		              <Calendar mode="single" selected={parsed} onSelect={(date) => { field.onChange(date ? format(date, "yyyy-MM-dd") : ""); setOpen(false); }} locale={localeID} buttonVariant="ghost" />
+		            </PopoverContent>
+		          </Popover>
+		        );
+		      }}
+		    />
+		  </div>
 		</div>
 
         {/* Slot Jadwal */}
