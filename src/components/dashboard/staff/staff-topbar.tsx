@@ -55,6 +55,7 @@ export function StaffTopbar({
                 alt={`Avatar ${userLabel}`}
                 width={34}
                 height={34}
+                priority
                 className="rounded-full"
                 style={{ width: "auto", height: "auto" }}
               />

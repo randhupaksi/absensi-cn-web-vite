@@ -64,6 +64,7 @@ export function StaffSidebar({
                   alt="Logo SMK Citra Negara"
                   width={52}
                   height={52}
+                  priority
                   className="object-contain"
                   style={{ width: "auto", height: "auto" }}
                 />
