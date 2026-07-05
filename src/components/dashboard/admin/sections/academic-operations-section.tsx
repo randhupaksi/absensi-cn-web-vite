@@ -1,24 +1,22 @@
-import { ActionButtons, DataTable, DataTableBody, DataTableCard, DataTableCell, DataTableHeadRow, DataTableRow, StatCard, StatusBadge } from "@/components/dashboard/admin/sections/section-ui";
+import { ActionButtons, AddButton, DataTable, DataTableBody, DataTableCard, DataTableCell, DataTableHeadRow, DataTableRow, SectionTabSwitch, StatCard, StatusBadge } from "@/components/dashboard/admin/sections/section-ui";
 import { ScheduleOverrideModal, RoomModal, SubjectOfferingModal } from "@/components/dashboard/admin/sections/academic-operations-modals";
-import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { RoomFormValues, ScheduleOverrideFormValues, SubjectOfferingFormValues } from "@/lib/validations/academic-operations-schema";
 import { createAdminRoom, createAdminScheduleOverride, createAdminSubjectOffering, deleteAdminRoom, deleteAdminScheduleOverride, deleteAdminSubjectOffering, updateAdminRoom, updateAdminScheduleOverride, updateAdminSubjectOffering } from "@/services/admin.service";
 import type { AdminClass, AdminRoom, AdminScheduleOverride, AdminSchoolUnit, AdminSchoolYear, AdminSubject, AdminSubjectOffering, AdminSubjectScheduleOverview, AdminTeacherProfile } from "@/types/admin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BookPlus, CalendarSync, DoorOpen, Plus } from "lucide-react";
+import { BookPlus, CalendarSync, DoorOpen } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 type Tab = "offerings" | "rooms" | "overrides";
 
 const ADD_LABELS: Record<Tab, string> = {
-  offerings: "Tambah Penawaran",
-  rooms: "Tambah Ruangan",
-  overrides: "Tambah Perubahan Jadwal",
+  offerings: "Penawaran",
+  rooms: "Ruangan",
+  overrides: "Perubahan Jadwal",
 };
 
 export function AcademicOperationsSection({ offerings, rooms, overrides, subjects, classes, schoolYears, schoolUnits, schedules, teachers, isLoading }: {
@@ -49,14 +47,20 @@ export function AcademicOperationsSection({ offerings, rooms, overrides, subject
 
   return <>
     <section className="relative mt-6 overflow-hidden rounded-[30px] border border-white/75 bg-white/95 p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] sm:p-5 lg:p-6">
-      <div className="flex flex-col gap-5 border-b border-slate-200/80 pb-5 lg:flex-row lg:items-start lg:justify-between">
+      <Tabs value={tab} onValueChange={(value) => { setTab(value as Tab); setCreateOpen(false); }}>
+      <div className="flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
         <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Academic Operations</p><h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Operasional Jadwal Mapel</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Kelola ketersediaan mapel per kelas, ruang belajar, serta perubahan jadwal tanpa mengubah histori.</p></div>
+        <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">{cards.map((card) => <StatCard key={card.label} {...card} />)}</div>
+        <SectionTabSwitch
+          tabs={[
+            { value: "offerings", label: "Penawaran Mapel", icon: BookPlus },
+            { value: "rooms", label: "Ruangan", icon: DoorOpen },
+            { value: "overrides", label: "Perubahan Jadwal", icon: CalendarSync },
+          ]}
+        />
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-3">{cards.map((card) => <StatCard key={card.label} {...card} />)}</div>
-      <Tabs value={tab} onValueChange={(value) => { setTab(value as Tab); setCreateOpen(false); }} className="mt-5">
-        <ScrollableTabsWrapper><TabsList className="h-auto w-max min-w-full justify-start gap-2 rounded-[22px] bg-emerald-50/70 p-2"><TabsTrigger value="offerings" className="rounded-[16px] px-5 py-3">Penawaran Mapel</TabsTrigger><TabsTrigger value="rooms" className="rounded-[16px] px-5 py-3">Ruangan</TabsTrigger><TabsTrigger value="overrides" className="rounded-[16px] px-5 py-3">Perubahan Jadwal</TabsTrigger></TabsList></ScrollableTabsWrapper>
         <div className="mt-3 flex justify-end">
-          <Button className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white" onClick={() => setCreateOpen(true)}><Plus className="size-4" />{ADD_LABELS[tab]}</Button>
+          <AddButton label={ADD_LABELS[tab]} onClick={() => setCreateOpen(true)} />
         </div>
         <TabsContent value="offerings" className="mt-4"><DataTableCard isLoading={isLoading} columnCount={7} isEmpty={offerings.length === 0} emptyTitle="Belum ada penawaran mapel" emptyDescription="Tambahkan mapel ke kelas dan tahun ajaran." icon={BookPlus}><DataTable><DataTableHeadRow labels={["Mapel", "Kelas", "Unit", "Tahun", "JP/Minggu", "Status", "Aksi"]} /><DataTableBody>{offerings.map((item) => <DataTableRow key={item.id}><DataTableCell><b>{item.subject_code}</b><small>{item.subject_name}</small></DataTableCell><DataTableCell>{item.class_name}</DataTableCell><DataTableCell><Pill>{item.school_unit_code}</Pill></DataTableCell><DataTableCell>{item.school_year_name}</DataTableCell><DataTableCell>{item.weekly_hours} JP</DataTableCell><DataTableCell><StatusBadge isActive={item.is_active} /></DataTableCell><DataTableCell><ActionButtons onEdit={() => setEditingOffering(item)} onDelete={() => setDeleteTarget({ id: item.id, label: `${item.subject_code} · ${item.class_name}`, kind: "offerings" })} /></DataTableCell></DataTableRow>)}</DataTableBody></DataTable></DataTableCard></TabsContent>
         <TabsContent value="rooms" className="mt-4"><DataTableCard isLoading={isLoading} columnCount={6} isEmpty={rooms.length === 0} emptyTitle="Belum ada ruangan" emptyDescription="Tambahkan ruang yang dapat dipakai jadwal." icon={DoorOpen}><DataTable><DataTableHeadRow labels={["Kode", "Nama", "Unit", "Tipe", "Kapasitas", "Aksi"]} /><DataTableBody>{rooms.map((item) => <DataTableRow key={item.id}><DataTableCell><b>{item.code}</b></DataTableCell><DataTableCell>{item.name}</DataTableCell><DataTableCell><Pill>{item.school_unit_code}</Pill></DataTableCell><DataTableCell>{item.room_type}</DataTableCell><DataTableCell>{item.capacity}</DataTableCell><DataTableCell><ActionButtons onEdit={() => setEditingRoom(item)} onDelete={() => setDeleteTarget({ id: item.id, label: item.name, kind: "rooms" })} /></DataTableCell></DataTableRow>)}</DataTableBody></DataTable></DataTableCard></TabsContent>

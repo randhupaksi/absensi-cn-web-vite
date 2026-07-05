@@ -3,23 +3,24 @@
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import {
   ActionButtons,
+  AddButton,
   DataTable,
   DataTableBody,
   DataTableCard,
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  SearchFilterBar,
   StatCard,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { ClassFormModal } from "@/components/dashboard/admin/sections/class-management-modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { createAdminClass, deleteAdminClass, updateAdminClass } from "@/services/admin.service";
 import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, Plus, Search, ShieldCheck, SlidersHorizontal, Users } from "lucide-react";
+import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, ShieldCheck, Users } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -195,18 +196,7 @@ export function ClassManagementSection({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <div className="flex h-14 items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]">
-                <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
-                  <SlidersHorizontal className="size-4" />
-                </span>
-                <Search className="size-4 text-slate-400" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Cari kelas, jurusan, walas"
-                  className="w-full min-w-[180px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:min-w-[260px]"
-                />
-              </div>
+              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari kelas, jurusan, walas" />
 
               <div className="w-full sm:w-[180px]">
                 <RadixSelectField
@@ -218,16 +208,7 @@ export function ClassManagementSection({
                 />
               </div>
 
-              <Button
-                variant="outline"
-                className="h-14 rounded-[22px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-5 text-sm font-semibold text-emerald-900 shadow-[0_16px_30px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(228,250,239,1)_100%)] hover:text-emerald-950"
-                onClick={() => setModalOpen(true)}
-              >
-                <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.18)]">
-                  <Plus className="size-4" />
-                </span>
-                Tambah
-              </Button>
+              <AddButton label="Kelas" onClick={() => setModalOpen(true)} />
             </div>
           </div>
         </div>

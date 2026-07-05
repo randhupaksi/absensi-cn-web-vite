@@ -1,5 +1,4 @@
-import { ActionButtons, DataTable, DataTableBody, DataTableCard, DataTableCell, DataTableHeadRow, DataTableRow, StatCard, StatusBadge } from "@/components/dashboard/admin/sections/section-ui";
-import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
+import { ActionButtons, AddButton, DataTable, DataTableBody, DataTableCard, DataTableCell, DataTableHeadRow, DataTableRow, SectionTabSwitch, StatCard, StatusBadge } from "@/components/dashboard/admin/sections/section-ui";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { PremiumModal, premiumModalFieldClassName, premiumModalLabelClassName } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";
@@ -7,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { programSchema, schoolUnitSchema, type ProgramFormValues, type SchoolUnitFormValues } from "@/lib/validations/academic-structure-schema";
 import { createAdminMajor, createAdminSchoolUnit, deleteAdminMajor, deleteAdminSchoolUnit, updateAdminMajor, updateAdminSchoolUnit } from "@/services/admin.service";
 import type { AdminMajor, AdminSchoolUnit } from "@/types/admin";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Building2, Network, Plus, School } from "lucide-react";
+import { Building2, Network, School } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -40,9 +39,12 @@ export function AcademicStructureSection({ units, programs, isLoading }: { units
 
   return <>
     <section className="mt-6 rounded-[30px] border border-white/75 bg-white/95 p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] sm:p-5 lg:p-6">
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Multi-unit Foundation</p><h2 className="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">Unit & Program Sekolah</h2><p className="mt-2 text-sm leading-6 text-slate-600">Satu struktur untuk SMA dan SMK; kelas, siswa, mapel, dan jadwal mengikuti relasi ini.</p></div><Button className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white" onClick={() => setCreateOpen(true)}><Plus className="size-4" />Tambah</Button></div>
-      <div className="mt-5 grid grid-cols-2 gap-3"><StatCard label="Unit Aktif" value={units.filter((x) => x.is_active).length} icon={School} accentClass="from-emerald-500 to-teal-500" /><StatCard label="Program Aktif" value={programs.filter((x) => x.is_active).length} icon={Network} accentClass="from-sky-500 to-emerald-500" /></div>
-      <Tabs value={tab} onValueChange={(value) => { setTab(value as StructureTab); setCreateOpen(false); }} className="mt-5"><ScrollableTabsWrapper><TabsList className="h-auto w-max min-w-full justify-start gap-2 rounded-[22px] bg-emerald-50/70 p-2"><TabsTrigger value="units" className="rounded-[16px] px-5 py-3">Unit Sekolah</TabsTrigger><TabsTrigger value="programs" className="rounded-[16px] px-5 py-3">Program/Jurusan</TabsTrigger></TabsList></ScrollableTabsWrapper>
+      <Tabs value={tab} onValueChange={(value) => { setTab(value as StructureTab); setCreateOpen(false); }}>
+      <div className="flex flex-col gap-4 border-b border-slate-200 pb-8 sm:gap-6"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Multi-unit Foundation</p><h2 className="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">Unit & Program Sekolah</h2><p className="mt-2 text-sm leading-6 text-slate-600">Satu struktur untuk SMA dan SMK; kelas, siswa, mapel, dan jadwal mengikuti relasi ini.</p></div>
+      <div className="grid grid-cols-2 gap-3"><StatCard label="Unit Aktif" value={units.filter((x) => x.is_active).length} icon={School} accentClass="from-emerald-500 to-teal-500" /><StatCard label="Program Aktif" value={programs.filter((x) => x.is_active).length} icon={Network} accentClass="from-sky-500 to-emerald-500" /></div>
+      <SectionTabSwitch tabs={[{ value: "units", label: "Unit Sekolah", icon: School }, { value: "programs", label: "Program/Jurusan", icon: Network }]} />
+      </div>
+        <div className="mt-3 flex justify-end"><AddButton label={tab === "units" ? "Unit Sekolah" : "Program"} onClick={() => setCreateOpen(true)} /></div>
         <TabsContent value="units" className="mt-4"><DataTableCard isLoading={isLoading} columnCount={5} isEmpty={!units.length} emptyTitle="Belum ada unit sekolah" emptyDescription="Tambahkan SMA atau SMK." icon={School}><DataTable><DataTableHeadRow labels={["Kode", "Nama", "Jenjang", "Status", "Aksi"]} /><DataTableBody>{units.map((item) => <DataTableRow key={item.id}><DataTableCell><b>{item.code}</b></DataTableCell><DataTableCell>{item.name}</DataTableCell><DataTableCell>{item.education_level}</DataTableCell><DataTableCell><StatusBadge isActive={item.is_active} /></DataTableCell><DataTableCell><ActionButtons onEdit={() => setUnit(item)} onDelete={() => setDeleting({ id: item.id, label: item.name, kind: "units" })} /></DataTableCell></DataTableRow>)}</DataTableBody></DataTable></DataTableCard></TabsContent>
         <TabsContent value="programs" className="mt-4"><DataTableCard isLoading={isLoading} columnCount={6} isEmpty={!programs.length} emptyTitle="Belum ada program" emptyDescription="Tambahkan jurusan SMK atau program umum SMA." icon={Building2}><DataTable><DataTableHeadRow labels={["Kode", "Nama", "Unit", "Tipe", "Status", "Aksi"]} /><DataTableBody>{programs.map((item) => <DataTableRow key={item.id}><DataTableCell><b>{item.code}</b></DataTableCell><DataTableCell>{item.name}</DataTableCell><DataTableCell><Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">{item.school_unit_code}</Badge></DataTableCell><DataTableCell>{item.program_type}</DataTableCell><DataTableCell><StatusBadge isActive={item.is_active} /></DataTableCell><DataTableCell><ActionButtons onEdit={() => setProgram(item)} onDelete={() => setDeleting({ id: item.id, label: item.name, kind: "programs" })} /></DataTableCell></DataTableRow>)}</DataTableBody></DataTable></DataTableCard></TabsContent>
       </Tabs>

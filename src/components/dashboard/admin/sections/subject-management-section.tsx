@@ -1,15 +1,17 @@
 "use client";
 
-import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import {
   ActionButtons,
+  AddButton,
   DataTable,
   DataTableBody,
   DataTableCard,
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  SearchFilterBar,
+  SectionTabSwitch,
   StatCard,
   StatusBadge,
   getInitials,
@@ -17,9 +19,8 @@ import {
 import { SubjectFormModal, TeachingAssignmentFormModal } from "@/components/dashboard/admin/sections/subject-management-modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { SubjectFormValues, TeachingAssignmentFormValues } from "@/lib/validations/subject-schema";
 import {
   createAdminSubject,
@@ -46,9 +47,6 @@ import {
   GraduationCap,
   Layers3,
   LayoutPanelTop,
-  Plus,
-  Search,
-  SlidersHorizontal,
   UsersRound,
 } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -272,24 +270,12 @@ export function SubjectManagementSection({
           </div>
 
           {/* Tab selector */}
-          <ScrollableTabsWrapper>
-            <TabsList className="h-auto w-fit min-w-max gap-2 rounded-none bg-transparent p-0 xl:min-w-0 xl:grid xl:w-full xl:grid-cols-2">
-              <TabsTrigger
-                value="subjects"
-                className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full"
-              >
-                <BookOpenCheck className="size-4" />
-                Master Mapel
-              </TabsTrigger>
-              <TabsTrigger
-                value="schedules"
-                className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full"
-              >
-                <CalendarClock className="size-4" />
-                Jadwal Mengajar
-              </TabsTrigger>
-            </TabsList>
-          </ScrollableTabsWrapper>
+          <SectionTabSwitch
+            tabs={[
+              { value: "subjects", label: "Master Mapel", icon: BookOpenCheck },
+              { value: "schedules", label: "Jadwal Mengajar", icon: CalendarClock },
+            ]}
+          />
         </div>
 
         {errorMessage ? (
@@ -298,21 +284,14 @@ export function SubjectManagementSection({
           </div>
         ) : null}
 
-        <div className="mt-5">
+        <div className="mt-3">
           {/* Filter toolbar */}
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-            <div className="flex h-14 flex-1 items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]">
-              <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
-                <SlidersHorizontal className="size-4" />
-              </span>
-              <Search className="size-4 shrink-0 text-slate-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={activeTab === "subjects" ? "Cari kode, nama, atau kelompok mapel…" : "Cari guru, mapel, atau kelas…"}
-                className="w-full min-w-[160px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-              />
-            </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <SearchFilterBar
+              value={query}
+              onChange={setQuery}
+              placeholder={activeTab === "subjects" ? "Cari kode, nama, atau kelompok mapel…" : "Cari guru, mapel, atau kelas…"}
+            />
 
             <div className="w-full sm:w-[190px]">
               <RadixSelectField
@@ -324,16 +303,10 @@ export function SubjectManagementSection({
               />
             </div>
 
-            <Button
-              variant="outline"
-              className="h-14 rounded-[22px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-5 text-sm font-semibold text-emerald-900 shadow-[0_16px_30px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(228,250,239,1)_100%)] hover:text-emerald-950"
+            <AddButton
+              label={activeTab === "subjects" ? "Mapel" : "Jadwal"}
               onClick={() => activeTab === "subjects" ? setSubjectModalOpen(true) : setAssignmentModalOpen(true)}
-            >
-              <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.18)]">
-                <Plus className="size-4" />
-              </span>
-              {activeTab === "subjects" ? "Tambah Mapel" : "Tambah Jadwal"}
-            </Button>
+            />
           </div>
 
           {/* Additional filters for schedules tab */}

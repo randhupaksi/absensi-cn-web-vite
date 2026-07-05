@@ -21,6 +21,7 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  SearchFilterBar,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
@@ -38,9 +39,7 @@ import {
   FileSearch,
   LayoutPanelTop,
   Printer,
-  Search,
   ShieldAlert,
-  SlidersHorizontal,
   TriangleAlert,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -242,18 +241,7 @@ export function BKAttendancePage() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="flex h-14 items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]">
-                  <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
-                    <SlidersHorizontal className="size-4" />
-                  </span>
-                  <Search className="size-4 text-slate-400" />
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Cari siswa, NIS, status, catatan"
-                    className="w-full min-w-[180px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:min-w-[260px]"
-                  />
-                </div>
+                <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, status, catatan" />
               </div>
             </div>
 

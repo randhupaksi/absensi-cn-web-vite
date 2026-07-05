@@ -2,15 +2,17 @@
 
 import dynamic from "@/lib/dynamic";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
-import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import {
   ActionButtons,
+  AddButton,
   DataTable,
   DataTableBody,
   DataTableCard,
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  SearchFilterBar,
+  SectionTabSwitch,
   StatCard,
   StatusBadge,
   getInitials,
@@ -33,7 +35,7 @@ import {
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Button } from "@/components/ui/button";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   createAdminAttendanceRule,
   createAdminStudent,
@@ -64,11 +66,8 @@ import {
   FileSpreadsheet,
   GraduationCap,
   LayoutPanelTop,
-  Plus,
-  Search,
   ShieldCheck,
   Printer,
-  SlidersHorizontal,
   TimerReset,
   UsersRound,
 } from "lucide-react";
@@ -400,15 +399,15 @@ export function StudentSection({
 
   const addActionConfig = {
     profiles: {
-      label: "Tambah",
+      label: "Siswa",
       onClick: () => setProfileModalOpen(true),
     },
     memberships: {
-      label: "Tambah",
+      label: "Penempatan Kelas",
       onClick: () => setMembershipModalOpen(true),
     },
     rules: {
-      label: "Tambah",
+      label: "Aturan Absensi",
       onClick: () => setRuleModalOpen(true),
     },
   } satisfies Record<StudentTab, { label: string; onClick: () => void }>;
@@ -421,7 +420,8 @@ export function StudentSection({
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
-        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as StudentTab)}>
+        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
@@ -481,47 +481,13 @@ export function StudentSection({
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="text-xs font-medium text-slate-400">
-              {activeStudentCount} siswa aktif tercatat
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <div className="flex h-14 items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]">
-                <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
-                  <SlidersHorizontal className="size-4" />
-                </span>
-                <Search className="size-4 text-slate-400" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Cari siswa, kelas, NIS, orang tua"
-                  className="w-full min-w-[180px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:min-w-[240px]"
-                />
-              </div>
-
-              <div className="w-full sm:w-[190px]">
-                <RadixSelectField
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                  placeholder="Pilih status"
-                  options={statusOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
-                />
-              </div>
-
-              <Button
-                variant="outline"
-                className="h-14 rounded-[22px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-5 text-sm font-semibold text-emerald-900 shadow-[0_16px_30px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(228,250,239,1)_100%)] hover:text-emerald-950"
-                onClick={activeAction.onClick}
-              >
-                <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.18)]">
-                  <Plus className="size-4" />
-                </span>
-                {activeAction.label}
-              </Button>
-            </div>
-          </div>
+          <SectionTabSwitch
+            tabs={[
+              { value: "profiles", label: "Profil Siswa", icon: UsersRound },
+              { value: "memberships", label: "Penempatan Kelas", icon: GraduationCap },
+              { value: "rules", label: "Aturan Absensi", icon: TimerReset },
+            ]}
+          />
         </div>
 
         {errorMessage ? (
@@ -535,23 +501,29 @@ export function StudentSection({
           </div>
         ) : null}
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as StudentTab)} className="mt-5 gap-4">
-          <ScrollableTabsWrapper>
-            <TabsList className="flex min-w-max gap-2 rounded-[24px] border border-emerald-100/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(242,250,246,0.92)_100%)] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_16px_30px_rgba(15,23,42,0.04)] xl:min-w-0 xl:grid xl:w-full xl:grid-cols-3">
-              <TabsTrigger value="profiles" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
-                <UsersRound className="size-4" />
-                Profil Siswa
-              </TabsTrigger>
-              <TabsTrigger value="memberships" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
-                <GraduationCap className="size-4" />
-                Penempatan Kelas
-              </TabsTrigger>
-              <TabsTrigger value="rules" className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full">
-                <TimerReset className="size-4" />
-                Aturan Absensi
-              </TabsTrigger>
-            </TabsList>
-          </ScrollableTabsWrapper>
+        <div className="mt-3">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="text-xs font-medium text-slate-400">
+              {activeStudentCount} siswa aktif tercatat
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, kelas, atau NIS" />
+
+              <div className="w-full sm:w-[190px]">
+                <RadixSelectField
+                  value={statusFilter}
+                  onValueChange={setStatusFilter}
+                  placeholder="Pilih status"
+                  options={statusOptions}
+                  triggerClassName="h-14 rounded-[22px] pl-4"
+                />
+              </div>
+
+              <AddButton label={activeAction.label} onClick={activeAction.onClick} />
+            </div>
+          </div>
+        </div>
 
           <TabsContent value="profiles" className="mt-4">
             <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredStudents.length === 0} emptyTitle="Belum ada siswa" emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini." icon={UsersRound}>
