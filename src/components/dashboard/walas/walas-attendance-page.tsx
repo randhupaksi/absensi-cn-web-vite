@@ -4,6 +4,13 @@ import dynamic from "@/lib/dynamic";
 import { AttendanceDonutChart } from "@/components/dashboard/admin/charts/attendance-donut-chart";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { WalasShell } from "@/components/dashboard/staff/walas-shell";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -426,36 +433,27 @@ export function WalasAttendancePage() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full border-separate border-spacing-0">
-                      <thead>
-                        <tr className="bg-[linear-gradient(180deg,#ecf8f1_0%,#f3fbf7_100%)] text-sm text-slate-600">
-                          <th className="px-5 py-4 text-left font-semibold">Siswa</th>
-                          <th className="px-5 py-4 text-left font-semibold">Check-in</th>
-                          <th className="px-5 py-4 text-center font-semibold">Status</th>
-                          <th className="px-5 py-4 text-center font-semibold">Review</th>
-                          <th className="px-5 py-4 text-left font-semibold">Catatan</th>
-                          <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                    <DataTable>
+                      <DataTableHeadRow labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
+                      <DataTableBody>
                         {sortedRecords.map((record) => (
-                          <tr
+                          <DataTableRow
                             key={record.id}
-                            className={`border-t border-slate-100 text-sm text-slate-600 transition-colors ${
+                            className={
                               !record.verified_at && statusFilter === "Semua"
                                 ? "bg-amber-50/45 hover:bg-amber-50/70"
-                                : "hover:bg-emerald-50/35"
-                            }`}
+                                : ""
+                            }
                           >
-                            <td className="px-5 py-4">
+                            <DataTableCell>
                               <div className="space-y-1">
                                 <p className="font-semibold text-slate-900">{record.student_name}</p>
                                 <p className="text-xs text-slate-500">
                                   {record.nis} • {record.class_name}
                                 </p>
                               </div>
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <div className="space-y-1">
                                 <p className="font-medium text-slate-800">
                                   {formatFriendlyDate(record.attendance_date)}
@@ -464,19 +462,19 @@ export function WalasAttendancePage() {
                                   {formatCheckInTime(record.check_in_at)}
                                 </p>
                               </div>
-                            </td>
-                            <td className="px-5 py-4 text-center">
+                            </DataTableCell>
+                            <DataTableCell className="text-center">
                               <AttendanceStatusPill status={record.status} />
-                            </td>
-                            <td className="px-5 py-4 text-center">
+                            </DataTableCell>
+                            <DataTableCell className="text-center">
                               <ReviewStatusPill reviewed={Boolean(record.verified_at)} />
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <p className="line-clamp-2 max-w-[280px] text-sm leading-6 text-slate-500">
                                 {record.verification_note || record.notes || "Belum ada catatan"}
                               </p>
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <div className="flex items-center justify-center gap-2">
                                 <Button
                                   type="button"
@@ -500,11 +498,11 @@ export function WalasAttendancePage() {
                                   <BadgeCheck className="size-4.5" />
                                 </Button>
                               </div>
-                            </td>
-                          </tr>
+                            </DataTableCell>
+                          </DataTableRow>
                         ))}
-                      </tbody>
-                    </table>
+                      </DataTableBody>
+                    </DataTable>
                   </div>
                 )}
               </motion.div>

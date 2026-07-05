@@ -12,6 +12,13 @@ import {
 } from "@/components/dashboard/bk/bk-counseling-modals";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
 import { Button } from "@/components/ui/button";
@@ -297,21 +304,12 @@ export function BKCounselingPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
-                      <tr>
-                        <th className="px-5 py-4 font-semibold">Siswa</th>
-                        <th className="px-5 py-4 font-semibold">Catatan</th>
-                        <th className="px-5 py-4 font-semibold">Kelas</th>
-                        <th className="px-5 py-4 font-semibold">Dibuat Oleh</th>
-                        <th className="px-5 py-4 font-semibold">Waktu</th>
-                        <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-emerald-50 bg-white/92">
+                  <DataTable>
+                    <DataTableHeadRow labels={["Siswa", "Catatan", "Kelas", "Dibuat Oleh", "Waktu", "Aksi"]} />
+                    <DataTableBody>
                       {records.map((record) => (
-                        <tr key={record.id} className="transition-colors hover:bg-emerald-50/45">
-                          <td className="px-5 py-4">
+                        <DataTableRow key={record.id}>
+                          <DataTableCell>
                             <div className="flex items-center gap-3">
                               <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-sm font-semibold text-emerald-800">
                                 {getInitials(record.student_name)}
@@ -321,25 +319,25 @@ export function BKCounselingPage() {
                                 <p className="text-xs text-slate-500">{record.nis}</p>
                               </div>
                             </div>
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <p className="font-semibold text-slate-900">{record.title}</p>
                             <p className="line-clamp-2 max-w-[360px] text-sm leading-6 text-slate-500">{record.note}</p>
-                          </td>
-                          <td className="px-5 py-4 text-slate-600">{record.class_name || "-"}</td>
-                          <td className="px-5 py-4 text-slate-600">{record.created_by_name || "-"}</td>
-                          <td className="px-5 py-4 text-slate-600">{formatDateTime(record.created_at)}</td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>{record.class_name || "-"}</DataTableCell>
+                          <DataTableCell>{record.created_by_name || "-"}</DataTableCell>
+                          <DataTableCell>{formatDateTime(record.created_at)}</DataTableCell>
+                          <DataTableCell>
                             <div className="flex items-center justify-center gap-2">
                               <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
                               <IconAction icon={Edit3} onClick={() => setEditTarget(record)} tone="sky" />
                               <IconAction icon={Trash2} onClick={() => setDeleteTarget(record)} tone="rose" disabled={deleteMutation.isPending} />
                             </div>
-                          </td>
-                        </tr>
+                          </DataTableCell>
+                        </DataTableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 </div>
               )}
             </motion.div>

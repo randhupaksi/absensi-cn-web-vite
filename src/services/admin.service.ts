@@ -27,10 +27,8 @@ import type {
   AdminSubjectPayload,
   AdminSubjectScheduleFilters,
   AdminSubjectScheduleOverview,
-  AdminTeacherDirectory,
   AdminTeacherAccountPayload,
   AdminTeacherProfile,
-  AdminTeacherProfilePayload,
   AdminTeacherSubjectAssignment,
   AdminTeacherSubjectAssignmentPayload,
   AdminUser,
@@ -76,15 +74,6 @@ export async function getAdminUsers() {
   }
 }
 
-export async function getAdminTeachers() {
-  try {
-    const response = await apiClient.get<ApiEnvelope<AdminTeacherDirectory[]>>("/admin/teachers");
-    return response.data.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error));
-  }
-}
-
 export async function getAdminTeacherProfiles() {
   try {
     const response = await apiClient.get<ApiEnvelope<AdminTeacherProfile[]>>(
@@ -119,7 +108,7 @@ export async function getAdminHomeroomAssignments() {
   }
 }
 
-export async function getAdminSubjects(params: { scope?: string; program_id?: string } = {}) {
+export async function getAdminSubjects(params: { scope?: string; major_id?: string } = {}) {
   try {
     const response = await apiClient.get<ApiEnvelope<AdminSubject[]>>(
       "/admin/subjects", { params },
@@ -287,20 +276,6 @@ export async function createAdminUser(payload: AdminUserPayload) {
   }
 }
 
-export async function createAdminTeacherProfile(
-  payload: AdminTeacherProfilePayload,
-) {
-  try {
-    const response = await apiClient.post<ApiEnvelope<AdminTeacherProfile>>(
-      "/admin/teacher-profiles",
-      payload,
-    );
-    return response.data.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error));
-  }
-}
-
 export async function createAdminTeacherAccount(payload: AdminTeacherAccountPayload) {
   try {
     const response = await apiClient.post<ApiEnvelope<AdminTeacherProfile>>(
@@ -399,21 +374,6 @@ export async function deleteAdminUser(id: string) {
   }
 }
 
-export async function updateAdminTeacherProfile(
-  id: string,
-  payload: AdminTeacherProfilePayload,
-) {
-  try {
-    const response = await apiClient.patch<ApiEnvelope<AdminTeacherProfile>>(
-      `/admin/teacher-profiles/${id}`,
-      payload,
-    );
-    return response.data.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error));
-  }
-}
-
 export async function updateAdminTeacherAccount(
   id: string,
   payload: AdminTeacherAccountPayload,
@@ -424,14 +384,6 @@ export async function updateAdminTeacherAccount(
       payload,
     );
     return response.data.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error));
-  }
-}
-
-export async function deleteAdminTeacherProfile(id: string) {
-  try {
-    await apiClient.delete(`/admin/teacher-profiles/${id}`);
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }

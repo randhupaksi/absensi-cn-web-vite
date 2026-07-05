@@ -159,11 +159,11 @@ export function SubjectFormModal({
 		  <label className={premiumModalLabelClassName}>Program/Jurusan Khusus (opsional)</label>
 		  <div className="grid max-h-36 gap-2 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-3 sm:grid-cols-2">
 		    {programs.filter((program) => program.is_active).map((program) => {
-		      const selected = form.watch("program_ids").includes(program.id);
+		      const selected = form.watch("major_ids").includes(program.id);
 		      return <label key={program.id} className="flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-700 hover:bg-emerald-50">
 		        <Checkbox checked={selected} onCheckedChange={(checked) => {
-		          const current = form.getValues("program_ids");
-		          form.setValue("program_ids", checked ? [...current, program.id] : current.filter((id) => id !== program.id), { shouldDirty: true });
+		          const current = form.getValues("major_ids");
+		          form.setValue("major_ids", checked ? [...current, program.id] : current.filter((id) => id !== program.id), { shouldDirty: true });
 		        }} />
 		        <span>{program.school_unit_code} · {program.code}</span>
 		      </label>;
@@ -535,7 +535,7 @@ function subjectValues(subject: AdminSubject | null): SubjectFormValues {
     group: subject?.group ?? "",
     description: subject?.description ?? "",
     scope: subject?.scope === "SMA" || subject?.scope === "SMK" ? subject.scope : "ALL",
-    program_ids: subject?.program_ids ?? [],
+    major_ids: subject?.major_ids ?? [],
     is_active: subject?.is_active ?? true,
   };
 }

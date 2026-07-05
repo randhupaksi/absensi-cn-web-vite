@@ -5,7 +5,12 @@ import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import {
   ActionButtons,
+  DataTable,
+  DataTableBody,
   DataTableCard,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   StatCard,
   StatusBadge,
   getInitials,
@@ -431,7 +436,7 @@ export function TeacherSection({
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Cari guru, mapel, kelas, NIP, NUPTK"
+                  placeholder="Cari guru, mapel, kelas"
                   className="w-full min-w-[180px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:min-w-[240px]"
                 />
               </div>
@@ -504,34 +509,12 @@ export function TeacherSection({
               emptyDescription="Tambahkan akun dengan role TEACHER lalu buat teacher profile agar data muncul di sini."
               icon={UsersRound}
             >
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {[
-                      "Guru",
-                      "Username",
-                      "Gender",
-                      "Mapel",
-                      "Walas",
-                      "Status",
-                      "Aksi",
-                    ].map((label) => (
-                      <th
-                        key={label}
-                        className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}
-                      >
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Guru", "Username", "Gender", "Mapel", "Walas", "Status", "Aksi"]} />
+                <DataTableBody>
                   {filteredTeacherProfiles.map((teacher) => (
-                    <tr
-                      key={teacher.id}
-                      className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30"
-                    >
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={teacher.id}>
+                      <DataTableCell>
                         <div className="flex items-center gap-3">
                           <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700 shadow-[0_8px_20px_rgba(22,85,58,0.08)]">
                             {getInitials(teacher.name)}
@@ -545,33 +528,27 @@ export function TeacherSection({
                             </p>
                           </div>
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
-                        {teacher.username || "-"}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>{teacher.username || "-"}</DataTableCell>
+                      <DataTableCell>
                         {teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "-"}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
-                        {subjectAssignmentsByTeacher[teacher.id] ?? 0}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
-                        {homeroomAssignmentsByTeacher[teacher.id] ?? 0}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>{subjectAssignmentsByTeacher[teacher.id] ?? 0}</DataTableCell>
+                      <DataTableCell>{homeroomAssignmentsByTeacher[teacher.id] ?? 0}</DataTableCell>
+                      <DataTableCell>
                         <StatusBadge isActive={teacher.is_active} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingProfile(teacher)}
                           onDelete={() => setDeleteTarget({ type: "profile", item: teacher })}
                           isDeletePending={deleteTeacherProfileMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
 
@@ -584,58 +561,29 @@ export function TeacherSection({
               emptyDescription="Data wali kelas per tahun ajaran akan tampil di sini."
               icon={GraduationCap}
             >
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {[
-                      "Guru",
-                      "Kelas",
-                      "Tahun Ajaran",
-                      "Status",
-                      "ID Assignment",
-                      "Aksi",
-                    ].map((label) => (
-                      <th
-                        key={label}
-                        className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}
-                      >
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Guru", "Kelas", "Tahun Ajaran", "Status", "ID Assignment", "Aksi"]} />
+                <DataTableBody>
                   {filteredHomeroomAssignments.map((assignment) => (
-                    <tr
-                      key={assignment.id}
-                      className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30"
-                    >
-                      <td className="border-t border-slate-100 px-4 py-4 font-medium text-slate-700">
-                        {assignment.teacher_name}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
-                        {assignment.class_name}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
-                        {assignment.school_year_name}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={assignment.id}>
+                      <DataTableCell className="font-medium text-slate-700">{assignment.teacher_name}</DataTableCell>
+                      <DataTableCell>{assignment.class_name}</DataTableCell>
+                      <DataTableCell>{assignment.school_year_name}</DataTableCell>
+                      <DataTableCell>
                         <StatusBadge isActive={assignment.is_active} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4 text-xs text-slate-400">
-                        {assignment.id}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell className="text-xs text-slate-400">{assignment.id}</DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingHomeroomAssignment(assignment)}
                           onDelete={() => setDeleteTarget({ type: "homeroom", item: assignment })}
                           isDeletePending={deleteHomeroomAssignmentMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
         </Tabs>

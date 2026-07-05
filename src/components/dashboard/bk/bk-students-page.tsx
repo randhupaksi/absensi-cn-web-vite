@@ -13,6 +13,13 @@ import {
 } from "@/components/dashboard/bk/bk-students-modals";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
 import { Button } from "@/components/ui/button";
@@ -262,23 +269,12 @@ export function BKStudentsPage() {
                     />
                   </div>
                 ) : (
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
-                      <tr>
-                        <th className="px-5 py-4 font-semibold">Siswa</th>
-                        <th className="px-5 py-4 font-semibold">Kelas</th>
-                        <th className="px-5 py-4 font-semibold">Identitas</th>
-                        <th className="px-5 py-4 text-center font-semibold">Telat</th>
-                        <th className="px-5 py-4 text-center font-semibold">Alfa</th>
-                        <th className="px-5 py-4 text-center font-semibold">Izin/Sakit</th>
-                        <th className="px-5 py-4 text-center font-semibold">Status</th>
-                        <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-emerald-50 bg-white/92">
+                  <DataTable>
+                    <DataTableHeadRow labels={["Siswa", "Kelas", "Identitas", "Telat", "Alfa", "Izin/Sakit", "Status", "Aksi"]} />
+                    <DataTableBody>
                       {students.map((student) => (
-                        <tr key={student.id} className="transition-colors hover:bg-emerald-50/45">
-                          <td className="px-5 py-4">
+                        <DataTableRow key={student.id}>
+                          <DataTableCell>
                             <div className="flex items-center gap-3">
                               <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
                                 {getInitials(student.name)}
@@ -288,33 +284,33 @@ export function BKStudentsPage() {
                                 <p className="text-xs text-slate-500">{student.nis}</p>
                               </div>
                             </div>
-                          </td>
-                          <td className="px-5 py-4 text-slate-600">
+                          </DataTableCell>
+                          <DataTableCell>
                             <p className="font-medium text-slate-800">
                               {student.class_name || "-"}
                             </p>
                             <p className="text-xs">{student.school_year_name || "-"}</p>
-                          </td>
-                          <td className="px-5 py-4 text-slate-600">
+                          </DataTableCell>
+                          <DataTableCell>
                             <p>{formatGender(student.gender)}</p>
                             <p className="text-xs">{student.nisn || "-"}</p>
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <CountBadge value={student.late_count} tone="warning" />
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <CountBadge value={student.alpha_count} tone="danger" />
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <CountBadge
                               value={student.permission_count + student.sick_count}
                               tone="info"
                             />
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <StatusBadge active={student.is_active} />
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="flex items-center justify-center gap-2">
                               <Button
                                 type="button"
@@ -335,11 +331,11 @@ export function BKStudentsPage() {
                                 <NotebookPen className="size-4.5" />
                               </Button>
                             </div>
-                          </td>
-                        </tr>
+                          </DataTableCell>
+                        </DataTableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 )}
               </div>
             </motion.div>

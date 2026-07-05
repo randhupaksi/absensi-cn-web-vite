@@ -15,6 +15,13 @@ import {
 } from "@/components/dashboard/bk/bk-attendance-modals";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
 import { Button } from "@/components/ui/button";
@@ -268,42 +275,32 @@ export function BKAttendancePage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
-                      <tr>
-                        <th className="px-5 py-4 font-semibold">Siswa</th>
-                        <th className="px-5 py-4 font-semibold">Kelas</th>
-                        <th className="px-5 py-4 font-semibold">Check-in</th>
-                        <th className="px-5 py-4 text-center font-semibold">Status</th>
-                        <th className="px-5 py-4 text-center font-semibold">Review</th>
-                        <th className="px-5 py-4 font-semibold">Catatan</th>
-                        <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-emerald-50 bg-white/92">
+                  <DataTable>
+                    <DataTableHeadRow labels={["Siswa", "Kelas", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
+                    <DataTableBody>
                       {records.map((record) => (
-                        <tr key={record.id} className="transition-colors hover:bg-emerald-50/45">
-                          <td className="px-5 py-4">
+                        <DataTableRow key={record.id}>
+                          <DataTableCell>
                             <p className="font-semibold text-slate-900">{record.student_name}</p>
                             <p className="text-xs text-slate-500">{record.nis}</p>
-                          </td>
-                          <td className="px-5 py-4 text-slate-600">{record.class_name}</td>
-                          <td className="px-5 py-4 text-slate-600">
+                          </DataTableCell>
+                          <DataTableCell>{record.class_name}</DataTableCell>
+                          <DataTableCell>
                             <p className="font-medium text-slate-800">{formatFriendlyDate(record.attendance_date)}</p>
                             <p className="text-xs">{formatCheckInTime(record.check_in_at)}</p>
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <AttendanceStatusPill status={record.status} />
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <ReviewStatusPill reviewed={Boolean(record.verified_at)} />
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <p className="line-clamp-2 max-w-[280px] text-sm leading-6 text-slate-500">
                               {record.verification_note || record.notes || "-"}
                             </p>
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="flex items-center justify-center gap-2">
                               <Button
                                 type="button"
@@ -325,11 +322,11 @@ export function BKAttendancePage() {
                                 <BadgeCheck className="size-4.5" />
                               </Button>
                             </div>
-                          </td>
-                        </tr>
+                          </DataTableCell>
+                        </DataTableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 </div>
               )}
             </motion.div>

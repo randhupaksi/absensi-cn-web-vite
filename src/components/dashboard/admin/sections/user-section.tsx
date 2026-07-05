@@ -4,7 +4,12 @@ import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import {
   ActionButtons,
+  DataTable,
+  DataTableBody,
   DataTableCard,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   StatCard,
   getInitials,
 } from "@/components/dashboard/admin/sections/section-ui";
@@ -257,20 +262,12 @@ export function UserSection({
           {(["all", "admins", "bk", "teachers"] as UserTab[]).map((tab) => (
             <TabsContent key={tab} value={tab} className="mt-4">
               <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan akun baru untuk admin, BK, atau guru dari section ini." icon={ShieldCheck}>
-                <table className="min-w-full border-separate border-spacing-0 text-left">
-                  <thead>
-                    <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                      {["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"].map((label) => (
-                        <th key={label} className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}>
-                          {label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
+                <DataTable>
+                  <DataTableHeadRow labels={["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"]} />
+                  <DataTableBody>
                     {filteredUsers.map((user) => (
-                      <tr key={user.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                        <td className="border-t border-slate-100 px-4 py-4">
+                      <DataTableRow key={user.id}>
+                        <DataTableCell>
                           <div className="flex items-center gap-3">
                             <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
                               {getInitials(user.name)}
@@ -280,24 +277,24 @@ export function UserSection({
                               <p className="text-xs text-slate-400">{user.id}</p>
                             </div>
                           </div>
-                        </td>
-                        <td className="border-t border-slate-100 px-4 py-4">
+                        </DataTableCell>
+                        <DataTableCell>
                           <UserRoleBadge role={user.role} />
-                        </td>
-                        <td className="border-t border-slate-100 px-4 py-4">{user.username || "-"}</td>
-                        <td className="border-t border-slate-100 px-4 py-4">{user.username || user.nis || "-"}</td>
-                        <td className="border-t border-slate-100 px-4 py-4">{roleDescription(user.role)}</td>
-                        <td className="border-t border-slate-100 px-4 py-4">
+                        </DataTableCell>
+                        <DataTableCell>{user.username || "-"}</DataTableCell>
+                        <DataTableCell>{user.username || user.nis || "-"}</DataTableCell>
+                        <DataTableCell>{roleDescription(user.role)}</DataTableCell>
+                        <DataTableCell>
                           <ActionButtons
                             onEdit={() => setEditingUser(user)}
                             onDelete={() => setDeleteTarget(user)}
                             isDeletePending={deleteUserMutation.isPending}
                           />
-                        </td>
-                      </tr>
+                        </DataTableCell>
+                      </DataTableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </DataTableBody>
+                </DataTable>
               </DataTableCard>
             </TabsContent>
           ))}

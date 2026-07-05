@@ -5,7 +5,12 @@ import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import {
   ActionButtons,
+  DataTable,
+  DataTableBody,
   DataTableCard,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   StatCard,
   StatusBadge,
   getInitials,
@@ -550,20 +555,12 @@ export function StudentSection({
 
           <TabsContent value="profiles" className="mt-4">
             <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredStudents.length === 0} emptyTitle="Belum ada siswa" emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini." icon={UsersRound}>
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {["Siswa", "NIS / NISN", "Kelas Aktif", "Gender", "Status", "Aksi"].map((label) => (
-                      <th key={label} className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}>
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Siswa", "NIS / NISN", "Kelas Aktif", "Gender", "Status", "Aksi"]} />
+                <DataTableBody>
                   {filteredStudents.map((student) => (
-                    <tr key={student.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={student.id}>
+                      <DataTableCell>
                         <div className="flex items-center gap-3">
                           <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
                             {getInitials(student.name)}
@@ -573,113 +570,97 @@ export function StudentSection({
                             <p className="text-xs text-slate-400">{student.user_id}</p>
                           </div>
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <div className="space-y-1">
                           <p>{student.nis}</p>
                           <p className="text-xs text-slate-400">NISN: {student.nisn || "-"}</p>
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         {memberships.find((membership) => membership.student_id === student.id && membership.is_active)?.class_name || "Belum ditempatkan"}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">{formatGender(student.gender)}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>{formatGender(student.gender)}</DataTableCell>
+                      <DataTableCell>
                         <StatusBadge isActive={student.is_active} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingStudent(student)}
                           onDelete={() => setDeleteTarget({ type: "profile", item: student })}
                           isDeletePending={deleteStudentMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
 
           <TabsContent value="memberships" className="mt-4">
             <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredMemberships.length === 0} emptyTitle="Belum ada penempatan kelas" emptyDescription="Riwayat kelas siswa per tahun ajaran akan tampil di sini." icon={GraduationCap}>
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {["Siswa", "Kelas", "Tahun Ajaran", "Status", "Waktu", "Aksi"].map((label) => (
-                      <th key={label} className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}>
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Siswa", "Kelas", "Tahun Ajaran", "Status", "Waktu", "Aksi"]} />
+                <DataTableBody>
                   {filteredMemberships.map((membership) => (
-                    <tr key={membership.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={membership.id}>
+                      <DataTableCell>
                         <div className="space-y-1">
                           <p className="font-medium text-slate-700">{membership.student_name}</p>
                           <p className="text-xs text-slate-400">{membership.nis}</p>
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">{membership.class_name}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">{membership.school_year_name}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>{membership.class_name}</DataTableCell>
+                      <DataTableCell>{membership.school_year_name}</DataTableCell>
+                      <DataTableCell>
                         <MembershipStatusBadge status={membership.status} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <div className="space-y-1 text-xs text-slate-500">
                           <p>Masuk: {formatDateTime(membership.joined_at)}</p>
                           <p>Keluar: {formatDateTime(membership.left_at)}</p>
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingMembership(membership)}
                           onDelete={() => setDeleteTarget({ type: "membership", item: membership })}
                           isDeletePending={deleteMembershipMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
 
           <TabsContent value="rules" className="mt-4">
             <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredRules.length === 0} emptyTitle="Belum ada aturan absensi" emptyDescription="Rule jam hadir, telat, dan cutoff alfa akan muncul di tabel ini." icon={TimerReset}>
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Telat", "Status", "Aksi"].map((label) => (
-                      <th key={label} className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}>
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Telat", "Status", "Aksi"]} />
+                <DataTableBody>
                   {filteredRules.map((rule) => (
-                    <tr key={rule.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                      <td className="border-t border-slate-100 px-4 py-4">{rule.school_year}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">{rule.check_in_start}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">{rule.on_time_until}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">{rule.late_until}</td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={rule.id}>
+                      <DataTableCell>{rule.school_year}</DataTableCell>
+                      <DataTableCell>{rule.check_in_start}</DataTableCell>
+                      <DataTableCell>{rule.on_time_until}</DataTableCell>
+                      <DataTableCell>{rule.late_until}</DataTableCell>
+                      <DataTableCell>
                         <StatusBadge isActive={rule.is_active} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingRule(rule)}
                           onDelete={() => setDeleteTarget({ type: "rule", item: rule })}
                           isDeletePending={deleteRuleMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
         </Tabs>

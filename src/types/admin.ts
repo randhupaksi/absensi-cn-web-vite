@@ -49,27 +49,12 @@ export type AdminUserPayload = {
   password: string;
 };
 
-export type AdminTeacherDirectory = {
-  no: string;
-  id: string;
-  name: string;
-  role: string;
-  class: string;
-  avatar_label: string;
-};
-
 export type AdminTeacherProfile = {
   id: string;
   user_id: string;
   name: string;
   username?: string;
   gender?: string;
-  is_active: boolean;
-};
-
-export type AdminTeacherProfilePayload = {
-  user_id: string;
-  gender: string;
   is_active: boolean;
 };
 
@@ -164,7 +149,7 @@ export type AdminSubject = {
   group?: string;
   description?: string;
   scope: "ALL" | "SMA" | "SMK" | string;
-  program_ids: string[];
+  major_ids: string[];
   is_active: boolean;
   assignment_count: number;
   teacher_count: number;
@@ -178,7 +163,7 @@ export type AdminSubjectPayload = {
   group: string;
   description: string;
   scope: "ALL" | "SMA" | "SMK";
-  program_ids: string[];
+  major_ids: string[];
   is_active: boolean;
 };
 

@@ -21,7 +21,7 @@ export const subjectSchema = z.object({
   group: z.string().trim().max(100, "Maksimal 100 karakter"),
   description: z.string().trim(),
   scope: z.enum(["ALL", "SMA", "SMK"]),
-  program_ids: z.array(z.string()),
+  major_ids: z.array(z.string()),
   is_active: z.boolean(),
 });
 

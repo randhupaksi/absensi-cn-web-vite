@@ -4,7 +4,12 @@ import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scro
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import {
   ActionButtons,
+  DataTable,
+  DataTableBody,
   DataTableCard,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   StatCard,
   StatusBadge,
   getInitials,
@@ -223,7 +228,20 @@ export function SubjectManagementSection({
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-sky-200/20 blur-3xl" />
 
-        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            setActiveTab(value as ManagementTab);
+            setQuery("");
+            setStatusFilter("all");
+            setDayFilter("all");
+            setSchoolYearFilter("all");
+            setTeacherFilter("all");
+            setSubjectFilter("all");
+            setClassFilter("all");
+          }}
+        >
+        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
           {/* Header */}
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
@@ -253,8 +271,36 @@ export function SubjectManagementSection({
             ))}
           </div>
 
+          {/* Tab selector */}
+          <ScrollableTabsWrapper>
+            <TabsList className="h-auto w-fit min-w-max gap-2 rounded-none bg-transparent p-0 xl:min-w-0 xl:grid xl:w-full xl:grid-cols-2">
+              <TabsTrigger
+                value="subjects"
+                className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full"
+              >
+                <BookOpenCheck className="size-4" />
+                Master Mapel
+              </TabsTrigger>
+              <TabsTrigger
+                value="schedules"
+                className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full"
+              >
+                <CalendarClock className="size-4" />
+                Jadwal Mengajar
+              </TabsTrigger>
+            </TabsList>
+          </ScrollableTabsWrapper>
+        </div>
+
+        {errorMessage ? (
+          <div className="mt-5">
+            <EmptyState icon={BookOpenCheck} title="Data mapel belum dapat dimuat" description={errorMessage} compact />
+          </div>
+        ) : null}
+
+        <div className="mt-5">
           {/* Filter toolbar */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
             <div className="flex h-14 flex-1 items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]">
               <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
                 <SlidersHorizontal className="size-4" />
@@ -289,46 +335,6 @@ export function SubjectManagementSection({
               {activeTab === "subjects" ? "Tambah Mapel" : "Tambah Jadwal"}
             </Button>
           </div>
-        </div>
-
-        {errorMessage ? (
-          <div className="mt-5">
-            <EmptyState icon={BookOpenCheck} title="Data mapel belum dapat dimuat" description={errorMessage} compact />
-          </div>
-        ) : null}
-
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => {
-            setActiveTab(value as ManagementTab);
-            setQuery("");
-            setStatusFilter("all");
-            setDayFilter("all");
-            setSchoolYearFilter("all");
-            setTeacherFilter("all");
-            setSubjectFilter("all");
-            setClassFilter("all");
-          }}
-          className="mt-5 gap-4"
-        >
-          <ScrollableTabsWrapper>
-            <TabsList className="flex min-w-max gap-2 rounded-[24px] border border-emerald-100/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(242,250,246,0.92)_100%)] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_16px_30px_rgba(15,23,42,0.04)] xl:min-w-0 xl:grid xl:w-full xl:grid-cols-2">
-              <TabsTrigger
-                value="subjects"
-                className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full"
-              >
-                <BookOpenCheck className="size-4" />
-                Master Mapel
-              </TabsTrigger>
-              <TabsTrigger
-                value="schedules"
-                className="shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-[0_14px_26px_rgba(16,185,129,0.12)] xl:w-full"
-              >
-                <CalendarClock className="size-4" />
-                Jadwal Mengajar
-              </TabsTrigger>
-            </TabsList>
-          </ScrollableTabsWrapper>
 
           {/* Additional filters for schedules tab */}
           {activeTab === "schedules" && (
@@ -351,54 +357,37 @@ export function SubjectManagementSection({
               emptyDescription="Tambahkan master mapel baru atau ubah filter pencarian."
               icon={BookOpenCheck}
             >
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {["Kode", "Mata Pelajaran", "Guru", "Kelas", "Slot Jadwal", "Status", "Aksi"].map((label) => (
-                      <th
-                        key={label}
-                        className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}
-                      >
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Kode", "Mata Pelajaran", "Guru", "Kelas", "Slot Jadwal", "Status", "Aksi"]} />
+                <DataTableBody>
                   {filteredSubjects.map((subject) => (
-                    <tr key={subject.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={subject.id}>
+                      <DataTableCell>
                         <Badge variant="outline" className="border-slate-200 bg-slate-50 font-mono text-xs text-slate-600">
                           {subject.code}
                         </Badge>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <p className="font-medium text-slate-700">{subject.name}</p>
                         <p className="mt-0.5 text-xs text-slate-400">{subject.group || "Tanpa kelompok"}</p>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4 text-slate-700">
-                        {subject.teacher_count}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4 text-slate-700">
-                        {subject.class_count}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4 text-slate-700">
-                        {subject.schedule_count}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell className="text-slate-700">{subject.teacher_count}</DataTableCell>
+                      <DataTableCell className="text-slate-700">{subject.class_count}</DataTableCell>
+                      <DataTableCell className="text-slate-700">{subject.schedule_count}</DataTableCell>
+                      <DataTableCell>
                         <StatusBadge isActive={subject.is_active} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingSubject(subject)}
                           onDelete={() => setDeleteSubjectTarget(subject)}
                           isDeletePending={deleteSubjectMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
 
@@ -412,38 +401,25 @@ export function SubjectManagementSection({
               emptyDescription="Tambahkan penempatan guru dan slot jadwal, atau ubah filter pencarian."
               icon={CalendarClock}
             >
-              <table className="min-w-full border-separate border-spacing-0 text-left">
-                <thead>
-                  <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                    {["Guru", "Mata Pelajaran", "Kelas", "Jadwal", "Tahun Ajaran", "Status", "Aksi"].map((label) => (
-                      <th
-                        key={label}
-                        className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}
-                      >
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <DataTable>
+                <DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Kelas", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
+                <DataTableBody>
                   {filteredAssignments.map((assignment) => (
-                    <tr key={assignment.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                      <td className="border-t border-slate-100 px-4 py-4">
+                    <DataTableRow key={assignment.id}>
+                      <DataTableCell>
                         <div className="flex items-center gap-3">
                           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700 shadow-[0_8px_20px_rgba(22,85,58,0.08)]">
                             {getInitials(assignment.teacher_name)}
                           </span>
                           <p className="font-medium text-slate-700">{assignment.teacher_name}</p>
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <p className="text-slate-700">{assignment.subject_name}</p>
                         <p className="mt-0.5 text-xs text-slate-400">{assignment.subject_code}</p>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4 text-slate-700">
-                        {assignment.class_name}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell className="text-slate-700">{assignment.class_name}</DataTableCell>
+                      <DataTableCell>
                         <div className="flex min-w-48 flex-wrap gap-1.5">
                           {assignment.schedules.length > 0 ? (
                             assignment.schedules.map((schedule) => (
@@ -461,26 +437,25 @@ export function SubjectManagementSection({
                             </Badge>
                           )}
                         </div>
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4 text-slate-700">
-                        {assignment.school_year_name}
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell className="text-slate-700">{assignment.school_year_name}</DataTableCell>
+                      <DataTableCell>
                         <StatusBadge isActive={assignment.is_active} />
-                      </td>
-                      <td className="border-t border-slate-100 px-4 py-4">
+                      </DataTableCell>
+                      <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingAssignment(assignment)}
                           onDelete={() => setDeleteAssignmentTarget(assignment)}
                           isDeletePending={deleteAssignmentMutation.isPending}
                         />
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
-                </tbody>
-              </table>
+                </DataTableBody>
+              </DataTable>
             </DataTableCard>
           </TabsContent>
+        </div>
         </Tabs>
       </section>
 

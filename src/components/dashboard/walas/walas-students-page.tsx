@@ -2,6 +2,13 @@
 
 import dynamic from "@/lib/dynamic";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -261,23 +268,12 @@ export function WalasStudentsPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
-                      <tr>
-                        <th className="px-5 py-4 font-semibold">Siswa</th>
-                        <th className="px-5 py-4 font-semibold">Identitas</th>
-                        <th className="px-5 py-4 font-semibold">Gender</th>
-                        <th className="px-5 py-4 text-center font-semibold">Status</th>
-                        <th className="px-5 py-4 font-semibold">Telat</th>
-                        <th className="px-5 py-4 font-semibold">Alfa</th>
-                        <th className="px-5 py-4 font-semibold">Ringkasan</th>
-                        <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-emerald-50 bg-white/92">
+                  <DataTable>
+                    <DataTableHeadRow labels={["Siswa", "Identitas", "Gender", "Status", "Telat", "Alfa", "Ringkasan", "Aksi"]} />
+                    <DataTableBody>
                         {filteredStudents.map((student) => (
-                          <tr key={student.id} className="transition-colors hover:bg-emerald-50/45">
-                            <td className="px-5 py-4">
+                          <DataTableRow key={student.id}>
+                            <DataTableCell>
                               <div className="flex items-center gap-3">
                                 <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
                                   {getInitials(student.name)}
@@ -289,15 +285,15 @@ export function WalasStudentsPage() {
                                   <p className="truncate text-slate-500">{student.class_name || "-"}</p>
                                 </div>
                               </div>
-                            </td>
-                            <td className="px-5 py-4 text-slate-600">
+                            </DataTableCell>
+                            <DataTableCell>
                               <p className="font-medium text-slate-800">{student.nis}</p>
                               <p>{student.nisn || "-"}</p>
-                            </td>
-                            <td className="px-5 py-4 text-slate-600">
+                            </DataTableCell>
+                            <DataTableCell>
                               {formatGender(student.gender)}
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <div className="flex flex-wrap gap-2">
                                 <StatusPill isActive={student.is_active} />
                                 {student.late_count > 0 || student.alpha_count > 0 ? (
@@ -306,21 +302,21 @@ export function WalasStudentsPage() {
                                   </Badge>
                                 ) : null}
                               </div>
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <CountBadge value={student.late_count} tone="warning" />
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <CountBadge value={student.alpha_count} tone="danger" />
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <div className="space-y-1 text-xs text-slate-500">
                                 <p>Hadir: {student.present_count}</p>
                                 <p>Izin: {student.permission_count}</p>
                                 <p>Sakit: {student.sick_count}</p>
                               </div>
-                            </td>
-                            <td className="px-5 py-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <div className="flex justify-center">
                                 <Button
                                   variant="outline"
@@ -331,11 +327,11 @@ export function WalasStudentsPage() {
                                   <Eye className="size-4" />
                                 </Button>
                               </div>
-                            </td>
-                                                </tr>
+                            </DataTableCell>
+                          </DataTableRow>
                         ))}
-                                      </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 </div>
               )}
             </motion.div>

@@ -3,7 +3,12 @@
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import {
   ActionButtons,
+  DataTable,
+  DataTableBody,
   DataTableCard,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   StatCard,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { ClassFormModal } from "@/components/dashboard/admin/sections/class-management-modals";
@@ -247,23 +252,12 @@ export function ClassManagementSection({
             emptyDescription="Coba ubah pencarian, filter status, atau tambahkan kelas baru."
             icon={Building2}
           >
-            <table className="min-w-full border-separate border-spacing-0 text-left">
-              <thead>
-                <tr className="bg-[#f3fbf6] text-sm text-slate-700">
-                  {["Kelas", "Jurusan", "Tahun Ajaran", "Walas", "Siswa", "Mapel", "Status", "Aksi"].map((label) => (
-                    <th
-                      key={label}
-                      className={`border-b border-emerald-100/90 px-4 py-4 font-medium first:rounded-tl-[24px] last:rounded-tr-[24px] ${label === "Aksi" ? "text-center" : ""}`}
-                    >
-                      {label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
+            <DataTable>
+              <DataTableHeadRow labels={["Kelas", "Jurusan", "Tahun Ajaran", "Walas", "Siswa", "Mapel", "Status", "Aksi"]} />
+              <DataTableBody>
                 {filteredClasses.map((item) => (
-                  <tr key={item.id} className="bg-white text-sm text-slate-600 transition hover:bg-emerald-50/30">
-                    <td className="border-t border-slate-100 px-4 py-4">
+                  <DataTableRow key={item.id}>
+                    <DataTableCell>
                       <div className="flex items-center gap-3">
                         <span className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
                           {item.grade}
@@ -273,13 +267,13 @@ export function ClassManagementSection({
                           <p className="text-xs text-slate-400">ID: {item.id}</p>
                         </div>
                       </div>
-                    </td>
-                    <td className="border-t border-slate-100 px-4 py-4">
+                    </DataTableCell>
+                    <DataTableCell>
                       <p className="font-medium text-slate-700">{item.major_code}</p>
                       <p className="text-xs text-slate-400">{item.major_name}</p>
-                    </td>
-                    <td className="border-t border-slate-100 px-4 py-4 whitespace-nowrap">{item.school_year_name}</td>
-                    <td className="border-t border-slate-100 px-4 py-4">
+                    </DataTableCell>
+                    <DataTableCell className="whitespace-nowrap">{item.school_year_name}</DataTableCell>
+                    <DataTableCell>
                       {item.homeroom_teacher_name ? (
                         <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
                           {item.homeroom_teacher_name}
@@ -289,25 +283,25 @@ export function ClassManagementSection({
                           Belum Ada
                         </Badge>
                       )}
-                    </td>
-                    <td className="border-t border-slate-100 px-4 py-4">{item.student_count}</td>
-                    <td className="border-t border-slate-100 px-4 py-4">{item.subject_assignment_count}</td>
-                    <td className="border-t border-slate-100 px-4 py-4">
+                    </DataTableCell>
+                    <DataTableCell>{item.student_count}</DataTableCell>
+                    <DataTableCell>{item.subject_assignment_count}</DataTableCell>
+                    <DataTableCell>
                       <Badge variant="outline" className={item.is_active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"}>
                         {item.is_active ? "Aktif" : "Nonaktif"}
                       </Badge>
-                    </td>
-                    <td className="border-t border-slate-100 px-4 py-4">
+                    </DataTableCell>
+                    <DataTableCell>
                       <ActionButtons
                         onEdit={() => setEditingClass(item)}
                         onDelete={() => setDeleteTarget(item)}
                         isDeletePending={deleteMutation.isPending}
                       />
-                    </td>
-                  </tr>
+                    </DataTableCell>
+                  </DataTableRow>
                 ))}
-              </tbody>
-            </table>
+              </DataTableBody>
+            </DataTable>
           </DataTableCard>
         </div>
       </section>

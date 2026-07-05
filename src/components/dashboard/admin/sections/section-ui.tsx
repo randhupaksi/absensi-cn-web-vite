@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
+import { ScrollableTabsWrapper } from "@/components/dashboard/admin/widgets/scrollable-tabs";
 import {
   premiumModalActionsClassName,
   premiumModalFieldClassName,
@@ -9,6 +10,7 @@ import {
 } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LucideIcon } from "lucide-react";
 import { PencilLine, Sparkles, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
@@ -207,6 +209,95 @@ export function StatCard({
         </div>
       </div>
     </div>
+  );
+}
+
+export type SectionTabItem = {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+const TAB_GRID_COLS_CLASS: Record<number, string> = {
+  2: "xl:grid-cols-2",
+  3: "xl:grid-cols-3",
+  4: "xl:grid-cols-4",
+  5: "xl:grid-cols-5",
+};
+
+const SECTION_TAB_TRIGGER_CLASS =
+  "shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-colors hover:border-emerald-100 hover:bg-white/80 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full";
+
+export function SectionTabSwitch({ tabs }: { tabs: SectionTabItem[] }) {
+  const gridColsClass = TAB_GRID_COLS_CLASS[tabs.length] ?? "";
+  return (
+    <ScrollableTabsWrapper>
+      <TabsList
+        className={`h-auto w-fit min-w-max gap-2 rounded-none bg-transparent p-0 xl:min-w-0 xl:grid xl:w-full ${gridColsClass}`}
+      >
+        {tabs.map(({ value, label, icon: Icon }) => (
+          <TabsTrigger key={value} value={value} className={SECTION_TAB_TRIGGER_CLASS}>
+            <Icon className="size-4" />
+            {label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </ScrollableTabsWrapper>
+  );
+}
+
+export function DataTable({ children }: { children: ReactNode }) {
+  return <table className="min-w-full text-sm">{children}</table>;
+}
+
+export function DataTableHeadRow({ labels }: { labels: string[] }) {
+  return (
+    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
+      <tr>
+        {labels.map((label) => (
+          <th
+            key={label}
+            className={`px-5 py-4 font-semibold ${label === "Aksi" ? "text-center" : ""}`}
+          >
+            {label}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
+export function DataTableBody({ children }: { children: ReactNode }) {
+  return <tbody className="divide-y divide-emerald-50 bg-white/92">{children}</tbody>;
+}
+
+export function DataTableRow({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <tr className={`transition-colors hover:bg-emerald-50/45 ${className}`}>
+      {children}
+    </tr>
+  );
+}
+
+export function DataTableCell({
+  children,
+  className = "",
+  colSpan,
+}: {
+  children: ReactNode;
+  className?: string;
+  colSpan?: number;
+}) {
+  return (
+    <td colSpan={colSpan} className={`px-5 py-4 text-slate-600 ${className}`}>
+      {children}
+    </td>
   );
 }
 

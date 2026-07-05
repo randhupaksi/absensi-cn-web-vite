@@ -19,7 +19,12 @@ import { useState } from "react";
 const INPUT_CN =
   "h-14 rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80";
 
-const ROLE_OPTIONS = [
+const CREATE_ROLE_OPTIONS = [
+  { value: "ADMIN", label: "ADMIN" },
+  { value: "BK", label: "BK" },
+];
+
+const EDIT_ROLE_OPTIONS = [
   { value: "ADMIN", label: "ADMIN" },
   { value: "BK", label: "BK" },
   { value: "TEACHER", label: "TEACHER" },
@@ -105,7 +110,7 @@ export function UserCreateModal({
   };
 
   return (
-    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Role Staff" description="Buat akun administrator, BK, atau guru dasar untuk kebutuhan operasional backend." icon={UserCog}>
+    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Role Staff" description="Buat akun administrator atau BK untuk kebutuhan operasional backend. Akun guru dibuat dari section Guru agar profil mengajar langsung lengkap." icon={UserCog}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Akun">
@@ -113,7 +118,7 @@ export function UserCreateModal({
             <FieldError message={errors.name} />
           </FieldGroup>
           <FieldGroup label="Role">
-            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih role" options={ROLE_OPTIONS} />
+            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih role" options={CREATE_ROLE_OPTIONS} />
             <FieldError message={errors.role} />
           </FieldGroup>
         </div>
@@ -179,7 +184,7 @@ export function UserEditModal({
             <FieldError message={errors.name} />
           </FieldGroup>
           <FieldGroup label="Role">
-            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih role" options={ROLE_OPTIONS} />
+            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih role" options={EDIT_ROLE_OPTIONS} />
             <FieldError message={errors.role} />
           </FieldGroup>
         </div>

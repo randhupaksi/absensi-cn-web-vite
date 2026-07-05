@@ -3,6 +3,13 @@
 import dynamic from "@/lib/dynamic";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { WalasShell } from "@/components/dashboard/staff/walas-shell";
 import {
   formatDate,
@@ -298,41 +305,28 @@ export function WalasSubmissionsPage() {
                     />
                   </div>
                 ) : (
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
-                      <tr>
-                        <th className="px-5 py-4 font-semibold">Siswa</th>
-                        <th className="px-5 py-4 font-semibold">Pengajuan</th>
-                        <th className="px-5 py-4 font-semibold">Waktu</th>
-                        <th className="px-5 py-4 text-center font-semibold">Status</th>
-                        <th className="px-5 py-4 text-center font-semibold">Lampiran</th>
-                        <th className="px-5 py-4 font-semibold">Catatan</th>
-                        <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-emerald-50 bg-white/92">
+                  <DataTable>
+                    <DataTableHeadRow labels={["Siswa", "Pengajuan", "Waktu", "Status", "Lampiran", "Catatan", "Aksi"]} />
+                    <DataTableBody>
                       {records.map((record) => (
-                        <tr
-                          key={record.id}
-                          className="transition-colors hover:bg-emerald-50/45"
-                        >
-                          <td className="px-5 py-4">
+                        <DataTableRow key={record.id}>
+                          <DataTableCell>
                             <div className="space-y-1">
                               <p className="font-semibold text-slate-900">{record.student_name}</p>
                               <p className="text-xs text-slate-500">
                                 {record.nis} • {record.class_name || "Kelas belum tersambung"}
                               </p>
                             </div>
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="space-y-2">
                               <SubmissionTypePill type={record.type} />
                               <p className="line-clamp-2 max-w-[280px] text-xs leading-5 text-slate-500">
                                 {record.reason}
                               </p>
                             </div>
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="space-y-1">
                               <p className="font-medium text-slate-800">
                                 {formatDate(record.created_at)}
@@ -341,11 +335,11 @@ export function WalasSubmissionsPage() {
                                 {formatDateTime(record.updated_at)}
                               </p>
                             </div>
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             <SubmissionStatusPill status={record.status} />
-                          </td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
                             {record.attachment ? (
                               <button
                                 type="button"
@@ -358,13 +352,13 @@ export function WalasSubmissionsPage() {
                             ) : (
                               <span className="text-xs text-slate-400">Tidak ada</span>
                             )}
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <p className="line-clamp-2 max-w-[260px] text-sm leading-6 text-slate-500">
                               {record.review_note || "Belum ada tanggapan walas"}
                             </p>
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="flex items-center justify-center gap-2">
                               <Button
                                 type="button"
@@ -385,11 +379,11 @@ export function WalasSubmissionsPage() {
                                 <PencilLine className="size-4.5" />
                               </Button>
                             </div>
-                          </td>
-                        </tr>
+                          </DataTableCell>
+                        </DataTableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 )}
               </div>
             </motion.div>

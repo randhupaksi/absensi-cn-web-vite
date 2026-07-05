@@ -12,6 +12,13 @@ import {
 } from "@/components/dashboard/bk/bk-common";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
+} from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
 import { Button } from "@/components/ui/button";
@@ -255,35 +262,25 @@ export function BKSubmissionsPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
-                      <tr>
-                        <th className="px-5 py-4 font-semibold">Siswa</th>
-                        <th className="px-5 py-4 font-semibold">Pengajuan</th>
-                        <th className="px-5 py-4 font-semibold">Kelas</th>
-                        <th className="px-5 py-4 font-semibold">Waktu</th>
-                        <th className="px-5 py-4 text-center font-semibold">Status</th>
-                        <th className="px-5 py-4 text-center font-semibold">Lampiran</th>
-                        <th className="px-5 py-4 text-center font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-emerald-50 bg-white/92">
+                  <DataTable>
+                    <DataTableHeadRow labels={["Siswa", "Pengajuan", "Kelas", "Waktu", "Status", "Lampiran", "Aksi"]} />
+                    <DataTableBody>
                       {records.map((record) => (
-                        <tr key={record.id} className="transition-colors hover:bg-emerald-50/45">
-                          <td className="px-5 py-4">
+                        <DataTableRow key={record.id}>
+                          <DataTableCell>
                             <p className="font-semibold text-slate-900">{record.student_name}</p>
                             <p className="text-xs text-slate-500">{record.nis}</p>
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="space-y-2">
                               <SubmissionTypePill type={record.type} />
                               <p className="line-clamp-2 max-w-[280px] text-xs leading-5 text-slate-500">{record.reason}</p>
                             </div>
-                          </td>
-                          <td className="px-5 py-4 text-slate-600">{record.class_name || "-"}</td>
-                          <td className="px-5 py-4 text-slate-600">{formatDateTime(record.created_at)}</td>
-                          <td className="px-5 py-4 text-center"><SubmissionStatusPill status={record.status} /></td>
-                          <td className="px-5 py-4 text-center">
+                          </DataTableCell>
+                          <DataTableCell>{record.class_name || "-"}</DataTableCell>
+                          <DataTableCell>{formatDateTime(record.created_at)}</DataTableCell>
+                          <DataTableCell className="text-center"><SubmissionStatusPill status={record.status} /></DataTableCell>
+                          <DataTableCell className="text-center">
                             {record.attachment ? (
                               <Button type="button" variant="outline" className="h-9 rounded-full px-3 text-xs" onClick={() => openAttachment(record.attachment)}>
                                 <FileImage className="size-3.5" />
@@ -292,17 +289,17 @@ export function BKSubmissionsPage() {
                             ) : (
                               <span className="text-xs text-slate-400">Tidak ada</span>
                             )}
-                          </td>
-                          <td className="px-5 py-4">
+                          </DataTableCell>
+                          <DataTableCell>
                             <div className="flex items-center justify-center gap-2">
                               <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
                               <IconAction icon={PencilLine} onClick={() => setReviewTarget(record)} tone="sky" />
                             </div>
-                          </td>
-                        </tr>
+                          </DataTableCell>
+                        </DataTableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 </div>
               )}
             </motion.div>
