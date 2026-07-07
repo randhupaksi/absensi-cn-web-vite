@@ -127,9 +127,9 @@ export const roleDashboardConfig: Record<
       "Deteksi siswa telat atau alfa",
     ],
     navigation: [
-      { label: "Dashboard Walas", href: "/dashboard/walas", icon: LayoutDashboard },
-      { label: "Absensi Kelas", href: "/dashboard/walas", icon: ClipboardCheck },
-      { label: "Data Siswa", href: "/dashboard/walas", icon: Users },
+      { label: "Dashboard Walas", href: "/dashboard/teacher/homeroom", icon: LayoutDashboard },
+      { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardCheck },
+      { label: "Data Siswa", href: "/dashboard/teacher/homeroom/students", icon: Users },
     ],
   },
   bk: {
@@ -175,9 +175,9 @@ export const roleDashboardConfig: Record<
       "Catatan pembinaan singkat",
     ],
     navigation: [
-      { label: "Dashboard BK", href: "/dashboard/bk", icon: LayoutDashboard },
-      { label: "Monitoring BK", href: "/dashboard/bk", icon: Shield },
-      { label: "Catatan Siswa", href: "/dashboard/bk", icon: NotebookPen },
+      { label: "Dashboard BK", href: "/dashboard/teacher", icon: LayoutDashboard },
+      { label: "Monitoring BK", href: "/dashboard/teacher/bk/students", icon: Shield },
+      { label: "Catatan Siswa", href: "/dashboard/teacher/bk/counseling", icon: NotebookPen },
     ],
   },
   admin: {

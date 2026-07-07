@@ -142,24 +142,24 @@ export const adminSidebarItems = [
 ] satisfies StaffSidebarItem[];
 
 export const walasSidebarItems = [
-  { label: "Dashboard", href: "/dashboard/walas", icon: LayoutDashboard },
-  { label: "Siswa Kelas", href: "/dashboard/walas/students", icon: Users },
+  { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
+  { label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students", icon: Users },
   {
     label: "Absensi Kelas",
-    href: "/dashboard/walas/attendance",
+    href: "/dashboard/teacher/homeroom/attendance",
     icon: ClipboardList,
   },
   {
     label: "Pengajuan",
-    href: "/dashboard/walas/submissions",
+    href: "/dashboard/teacher/homeroom/submissions",
     icon: FileClock,
   },
 ] satisfies StaffSidebarItem[];
 
 export const guruMapelSidebarItems = [
-  { label: "Daftar Hadir", href: "/dashboard/walas/mapel", icon: BookOpenCheck },
-  { label: "Riwayat Sesi", href: "/dashboard/walas/mapel/history", icon: History },
-  { label: "Rekap Mapel", href: "/dashboard/walas/mapel/recap", icon: ChartColumnBig },
+  { label: "Daftar Hadir", href: "/dashboard/teacher/subject", icon: BookOpenCheck },
+  { label: "Riwayat Sesi", href: "/dashboard/teacher/subject/history", icon: History },
+  { label: "Rekap Mapel", href: "/dashboard/teacher/subject/recap", icon: ChartColumnBig },
 ] satisfies StaffSidebarItem[];
 
 export function buildWalasSidebarItems(opts: {
@@ -169,31 +169,48 @@ export function buildWalasSidebarItems(opts: {
   const items: StaffSidebarItem[] = [];
   if (opts.isHomeroomTeacher) {
     items.push(
-      { label: "Dashboard", href: "/dashboard/walas", icon: LayoutDashboard },
-      { label: "Siswa Kelas", href: "/dashboard/walas/students", icon: Users },
-      { label: "Absensi Kelas", href: "/dashboard/walas/attendance", icon: ClipboardList },
-      { label: "Pengajuan", href: "/dashboard/walas/submissions", icon: FileClock },
+      { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
+      { label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students", icon: Users },
+      { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardList },
+      { label: "Pengajuan", href: "/dashboard/teacher/homeroom/submissions", icon: FileClock },
     );
   }
   if (opts.hasSubjectAssignments) {
     items.push(...guruMapelSidebarItems);
   }
   if (items.length === 0) {
-    items.push({ label: "Dashboard", href: "/dashboard/walas", icon: LayoutDashboard });
+    items.push({ label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard });
   }
   return items;
 }
 
+export function buildUnifiedTeacherSidebarItems(
+  teacherItems: StaffSidebarItem[],
+): StaffSidebarItem[] {
+  const contextualTeacherItems = teacherItems.flatMap((item) => {
+    if (item.href === "/dashboard/teacher") {
+      if (teacherItems.length === 1) return [];
+      return [{ ...item, label: "Wali Kelas", href: "/dashboard/teacher/homeroom", icon: GraduationCap }];
+    }
+    if (item.href === "/dashboard/teacher/homeroom/submissions") {
+      return [{ ...item, label: "Pengajuan Kelas" }];
+    }
+    return [item];
+  });
+
+  return [...bkSidebarItems, ...contextualTeacherItems];
+}
+
 export const bkSidebarItems = [
-  { label: "Dashboard", href: "/dashboard/bk", icon: LayoutDashboard },
-  { label: "Siswa", href: "/dashboard/bk/students", icon: Users },
-  { label: "Absensi", href: "/dashboard/bk/attendance", icon: BookOpenCheck },
+  { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
+  { label: "Siswa", href: "/dashboard/teacher/bk/students", icon: Users },
+  { label: "Absensi", href: "/dashboard/teacher/bk/attendance", icon: BookOpenCheck },
   {
     label: "Konseling",
-    href: "/dashboard/bk/counseling",
+    href: "/dashboard/teacher/bk/counseling",
     icon: FileClock,
   },
-  { label: "Pengajuan", href: "/dashboard/bk/submissions", icon: ClipboardList },
+  { label: "Pengajuan", href: "/dashboard/teacher/bk/submissions", icon: ClipboardList },
 ] satisfies StaffSidebarItem[];
 
 export const studentSidebarItems = [

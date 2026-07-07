@@ -1,7 +1,7 @@
 "use client";
 
 import { AppLink as Link } from "@/components/router/app-link";
-import { clearAuthSession, getAuthSession, getDashboardLabel, mapApiRoleToDashboardRole } from "@/lib/auth";
+import { clearAuthSession, getAuthSession, getDashboardLabel, getDefaultDashboardRole } from "@/lib/auth";
 import { getDashboardNavigation } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/config/site";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const session = getAuthSession();
-  const dashboardRole = session ? mapApiRoleToDashboardRole(session.user.role) : "siswa";
+  const dashboardRole = session ? getDefaultDashboardRole(session.user) : "siswa";
   const navigation = getDashboardNavigation(dashboardRole);
 
   const handleLogout = () => {

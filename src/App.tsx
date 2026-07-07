@@ -1,4 +1,4 @@
-import { getAuthSession, getDashboardPathForRole } from "@/lib/auth";
+import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
@@ -35,7 +35,16 @@ function PageBoundary({ children }: { children: ReactNode }) {
 
 function DashboardRedirect() {
   const session = getAuthSession();
-  return <Navigate replace to={session ? getDashboardPathForRole(session.user.role) : "/login"} />;
+  return <Navigate replace to={session ? getDashboardPathForUser(session.user) : "/login"} />;
+}
+
+function TeacherDashboard() {
+  const session = getAuthSession();
+  if (!session) return <Navigate replace to="/login" />;
+  if (session.user.role !== "TEACHER") {
+    return <Navigate replace to={getDashboardPathForUser(session.user)} />;
+  }
+  return session.user.has_bk_scope ? <BKDashboardPage /> : <WalasDashboardPage />;
 }
 
 export default function App() {
@@ -56,24 +65,27 @@ export default function App() {
         <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
         <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Report" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah section ini dibuat." />} />
 
-        <Route path="/dashboard/bk" element={<BKDashboardPage />} />
-        <Route path="/dashboard/bk/attendance" element={<BKAttendancePage />} />
-        <Route path="/dashboard/bk/counseling" element={<BKCounselingPage />} />
-        <Route path="/dashboard/bk/students" element={<BKStudentsPage />} />
-        <Route path="/dashboard/bk/submissions" element={<BKSubmissionsPage />} />
+        <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
+        <Route path="/dashboard/teacher/bk/attendance" element={<BKAttendancePage />} />
+        <Route path="/dashboard/teacher/bk/counseling" element={<BKCounselingPage />} />
+        <Route path="/dashboard/teacher/bk/students" element={<BKStudentsPage />} />
+        <Route path="/dashboard/teacher/bk/submissions" element={<BKSubmissionsPage />} />
 
         <Route path="/dashboard/siswa" element={<StudentDashboardPage />} />
         <Route path="/dashboard/siswa/history" element={<StudentHistoryPage />} />
         <Route path="/dashboard/siswa/profile" element={<StudentProfilePage />} />
 
-        <Route path="/dashboard/walas" element={<WalasDashboardPage />} />
-        <Route path="/dashboard/walas/attendance" element={<WalasAttendancePage />} />
-        <Route path="/dashboard/walas/students" element={<WalasStudentsPage />} />
-        <Route path="/dashboard/walas/submissions" element={<WalasSubmissionsPage />} />
-        <Route path="/dashboard/walas/mapel" element={<MapelDashboardPage />} />
-        <Route path="/dashboard/walas/mapel/history" element={<MapelHistoryPage />} />
-        <Route path="/dashboard/walas/mapel/recap" element={<MapelRecapPage />} />
-        <Route path="/dashboard/walas/mapel/session" element={<MapelSessionPage />} />
+        <Route path="/dashboard/teacher/homeroom" element={<WalasDashboardPage />} />
+        <Route path="/dashboard/teacher/homeroom/attendance" element={<WalasAttendancePage />} />
+        <Route path="/dashboard/teacher/homeroom/students" element={<WalasStudentsPage />} />
+        <Route path="/dashboard/teacher/homeroom/submissions" element={<WalasSubmissionsPage />} />
+        <Route path="/dashboard/teacher/subject" element={<MapelDashboardPage />} />
+        <Route path="/dashboard/teacher/subject/history" element={<MapelHistoryPage />} />
+        <Route path="/dashboard/teacher/subject/recap" element={<MapelRecapPage />} />
+        <Route path="/dashboard/teacher/subject/session" element={<MapelSessionPage />} />
+
+        <Route path="/dashboard/bk/*" element={<Navigate replace to="/dashboard/teacher" />} />
+        <Route path="/dashboard/walas/*" element={<Navigate replace to="/dashboard/teacher" />} />
 
         <Route path="*" element={<Navigate replace to="/" />} />
       </Routes>

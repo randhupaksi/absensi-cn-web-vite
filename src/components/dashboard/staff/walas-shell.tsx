@@ -40,13 +40,13 @@ export function WalasShell({ children }: WalasShellProps) {
 }
 
 export function resolveWalasSectionTitle(pathname: string): string {
-  if (pathname === "/dashboard/walas") return "Homeroom Dashboard";
-  if (pathname.startsWith("/dashboard/walas/students")) return "Class Students Dashboard";
-  if (pathname.startsWith("/dashboard/walas/attendance")) return "Class Attendance Dashboard";
-  if (pathname.startsWith("/dashboard/walas/submissions")) return "Submission Review Dashboard";
-  if (pathname.startsWith("/dashboard/walas/mapel/history")) return "Riwayat Sesi Mapel";
-  if (pathname.startsWith("/dashboard/walas/mapel/recap")) return "Rekap Kehadiran Mapel";
-  if (pathname.startsWith("/dashboard/walas/mapel/session")) return "Sesi Mapel Aktif";
-  if (pathname.startsWith("/dashboard/walas/mapel")) return "Daftar Hadir Mapel";
+  if (pathname === "/dashboard/teacher" || pathname === "/dashboard/teacher/homeroom") return "Homeroom Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/homeroom/students")) return "Class Students Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/homeroom/attendance")) return "Class Attendance Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/homeroom/submissions")) return "Submission Review Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/subject/history")) return "Riwayat Sesi Mapel";
+  if (pathname.startsWith("/dashboard/teacher/subject/recap")) return "Rekap Kehadiran Mapel";
+  if (pathname.startsWith("/dashboard/teacher/subject/session")) return "Sesi Mapel Aktif";
+  if (pathname.startsWith("/dashboard/teacher/subject")) return "Daftar Hadir Mapel";
   return "Dashboard";
 }

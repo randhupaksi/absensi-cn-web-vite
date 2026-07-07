@@ -179,7 +179,7 @@ export function MapelHistoryPage() {
                           {statusInfo.label}
                         </span>
                         <Link
-                          href={`/dashboard/walas/mapel/session?session_id=${sess.session_id}`}
+                          href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
                           className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200"
                         >
                           Lihat

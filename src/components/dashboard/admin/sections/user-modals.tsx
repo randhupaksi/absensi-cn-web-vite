@@ -21,12 +21,10 @@ const INPUT_CN =
 
 const CREATE_ROLE_OPTIONS = [
   { value: "ADMIN", label: "ADMIN" },
-  { value: "BK", label: "BK" },
 ];
 
 const EDIT_ROLE_OPTIONS = [
   { value: "ADMIN", label: "ADMIN" },
-  { value: "BK", label: "BK" },
   { value: "TEACHER", label: "TEACHER" },
 ];
 
@@ -56,8 +54,6 @@ export function roleDescription(role: AdminUser["role"]) {
   switch (role) {
     case "ADMIN":
       return "Kontrol penuh dashboard dan master data";
-    case "BK":
-      return "Akses monitoring siswa dan konseling";
     case "TEACHER":
       return "Akun dasar guru untuk modul pengajaran";
     default:
@@ -69,9 +65,7 @@ export function UserRoleBadge({ role }: { role: AdminUser["role"] }) {
   const className =
     role === "ADMIN"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-      : role === "BK"
-        ? "border-amber-200 bg-amber-50 text-amber-700"
-        : "border-sky-200 bg-sky-50 text-sky-700";
+      : "border-sky-200 bg-sky-50 text-sky-700";
 
   return (
     <Badge variant="outline" className={className}>
@@ -110,7 +104,7 @@ export function UserCreateModal({
   };
 
   return (
-    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Role Staff" description="Buat akun administrator atau BK untuk kebutuhan operasional backend. Akun guru dibuat dari section Guru agar profil mengajar langsung lengkap." icon={UserCog}>
+    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Administrator" description="Buat akun administrator baru. Akun guru dibuat dari section Guru agar profil mengajar langsung lengkap." icon={UserCog}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Akun">

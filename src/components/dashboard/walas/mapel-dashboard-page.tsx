@@ -85,7 +85,7 @@ export function MapelDashboardPage() {
                   </div>
                 </div>
                 <Link
-                  href={`/dashboard/walas/mapel/session?session_id=${session.session_id}`}
+                  href={`/dashboard/teacher/subject/session?session_id=${session.session_id}`}
                   className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-700"
                 >
                   Buka Daftar Hadir
@@ -106,21 +106,21 @@ export function MapelDashboardPage() {
           <section className="grid gap-4 sm:grid-cols-3">
             {[
               {
-                href: "/dashboard/walas/mapel/session",
+                href: "/dashboard/teacher/subject/session",
                 icon: BookOpenCheck,
                 label: "Sesi Aktif",
                 desc: "Buka daftar hadir kelas yang sedang berjalan",
                 color: "bg-emerald-50 text-emerald-700",
               },
               {
-                href: "/dashboard/walas/mapel/history",
+                href: "/dashboard/teacher/subject/history",
                 icon: History,
                 label: "Riwayat Sesi",
                 desc: "Lihat semua sesi yang sudah divalidasi",
                 color: "bg-sky-50 text-sky-700",
               },
               {
-                href: "/dashboard/walas/mapel/recap",
+                href: "/dashboard/teacher/subject/recap",
                 icon: ChartColumnBig,
                 label: "Rekap Mapel",
                 desc: "Lihat rekap kehadiran per siswa",
@@ -184,7 +184,7 @@ export function MapelDashboardPage() {
                       )}
                     </div>
                     <Link
-                      href={`/dashboard/walas/mapel/history?assignment_id=${a.id}`}
+                      href={`/dashboard/teacher/subject/history?assignment_id=${a.id}`}
                       className="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200"
                     >
                       Riwayat

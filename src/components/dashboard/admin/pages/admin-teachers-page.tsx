@@ -3,12 +3,16 @@
 import { AdminShell } from "@/components/dashboard/admin/shell/admin-shell";
 import { TeacherSection } from "@/components/dashboard/admin/sections/teacher-section";
 import {
+  getAdminBKUnitScopes,
   getAdminHomeroomAssignments,
+  getAdminSchoolUnits,
   getAdminTeacherProfiles,
   getAdminTeacherSubjectAssignments,
 } from "@/services/admin.service";
 import type {
+  AdminBKUnitScope,
   AdminHomeroomAssignment,
+  AdminSchoolUnit,
   AdminTeacherProfile,
   AdminTeacherSubjectAssignment,
 } from "@/types/admin";
@@ -29,6 +33,14 @@ export function AdminTeachersPage() {
     queryKey: ["admin-homeroom-assignments"],
     queryFn: getAdminHomeroomAssignments,
   });
+  const schoolUnitsQuery = useQuery({
+    queryKey: ["admin-school-units"],
+    queryFn: getAdminSchoolUnits,
+  });
+  const bkScopesQuery = useQuery({
+    queryKey: ["admin-bk-unit-scopes"],
+    queryFn: () => getAdminBKUnitScopes(),
+  });
 
   const teacherProfiles: AdminTeacherProfile[] =
     teacherProfilesQuery.data ?? [];
@@ -36,6 +48,8 @@ export function AdminTeachersPage() {
     teacherSubjectAssignmentsQuery.data ?? [];
   const homeroomAssignments: AdminHomeroomAssignment[] =
     homeroomAssignmentsQuery.data ?? [];
+  const schoolUnits: AdminSchoolUnit[] = schoolUnitsQuery.data ?? [];
+  const bkUnitScopes: AdminBKUnitScope[] = bkScopesQuery.data ?? [];
 
   return (
     <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
@@ -44,15 +58,21 @@ export function AdminTeachersPage() {
           teacherProfiles={teacherProfiles}
           teacherSubjectAssignments={teacherSubjectAssignments}
           homeroomAssignments={homeroomAssignments}
+          schoolUnits={schoolUnits}
+          bkUnitScopes={bkUnitScopes}
           isLoading={
             teacherProfilesQuery.isLoading ||
             teacherSubjectAssignmentsQuery.isLoading ||
-            homeroomAssignmentsQuery.isLoading
+            homeroomAssignmentsQuery.isLoading ||
+            schoolUnitsQuery.isLoading ||
+            bkScopesQuery.isLoading
           }
           errorMessage={
             teacherProfilesQuery.error?.message ??
             teacherSubjectAssignmentsQuery.error?.message ??
-            homeroomAssignmentsQuery.error?.message
+            homeroomAssignmentsQuery.error?.message ??
+            schoolUnitsQuery.error?.message ??
+            bkScopesQuery.error?.message
           }
         />
       )}

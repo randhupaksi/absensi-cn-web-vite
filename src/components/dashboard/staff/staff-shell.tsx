@@ -2,15 +2,22 @@
 
 import {
   clearAuthSession,
+  canAccessDashboardRole,
   getAuthSession,
-  getDashboardPathForRole,
-  mapApiRoleToDashboardRole,
+  getDashboardPathForUser,
 } from "@/lib/auth";
 import type { AuthSession, DashboardRole } from "@/types/auth";
 import { usePathname, useRouter } from "@/lib/router";
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { StaffSidebar, type StaffSidebarItem } from "./staff-sidebar";
+import { useQuery } from "@tanstack/react-query";
+import { getTeacherMe } from "@/services/staff.service";
+import {
+  buildUnifiedTeacherSidebarItems,
+  buildWalasSidebarItems,
+  StaffSidebar,
+  type StaffSidebarItem,
+} from "./staff-sidebar";
 import { StaffTopbar } from "./staff-topbar";
 
 type StaffShellProps = {
@@ -39,8 +46,25 @@ export function StaffShell({
   const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const session = useMemo(() => (isHydrated ? getAuthSession() : null), [isHydrated]);
 
-  const currentRole = session ? mapApiRoleToDashboardRole(session.user.role) : null;
-  const isExpectedRole = session && currentRole === expectedRole;
+  const teacherMeQuery = useQuery({
+    queryKey: ["teacher-me"],
+    queryFn: getTeacherMe,
+    staleTime: 60_000,
+    enabled: Boolean(session?.user.role === "TEACHER" && session.user.has_bk_scope),
+  });
+
+  const isExpectedRole = session && canAccessDashboardRole(session.user, expectedRole);
+  const visibleSidebarItems = useMemo(() => {
+    if (!session || session.user.role !== "TEACHER" || !session.user.has_bk_scope) {
+      return sidebarItems;
+    }
+
+    const teacherItems = buildWalasSidebarItems({
+      isHomeroomTeacher: teacherMeQuery.data?.is_homeroom_teacher ?? false,
+      hasSubjectAssignments: teacherMeQuery.data?.has_subject_assignments ?? false,
+    });
+    return buildUnifiedTeacherSidebarItems(teacherItems);
+  }, [session, sidebarItems, teacherMeQuery.data]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -53,7 +77,7 @@ export function StaffShell({
     }
 
     if (!isExpectedRole) {
-      router.replace(getDashboardPathForRole(session.user.role));
+      router.replace(getDashboardPathForUser(session.user));
     }
   }, [isExpectedRole, isHydrated, router, session]);
 
@@ -74,7 +98,7 @@ export function StaffShell({
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800">
       <div className="min-h-screen lg:pl-[272px]">
         <StaffSidebar
-          items={sidebarItems}
+          items={visibleSidebarItems}
           activePath={pathname}
           isOpen={mobileSidebarOpen}
           onClose={() => setMobileSidebarOpen(false)}

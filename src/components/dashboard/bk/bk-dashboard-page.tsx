@@ -206,7 +206,7 @@ export function BKDashboardPage() {
                 </p>
               </div>
               <Link
-                href="/dashboard/bk/submissions"
+                href="/dashboard/teacher/bk/submissions"
                 className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.96)_100%)] px-4 py-2 text-xs font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(16,185,129,0.1),inset_0_1px_0_rgba(255,255,255,0.95)] transition-[border-color,box-shadow,background-color,color] hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.14),0_14px_28px_rgba(15,23,42,0.06)]"
               >
                 Lihat Selengkapnya
@@ -361,7 +361,7 @@ function BKFocusCard({
         )}
       </div>
 
-      <DashboardMoreLink href="/dashboard/bk/students" label="Lihat detail fokus siswa" />
+      <DashboardMoreLink href="/dashboard/teacher/bk/students" label="Lihat detail fokus siswa" />
     </article>
   );
 }
@@ -439,7 +439,7 @@ function BKCounselingCard({
         )}
       </div>
 
-      <DashboardMoreLink href="/dashboard/bk/counseling" label="Buka semua catatan pembinaan" />
+      <DashboardMoreLink href="/dashboard/teacher/bk/counseling" label="Buka semua catatan pembinaan" />
     </article>
   );
 }
@@ -472,10 +472,10 @@ function normalizeDashboard(dashboard: StaffBKDashboard): StaffBKDashboard {
 }
 
 function getBKSectionTitle(pathname: string) {
-  if (pathname === "/dashboard/bk") return "BK Dashboard";
-  if (pathname.startsWith("/dashboard/bk/students")) return "Student Monitoring Dashboard";
-  if (pathname.startsWith("/dashboard/bk/attendance")) return "Attendance Review Dashboard";
-  if (pathname.startsWith("/dashboard/bk/counseling")) return "Counseling Notes Dashboard";
-  if (pathname.startsWith("/dashboard/bk/submissions")) return "Submission Monitoring Dashboard";
+  if (pathname === "/dashboard/teacher") return "BK Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/bk/students")) return "Student Monitoring Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/bk/attendance")) return "Attendance Review Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/bk/counseling")) return "Counseling Notes Dashboard";
+  if (pathname.startsWith("/dashboard/teacher/bk/submissions")) return "Submission Monitoring Dashboard";
   return "BK Dashboard";
 }

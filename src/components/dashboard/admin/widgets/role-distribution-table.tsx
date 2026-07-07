@@ -25,9 +25,9 @@ export function RoleDistributionTable({
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xl font-semibold text-slate-950">Distribusi Akun Sistem</p>
+          <p className="text-xl font-semibold text-slate-950">Akun dan Penugasan Sistem</p>
           <p className="mt-1 text-sm text-slate-500">
-            Komposisi siswa, guru, BK, dan admin yang aktif di sistem
+            Komposisi role akun serta capability BK yang aktif di sistem
           </p>
         </div>
         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
@@ -38,7 +38,7 @@ export function RoleDistributionTable({
       {hasData ? (
         <div className="mt-6 overflow-hidden rounded-[28px] border border-slate-100 bg-[linear-gradient(180deg,#fcfffd_0%,#f4faf6_100%)]">
           <div className="grid grid-cols-[1.2fr_0.65fr_1fr] border-b border-slate-100 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            <span>Role</span>
+            <span>Kategori</span>
             <span>Jumlah</span>
             <span>Proporsi</span>
           </div>
@@ -89,7 +89,7 @@ export function RoleDistributionTable({
             icon={ShieldEllipsis}
             compact
             title="Belum ada akun sistem"
-            description="Distribusi role akan tampil setelah akun siswa, guru, BK, atau admin mulai tersimpan."
+            description="Ringkasan akan tampil setelah akun dan penugasan operasional mulai tersimpan."
           />
         </div>
       )}

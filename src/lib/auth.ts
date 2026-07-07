@@ -1,6 +1,6 @@
 "use client";
 
-import type { ApiUserRole, AuthSession, DashboardRole } from "@/types/auth";
+import type { ApiUserRole, AuthSession, AuthUser, DashboardRole } from "@/types/auth";
 
 const AUTH_STORAGE_KEY = "absensi-cn-auth";
 
@@ -38,22 +38,36 @@ export function clearAuthSession() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
 }
 
-export function mapApiRoleToDashboardRole(role: ApiUserRole): DashboardRole {
-  switch (role) {
+export function getDefaultDashboardRole(user: AuthUser): DashboardRole {
+  switch (user.role) {
     case "STUDENT":
       return "siswa";
     case "TEACHER":
-      return "walas";
-    case "BK":
-      return "bk";
+      return user.has_bk_scope ? "bk" : "walas";
     case "ADMIN":
       return "admin";
   }
 }
 
-export function getDashboardPathForRole(role: ApiUserRole) {
-  const dashboardRole = mapApiRoleToDashboardRole(role);
+export function getDashboardPathForUser(user: AuthUser) {
+  if (user.role === "TEACHER") {
+    return "/dashboard/teacher";
+  }
+  const dashboardRole = getDefaultDashboardRole(user);
   return `/dashboard/${dashboardRole}`;
+}
+
+export function canAccessDashboardRole(user: AuthUser, dashboardRole: DashboardRole) {
+  switch (dashboardRole) {
+    case "siswa":
+      return user.role === "STUDENT";
+    case "admin":
+      return user.role === "ADMIN";
+    case "walas":
+      return user.role === "TEACHER";
+    case "bk":
+      return user.role === "TEACHER" && user.has_bk_scope;
+  }
 }
 
 export function getDashboardLabel(role: ApiUserRole) {
@@ -62,8 +76,6 @@ export function getDashboardLabel(role: ApiUserRole) {
       return "Siswa";
     case "TEACHER":
       return "Guru";
-    case "BK":
-      return "BK";
     case "ADMIN":
       return "Admin";
   }

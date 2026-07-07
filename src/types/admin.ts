@@ -36,7 +36,7 @@ export type AdminDashboardData = {
 export type AdminUser = {
   id: string;
   name: string;
-  role: "STUDENT" | "TEACHER" | "BK" | "ADMIN";
+  role: "STUDENT" | "TEACHER" | "ADMIN";
   nis?: string;
   username?: string;
 };

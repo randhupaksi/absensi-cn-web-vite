@@ -158,9 +158,9 @@ export function AdminDashboardPage() {
                     barClass: "bg-sky-400",
                   },
                   {
-                    label: "BK",
+                    label: "Penempatan BK",
                     count: dashboard.counts.total_bk ?? 0,
-                    caption: "Bimbingan konseling",
+                    caption: "Guru dengan capability BK",
                     colorClass: "bg-emerald-400",
                     barClass: "bg-emerald-400",
                   },

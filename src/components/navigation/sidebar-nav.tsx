@@ -2,7 +2,7 @@
 
 import { AppLink as Link } from "@/components/router/app-link";
 import { siteConfig } from "@/lib/config/site";
-import { getAuthSession, mapApiRoleToDashboardRole } from "@/lib/auth";
+import { getAuthSession, getDefaultDashboardRole } from "@/lib/auth";
 import { getDashboardNavigation } from "@/lib/constants/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const session = getAuthSession();
   const navigation = getDashboardNavigation(
-    session ? mapApiRoleToDashboardRole(session.user.role) : "siswa",
+    session ? getDefaultDashboardRole(session.user) : "siswa",
   );
 
   return (

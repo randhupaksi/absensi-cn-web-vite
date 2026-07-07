@@ -35,7 +35,6 @@ import {
   LayoutPanelTop,
   LineChart,
   ShieldCheck,
-  UserCog,
   UsersRound,
 } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -47,7 +46,7 @@ type UserSectionProps = {
   errorMessage?: string;
 };
 
-type UserTab = "all" | "admins" | "bk" | "teachers";
+type UserTab = "all" | "admins" | "teachers";
 
 export function UserSection({
   users,
@@ -103,7 +102,6 @@ export function UserSection({
   const filteredUsers = useMemo(() => {
     const base = staffUsers.filter((user) => {
       if (activeTab === "admins") return user.role === "ADMIN";
-      if (activeTab === "bk") return user.role === "BK";
       if (activeTab === "teachers") return user.role === "TEACHER";
       return true;
     });
@@ -129,12 +127,6 @@ export function UserSection({
       value: staffUsers.filter((user) => user.role === "ADMIN").length,
       icon: ShieldCheck,
       accentClass: "from-teal-500 via-emerald-500 to-green-500",
-    },
-    {
-      label: "BK",
-      value: staffUsers.filter((user) => user.role === "BK").length,
-      icon: UserCog,
-      accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
     },
     {
       label: "Akun Guru",
@@ -164,8 +156,8 @@ export function UserSection({
                   Role Management
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Kelola distribusi role administrator, BK, dan guru dari endpoint admin users
-                  dengan pola kerja yang konsisten dengan section lain.
+                  Kelola akun administrator dan identitas dasar guru. Penugasan operasional
+                  guru dikelola dari workspace Guru.
                 </p>
               </div>
             </div>
@@ -185,7 +177,7 @@ export function UserSection({
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 grid-cols-2 xl:grid-cols-3">
             {kpiCards.map((card) => (
               <StatCard
                 key={card.label}
@@ -201,7 +193,6 @@ export function UserSection({
             tabs={[
               { value: "all", label: "Semua Akun", icon: UsersRound },
               { value: "admins", label: "Administrator", icon: ShieldCheck },
-              { value: "bk", label: "BK", icon: UserCog },
               { value: "teachers", label: "Guru", icon: GraduationCap },
             ]}
           />
@@ -222,14 +213,14 @@ export function UserSection({
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
               <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari nama, role, username" />
 
-              <AddButton label="Role Staff" onClick={() => setModalOpen(true)} />
+              <AddButton label="Administrator" onClick={() => setModalOpen(true)} />
             </div>
           </div>
         </div>
 
-          {(["all", "admins", "bk", "teachers"] as UserTab[]).map((tab) => (
+          {(["all", "admins", "teachers"] as UserTab[]).map((tab) => (
             <TabsContent key={tab} value={tab} className="mt-4">
-              <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan akun baru untuk admin, BK, atau guru dari section ini." icon={ShieldCheck}>
+              <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan administrator di sini atau akun guru dari workspace Guru." icon={ShieldCheck}>
                 <DataTable>
                   <DataTableHeadRow labels={["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"]} />
                   <DataTableBody>

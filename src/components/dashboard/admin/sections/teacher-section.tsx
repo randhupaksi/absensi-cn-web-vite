@@ -23,7 +23,9 @@ import {
   TeacherProfileEditModal,
   type TeacherProfileCreatePayload,
 } from "@/components/dashboard/admin/sections/teacher-profile-modals";
+import { BKAssignmentModal } from "@/components/dashboard/admin/sections/teacher-bk-modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -34,15 +36,19 @@ import {
   deleteAdminUser,
   getAdminClasses,
   getAdminSchoolYears,
+  replaceAdminBKUnitScopes,
   updateAdminHomeroomAssignment,
   updateAdminTeacherAccount,
 } from "@/services/admin.service";
 import type {
+  AdminBKUnitScope,
   AdminHomeroomAssignment,
   AdminHomeroomAssignmentPayload,
+  AdminSchoolUnit,
   AdminTeacherProfile,
   AdminTeacherSubjectAssignment,
 } from "@/types/admin";
+import type { BKScopeFormValues } from "@/lib/validations/bk-scope-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BadgeCheck,
@@ -53,6 +59,7 @@ import {
   IdCard,
   LayoutPanelTop,
   Printer,
+  UserCog,
   UsersRound,
 } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -72,6 +79,8 @@ type TeacherSectionProps = {
   teacherProfiles: AdminTeacherProfile[];
   teacherSubjectAssignments: AdminTeacherSubjectAssignment[];
   homeroomAssignments: AdminHomeroomAssignment[];
+  schoolUnits: AdminSchoolUnit[];
+  bkUnitScopes: AdminBKUnitScope[];
   isLoading?: boolean;
   errorMessage?: string;
 };
@@ -82,7 +91,7 @@ const profileStatusOptions = [
   { value: "Nonaktif", label: "Nonaktif" },
 ];
 
-type TeacherTab = "profiles" | "homerooms";
+type TeacherTab = "profiles" | "homerooms" | "bk";
 
 type TeacherDeleteTarget =
   | { type: "profile"; item: AdminTeacherProfile }
@@ -92,6 +101,8 @@ export function TeacherSection({
   teacherProfiles,
   teacherSubjectAssignments,
   homeroomAssignments,
+  schoolUnits,
+  bkUnitScopes,
   isLoading = false,
   errorMessage,
 }: TeacherSectionProps) {
@@ -104,10 +115,13 @@ export function TeacherSection({
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [homeroomModalOpen, setHomeroomModalOpen] = useState(false);
+  const [bkModalOpen, setBkModalOpen] = useState(false);
+  const [editingBkTeacher, setEditingBkTeacher] = useState<AdminTeacherProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<AdminTeacherProfile | null>(null);
   const [editingHomeroomAssignment, setEditingHomeroomAssignment] =
     useState<AdminHomeroomAssignment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TeacherDeleteTarget | null>(null);
+  const [revokeBkTarget, setRevokeBkTarget] = useState<AdminTeacherProfile | null>(null);
 
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
@@ -175,6 +189,8 @@ export function TeacherSection({
       void queryClient.invalidateQueries({
         queryKey: ["admin-homeroom-assignments"],
       });
+      void queryClient.invalidateQueries({ queryKey: ["admin-bk-unit-scopes"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -209,7 +225,48 @@ export function TeacherSection({
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const saveBkAssignmentMutation = useMutation({
+    mutationFn: (values: BKScopeFormValues) =>
+      replaceAdminBKUnitScopes(values.user_id, values.school_unit_ids),
+    onSuccess: () => {
+      toast.success("Penempatan BK berhasil disimpan.");
+      setBkModalOpen(false);
+      setEditingBkTeacher(null);
+      void queryClient.invalidateQueries({ queryKey: ["admin-bk-unit-scopes"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const revokeBkAssignmentMutation = useMutation({
+    mutationFn: (teacher: AdminTeacherProfile) =>
+      replaceAdminBKUnitScopes(teacher.user_id, []),
+    onSuccess: () => {
+      toast.success("Penempatan BK berhasil dicabut.");
+      setRevokeBkTarget(null);
+      void queryClient.invalidateQueries({ queryKey: ["admin-bk-unit-scopes"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const normalizedQuery = deferredQuery.trim().toLowerCase();
+
+  const bkScopesByUser = useMemo(
+    () => bkUnitScopes.reduce<Record<string, AdminBKUnitScope[]>>((result, scope) => {
+      (result[scope.user_id] ??= []).push(scope);
+      return result;
+    }, {}),
+    [bkUnitScopes],
+  );
+  const bkTeachers = useMemo(
+    () => teacherProfiles.filter((teacher) => (bkScopesByUser[teacher.user_id]?.length ?? 0) > 0),
+    [bkScopesByUser, teacherProfiles],
+  );
+  const eligibleTeachersForBk = useMemo(
+    () => teacherProfiles.filter((teacher) => teacher.is_active && !bkScopesByUser[teacher.user_id]?.length),
+    [bkScopesByUser, teacherProfiles],
+  );
 
   const subjectAssignmentsByTeacher = useMemo(() => {
     return teacherSubjectAssignments.reduce<Record<string, number>>(
@@ -261,6 +318,17 @@ export function TeacherSection({
     [homeroomAssignments, normalizedQuery],
   );
 
+  const filteredBkTeachers = useMemo(
+    () =>
+      bkTeachers.filter(
+        (teacher) =>
+          normalizedQuery.length === 0 ||
+          teacher.name.toLowerCase().includes(normalizedQuery) ||
+          (teacher.username ?? "").toLowerCase().includes(normalizedQuery),
+      ),
+    [bkTeachers, normalizedQuery],
+  );
+
   const activeTeacherCount = teacherProfiles.filter(
     (teacher) => teacher.is_active,
   ).length;
@@ -270,6 +338,23 @@ export function TeacherSection({
   ).length;
 
   const kpiCards = useMemo(() => {
+    if (activeTab === "bk") {
+      return [
+        {
+          label: "Total Akun BK",
+          value: bkTeachers.length,
+          icon: UserCog,
+          accentClass: "from-amber-400 via-orange-400 to-emerald-500",
+        },
+        {
+          label: "Guru Tersedia",
+          value: eligibleTeachersForBk.length,
+          icon: UsersRound,
+          accentClass: "from-emerald-500 via-teal-500 to-cyan-500",
+        },
+      ];
+    }
+
     if (activeTab === "homerooms") {
       return [
         {
@@ -329,6 +414,8 @@ export function TeacherSection({
     activeHomeroomAssignments,
     activeTab,
     activeTeacherCount,
+    bkTeachers.length,
+    eligibleTeachersForBk.length,
     homeroomAssignments,
     teacherSubjectAssignments,
     teacherProfiles,
@@ -343,6 +430,10 @@ export function TeacherSection({
     homerooms: {
       label: "Wali Kelas",
       onClick: () => setHomeroomModalOpen(true),
+    },
+    bk: {
+      label: "BK",
+      onClick: () => setBkModalOpen(true),
     },
   } satisfies Record<
     TeacherTab,
@@ -429,6 +520,7 @@ export function TeacherSection({
             tabs={[
               { value: "profiles", label: "Profil Guru", icon: UsersRound },
               { value: "homerooms", label: "Penempatan Walas", icon: GraduationCap },
+              { value: "bk", label: "Penempatan BK", icon: UserCog },
             ]}
           />
         </div>
@@ -554,6 +646,55 @@ export function TeacherSection({
               </DataTable>
             </DataTableCard>
           </TabsContent>
+
+          <TabsContent value="bk" className="mt-4">
+            <DataTableCard
+              isLoading={isLoading}
+              columnCount={4}
+              isEmpty={filteredBkTeachers.length === 0}
+              emptyTitle="Belum ada penempatan BK"
+              emptyDescription="Tambahkan guru dan pilih unit sekolah yang menjadi cakupan monitoringnya."
+              icon={UserCog}
+            >
+              <DataTable>
+                <DataTableHeadRow labels={["Nama", "Username", "Cakupan Unit", "Aksi"]} />
+                <DataTableBody>
+                  {filteredBkTeachers.map((teacher) => (
+                    <DataTableRow key={teacher.user_id}>
+                      <DataTableCell>
+                        <div className="flex items-center gap-3">
+                          <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700 shadow-[0_8px_20px_rgba(22,85,58,0.08)]">
+                            {getInitials(teacher.name)}
+                          </span>
+                          <p className="font-medium text-slate-700">{teacher.name}</p>
+                        </div>
+                      </DataTableCell>
+                      <DataTableCell>{teacher.username || "-"}</DataTableCell>
+                      <DataTableCell>
+                        <div className="flex flex-wrap gap-1.5">
+                          {bkScopesByUser[teacher.user_id]?.map((scope) => (
+                            <Badge key={scope.id} variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                              {scope.school_unit_code}
+                            </Badge>
+                          ))}
+                        </div>
+                      </DataTableCell>
+                      <DataTableCell>
+                        <ActionButtons
+                          onEdit={() => {
+                            setEditingBkTeacher(teacher);
+                            setBkModalOpen(true);
+                          }}
+                          onDelete={() => setRevokeBkTarget(teacher)}
+                          isDeletePending={revokeBkAssignmentMutation.isPending}
+                        />
+                      </DataTableCell>
+                    </DataTableRow>
+                  ))}
+                </DataTableBody>
+              </DataTable>
+            </DataTableCard>
+          </TabsContent>
         </Tabs>
       </section>
 
@@ -639,6 +780,33 @@ export function TeacherSection({
           }
           deleteHomeroomAssignmentMutation.mutate(deleteTarget.item.id);
         }}
+      />
+      {bkModalOpen && (
+        <BKAssignmentModal
+          open={bkModalOpen}
+          onOpenChange={(open) => {
+            setBkModalOpen(open);
+            if (!open) setEditingBkTeacher(null);
+          }}
+          teachers={editingBkTeacher ? [editingBkTeacher] : eligibleTeachersForBk}
+          units={schoolUnits}
+          initialValues={editingBkTeacher ? {
+            user_id: editingBkTeacher.user_id,
+            school_unit_ids: bkScopesByUser[editingBkTeacher.user_id]?.map((scope) => scope.school_unit_id) ?? [],
+          } : undefined}
+          isPending={saveBkAssignmentMutation.isPending}
+          onSubmit={(values) => saveBkAssignmentMutation.mutate(values)}
+        />
+      )}
+      <DeleteConfirmationModal
+        open={Boolean(revokeBkTarget)}
+        onOpenChange={(open) => { if (!open) setRevokeBkTarget(null); }}
+        title="Cabut Penempatan BK?"
+        description={revokeBkTarget ? `Capability BK untuk "${revokeBkTarget.name}" akan dicabut dari seluruh unit sekolah.` : ""}
+        warning="Penugasan mapel dan wali kelas tetap tersimpan."
+        confirmLabel="Ya, Cabut"
+        isPending={revokeBkAssignmentMutation.isPending}
+        onConfirm={() => revokeBkTarget && revokeBkAssignmentMutation.mutate(revokeBkTarget)}
       />
     </>
   );
