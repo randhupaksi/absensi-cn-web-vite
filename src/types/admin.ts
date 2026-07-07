@@ -271,31 +271,6 @@ export type AdminMajorPayload = {
   is_active: boolean;
 };
 
-export type AdminSubjectOffering = {
-  id: string;
-  subject_id: string;
-  subject_code: string;
-  subject_name: string;
-  class_id: string;
-  class_name: string;
-  school_unit_id: string;
-  school_unit_code: string;
-  school_year_id: string;
-  school_year_name: string;
-  weekly_hours: number;
-  is_required: boolean;
-  is_active: boolean;
-};
-
-export type AdminSubjectOfferingPayload = {
-  subject_id: string;
-  class_id: string;
-  school_year_id: string;
-  weekly_hours: number;
-  is_required: boolean;
-  is_active: boolean;
-};
-
 export type AdminRoom = {
   id: string;
   school_unit_id: string;

@@ -11,8 +11,6 @@ import type {
   AdminMajorPayload,
   AdminSchoolUnit,
   AdminSchoolUnitPayload,
-  AdminSubjectOffering,
-  AdminSubjectOfferingPayload,
   AdminRoom,
   AdminRoomPayload,
   AdminScheduleOverride,
@@ -471,32 +469,6 @@ export async function updateAdminMajor(id: string, payload: AdminMajorPayload) {
 
 export async function deleteAdminMajor(id: string) {
   try { await apiClient.delete(`/admin/majors/${id}`); }
-  catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function getAdminSubjectOfferings(params: Record<string, string> = {}) {
-  try {
-    const response = await apiClient.get<ApiEnvelope<AdminSubjectOffering[]>>("/admin/subject-offerings", { params });
-    return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function createAdminSubjectOffering(payload: AdminSubjectOfferingPayload) {
-  try {
-    const response = await apiClient.post<ApiEnvelope<AdminSubjectOffering>>("/admin/subject-offerings", payload);
-    return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function updateAdminSubjectOffering(id: string, payload: AdminSubjectOfferingPayload) {
-  try {
-    const response = await apiClient.patch<ApiEnvelope<AdminSubjectOffering>>(`/admin/subject-offerings/${id}`, payload);
-    return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function deleteAdminSubjectOffering(id: string) {
-  try { await apiClient.delete(`/admin/subject-offerings/${id}`); }
   catch (error) { throw new Error(getErrorMessage(error)); }
 }
 

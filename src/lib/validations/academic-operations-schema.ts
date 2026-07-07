@@ -1,14 +1,5 @@
 import { z } from "zod";
 
-export const subjectOfferingSchema = z.object({
-  subject_id: z.string().min(1, "Mapel wajib dipilih"),
-  class_id: z.string().min(1, "Kelas wajib dipilih"),
-  school_year_id: z.string().min(1, "Tahun ajaran wajib dipilih"),
-  weekly_hours: z.number().int().min(1, "Minimal 1 JP per minggu"),
-  is_required: z.boolean(),
-  is_active: z.boolean(),
-});
-
 export const roomSchema = z.object({
   school_unit_id: z.string().min(1, "Unit sekolah wajib dipilih"),
   code: z.string().trim().min(1, "Kode ruangan wajib diisi").max(30),
@@ -39,6 +30,5 @@ export const scheduleOverrideSchema = z.object({
   if (value.override_type === "SUBSTITUTE" && !value.substitute_teacher_id) context.addIssue({ code: "custom", path: ["substitute_teacher_id"], message: "Guru pengganti wajib dipilih" });
 });
 
-export type SubjectOfferingFormValues = z.infer<typeof subjectOfferingSchema>;
 export type RoomFormValues = z.infer<typeof roomSchema>;
 export type ScheduleOverrideFormValues = z.infer<typeof scheduleOverrideSchema>;

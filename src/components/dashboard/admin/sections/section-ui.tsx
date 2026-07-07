@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import { PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
@@ -301,7 +302,11 @@ export function SectionTabSwitch({ tabs }: { tabs: SectionTabItem[] }) {
 }
 
 export function DataTable({ children }: { children: ReactNode }) {
-  return <table className="min-w-full text-sm">{children}</table>;
+  // No fixed table-layout and no forced column widths: columns size to their
+  // content and the table can grow past the card width. DataTableCard wraps
+  // this in an `overflow-x-auto` container, so wide tables scroll horizontally
+  // instead of squeezing every column to fit.
+  return <table className="w-max min-w-full text-sm">{children}</table>;
 }
 
 export function DataTableHeadRow({ labels }: { labels: string[] }) {
@@ -311,7 +316,7 @@ export function DataTableHeadRow({ labels }: { labels: string[] }) {
         {labels.map((label) => (
           <th
             key={label}
-            className={`px-5 py-4 font-semibold ${label === "Aksi" ? "text-center" : ""}`}
+            className={cn("whitespace-nowrap px-5 py-4 font-semibold", label === "Aksi" && "text-center")}
           >
             {label}
           </th>
@@ -349,7 +354,7 @@ export function DataTableCell({
   colSpan?: number;
 }) {
   return (
-    <td colSpan={colSpan} className={`px-5 py-4 text-slate-600 ${className}`}>
+    <td colSpan={colSpan} className={cn("whitespace-nowrap px-5 py-4 text-slate-600", className)}>
       {children}
     </td>
   );

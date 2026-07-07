@@ -2,14 +2,12 @@
 
 import { AdminShell } from "@/components/dashboard/admin/shell/admin-shell";
 import { SubjectManagementSection } from "@/components/dashboard/admin/sections/subject-management-section";
-import { AcademicOperationsSection } from "@/components/dashboard/admin/sections/academic-operations-section";
 import {
   getAdminClasses,
   getAdminMajors,
   getAdminRooms,
   getAdminSchoolUnits,
   getAdminScheduleOverrides,
-  getAdminSubjectOfferings,
   getAdminSchoolYears,
   getAdminSubjects,
   getAdminSubjectSchedules,
@@ -30,10 +28,9 @@ export function AdminSubjectsPage() {
 	const programsQuery = useQuery({ queryKey: ["admin-majors"], queryFn: () => getAdminMajors() });
 	const roomsQuery = useQuery({ queryKey: ["admin-rooms"], queryFn: () => getAdminRooms() });
 	const unitsQuery = useQuery({ queryKey: ["admin-school-units"], queryFn: getAdminSchoolUnits });
-	const offeringsQuery = useQuery({ queryKey: ["admin-subject-offerings"], queryFn: () => getAdminSubjectOfferings() });
 	const overridesQuery = useQuery({ queryKey: ["admin-schedule-overrides"], queryFn: () => getAdminScheduleOverrides() });
 
-  const queries = [subjectsQuery, schedulesQuery, assignmentsQuery, teachersQuery, classesQuery, schoolYearsQuery, programsQuery, roomsQuery, unitsQuery, offeringsQuery, overridesQuery];
+  const queries = [subjectsQuery, schedulesQuery, assignmentsQuery, teachersQuery, classesQuery, schoolYearsQuery, programsQuery, roomsQuery, unitsQuery, overridesQuery];
 
   return (
     <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
@@ -47,10 +44,11 @@ export function AdminSubjectsPage() {
           schoolYears={schoolYearsQuery.data ?? []}
 		  programs={programsQuery.data ?? []}
 		  rooms={roomsQuery.data ?? []}
+		  overrides={overridesQuery.data ?? []}
+		  schoolUnits={unitsQuery.data ?? []}
           isLoading={queries.some((query) => query.isLoading)}
           errorMessage={queries.find((query) => query.error)?.error?.message}
         />
-		<AcademicOperationsSection offerings={offeringsQuery.data ?? []} rooms={roomsQuery.data ?? []} overrides={overridesQuery.data ?? []} subjects={subjectsQuery.data ?? []} classes={classesQuery.data ?? []} schoolYears={schoolYearsQuery.data ?? []} schoolUnits={unitsQuery.data ?? []} schedules={schedulesQuery.data ?? []} teachers={teachersQuery.data ?? []} isLoading={queries.some((query) => query.isLoading)} />
 	  </>)}
     </AdminShell>
   );
