@@ -1,10 +1,8 @@
 ﻿"use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import {
-  PremiumModal,
-  premiumModalActionsClassName,
-} from "@/components/modals/premium-modal";
+import { PremiumModal } from "@/components/modals/premium-modal";
+import { ReportModalFooter } from "@/components/reports/shared/report-modal-footer";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -15,12 +13,19 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
+import {
+  drawReportPdfFooter,
+  drawReportPdfHeader,
+  drawReportPdfPills,
+  REPORT_PDF_MARGIN_X,
+  REPORT_TABLE_STYLE,
+} from "@/lib/reports/pdf-report-kit";
 import { cn } from "@/lib/utils";
 import {
   QuestionBlock,
   ReportCheckbox,
   ReportRadio,
-} from "@/components/reports/admin/guru-report-modal";
+} from "@/components/reports/shared/report-question-ui";
 import { getBKAttendanceOverview } from "@/services/staff.service";
 import type { StaffAttendanceRecord, StaffBKClassSummary } from "@/types/staff";
 import {
@@ -143,44 +148,11 @@ async function generateBKAbsensiPdf(
 
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Absensi BK");
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const mx = 14;
-
-  const now = new Date().toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  const mx = REPORT_PDF_MARGIN_X;
+  const { metaY } = drawReportPdfHeader(doc, {
+    title: "LAPORAN ABSENSI LINTAS KELAS",
+    subtitle: "Laporan Guru Bimbingan Konseling",
   });
-
-  // Header band
-  doc.setFillColor(6, 78, 59);
-  doc.roundedRect(mx, 10, W - mx * 2, 22, 2.5, 2.5, "F");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(236, 253, 245);
-  doc.text("ABSENSI CN", mx + 5, 18);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(167, 243, 208);
-  doc.text("Laporan Guru Bimbingan Konseling", mx + 5, 24);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(255, 255, 255);
-  doc.text("LAPORAN ABSENSI LINTAS KELAS", W - mx - 5, 18, { align: "right" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(167, 243, 208);
-  doc.text(`Dicetak: ${now}`, W - mx - 5, 24, { align: "right" });
-
-  // Meta pills
-  const metaY = 37;
   const pills = [
     `Tanggal: ${meta.tanggal}`,
     `Kelas: ${meta.kelas}`,
@@ -188,20 +160,7 @@ async function generateBKAbsensiPdf(
     `Total: ${records.length} record`,
     `Urutan: ${meta.urutan}`,
   ];
-  let pillX = mx;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(7.5);
-  doc.setTextColor(6, 95, 70);
-  pills.forEach((text) => {
-    const tw = doc.getTextWidth(text);
-    const pw = tw + 8;
-    doc.setFillColor(240, 253, 244);
-    doc.setDrawColor(110, 231, 183);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(pillX, metaY, pw, 5, 1.2, 1.2, "FD");
-    doc.text(text, pillX + 4, metaY + 3.6);
-    pillX += pw + 4;
-  });
+  drawReportPdfPills(doc, pills, metaY);
 
   // Build table
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
@@ -228,41 +187,10 @@ async function generateBKAbsensiPdf(
     body,
     startY: metaY + 8,
     margin: { left: mx, right: mx },
-    styles: {
-      fontSize: 8,
-      cellPadding: { horizontal: 4, vertical: 4 },
-      lineColor: [226, 232, 240],
-      lineWidth: 0.2,
-      font: "helvetica",
-      textColor: [51, 65, 85],
-      overflow: "linebreak",
-    },
-    headStyles: {
-      fillColor: [6, 78, 59],
-      textColor: [236, 253, 245],
-      fontStyle: "bold",
-      fontSize: 7.5,
-      halign: "center",
-    },
-    alternateRowStyles: { fillColor: [248, 250, 252] },
-    columnStyles: {
-      0: { cellWidth: 14, halign: "center", fontStyle: "bold" },
-    },
+    ...REPORT_TABLE_STYLE,
   });
 
-  // Footer
-  const totalPages = doc.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(148, 163, 184);
-    doc.setDrawColor(226, 232, 240);
-    doc.setLineWidth(0.2);
-    doc.line(mx, H - 8, W - mx, H - 8);
-    doc.text("Laporan Absensi Lintas Kelas — BK ABSENSI CN", mx, H - 4);
-    doc.text(`Halaman ${i} / ${totalPages}`, W - mx, H - 4, { align: "right" });
-  }
+  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas — BK ABSENSI CN");
 
   doc.save(`Laporan-Absensi-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -752,39 +680,13 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Actions */}
-        <div className={premiumModalActionsClassName}>
-          <button
-            type="button"
-            className="inline-flex h-10 items-center justify-center rounded-[0.8rem] border border-slate-200 px-5 text-[0.88rem] text-slate-600 transition hover:bg-slate-50"
-            onClick={() => handleClose(false)}
-          >
-            Batal
-          </button>
-          <button
-            type="button"
-            disabled={!canDownload || generating}
-            onClick={handleDownload}
-            className={cn(
-              "inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] px-6 text-[0.88rem] font-semibold text-white transition-all duration-200",
-              canDownload && !generating
-                ? "bg-emerald-600 shadow-[0_4px_14px_rgba(5,150,105,0.3)] hover:bg-emerald-700 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)]"
-                : "cursor-not-allowed bg-slate-300",
-            )}
-          >
-            {generating ? (
-              <>
-                <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Memuat data & membuat PDF...
-              </>
-            ) : (
-              <>
-                <Printer className="size-4" />
-                Download PDF
-              </>
-            )}
-          </button>
-        </div>
+        <ReportModalFooter
+          canDownload={canDownload}
+          generating={generating}
+          onCancel={() => handleClose(false)}
+          onDownload={handleDownload}
+          cancelVariant="native"
+        />
       </div>
     </PremiumModal>
   );

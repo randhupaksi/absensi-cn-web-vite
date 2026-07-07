@@ -7,6 +7,7 @@ import { getDashboardPathForRole, saveAuthSession } from "@/lib/auth";
 import { loginSchema, type LoginSchema, type PortalType } from "@/lib/validations/login-schema";
 import { login, type AuthLoginResponse } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   Eye,
@@ -27,6 +28,7 @@ type LoginFormProps = {
 
 export function LoginForm({ portal }: LoginFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
@@ -45,6 +47,9 @@ export function LoginForm({ portal }: LoginFormProps) {
       const result = await login(values);
       const response = result.data as AuthLoginResponse;
 
+      // Guard against stale data from a previous account/role on this tab
+      // (e.g. session expired without an explicit logout).
+      queryClient.clear();
       saveAuthSession(response);
 
       toast.success("Login berhasil", {

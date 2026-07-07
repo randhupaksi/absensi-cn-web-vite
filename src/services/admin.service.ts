@@ -36,6 +36,7 @@ import type {
   ImportResult,
 } from "@/types/admin";
 import axios from "axios";
+import { downloadBlob } from "@/lib/download-file";
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -44,12 +45,22 @@ type ApiEnvelope<T> = {
   errors?: Record<string, string>;
 };
 
+// MySQL/GORM sometimes bubble raw driver errors (e.g. "Error 1062 (23000):
+// Duplicate entry '...' for key '...'") straight into the API envelope
+// message. Surface a readable message instead of the raw SQL error text.
+function humanizeBackendMessage(message: string) {
+  if (/duplicate entry/i.test(message)) {
+    return "Data yang sama sudah tersimpan. Periksa kembali pilihan Anda (kemungkinan ada duplikat, misalnya program/jurusan yang sama dipilih dua kali).";
+  }
+  return message;
+}
+
 function getErrorMessage(error: unknown) {
   if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
-    return (
-      error.response?.data?.message ??
-      "Terjadi kesalahan saat menghubungkan dashboard admin."
-    );
+    const message = error.response?.data?.message;
+    return message
+      ? humanizeBackendMessage(message)
+      : "Terjadi kesalahan saat menghubungkan dashboard admin.";
   }
 
   return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui.";
@@ -91,10 +102,17 @@ export async function getAdminTeacherSubjectAssignments(params: Record<string, s
       await apiClient.get<ApiEnvelope<AdminTeacherSubjectAssignment[]>>(
         "/admin/teacher-subject-assignments", { params },
       );
-    return response.data.data;
+    return response.data.data.map(withNormalizedSchedules);
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
+}
+
+// Backend returns `schedules: null` (not `[]`) for assignments with no schedule
+// slots yet, since it serializes a nil Go slice. Normalize here so callers can
+// safely rely on the declared `AdminTeacherSubjectAssignment.schedules` array type.
+function withNormalizedSchedules(assignment: AdminTeacherSubjectAssignment): AdminTeacherSubjectAssignment {
+  return { ...assignment, schedules: assignment.schedules ?? [] };
 }
 
 export async function getAdminHomeroomAssignments() {
@@ -295,7 +313,7 @@ export async function createAdminTeacherSubjectAssignment(
     const response = await apiClient.post<
       ApiEnvelope<AdminTeacherSubjectAssignment>
     >("/admin/teacher-subject-assignments", payload);
-    return response.data.data;
+    return withNormalizedSchedules(response.data.data);
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -397,7 +415,7 @@ export async function updateAdminTeacherSubjectAssignment(
     const response = await apiClient.patch<
       ApiEnvelope<AdminTeacherSubjectAssignment>
     >(`/admin/teacher-subject-assignments/${id}`, payload);
-    return response.data.data;
+    return withNormalizedSchedules(response.data.data);
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -642,14 +660,7 @@ export function downloadAdminImportTemplate(type: "guru" | "siswa") {
     .then((response) => {
       const filename =
         type === "guru" ? "template_import_guru.xlsx" : "template_import_siswa.xlsx";
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      downloadBlob(new Blob([response.data]), filename);
     })
     .catch((error) => {
       throw new Error(getErrorMessage(error));

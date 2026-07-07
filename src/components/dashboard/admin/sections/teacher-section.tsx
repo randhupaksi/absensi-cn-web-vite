@@ -557,67 +557,69 @@ export function TeacherSection({
         </Tabs>
       </section>
 
-      <ImportExcelModal
-        open={importModalOpen}
-        onOpenChange={setImportModalOpen}
-        type="guru"
-        onSuccess={() => {
-          void queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] });
-          void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-        }}
-      />
+      {importModalOpen && (
+        <ImportExcelModal
+          open={importModalOpen}
+          onOpenChange={setImportModalOpen}
+          type="guru"
+          onSuccess={() => {
+            void queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] });
+            void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+          }}
+        />
+      )}
 
-      <GuruReportModal
-        open={reportModalOpen}
-        onOpenChange={setReportModalOpen}
-        teachers={teacherProfiles}
-      />
+      {reportModalOpen && (
+        <GuruReportModal
+          open={reportModalOpen}
+          onOpenChange={setReportModalOpen}
+          teachers={teacherProfiles}
+        />
+      )}
 
-      <TeacherProfileCreateModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        isPending={createTeacherProfileMutation.isPending}
-        onSubmit={(payload) => createTeacherProfileMutation.mutate(payload)}
-      />
-      <TeacherProfileEditModal
-        key={editingProfile?.id ?? "profile-closed"}
-        teacher={editingProfile}
-        open={Boolean(editingProfile)}
-        onOpenChange={(open) => {
-          if (!open) setEditingProfile(null);
-        }}
-        isPending={updateTeacherProfileMutation.isPending}
-        onSubmit={(payload) => updateTeacherProfileMutation.mutate(payload)}
-      />
+      {profileModalOpen && (
+        <TeacherProfileCreateModal
+          open={profileModalOpen}
+          onOpenChange={setProfileModalOpen}
+          isPending={createTeacherProfileMutation.isPending}
+          onSubmit={(payload) => createTeacherProfileMutation.mutate(payload)}
+        />
+      )}
+      {editingProfile && (
+        <TeacherProfileEditModal
+          key={editingProfile.id}
+          teacher={editingProfile}
+          open
+          onOpenChange={(open) => { if (!open) setEditingProfile(null); }}
+          isPending={updateTeacherProfileMutation.isPending}
+          onSubmit={(payload) => updateTeacherProfileMutation.mutate(payload)}
+        />
+      )}
 
-      <HomeroomAssignmentCreateModal
-        open={homeroomModalOpen}
-        onOpenChange={setHomeroomModalOpen}
-        teacherProfiles={teacherProfiles}
-        classes={classesQuery.data ?? []}
-        schoolYears={schoolYearsQuery.data ?? []}
-        isPending={createHomeroomAssignmentMutation.isPending}
-        onSubmit={(payload) => createHomeroomAssignmentMutation.mutate(payload)}
-      />
-      <HomeroomAssignmentEditModal
-        key={editingHomeroomAssignment?.id ?? "homeroom-assignment-closed"}
-        assignment={editingHomeroomAssignment}
-        open={Boolean(editingHomeroomAssignment)}
-        onOpenChange={(open) => {
-          if (!open) setEditingHomeroomAssignment(null);
-        }}
-        teacherProfiles={teacherProfiles}
-        classes={classesQuery.data ?? []}
-        schoolYears={schoolYearsQuery.data ?? []}
-        isPending={updateHomeroomAssignmentMutation.isPending}
-        onSubmit={(payload) => {
-          if (!editingHomeroomAssignment) return;
-          updateHomeroomAssignmentMutation.mutate({
-            id: editingHomeroomAssignment.id,
-            payload,
-          });
-        }}
-      />
+      {homeroomModalOpen && (
+        <HomeroomAssignmentCreateModal
+          open={homeroomModalOpen}
+          onOpenChange={setHomeroomModalOpen}
+          teacherProfiles={teacherProfiles}
+          classes={classesQuery.data ?? []}
+          schoolYears={schoolYearsQuery.data ?? []}
+          isPending={createHomeroomAssignmentMutation.isPending}
+          onSubmit={(payload) => createHomeroomAssignmentMutation.mutate(payload)}
+        />
+      )}
+      {editingHomeroomAssignment && (
+        <HomeroomAssignmentEditModal
+          key={editingHomeroomAssignment.id}
+          assignment={editingHomeroomAssignment}
+          open
+          onOpenChange={(open) => { if (!open) setEditingHomeroomAssignment(null); }}
+          teacherProfiles={teacherProfiles}
+          classes={classesQuery.data ?? []}
+          schoolYears={schoolYearsQuery.data ?? []}
+          isPending={updateHomeroomAssignmentMutation.isPending}
+          onSubmit={(payload) => updateHomeroomAssignmentMutation.mutate({ id: editingHomeroomAssignment.id, payload })}
+        />
+      )}
       <DeleteConfirmationModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

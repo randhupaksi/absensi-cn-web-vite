@@ -340,7 +340,13 @@ export async function getTeacherSubjectAssignments() {
     const response = await apiClient.get<ApiEnvelope<StaffSubjectAssignment[]>>(
       "/teacher/subject-assignments",
     );
-    return response.data.data;
+    // Backend returns `schedules: null` (not `[]`) for assignments with no
+    // schedule slots yet, since it serializes a nil Go slice. Normalize here
+    // so callers can safely rely on the declared `schedules` array type.
+    return response.data.data.map((assignment) => ({
+      ...assignment,
+      schedules: assignment.schedules ?? [],
+    }));
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }

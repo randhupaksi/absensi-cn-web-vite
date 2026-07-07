@@ -237,25 +237,24 @@ export function AdminManagementSection({
         </div>
       </section>
 
-      <AdminCreateModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        isPending={createAdminMutation.isPending}
-        onSubmit={(payload) => createAdminMutation.mutate(payload)}
-      />
-      <AdminEditModal
-        key={editingUser?.id ?? "admin-edit-closed"}
-        user={editingUser}
-        open={Boolean(editingUser)}
-        onOpenChange={(open) => {
-          if (!open) setEditingUser(null);
-        }}
-        isPending={updateAdminMutation.isPending}
-        onSubmit={(payload) => {
-          if (!editingUser) return;
-          updateAdminMutation.mutate({ id: editingUser.id, payload });
-        }}
-      />
+      {modalOpen && (
+        <AdminCreateModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          isPending={createAdminMutation.isPending}
+          onSubmit={(payload) => createAdminMutation.mutate(payload)}
+        />
+      )}
+      {editingUser && (
+        <AdminEditModal
+          key={editingUser.id}
+          user={editingUser}
+          open
+          onOpenChange={(open) => { if (!open) setEditingUser(null); }}
+          isPending={updateAdminMutation.isPending}
+          onSubmit={(payload) => updateAdminMutation.mutate({ id: editingUser.id, payload })}
+        />
+      )}
       <DeleteConfirmationModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

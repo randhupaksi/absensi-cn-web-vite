@@ -9,6 +9,7 @@ import {
 import type { AuthSession, DashboardRole } from "@/types/auth";
 import { usePathname, useRouter } from "@/lib/router";
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { StaffSidebar, type StaffSidebarItem } from "./staff-sidebar";
 import { StaffTopbar } from "./staff-topbar";
 
@@ -33,6 +34,7 @@ export function StaffShell({
 }: StaffShellProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const session = useMemo(() => (isHydrated ? getAuthSession() : null), [isHydrated]);
@@ -61,6 +63,10 @@ export function StaffShell({
 
   const handleLogout = () => {
     clearAuthSession();
+    // Logout stays client-side (no hard reload), so the QueryClient created in
+    // AppProviders would otherwise survive into the next login on this tab and
+    // serve the previous account's cached data until staleTime expires.
+    queryClient.clear();
     router.replace("/");
   };
 

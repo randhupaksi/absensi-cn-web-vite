@@ -162,7 +162,6 @@ export function WalasDashboardPage() {
     </WalasShell>
   );
 }
-
 type HomeroomHeroCardProps = {
   teacherName: string;
   schoolYearName: string;
@@ -432,18 +431,4 @@ function normalizeHomeroomDashboard(
     students_needing_attention: dashboard.students_needing_attention ?? [],
     recent_submissions: dashboard.recent_submissions ?? [],
   };
-}
-
-function getWalasSectionTitle(pathname: string) {
-  if (pathname === "/dashboard/walas") return "Homeroom Dashboard";
-  if (pathname.startsWith("/dashboard/walas/students")) {
-    return "Class Students Dashboard";
-  }
-  if (pathname.startsWith("/dashboard/walas/attendance")) {
-    return "Class Attendance Dashboard";
-  }
-  if (pathname.startsWith("/dashboard/walas/submissions")) {
-    return "Submission Review Dashboard";
-  }
-  return "Homeroom Dashboard";
 }

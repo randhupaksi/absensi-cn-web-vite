@@ -337,17 +337,18 @@ export function WalasStudentsPage() {
             errorMessage={studentDetailQuery.error?.message}
           />
 
-          <WalasSiswaReportModal
-            open={reportModalOpen}
-            onOpenChange={setReportModalOpen}
-            homeroom={homeroom}
-          />
+          {reportModalOpen && (
+            <WalasSiswaReportModal
+              open={reportModalOpen}
+              onOpenChange={setReportModalOpen}
+              homeroom={homeroom}
+            />
+          )}
         </>
       )}
     </WalasShell>
   );
 }
-
 function StaffStatCard({
   label,
   value,
@@ -401,11 +402,4 @@ function CountBadge({
       {value}
     </Badge>
   );
-}
-
-function getWalasStudentSectionTitle(pathname: string) {
-  if (pathname.startsWith("/dashboard/walas/students")) {
-    return "Class Students Dashboard";
-  }
-  return "Homeroom Dashboard";
 }

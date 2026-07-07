@@ -269,25 +269,24 @@ export function UserSection({
         </Tabs>
       </section>
 
-      <UserCreateModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        isPending={createUserMutation.isPending}
-        onSubmit={(payload) => createUserMutation.mutate(payload)}
-      />
-      <UserEditModal
-        key={editingUser?.id ?? "user-edit-closed"}
-        user={editingUser}
-        open={Boolean(editingUser)}
-        onOpenChange={(open) => {
-          if (!open) setEditingUser(null);
-        }}
-        isPending={updateUserMutation.isPending}
-        onSubmit={(payload) => {
-          if (!editingUser) return;
-          updateUserMutation.mutate({ id: editingUser.id, payload });
-        }}
-      />
+      {modalOpen && (
+        <UserCreateModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          isPending={createUserMutation.isPending}
+          onSubmit={(payload) => createUserMutation.mutate(payload)}
+        />
+      )}
+      {editingUser && (
+        <UserEditModal
+          key={editingUser.id}
+          user={editingUser}
+          open
+          onOpenChange={(open) => { if (!open) setEditingUser(null); }}
+          isPending={updateUserMutation.isPending}
+          onSubmit={(payload) => updateUserMutation.mutate({ id: editingUser.id, payload })}
+        />
+      )}
       <DeleteConfirmationModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

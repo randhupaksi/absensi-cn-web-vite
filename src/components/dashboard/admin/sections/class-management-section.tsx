@@ -287,36 +287,35 @@ export function ClassManagementSection({
         </div>
       </section>
 
-      <ClassFormModal
-        title="Tambah Kelas"
-        description="Buat rombel baru yang langsung bisa dipakai untuk assignment walas, mapel, dan penempatan siswa."
-        open={modalOpen}
-        majors={majors}
-        schoolUnits={schoolUnits}
-        schoolYears={schoolYears}
-        isSubmitting={createMutation.isPending}
-        onOpenChange={setModalOpen}
-        onSubmit={(payload) => createMutation.mutate(payload)}
-      />
+      {modalOpen && (
+        <ClassFormModal
+          title="Tambah Kelas"
+          description="Buat rombel baru yang langsung bisa dipakai untuk assignment walas, mapel, dan penempatan siswa."
+          open={modalOpen}
+          majors={majors}
+          schoolUnits={schoolUnits}
+          schoolYears={schoolYears}
+          isSubmitting={createMutation.isPending}
+          onOpenChange={setModalOpen}
+          onSubmit={(payload) => createMutation.mutate(payload)}
+        />
+      )}
 
-      <ClassFormModal
-        key={editingClass?.id ?? "class-edit-closed"}
-        title="Edit Kelas"
-        description="Perbarui identitas kelas tanpa memutus relasi data yang sudah terhubung."
-        open={Boolean(editingClass)}
-        initialData={editingClass ?? undefined}
-        majors={majors}
-        schoolUnits={schoolUnits}
-        schoolYears={schoolYears}
-        isSubmitting={updateMutation.isPending}
-        onOpenChange={(open) => {
-          if (!open) setEditingClass(null);
-        }}
-        onSubmit={(payload) => {
-          if (!editingClass) return;
-          updateMutation.mutate({ id: editingClass.id, payload });
-        }}
-      />
+      {editingClass && (
+        <ClassFormModal
+          key={editingClass.id}
+          title="Edit Kelas"
+          description="Perbarui identitas kelas tanpa memutus relasi data yang sudah terhubung."
+          open
+          initialData={editingClass}
+          majors={majors}
+          schoolUnits={schoolUnits}
+          schoolYears={schoolYears}
+          isSubmitting={updateMutation.isPending}
+          onOpenChange={(open) => { if (!open) setEditingClass(null); }}
+          onSubmit={(payload) => updateMutation.mutate({ id: editingClass.id, payload })}
+        />
+      )}
 
       <DeleteConfirmationModal
         open={Boolean(deleteTarget)}

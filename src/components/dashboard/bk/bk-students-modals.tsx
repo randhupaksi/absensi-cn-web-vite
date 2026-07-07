@@ -7,6 +7,7 @@ import {
   formatGender,
   getInitials,
   SubmissionStatusPill,
+  TableSkeleton,
 } from "@/components/dashboard/bk/bk-common";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import {
@@ -30,27 +31,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
-
-export function TableSkeleton({ columns }: { columns: number }) {
-  return (
-    <div className="space-y-3 p-5">
-      {Array.from({ length: 6 }).map((_, rowIndex) => (
-        <div
-          key={`bk-students-loading-${rowIndex}`}
-          className="grid gap-3 rounded-[18px] border border-slate-100 bg-slate-50/75 px-4 py-4"
-          style={{ gridTemplateColumns: `repeat(${columns}, minmax(100px, 1fr))` }}
-        >
-          {Array.from({ length: columns }).map((__, cellIndex) => (
-            <div
-              key={`bk-students-loading-${rowIndex}-${cellIndex}`}
-              className="h-4 animate-pulse rounded-full bg-slate-200"
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function MiniStatCard({
   label,

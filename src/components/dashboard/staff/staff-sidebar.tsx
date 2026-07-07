@@ -82,7 +82,7 @@ export function StaffSidebar({
             <div className="mt-5 h-px w-full bg-white/14" />
           </div>
 
-          <nav className="mt-3 flex-1 space-y-2">
+          <nav className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70">
             {items.map((item) => {
               const Icon = item.icon;
               const isActive = activePath === item.href;
@@ -113,7 +113,8 @@ export function StaffSidebar({
             })}
           </nav>
 
-          <div className="mt-auto pt-6">
+          <div className="mt-auto shrink-0 pt-4">
+            <div className="mb-4 h-px w-full bg-white/14" />
             <button
               type="button"
               onClick={onLogout}

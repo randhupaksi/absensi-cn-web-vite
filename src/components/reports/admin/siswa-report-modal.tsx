@@ -1,19 +1,21 @@
 ﻿"use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import {
-  PremiumModal,
-  premiumModalActionsClassName,
-} from "@/components/modals/premium-modal";
-import { Button } from "@/components/ui/button";
+import { PremiumModal } from "@/components/modals/premium-modal";
+import { ReportModalFooter } from "@/components/reports/shared/report-modal-footer";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
-import { cn } from "@/lib/utils";
+import {
+  drawReportPdfFooter,
+  drawReportPdfHeader,
+  drawReportPdfPills,
+  REPORT_PDF_MARGIN_X,
+} from "@/lib/reports/pdf-report-kit";
 import type { AdminStudent } from "@/types/admin";
 import {
   QuestionBlock,
   ReportCheckbox,
   ReportRadio,
-} from "@/components/reports/admin/guru-report-modal";
+} from "@/components/reports/shared/report-question-ui";
 import { ArrowUpDown, ListChecks, ListFilter, Printer } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -40,63 +42,18 @@ async function generateSiswaPdf(
 
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Siswa");
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const mx = 14;
-
-  const now = new Date().toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  const mx = REPORT_PDF_MARGIN_X;
+  const { metaY } = drawReportPdfHeader(doc, {
+    title: "LAPORAN DATA SISWA",
+    subtitle: "Sistem Informasi Absensi Sekolah",
+    bandHeight: 20,
   });
-
-  // Header band
-  doc.setFillColor(6, 78, 59);
-  doc.roundedRect(mx, 10, W - mx * 2, 20, 2.5, 2.5, "F");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(236, 253, 245);
-  doc.text("ABSENSI CN", mx + 5, 18);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(167, 243, 208);
-  doc.text("Sistem Informasi Absensi Sekolah", mx + 5, 24);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(255, 255, 255);
-  doc.text("LAPORAN DATA SISWA", W - mx - 5, 18, { align: "right" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(167, 243, 208);
-  doc.text(`Dicetak: ${now}`, W - mx - 5, 24, { align: "right" });
-
-  // Meta pills
-  const metaY = 35;
   const pills = [
     `Filter: ${filterLabel}`,
     `Total: ${data.length} siswa`,
     `Urutan: ${sortLabel}`,
   ];
-  let pillX = mx;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(7.5);
-  doc.setTextColor(6, 95, 70);
-  pills.forEach((text) => {
-    const tw = doc.getTextWidth(text);
-    const pw = tw + 8;
-    doc.setFillColor(240, 253, 244);
-    doc.setDrawColor(110, 231, 183);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(pillX, metaY, pw, 5, 1.2, 1.2, "FD");
-    doc.text(text, pillX + 4, metaY + 3.6);
-    pillX += pw + 4;
-  });
+  drawReportPdfPills(doc, pills, metaY);
 
   // Table columns
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
@@ -140,19 +97,7 @@ async function generateSiswaPdf(
     },
   });
 
-  // Footer on all pages
-  const totalPages = doc.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(148, 163, 184);
-    doc.setDrawColor(226, 232, 240);
-    doc.setLineWidth(0.2);
-    doc.line(mx, H - 8, W - mx, H - 8);
-    doc.text("Laporan Data Siswa — ABSENSI CN", mx, H - 4);
-    doc.text(`Halaman ${i} / ${totalPages}`, W - mx, H - 4, { align: "right" });
-  }
+  drawReportPdfFooter(doc, "Laporan Data Siswa — ABSENSI CN");
 
   doc.save(`Laporan-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -349,42 +294,14 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Actions */}
-        <div className={premiumModalActionsClassName}>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-10 rounded-[0.8rem] border-slate-200 px-5 text-[0.88rem] text-slate-600"
-            onClick={() => handleClose(false)}
-          >
-            Batal
-          </Button>
-          <button
-            type="button"
-            disabled={!canDownload || generating}
-            onClick={handleDownload}
-            className={cn(
-              "inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] px-6 text-[0.88rem] font-semibold text-white transition-all duration-200",
-              canDownload && !generating
-                ? "bg-emerald-600 shadow-[0_4px_14px_rgba(5,150,105,0.3)] hover:bg-emerald-700 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)]"
-                : "cursor-not-allowed bg-slate-300",
-            )}
-          >
-            {generating ? (
-              <>
-                <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Membuat PDF...
-              </>
-            ) : (
-              <>
-                <Printer className="size-4" />
-                {canDownload
-                  ? `Download PDF (${filteredCount} siswa)`
-                  : "Download PDF"}
-              </>
-            )}
-          </button>
-        </div>
+        <ReportModalFooter
+          canDownload={canDownload}
+          generating={generating}
+          onCancel={() => handleClose(false)}
+          onDownload={handleDownload}
+          generatingLabel="Membuat PDF..."
+          downloadLabel={canDownload ? `Download PDF (${filteredCount} siswa)` : "Download PDF"}
+        />
       </div>
     </PremiumModal>
   );

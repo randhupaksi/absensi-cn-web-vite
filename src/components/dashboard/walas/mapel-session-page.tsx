@@ -221,7 +221,7 @@ export function MapelSessionPage() {
 			  <section className="grid gap-4 rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm lg:grid-cols-[1fr_1.4fr_auto] lg:items-end">
 				<div><label htmlFor="session-topic" className="mb-2 block text-sm font-semibold text-slate-700">Topik Pertemuan</label><Input id="session-topic" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Contoh: Persamaan kuadrat" disabled={isValidated} className="h-12 rounded-[18px]" /></div>
 				<div><label htmlFor="session-notes" className="mb-2 block text-sm font-semibold text-slate-700">Catatan Pengajaran</label><Textarea id="session-notes" value={sessionNotes} onChange={(event) => setSessionNotes(event.target.value)} placeholder="Catatan materi, tugas, atau kendala kelas" disabled={isValidated} className="min-h-12 rounded-[18px]" /></div>
-				<Button type="button" className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white" disabled={isValidated || detailsMutation.isPending} onClick={() => detailsMutation.mutate()}><Save className="size-4" />{detailsMutation.isPending ? "Menyimpan..." : "Simpan Detail"}</Button>
+				<Button type="button" className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900" disabled={isValidated || detailsMutation.isPending} onClick={() => detailsMutation.mutate()}><Save className="size-4" />{detailsMutation.isPending ? "Menyimpan..." : "Simpan Detail"}</Button>
 			  </section>
               {/* KPI row */}
               <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">

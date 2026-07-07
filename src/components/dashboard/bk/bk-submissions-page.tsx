@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "@/lib/dynamic";
+import { BkPageHero } from "@/components/dashboard/bk/bk-page-hero";
 import {
   classFilterOptions,
   formatDateTime,
@@ -9,9 +10,9 @@ import {
   openAttachment,
   SubmissionStatusPill,
   SubmissionTypePill,
+  TableSkeleton,
 } from "@/components/dashboard/bk/bk-common";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
-import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
 import {
   DataTable,
   DataTableBody,
@@ -47,9 +48,7 @@ import {
   FileClock,
   FileImage,
   FileSearch,
-  LayoutPanelTop,
   PencilLine,
-  Printer,
   ShieldAlert,
   ShieldCheck,
   Upload,
@@ -174,50 +173,13 @@ export function BKSubmissionsPage() {
       {() => (
         <>
           <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
-            <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
-                    <LayoutPanelTop className="size-3.5" />
-                    BK Submissions Workspace
-                  </div>
-                  <div className="space-y-2">
-                    <h2 className="text-[2rem] font-semibold tracking-normal text-slate-950 sm:text-[2.35rem]">
-                      Monitoring Pengajuan
-                    </h2>
-                    <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                      Tinjau izin, sakit, dan dispensasi lintas kelas beserta
-                      bukti pendukungnya dari meja kerja BK.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-start lg:justify-end">
-                  <Button
-                    variant="outline"
-                    className="h-14 rounded-[22px] border-violet-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,243,255,0.98)_100%)] px-5 text-sm font-semibold text-violet-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-violet-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(237,233,254,1)_100%)] hover:text-violet-950"
-                    onClick={() => setReportModalOpen(true)}
-                  >
-                    <span className="flex size-8 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_20px_rgba(124,58,237,0.2)]">
-                      <Printer className="size-4" />
-                    </span>
-                    Cetak Laporan
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
-                {kpiCards.map((item, index) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.24, delay: index * 0.04 }}
-                  >
-                    <KpiCard {...item} />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+            <BkPageHero
+              badge="BK Submissions Workspace"
+              title="Monitoring Pengajuan"
+              description={<>Tinjau izin, sakit, dan dispensasi lintas kelas beserta bukti pendukungnya dari meja kerja BK.</>}
+              kpiCards={kpiCards}
+              onOpenReport={() => setReportModalOpen(true)}
+            />
 
             <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -244,7 +206,7 @@ export function BKSubmissionsPage() {
               className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
             >
               {overviewQuery.isLoading ? (
-                <TableSkeleton />
+                <TableSkeleton columns={7} />
               ) : overviewQuery.error ? (
                 <div className="p-5">
                   <EmptyState icon={ShieldAlert} title="Pengajuan BK belum bisa dimuat" description={overviewQuery.error.message} />
@@ -326,11 +288,13 @@ export function BKSubmissionsPage() {
             </div>
           </section>
 
-          <BKPengajuanReportModal
-            open={reportModalOpen}
-            onOpenChange={setReportModalOpen}
-            classes={classes}
-          />
+          {reportModalOpen && (
+            <BKPengajuanReportModal
+              open={reportModalOpen}
+              onOpenChange={setReportModalOpen}
+              classes={classes}
+            />
+          )}
 
           <SubmissionDetailModal submission={detailTarget} onOpenChange={(open) => !open && setDetailTarget(null)} />
           {reviewTarget ? (
@@ -500,20 +464,6 @@ function IconAction({ icon: Icon, onClick, tone }: { icon: typeof Eye; onClick: 
     <Button type="button" variant="ghost" size="icon" className={`size-10 rounded-2xl ${className}`} onClick={onClick}>
       <Icon className="size-4.5" />
     </Button>
-  );
-}
-
-function TableSkeleton() {
-  return (
-    <div className="space-y-3 p-5">
-      {Array.from({ length: 6 }).map((_, rowIndex) => (
-        <div key={`bk-submissions-loading-${rowIndex}`} className="grid gap-3 rounded-[18px] border border-slate-100 bg-slate-50/75 px-4 py-4 md:grid-cols-7">
-          {Array.from({ length: 7 }).map((__, cellIndex) => (
-            <div key={`bk-submissions-loading-${rowIndex}-${cellIndex}`} className="h-4 animate-pulse rounded-full bg-slate-200" />
-          ))}
-        </div>
-      ))}
-    </div>
   );
 }
 

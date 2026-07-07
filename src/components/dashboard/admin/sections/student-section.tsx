@@ -638,81 +638,91 @@ export function StudentSection({
         </Tabs>
       </section>
 
-      <ImportExcelModal
-        open={importModalOpen}
-        onOpenChange={setImportModalOpen}
-        type="siswa"
-        onSuccess={() => {
-          void queryClient.invalidateQueries({ queryKey: ["admin-students"] });
-          void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
-        }}
-      />
+      {importModalOpen && (
+        <ImportExcelModal
+          open={importModalOpen}
+          onOpenChange={setImportModalOpen}
+          type="siswa"
+          onSuccess={() => {
+            void queryClient.invalidateQueries({ queryKey: ["admin-students"] });
+            void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
+          }}
+        />
+      )}
 
-      <SiswaReportModal
-        open={reportModalOpen}
-        onOpenChange={setReportModalOpen}
-        students={students}
-      />
+      {reportModalOpen && (
+        <SiswaReportModal
+          open={reportModalOpen}
+          onOpenChange={setReportModalOpen}
+          students={students}
+        />
+      )}
 
-      <StudentProfileCreateModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        isPending={createStudentMutation.isPending}
-        classes={classes}
-        onSubmit={(payload) => createStudentMutation.mutate(payload)}
-      />
-      <StudentProfileEditModal
-        key={editingStudent?.id ?? "student-closed"}
-        student={editingStudent}
-        open={Boolean(editingStudent)}
-        onOpenChange={(open) => {
-          if (!open) setEditingStudent(null);
-        }}
-        isPending={updateStudentMutation.isPending}
-        classes={classes}
-        currentClassId={memberships.find((membership) => membership.student_id === editingStudent?.id && membership.is_active)?.class_id}
-        onSubmit={(payload) => updateStudentMutation.mutate({ id: editingStudent!.id, payload })}
-      />
-      <StudentMembershipCreateModal
-        open={membershipModalOpen}
-        onOpenChange={setMembershipModalOpen}
-        students={students}
-        classes={classes}
-        schoolYears={schoolYears}
-        isPending={createMembershipMutation.isPending}
-        onSubmit={(payload) => createMembershipMutation.mutate(payload)}
-      />
-      <StudentMembershipEditModal
-        key={editingMembership?.id ?? "membership-closed"}
-        membership={editingMembership}
-        open={Boolean(editingMembership)}
-        onOpenChange={(open) => {
-          if (!open) setEditingMembership(null);
-        }}
-        students={students}
-        classes={classes}
-        schoolYears={schoolYears}
-        isPending={updateMembershipMutation.isPending}
-        onSubmit={(payload) => updateMembershipMutation.mutate({ id: editingMembership!.id, payload })}
-      />
-      <AttendanceRuleCreateModal
-        open={ruleModalOpen}
-        onOpenChange={setRuleModalOpen}
-        schoolYears={schoolYears}
-        isPending={createRuleMutation.isPending}
-        onSubmit={(payload) => createRuleMutation.mutate(payload)}
-      />
-      <AttendanceRuleEditModal
-        key={editingRule?.id ?? "rule-closed"}
-        rule={editingRule}
-        open={Boolean(editingRule)}
-        onOpenChange={(open) => {
-          if (!open) setEditingRule(null);
-        }}
-        schoolYears={schoolYears}
-        isPending={updateRuleMutation.isPending}
-        onSubmit={(payload) => updateRuleMutation.mutate({ id: editingRule!.id, payload })}
-      />
+      {profileModalOpen && (
+        <StudentProfileCreateModal
+          open={profileModalOpen}
+          onOpenChange={setProfileModalOpen}
+          isPending={createStudentMutation.isPending}
+          classes={classes}
+          onSubmit={(payload) => createStudentMutation.mutate(payload)}
+        />
+      )}
+      {editingStudent && (
+        <StudentProfileEditModal
+          key={editingStudent.id}
+          student={editingStudent}
+          open
+          onOpenChange={(open) => { if (!open) setEditingStudent(null); }}
+          isPending={updateStudentMutation.isPending}
+          classes={classes}
+          currentClassId={memberships.find((membership) => membership.student_id === editingStudent.id && membership.is_active)?.class_id}
+          onSubmit={(payload) => updateStudentMutation.mutate({ id: editingStudent.id, payload })}
+        />
+      )}
+      {membershipModalOpen && (
+        <StudentMembershipCreateModal
+          open={membershipModalOpen}
+          onOpenChange={setMembershipModalOpen}
+          students={students}
+          classes={classes}
+          schoolYears={schoolYears}
+          isPending={createMembershipMutation.isPending}
+          onSubmit={(payload) => createMembershipMutation.mutate(payload)}
+        />
+      )}
+      {editingMembership && (
+        <StudentMembershipEditModal
+          key={editingMembership.id}
+          membership={editingMembership}
+          open
+          onOpenChange={(open) => { if (!open) setEditingMembership(null); }}
+          students={students}
+          classes={classes}
+          schoolYears={schoolYears}
+          isPending={updateMembershipMutation.isPending}
+          onSubmit={(payload) => updateMembershipMutation.mutate({ id: editingMembership.id, payload })}
+        />
+      )}
+      {ruleModalOpen && (
+        <AttendanceRuleCreateModal
+          open={ruleModalOpen}
+          onOpenChange={setRuleModalOpen}
+          schoolYears={schoolYears}
+          isPending={createRuleMutation.isPending}
+          onSubmit={(payload) => createRuleMutation.mutate(payload)}
+        />
+      )}
+      {editingRule && (
+        <AttendanceRuleEditModal
+          key={editingRule.id}
+          rule={editingRule}
+          open
+          onOpenChange={(open) => { if (!open) setEditingRule(null); }}
+          schoolYears={schoolYears}
+          isPending={updateRuleMutation.isPending}
+          onSubmit={(payload) => updateRuleMutation.mutate({ id: editingRule.id, payload })}
+        />
+      )}
       <DeleteConfirmationModal
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {

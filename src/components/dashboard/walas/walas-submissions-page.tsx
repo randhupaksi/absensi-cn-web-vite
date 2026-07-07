@@ -397,17 +397,18 @@ export function WalasSubmissionsPage() {
             onSubmit={(payload) => reviewMutation.mutate(payload)}
             isPending={reviewMutation.isPending}
           />
-          <WalasPengajuanReportModal
-            open={reportModalOpen}
-            onOpenChange={setReportModalOpen}
-            homeroom={overview.homeroom}
-          />
+          {reportModalOpen && (
+            <WalasPengajuanReportModal
+              open={reportModalOpen}
+              onOpenChange={setReportModalOpen}
+              homeroom={overview.homeroom}
+            />
+          )}
         </>
       )}
     </WalasShell>
   );
 }
-
 function SubmissionTableSkeleton() {
   return (
     <div className="space-y-3 p-5">
@@ -426,11 +427,4 @@ function SubmissionTableSkeleton() {
       ))}
     </div>
   );
-}
-
-function getWalasSubmissionsSectionTitle(pathname: string) {
-  if (pathname.startsWith("/dashboard/walas/submissions")) {
-    return "Submission Review Dashboard";
-  }
-  return "Homeroom Dashboard";
 }

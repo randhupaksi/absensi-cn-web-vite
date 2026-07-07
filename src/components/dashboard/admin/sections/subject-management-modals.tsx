@@ -37,7 +37,7 @@ import type {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parseISO } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { BookOpenCheck, CalendarIcon, Plus, Sparkles, Trash2 } from "lucide-react";
+import { BookOpenCheck, CalendarIcon, Plus, Save, Trash2 } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 
@@ -320,70 +320,20 @@ export function TeachingAssignmentFormModal({
 		      ]} />
 		    )} />
 		  </div>
-		  <div className={premiumModalFieldClassName}>
-		    <label className={premiumModalLabelClassName}>Berlaku Mulai</label>
-		    <Controller
-		      control={form.control}
-		      name="effective_from"
-		      render={({ field }) => {
-		        const [open, setOpen] = useState(false);
-		        const parsed = field.value ? parseISO(field.value) : undefined;
-		        return (
-		          <Popover open={open} onOpenChange={setOpen}>
-		            <PopoverTrigger render={<Button type="button" variant="outline" />} className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30">
-		              <div className="flex items-center gap-3">
-		                <span className="flex size-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-		                  <CalendarIcon className="size-4" />
-		                </span>
-		                <div>
-		                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Berlaku Mulai</p>
-		                  <p className="text-sm font-medium text-slate-700">{parsed ? format(parsed, "d MMMM yyyy", { locale: localeID }) : "Pilih tanggal"}</p>
-		                </div>
-		              </div>
-		            </PopoverTrigger>
-		            <PopoverContent sideOffset={10} className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]">
-		              <PopoverHeader className="px-4 pt-3 pb-2">
-		                <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal</PopoverTitle>
-		              </PopoverHeader>
-		              <Calendar mode="single" selected={parsed} onSelect={(date) => { field.onChange(date ? format(date, "yyyy-MM-dd") : ""); setOpen(false); }} locale={localeID} buttonVariant="ghost" />
-		            </PopoverContent>
-		          </Popover>
-		        );
-		      }}
-		    />
-		  </div>
-		  <div className={premiumModalFieldClassName}>
-		    <label className={premiumModalLabelClassName}>Berlaku Sampai</label>
-		    <Controller
-		      control={form.control}
-		      name="effective_until"
-		      render={({ field }) => {
-		        const [open, setOpen] = useState(false);
-		        const parsed = field.value ? parseISO(field.value) : undefined;
-		        return (
-		          <Popover open={open} onOpenChange={setOpen}>
-		            <PopoverTrigger render={<Button type="button" variant="outline" />} className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30">
-		              <div className="flex items-center gap-3">
-		                <span className="flex size-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-		                  <CalendarIcon className="size-4" />
-		                </span>
-		                <div>
-		                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Berlaku Sampai</p>
-		                  <p className="text-sm font-medium text-slate-700">{parsed ? format(parsed, "d MMMM yyyy", { locale: localeID }) : "Pilih tanggal"}</p>
-		                </div>
-		              </div>
-		            </PopoverTrigger>
-		            <PopoverContent sideOffset={10} className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]">
-		              <PopoverHeader className="px-4 pt-3 pb-2">
-		                <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal</PopoverTitle>
-		              </PopoverHeader>
-		              <Calendar mode="single" selected={parsed} onSelect={(date) => { field.onChange(date ? format(date, "yyyy-MM-dd") : ""); setOpen(false); }} locale={localeID} buttonVariant="ghost" />
-		            </PopoverContent>
-		          </Popover>
-		        );
-		      }}
-		    />
-		  </div>
+		  <Controller
+		    control={form.control}
+		    name="effective_from"
+		    render={({ field }) => (
+		      <DatePickerField label="Berlaku Mulai" value={field.value} onChange={field.onChange} />
+		    )}
+		  />
+		  <Controller
+		    control={form.control}
+		    name="effective_until"
+		    render={({ field }) => (
+		      <DatePickerField label="Berlaku Sampai" value={field.value} onChange={field.onChange} />
+		    )}
+		  />
 		</div>
 
         {/* Slot Jadwal */}
@@ -503,13 +453,65 @@ function SelectController({ control, name, label, placeholder, options, error }:
   );
 }
 
+function DatePickerField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const parsed = value ? parseISO(value) : undefined;
+
+  return (
+    <div className={premiumModalFieldClassName}>
+      <label className={premiumModalLabelClassName}>{label}</label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={<Button type="button" variant="outline" />}
+          className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex size-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+              <CalendarIcon className="size-4" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+              <p className="text-sm font-medium text-slate-700">
+                {parsed ? format(parsed, "d MMMM yyyy", { locale: localeID }) : "Pilih tanggal"}
+              </p>
+            </div>
+          </div>
+        </PopoverTrigger>
+        <PopoverContent sideOffset={10} className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]">
+          <PopoverHeader className="px-4 pt-3 pb-2">
+            <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal</PopoverTitle>
+          </PopoverHeader>
+          <Calendar
+            mode="single"
+            selected={parsed}
+            onSelect={(date) => {
+              onChange(date ? format(date, "yyyy-MM-dd") : "");
+              setOpen(false);
+            }}
+            locale={localeID}
+            buttonVariant="ghost"
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
 function ModalActions({ formId, isPending, onCancel, submitLabel }: { formId: string; isPending: boolean; onCancel: () => void; submitLabel: string }) {
   return (
     <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
       <Button
         type="button"
         variant="outline"
-        className="h-12 rounded-[1.1rem] border-slate-200 px-5 text-sm font-semibold text-slate-600"
+        className="h-12 rounded-[1.1rem] border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300"
         onClick={onCancel}
         disabled={isPending}
       >
@@ -518,10 +520,10 @@ function ModalActions({ formId, isPending, onCancel, submitLabel }: { formId: st
       <Button
         type="submit"
         form={formId}
-        className="h-12 rounded-[1.1rem] bg-[linear-gradient(135deg,#0f766e_0%,#166534_100%)] px-5 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] hover:opacity-95"
+        className="h-12 rounded-[1.1rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900"
         disabled={isPending}
       >
-        <Sparkles className="size-4" />
+        <Save className="size-4" />
         {isPending ? "Menyimpan..." : submitLabel}
       </Button>
     </div>

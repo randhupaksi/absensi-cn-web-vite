@@ -432,28 +432,40 @@ export function SubjectManagementSection({
         </Tabs>
       </section>
 
-      <SubjectFormModal
-        key={editingSubject?.id ?? "subject-form-closed"}
-        subject={editingSubject}
-        open={subjectModalOpen || Boolean(editingSubject)}
-        onOpenChange={(open) => { if (!open) { setSubjectModalOpen(false); setEditingSubject(null); } }}
-        isPending={createSubjectMutation.isPending || updateSubjectMutation.isPending}
-        programs={programs}
-        onSubmit={(values) => editingSubject ? updateSubjectMutation.mutate({ id: editingSubject.id, values }) : createSubjectMutation.mutate(values)}
-      />
-      <TeachingAssignmentFormModal
-        key={editingAssignment?.id ?? "assignment-form-closed"}
-        assignment={editingAssignment}
-        open={assignmentModalOpen || Boolean(editingAssignment)}
-        onOpenChange={(open) => { if (!open) { setAssignmentModalOpen(false); setEditingAssignment(null); } }}
-        teachers={teachers}
-        subjects={subjects}
-        classes={classes}
-        schoolYears={schoolYears}
-        rooms={rooms}
-        isPending={createAssignmentMutation.isPending || updateAssignmentMutation.isPending}
-        onSubmit={(values) => editingAssignment ? updateAssignmentMutation.mutate({ id: editingAssignment.id, values }) : createAssignmentMutation.mutate(values)}
-      />
+      {(subjectModalOpen || editingSubject) && (
+        <SubjectFormModal
+          key={editingSubject?.id ?? "subject-create"}
+          subject={editingSubject}
+          open
+          onOpenChange={(open) => { if (!open) { setSubjectModalOpen(false); setEditingSubject(null); } }}
+          isPending={createSubjectMutation.isPending || updateSubjectMutation.isPending}
+          programs={programs}
+          onSubmit={(values) => {
+            if (createSubjectMutation.isPending || updateSubjectMutation.isPending) return;
+            if (editingSubject) updateSubjectMutation.mutate({ id: editingSubject.id, values });
+            else createSubjectMutation.mutate(values);
+          }}
+        />
+      )}
+      {(assignmentModalOpen || editingAssignment) && (
+        <TeachingAssignmentFormModal
+          key={editingAssignment?.id ?? "assignment-create"}
+          assignment={editingAssignment}
+          open
+          onOpenChange={(open) => { if (!open) { setAssignmentModalOpen(false); setEditingAssignment(null); } }}
+          teachers={teachers}
+          subjects={subjects}
+          classes={classes}
+          schoolYears={schoolYears}
+          rooms={rooms}
+          isPending={createAssignmentMutation.isPending || updateAssignmentMutation.isPending}
+          onSubmit={(values) => {
+            if (createAssignmentMutation.isPending || updateAssignmentMutation.isPending) return;
+            if (editingAssignment) updateAssignmentMutation.mutate({ id: editingAssignment.id, values });
+            else createAssignmentMutation.mutate(values);
+          }}
+        />
+      )}
       <DeleteConfirmationModal
         open={Boolean(deleteSubjectTarget)}
         onOpenChange={(open) => { if (!open) setDeleteSubjectTarget(null); }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "hadir", label: "Hadir" },
@@ -96,7 +96,7 @@ export function KoreksiModal({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-full border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="flex-1 rounded-full border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300"
           >
             Batal
           </button>
@@ -104,7 +104,7 @@ export function KoreksiModal({
             type="button"
             onClick={onSubmit}
             disabled={!alasan.trim() || isPending}
-            className="flex-1 rounded-full bg-emerald-600 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            className="flex-1 rounded-full bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(16,185,129,0.28)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 disabled:opacity-60"
           >
             {isPending ? (
               <span className="flex items-center justify-center gap-2">
@@ -112,7 +112,10 @@ export function KoreksiModal({
                 Menyimpan...
               </span>
             ) : (
-              "Simpan Koreksi"
+              <span className="flex items-center justify-center gap-2">
+                <Save className="size-4" />
+                Simpan Koreksi
+              </span>
             )}
           </button>
         </div>

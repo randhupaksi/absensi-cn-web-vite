@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LucideIcon } from "lucide-react";
-import { PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Trash2 } from "lucide-react";
+import { PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useRef, type ReactNode } from "react";
 
@@ -85,18 +85,18 @@ export function ModalActions({
     <div className={premiumModalActionsClassName}>
       <Button
         variant="outline"
-        className="h-12 rounded-[1.1rem] border-slate-200 px-5 text-sm font-semibold text-slate-600"
+        className="h-12 rounded-[1.1rem] border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300"
         onClick={onCancel}
         disabled={isPending}
       >
         Batal
       </Button>
       <Button
-        className="h-12 rounded-[1.1rem] bg-[linear-gradient(135deg,#0f766e_0%,#166534_100%)] px-5 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] hover:opacity-95"
+        className="h-12 rounded-[1.1rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900"
         onClick={onSubmit}
         disabled={isPending}
       >
-        <Sparkles className="size-4" />
+        <Save className="size-4" />
         {isPending ? "Menyimpan..." : submitLabel}
       </Button>
     </div>
