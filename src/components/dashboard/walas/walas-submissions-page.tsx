@@ -8,8 +8,10 @@ import {
   DataTableBody,
   DataTableCell,
   DataTableHeadRow,
+  DataTablePagination,
   DataTableRow,
   SearchFilterBar,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { WalasShell } from "@/components/dashboard/staff/walas-shell";
 import {
@@ -135,6 +137,7 @@ export function WalasSubmissionsPage() {
   const overview = overviewQuery.data ?? emptyOverview;
   const counts = overview.counts;
   const records = overview.records ?? [];
+  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
 
   const kpiCards = [
     {
@@ -296,7 +299,7 @@ export function WalasSubmissionsPage() {
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Pengajuan", "Waktu", "Status", "Lampiran", "Catatan", "Aksi"]} />
                     <DataTableBody>
-                      {records.map((record) => (
+                      {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
                           <DataTableCell>
                             <div className="space-y-1">
@@ -374,6 +377,9 @@ export function WalasSubmissionsPage() {
                   </DataTable>
                 )}
               </div>
+              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+                <DataTablePagination {...recordsPagination} />
+              ) : null}
             </motion.div>
           </section>
 

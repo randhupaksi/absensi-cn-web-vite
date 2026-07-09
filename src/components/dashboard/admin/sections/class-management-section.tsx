@@ -12,6 +12,7 @@ import {
   DataTableRow,
   SearchFilterBar,
   StatCard,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { ClassFormModal } from "@/components/dashboard/admin/sections/class-management-modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
@@ -79,6 +80,8 @@ export function ClassManagementSection({
       return matchesStatus && matchesQuery;
     });
   }, [classes, deferredQuery, statusFilter]);
+
+  const { pageItems: pageClasses, pagination: classesPagination } = usePagination(filteredClasses);
 
   const createMutation = useMutation({
     mutationFn: createAdminClass,
@@ -232,11 +235,12 @@ export function ClassManagementSection({
             emptyTitle="Kelas tidak ditemukan"
             emptyDescription="Coba ubah pencarian, filter status, atau tambahkan kelas baru."
             icon={Building2}
+            pagination={classesPagination}
           >
             <DataTable>
               <DataTableHeadRow labels={["Kelas", "Jurusan", "Tahun Ajaran", "Walas", "Siswa", "Mapel", "Status", "Aksi"]} />
               <DataTableBody>
-                {filteredClasses.map((item) => (
+                {pageClasses.map((item) => (
                   <DataTableRow key={item.id}>
                     <DataTableCell>
                       <div className="flex items-center gap-3">

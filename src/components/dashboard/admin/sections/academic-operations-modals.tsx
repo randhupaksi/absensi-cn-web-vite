@@ -1,7 +1,9 @@
 import { PremiumModal, premiumModalFieldClassName, premiumModalLabelClassName } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -12,9 +14,11 @@ import {
 } from "@/lib/validations/academic-operations-schema";
 import type { AdminRoom, AdminScheduleOverride, AdminSchoolUnit, AdminSubjectScheduleOverview, AdminTeacherProfile } from "@/types/admin";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarSync, DoorOpen, Save } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { format, parseISO } from "date-fns";
+import { id as localeID } from "date-fns/locale";
+import { CalendarDays, CalendarSync, DoorOpen, Save } from "lucide-react";
+import { Controller, useForm, type Control } from "react-hook-form";
+import { useEffect, useState } from "react";
 
 const inputClass = "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm";
 const booleanOptions = [{ value: "true", label: "Aktif" }, { value: "false", label: "Nonaktif" }];
@@ -49,12 +53,12 @@ export function ScheduleOverrideModal({ open, item, schedules, rooms, teachers, 
     <form id="override-form" onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2">
       <SelectField label="Jadwal" value={form.watch("schedule_id")} onChange={(value) => form.setValue("schedule_id", value, { shouldValidate: true })} options={schedules.map((x) => ({ value: x.id, label: `${x.subject_code} · ${x.class_name}`, description: `${x.teacher_name} · ${x.hari} ${x.jam_mulai}-${x.jam_selesai}` }))} error={form.formState.errors.schedule_id?.message} />
       <SelectField label="Jenis Perubahan" value={type} onChange={(value) => form.setValue("override_type", value as ScheduleOverrideFormValues["override_type"])} options={[{ value: "CANCELLED", label: "Dibatalkan" }, { value: "RESCHEDULED", label: "Dijadwalkan Ulang" }, { value: "SUBSTITUTE", label: "Guru Pengganti" }, { value: "ROOM_CHANGED", label: "Ganti Ruangan" }]} error={form.formState.errors.override_type?.message} />
-      <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Tanggal Asal</label><Input type="date" className={inputClass} {...form.register("original_date")} /><FieldError message={form.formState.errors.original_date?.message} /></div>
+      <DateField control={form.control} name="original_date" label="Tanggal Asal" error={form.formState.errors.original_date?.message} />
       <SelectField label="Status" value={form.watch("status")} onChange={(value) => form.setValue("status", value as ScheduleOverrideFormValues["status"])} options={[{ value: "ACTIVE", label: "Aktif" }, { value: "APPLIED", label: "Sudah Diterapkan" }, { value: "CANCELLED", label: "Dibatalkan" }]} error={form.formState.errors.status?.message} />
-      {type === "RESCHEDULED" ? <><div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Tanggal Pengganti</label><Input type="date" className={inputClass} {...form.register("replacement_date")} /><FieldError message={form.formState.errors.replacement_date?.message} /></div><div className="grid grid-cols-2 gap-3"><div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Mulai</label><Input type="time" className={inputClass} {...form.register("replacement_start_time")} /></div><div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Selesai</label><Input type="time" className={inputClass} {...form.register("replacement_end_time")} /></div></div></> : null}
+      {type === "RESCHEDULED" ? <><DateField control={form.control} name="replacement_date" label="Tanggal Pengganti" error={form.formState.errors.replacement_date?.message} /><div className="grid grid-cols-2 gap-3"><div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Mulai</label><Input type="time" className={inputClass} {...form.register("replacement_start_time")} /></div><div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>Selesai</label><Input type="time" className={inputClass} {...form.register("replacement_end_time")} /></div></div></> : null}
       {type === "ROOM_CHANGED" ? <SelectField label="Ruangan Pengganti" value={form.watch("replacement_room_id")} onChange={(value) => form.setValue("replacement_room_id", value, { shouldValidate: true })} options={rooms.filter((x) => x.is_active).map((x) => ({ value: x.id, label: x.name, description: `${x.school_unit_code} · ${x.code}` }))} error={form.formState.errors.replacement_room_id?.message} /> : null}
       {type === "SUBSTITUTE" ? <SelectField label="Guru Pengganti" value={form.watch("substitute_teacher_id")} onChange={(value) => form.setValue("substitute_teacher_id", value, { shouldValidate: true })} options={teachers.filter((x) => x.is_active).map((x) => ({ value: x.id, label: x.name, description: x.username }))} error={form.formState.errors.substitute_teacher_id?.message} /> : null}
-      <div className={`${premiumModalFieldClassName} sm:col-span-2`}><label className={premiumModalLabelClassName}>Alasan</label><Textarea className="min-h-24 rounded-[1.25rem] border-slate-200" {...form.register("reason")} /><FieldError message={form.formState.errors.reason?.message} /></div>
+      <div className={`${premiumModalFieldClassName} sm:col-span-2`}><label className={premiumModalLabelClassName}>Alasan</label><Textarea className="min-h-24 rounded-[1.25rem] border-slate-200" placeholder="Jelaskan alasan perubahan jadwal ini…" {...form.register("reason")} /><FieldError message={form.formState.errors.reason?.message} /></div>
     </form>
   </PremiumModal>;
 }
@@ -69,6 +73,51 @@ function BooleanField<T extends RoomFormValues>({ control, name, label, trueLabe
 
 function TextField({ form, name, label, placeholder }: { form: ReturnType<typeof useForm<RoomFormValues>>; name: "code" | "name"; label: string; placeholder: string }) {
   return <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>{label}</label><Input className={inputClass} placeholder={placeholder} {...form.register(name)} /><FieldError message={form.formState.errors[name]?.message} /></div>;
+}
+
+function DateField({ control, name, label, error }: { control: Control<ScheduleOverrideFormValues>; name: "original_date" | "replacement_date"; label: string; error?: string }) {
+  return (
+    <div className={premiumModalFieldClassName}>
+      <label className={premiumModalLabelClassName}>{label}</label>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <DatePickerPopover
+            value={field.value ? parseISO(field.value) : undefined}
+            onChange={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+            placeholder={`Pilih ${label.toLowerCase()}`}
+          />
+        )}
+      />
+      <FieldError message={error} />
+    </div>
+  );
+}
+
+function DatePickerPopover({ value, onChange, placeholder }: { value: Date | undefined; onChange: (date: Date | undefined) => void; placeholder: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        render={<Button type="button" variant="outline" />}
+        className={`${inputClass} w-full justify-start`}
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <CalendarDays className="size-4 shrink-0 text-emerald-600" />
+          <span className={`truncate ${value ? "text-slate-700" : "text-slate-400"}`}>
+            {value ? format(value, "d MMM yyyy", { locale: localeID }) : placeholder}
+          </span>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent
+        sideOffset={8}
+        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
+      >
+        <Calendar mode="single" selected={value} onSelect={(date) => { onChange(date); setOpen(false); }} locale={localeID} buttonVariant="ghost" />
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function roomValues(item: AdminRoom | null): RoomFormValues { return { school_unit_id: item?.school_unit_id ?? "", code: item?.code ?? "", name: item?.name ?? "", room_type: item?.room_type ?? "CLASSROOM", capacity: item?.capacity ?? 36, is_active: item?.is_active ?? true }; }

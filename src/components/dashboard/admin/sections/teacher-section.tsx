@@ -16,6 +16,7 @@ import {
   StatCard,
   StatusBadge,
   getInitials,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { HomeroomAssignmentCreateModal, HomeroomAssignmentEditModal } from "@/components/dashboard/admin/sections/teacher-homeroom-modals";
 import {
@@ -329,6 +330,10 @@ export function TeacherSection({
     [bkTeachers, normalizedQuery],
   );
 
+  const { pageItems: pageTeacherProfiles, pagination: teacherProfilesPagination } = usePagination(filteredTeacherProfiles);
+  const { pageItems: pageHomeroomAssignments, pagination: homeroomAssignmentsPagination } = usePagination(filteredHomeroomAssignments);
+  const { pageItems: pageBkTeachers, pagination: bkTeachersPagination } = usePagination(filteredBkTeachers);
+
   const activeTeacherCount = teacherProfiles.filter(
     (teacher) => teacher.is_active,
   ).length;
@@ -568,11 +573,12 @@ export function TeacherSection({
               emptyTitle="Belum ada profil guru"
               emptyDescription="Tambahkan akun dengan role TEACHER lalu buat teacher profile agar data muncul di sini."
               icon={UsersRound}
+              pagination={teacherProfilesPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Guru", "Username", "Gender", "Mapel", "Walas", "Status", "Aksi"]} />
                 <DataTableBody>
-                  {filteredTeacherProfiles.map((teacher) => (
+                  {pageTeacherProfiles.map((teacher) => (
                     <DataTableRow key={teacher.id}>
                       <DataTableCell>
                         <div className="flex items-center gap-3">
@@ -620,11 +626,12 @@ export function TeacherSection({
               emptyTitle="Belum ada assignment walas"
               emptyDescription="Data wali kelas per tahun ajaran akan tampil di sini."
               icon={GraduationCap}
+              pagination={homeroomAssignmentsPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Guru", "Kelas", "Tahun Ajaran", "Status", "ID Assignment", "Aksi"]} />
                 <DataTableBody>
-                  {filteredHomeroomAssignments.map((assignment) => (
+                  {pageHomeroomAssignments.map((assignment) => (
                     <DataTableRow key={assignment.id}>
                       <DataTableCell className="font-medium text-slate-700">{assignment.teacher_name}</DataTableCell>
                       <DataTableCell>{assignment.class_name}</DataTableCell>
@@ -655,11 +662,12 @@ export function TeacherSection({
               emptyTitle="Belum ada penempatan BK"
               emptyDescription="Tambahkan guru dan pilih unit sekolah yang menjadi cakupan monitoringnya."
               icon={UserCog}
+              pagination={bkTeachersPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Nama", "Username", "Cakupan Unit", "Aksi"]} />
                 <DataTableBody>
-                  {filteredBkTeachers.map((teacher) => (
+                  {pageBkTeachers.map((teacher) => (
                     <DataTableRow key={teacher.user_id}>
                       <DataTableCell>
                         <div className="flex items-center gap-3">

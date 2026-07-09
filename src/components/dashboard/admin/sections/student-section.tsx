@@ -16,6 +16,7 @@ import {
   StatCard,
   StatusBadge,
   getInitials,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import {
   AttendanceRuleCreateModal,
@@ -302,6 +303,10 @@ export function StudentSection({
     [attendanceRules, statusFilter, normalizedQuery],
   );
 
+  const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(filteredStudents);
+  const { pageItems: pageMemberships, pagination: membershipsPagination } = usePagination(filteredMemberships);
+  const { pageItems: pageRules, pagination: rulesPagination } = usePagination(filteredRules);
+
   const activeStudentCount = students.filter((student) => student.is_active).length;
   const activeMembershipCount = memberships.filter((membership) => membership.is_active).length;
   const activeRuleCount = attendanceRules.filter((rule) => rule.is_active).length;
@@ -526,11 +531,11 @@ export function StudentSection({
         </div>
 
           <TabsContent value="profiles" className="mt-4">
-            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredStudents.length === 0} emptyTitle="Belum ada siswa" emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini." icon={UsersRound}>
+            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredStudents.length === 0} emptyTitle="Belum ada siswa" emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini." icon={UsersRound} pagination={studentsPagination}>
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "NIS / NISN", "Kelas Aktif", "Gender", "Status", "Aksi"]} />
                 <DataTableBody>
-                  {filteredStudents.map((student) => (
+                  {pageStudents.map((student) => (
                     <DataTableRow key={student.id}>
                       <DataTableCell>
                         <div className="flex items-center gap-3">
@@ -571,11 +576,11 @@ export function StudentSection({
           </TabsContent>
 
           <TabsContent value="memberships" className="mt-4">
-            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredMemberships.length === 0} emptyTitle="Belum ada penempatan kelas" emptyDescription="Riwayat kelas siswa per tahun ajaran akan tampil di sini." icon={GraduationCap}>
+            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredMemberships.length === 0} emptyTitle="Belum ada penempatan kelas" emptyDescription="Riwayat kelas siswa per tahun ajaran akan tampil di sini." icon={GraduationCap} pagination={membershipsPagination}>
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "Kelas", "Tahun Ajaran", "Status", "Waktu", "Aksi"]} />
                 <DataTableBody>
-                  {filteredMemberships.map((membership) => (
+                  {pageMemberships.map((membership) => (
                     <DataTableRow key={membership.id}>
                       <DataTableCell>
                         <div className="space-y-1">
@@ -609,11 +614,11 @@ export function StudentSection({
           </TabsContent>
 
           <TabsContent value="rules" className="mt-4">
-            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredRules.length === 0} emptyTitle="Belum ada aturan absensi" emptyDescription="Rule jam hadir, telat, dan cutoff alfa akan muncul di tabel ini." icon={TimerReset}>
+            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredRules.length === 0} emptyTitle="Belum ada aturan absensi" emptyDescription="Rule jam hadir, telat, dan cutoff alfa akan muncul di tabel ini." icon={TimerReset} pagination={rulesPagination}>
               <DataTable>
                 <DataTableHeadRow labels={["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Telat", "Status", "Aksi"]} />
                 <DataTableBody>
-                  {filteredRules.map((rule) => (
+                  {pageRules.map((rule) => (
                     <DataTableRow key={rule.id}>
                       <DataTableCell>{rule.school_year}</DataTableCell>
                       <DataTableCell>{rule.check_in_start}</DataTableCell>

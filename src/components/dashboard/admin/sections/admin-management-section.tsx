@@ -13,6 +13,7 @@ import {
   SearchFilterBar,
   StatCard,
   getInitials,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import {
   AdminCreateModal,
@@ -97,6 +98,8 @@ export function AdminManagementSection({
         (user.username ?? "").toLowerCase().includes(normalizedQuery),
     );
   }, [adminUsers, deferredQuery]);
+
+  const { pageItems: pageAdmins, pagination: adminsPagination } = usePagination(filteredAdmins);
 
   const kpiCards = [
     {
@@ -198,11 +201,12 @@ export function AdminManagementSection({
             emptyTitle="Akun admin tidak ditemukan"
             emptyDescription="Coba ubah pencarian atau tambahkan akun administrator baru."
             icon={ShieldCheck}
+            pagination={adminsPagination}
           >
             <DataTable>
               <DataTableHeadRow labels={["Administrator", "Username", "Role", "Akses", "Aksi"]} />
               <DataTableBody>
-                {filteredAdmins.map((user) => (
+                {pageAdmins.map((user) => (
                   <DataTableRow key={user.id}>
                     <DataTableCell>
                       <div className="flex items-center gap-3">

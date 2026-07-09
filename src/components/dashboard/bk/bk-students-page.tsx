@@ -18,8 +18,10 @@ import {
   DataTableBody,
   DataTableCell,
   DataTableHeadRow,
+  DataTablePagination,
   DataTableRow,
   SearchFilterBar,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
@@ -114,6 +116,7 @@ export function BKStudentsPage() {
     with_counseling_notes: 0,
   };
   const students = overview?.students ?? [];
+  const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(students);
   const classes = overview?.classes ?? [];
 
   const kpiCards = [
@@ -222,7 +225,7 @@ export function BKStudentsPage() {
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Kelas", "Identitas", "Telat", "Alfa", "Izin/Sakit", "Status", "Aksi"]} />
                     <DataTableBody>
-                      {students.map((student) => (
+                      {pageStudents.map((student) => (
                         <DataTableRow key={student.id}>
                           <DataTableCell>
                             <div className="flex items-center gap-3">
@@ -288,6 +291,9 @@ export function BKStudentsPage() {
                   </DataTable>
                 )}
               </div>
+              {!overviewQuery.isLoading && !overviewQuery.error && students.length > 0 ? (
+                <DataTablePagination {...studentsPagination} />
+              ) : null}
             </motion.div>
           </section>
 

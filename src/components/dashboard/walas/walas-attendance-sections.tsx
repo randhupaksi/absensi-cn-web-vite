@@ -5,8 +5,10 @@ import {
   DataTableBody,
   DataTableCell,
   DataTableHeadRow,
+  DataTablePagination,
   DataTableRow,
   SearchFilterBar,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import { KpiCard } from "@/components/dashboard/admin/widgets/kpi-card";
@@ -166,6 +168,8 @@ export function AttendanceTableSection({
   onOpenProof,
   onOpenReview,
 }: AttendanceTableSectionProps) {
+  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
+
   return (
     <section className="space-y-5">
       <article className="h-fit self-start rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,252,250,0.94)_100%)] p-4 shadow-[0_20px_48px_rgba(28,77,61,0.08)] sm:p-5">
@@ -221,7 +225,7 @@ export function AttendanceTableSection({
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
                 <DataTableBody>
-                  {records.map((record) => (
+                  {pageRecords.map((record) => (
                     <DataTableRow
                       key={record.id}
                       className={!record.verified_at && statusFilter === "Semua" ? "bg-amber-50/45 hover:bg-amber-50/70" : ""}
@@ -276,6 +280,9 @@ export function AttendanceTableSection({
               </DataTable>
             </div>
           )}
+          {!error && !isLoading && records.length > 0 ? (
+            <DataTablePagination {...recordsPagination} />
+          ) : null}
         </motion.div>
       </article>
     </section>

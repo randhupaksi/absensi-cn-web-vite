@@ -7,8 +7,10 @@ import {
   DataTableBody,
   DataTableCell,
   DataTableHeadRow,
+  DataTablePagination,
   DataTableRow,
   SearchFilterBar,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -110,6 +112,8 @@ export function WalasStudentsPage() {
       return matchesStatus && matchesQuery;
     });
   }, [normalizedQuery, statusFilter, studentsData]);
+
+  const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(filteredStudents);
 
   const activeStudents = students.filter((student) => student.is_active).length;
   const studentsNeedingAttention = students.filter(
@@ -259,7 +263,7 @@ export function WalasStudentsPage() {
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Identitas", "Gender", "Status", "Telat", "Alfa", "Ringkasan", "Aksi"]} />
                     <DataTableBody>
-                        {filteredStudents.map((student) => (
+                        {pageStudents.map((student) => (
                           <DataTableRow key={student.id}>
                             <DataTableCell>
                               <div className="flex items-center gap-3">
@@ -322,6 +326,9 @@ export function WalasStudentsPage() {
                   </DataTable>
                 </div>
               )}
+              {!studentsQuery.isLoading && !homeroomQuery.isLoading && filteredStudents.length > 0 ? (
+                <DataTablePagination {...studentsPagination} />
+              ) : null}
             </motion.div>
           </section>
 

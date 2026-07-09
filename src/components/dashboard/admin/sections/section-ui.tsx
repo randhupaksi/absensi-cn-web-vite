@@ -12,10 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import * as Select from "@radix-ui/react-select";
 import type { LucideIcon } from "lucide-react";
-import { PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
-import { useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export function SearchFilterBar({
   value,
@@ -130,6 +131,7 @@ export function DataTableCard({
   isLoading,
   columnCount,
   isEmpty,
+  pagination,
 }: {
   children: ReactNode;
   icon: LucideIcon;
@@ -138,6 +140,7 @@ export function DataTableCard({
   isLoading: boolean;
   columnCount: number;
   isEmpty: boolean;
+  pagination?: PaginationControls;
 }) {
   return (
     <motion.div
@@ -155,9 +158,193 @@ export function DataTableCard({
           <EmptyState icon={icon} title={emptyTitle} description={emptyDescription} compact />
         </div>
       ) : (
-        <div className="overflow-x-auto">{children}</div>
+        <>
+          <div className="overflow-x-auto">{children}</div>
+          {pagination ? <DataTablePagination {...pagination} /> : null}
+        </>
       )}
     </motion.div>
+  );
+}
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+
+export type PaginationControls = {
+  page: number;
+  setPage: (page: number) => void;
+  pageSize: number;
+  setPageSize: (size: number) => void;
+  totalItems: number;
+  totalPages: number;
+  rangeStart: number;
+  rangeEnd: number;
+};
+
+/**
+ * Client-side pagination for the DataTable primitives. Slices `data` for the
+ * caller to render; page auto-clamps to the last valid page whenever the
+ * (filtered) data set shrinks, e.g. after a search/status filter changes.
+ */
+export function usePagination<T>(data: T[], initialPageSize = 10) {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(initialPageSize);
+
+  const totalItems = data.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safePage = Math.min(page, totalPages);
+
+  useEffect(() => {
+    if (page !== safePage) setPage(safePage);
+  }, [page, safePage]);
+
+  const pageItems = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return data.slice(start, start + pageSize);
+  }, [data, safePage, pageSize]);
+
+  const rangeStart = totalItems === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const rangeEnd = Math.min(safePage * pageSize, totalItems);
+
+  return {
+    pageItems,
+    pagination: {
+      page: safePage,
+      setPage,
+      pageSize,
+      setPageSize: (size: number) => {
+        setPageSize(size);
+        setPage(1);
+      },
+      totalItems,
+      totalPages,
+      rangeStart,
+      rangeEnd,
+    } satisfies PaginationControls,
+  };
+}
+
+export function DataTablePagination({
+  page,
+  setPage,
+  pageSize,
+  setPageSize,
+  totalItems,
+  totalPages,
+  rangeStart,
+  rangeEnd,
+}: PaginationControls) {
+  return (
+    <div className="flex flex-col gap-3 border-t border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-4 py-3.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Baris</span>
+          <RowsPerPageSelect value={pageSize} onChange={setPageSize} />
+        </div>
+
+        <div className="flex items-center gap-4 rounded-[18px] border border-emerald-100/80 bg-white px-4 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <div className="flex flex-col items-start gap-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Rentang</span>
+            <span className="whitespace-nowrap text-sm font-bold text-slate-800">
+              {totalItems === 0 ? "0" : `${rangeStart}–${rangeEnd}`}
+            </span>
+          </div>
+          <span className="h-8 w-px bg-emerald-100" />
+          <div className="flex flex-col items-start gap-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Total</span>
+            <span className="text-sm font-bold text-emerald-600">{totalItems}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <span className="hidden whitespace-nowrap text-xs font-medium text-slate-400 sm:inline">
+          Halaman <b className="font-semibold text-slate-700">{page}</b> dari{" "}
+          <b className="font-semibold text-slate-700">{totalPages}</b>
+        </span>
+
+        <div className="flex items-center gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <PaginationNavButton onClick={() => setPage(1)} disabled={page <= 1} ariaLabel="Halaman pertama">
+            <ChevronsLeft className="size-4" />
+          </PaginationNavButton>
+          <PaginationNavButton onClick={() => setPage(page - 1)} disabled={page <= 1} ariaLabel="Halaman sebelumnya">
+            <ChevronLeft className="size-4" />
+          </PaginationNavButton>
+          <span className="flex size-9 items-center justify-center rounded-[12px] bg-[linear-gradient(180deg,#10b981_0%,#0d9488_100%)] text-sm font-semibold text-white shadow-[0_10px_20px_rgba(16,185,129,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]">
+            {page}
+          </span>
+          <PaginationNavButton onClick={() => setPage(page + 1)} disabled={page >= totalPages} ariaLabel="Halaman berikutnya">
+            <ChevronRight className="size-4" />
+          </PaginationNavButton>
+          <PaginationNavButton onClick={() => setPage(totalPages)} disabled={page >= totalPages} ariaLabel="Halaman terakhir">
+            <ChevronsRight className="size-4" />
+          </PaginationNavButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PaginationNavButton({
+  children,
+  disabled,
+  onClick,
+  ariaLabel,
+}: {
+  children: ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+  ariaLabel: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      onClick={onClick}
+      disabled={disabled}
+      className="flex size-9 items-center justify-center rounded-[11px] text-emerald-700 transition-all duration-150 hover:bg-emerald-50 active:scale-90 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:active:scale-100"
+    >
+      {children}
+    </button>
+  );
+}
+
+function RowsPerPageSelect({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (size: number) => void;
+}) {
+  return (
+    <Select.Root value={String(value)} onValueChange={(next) => onChange(Number(next))}>
+      <Select.Trigger className="group flex h-10 min-w-[4.5rem] items-center justify-between gap-2 rounded-[14px] border border-emerald-200/80 bg-white px-3.5 text-sm font-bold text-slate-800 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/70 data-[state=open]:border-emerald-400 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/70">
+        <Select.Value />
+        <Select.Icon className="text-emerald-600 transition-transform duration-200 group-data-[state=open]:rotate-180">
+          <ChevronDown className="size-3.5" />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Content
+          position="popper"
+          sideOffset={8}
+          className="z-[80] w-fit overflow-hidden rounded-[1.15rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(243,252,247,0.99)_100%)] p-1.5 shadow-[0_28px_64px_rgba(15,23,42,0.18)] backdrop-blur-xl"
+        >
+          <Select.Viewport className="space-y-0.5">
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <Select.Item
+                key={size}
+                value={String(size)}
+                className="group/row-option relative flex cursor-pointer select-none items-center gap-3 rounded-[0.85rem] px-3.5 py-2.5 text-sm font-semibold text-slate-700 outline-none transition data-[highlighted]:bg-emerald-50 data-[state=checked]:bg-emerald-100/70 data-[state=checked]:text-emerald-800"
+              >
+                <Select.ItemText>{size}</Select.ItemText>
+                <Check className="size-4 shrink-0 text-emerald-600 opacity-0 group-data-[state=checked]/row-option:opacity-100" />
+              </Select.Item>
+            ))}
+          </Select.Viewport>
+        </Select.Content>
+      </Select.Portal>
+    </Select.Root>
   );
 }
 

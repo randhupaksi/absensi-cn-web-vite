@@ -14,6 +14,7 @@ import {
   SectionTabSwitch,
   StatCard,
   getInitials,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import {
   UserCreateModal,
@@ -114,6 +115,8 @@ export function UserSection({
         (user.username ?? "").toLowerCase().includes(normalizedQuery),
     );
   }, [activeTab, normalizedQuery, staffUsers]);
+
+  const { pageItems: pageUsers, pagination: usersPagination } = usePagination(filteredUsers);
 
   const kpiCards = [
     {
@@ -220,11 +223,11 @@ export function UserSection({
 
           {(["all", "admins", "teachers"] as UserTab[]).map((tab) => (
             <TabsContent key={tab} value={tab} className="mt-4">
-              <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan administrator di sini atau akun guru dari workspace Guru." icon={ShieldCheck}>
+              <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan administrator di sini atau akun guru dari workspace Guru." icon={ShieldCheck} pagination={usersPagination}>
                 <DataTable>
                   <DataTableHeadRow labels={["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"]} />
                   <DataTableBody>
-                    {filteredUsers.map((user) => (
+                    {pageUsers.map((user) => (
                       <DataTableRow key={user.id}>
                         <DataTableCell>
                           <div className="flex items-center gap-3">

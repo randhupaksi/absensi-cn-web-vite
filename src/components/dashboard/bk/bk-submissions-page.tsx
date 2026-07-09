@@ -18,7 +18,9 @@ import {
   DataTableBody,
   DataTableCell,
   DataTableHeadRow,
+  DataTablePagination,
   DataTableRow,
+  usePagination,
   SearchFilterBar,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
@@ -126,6 +128,7 @@ export function BKSubmissionsPage() {
     with_attachment: 0,
   };
   const records = useMemo(() => overview?.records ?? [], [overview?.records]);
+  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
   const classes = overview?.classes ?? [];
   const pendingItems = useMemo(
     () => records.filter((item) => normalizeSubmissionStatus(item.status) === "menunggu").slice(0, 6),
@@ -220,7 +223,7 @@ export function BKSubmissionsPage() {
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Pengajuan", "Kelas", "Waktu", "Status", "Lampiran", "Aksi"]} />
                     <DataTableBody>
-                      {records.map((record) => (
+                      {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
                           <DataTableCell>
                             <p className="font-semibold text-slate-900">{record.student_name}</p>
@@ -257,6 +260,9 @@ export function BKSubmissionsPage() {
                   </DataTable>
                 </div>
               )}
+              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+                <DataTablePagination {...recordsPagination} />
+              ) : null}
             </motion.div>
           </section>
 

@@ -19,8 +19,10 @@ import {
   DataTableBody,
   DataTableCell,
   DataTableHeadRow,
+  DataTablePagination,
   DataTableRow,
   SearchFilterBar,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
@@ -89,6 +91,7 @@ export function BKCounselingPage() {
     recent_week_notes: 0,
   };
   const records = overview?.records ?? [];
+  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
   const classes = overview?.classes ?? [];
   const students = useMemo(() => overview?.students ?? [], [overview?.students]);
 
@@ -248,7 +251,7 @@ export function BKCounselingPage() {
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Catatan", "Kelas", "Dibuat Oleh", "Waktu", "Aksi"]} />
                     <DataTableBody>
-                      {records.map((record) => (
+                      {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
                           <DataTableCell>
                             <div className="flex items-center gap-3">
@@ -281,6 +284,9 @@ export function BKCounselingPage() {
                   </DataTable>
                 </div>
               )}
+              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+                <DataTablePagination {...recordsPagination} />
+              ) : null}
             </motion.div>
           </section>
 

@@ -15,6 +15,7 @@ import {
   StatCard,
   StatusBadge,
   getInitials,
+  usePagination,
 } from "@/components/dashboard/admin/sections/section-ui";
 import { SubjectFormModal, TeachingAssignmentFormModal } from "@/components/dashboard/admin/sections/subject-management-modals";
 import { RoomModal, ScheduleOverrideModal } from "@/components/dashboard/admin/sections/academic-operations-modals";
@@ -288,6 +289,11 @@ export function SubjectManagementSection({
   const activeRooms = rooms.filter((r) => r.is_active).length;
   const activeOverrides = overrides.filter((o) => o.status === "ACTIVE").length;
 
+  const { pageItems: pageSubjects, pagination: subjectsPagination } = usePagination(filteredSubjects);
+  const { pageItems: pageAssignments, pagination: assignmentsPagination } = usePagination(filteredAssignments);
+  const { pageItems: pageRooms, pagination: roomsPagination } = usePagination(rooms);
+  const { pageItems: pageOverrides, pagination: overridesPagination } = usePagination(overrides);
+
   const kpiCards = useMemo(() => {
     if (activeTab === "schedules") {
       return [
@@ -440,11 +446,12 @@ export function SubjectManagementSection({
               emptyTitle="Mapel tidak ditemukan"
               emptyDescription="Tambahkan master mapel baru atau ubah filter pencarian."
               icon={BookOpenCheck}
+              pagination={subjectsPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Kode", "Mata Pelajaran", "Guru", "Kelas", "Slot Jadwal", "Status", "Aksi"]} />
                 <DataTableBody>
-                  {filteredSubjects.map((subject) => (
+                  {pageSubjects.map((subject) => (
                     <DataTableRow key={subject.id}>
                       <DataTableCell>
                         <Badge variant="outline" className="border-slate-200 bg-slate-50 font-mono text-xs text-slate-600">
@@ -484,11 +491,12 @@ export function SubjectManagementSection({
               emptyTitle="Jadwal mengajar tidak ditemukan"
               emptyDescription="Tambahkan penempatan guru dan slot jadwal, atau ubah filter pencarian."
               icon={CalendarClock}
+              pagination={assignmentsPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Kelas", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
                 <DataTableBody>
-                  {filteredAssignments.map((assignment) => (
+                  {pageAssignments.map((assignment) => (
                     <DataTableRow key={assignment.id}>
                       <DataTableCell>
                         <div className="flex items-center gap-3">
@@ -541,11 +549,12 @@ export function SubjectManagementSection({
               emptyTitle="Belum ada ruangan"
               emptyDescription="Tambahkan ruang yang dapat dipakai jadwal."
               icon={DoorOpen}
+              pagination={roomsPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Kode", "Nama", "Unit", "Tipe", "Kapasitas", "Aksi"]} />
                 <DataTableBody>
-                  {rooms.map((item) => (
+                  {pageRooms.map((item) => (
                     <DataTableRow key={item.id}>
                       <DataTableCell><b>{item.code}</b></DataTableCell>
                       <DataTableCell>{item.name}</DataTableCell>
@@ -575,11 +584,12 @@ export function SubjectManagementSection({
               emptyTitle="Belum ada perubahan jadwal"
               emptyDescription="Jadwal normal tetap berlaku selama tidak ada override."
               icon={CalendarSync}
+              pagination={overridesPagination}
             >
               <DataTable>
                 <DataTableHeadRow labels={["Jadwal", "Tanggal Asal", "Jenis", "Pengganti", "Status", "Aksi"]} />
                 <DataTableBody>
-                  {overrides.map((item) => {
+                  {pageOverrides.map((item) => {
                     const schedule = schedules.find((x) => x.id === item.schedule_id);
                     return (
                       <DataTableRow key={item.id}>

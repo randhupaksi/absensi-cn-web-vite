@@ -19,6 +19,8 @@ import { EmptyState } from "@/components/dashboard/admin/widgets/empty-state";
 import {
   DataTable,
   DataTableBody,
+  DataTablePagination,
+  usePagination,
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
@@ -117,6 +119,7 @@ export function BKAttendancePage() {
   const records = overview?.records ?? [];
   const classes = overview?.classes ?? [];
   const reviewedCount = records.filter((record) => Boolean(record.verified_at)).length;
+  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
   const pendingReviewCount = records.filter(
     (record) => ["telat", "alfa"].includes(record.status.toLowerCase()) && !record.verified_at,
   ).length;
@@ -232,7 +235,7 @@ export function BKAttendancePage() {
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Kelas", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
                     <DataTableBody>
-                      {records.map((record) => (
+                      {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
                           <DataTableCell>
                             <p className="font-semibold text-slate-900">{record.student_name}</p>
@@ -283,6 +286,9 @@ export function BKAttendancePage() {
                   </DataTable>
                 </div>
               )}
+              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+                <DataTablePagination {...recordsPagination} />
+              ) : null}
             </motion.div>
           </section>
 
