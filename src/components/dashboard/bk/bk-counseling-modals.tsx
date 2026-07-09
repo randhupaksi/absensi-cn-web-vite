@@ -10,8 +10,8 @@ import {
   premiumModalSurfaceClassName,
 } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
+import { ComboboxField } from "@/components/ui/combobox-field";
 import { FieldError } from "@/components/ui/field-error";
-import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
 import type { StaffCounselingNote } from "@/types/staff";
@@ -64,7 +64,7 @@ export function CounselingFormModal({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  students: Array<{ id: string; name: string; nis: string }>;
+  students: Array<{ id: string; name: string; nis: string; class_name?: string }>;
   note?: StaffCounselingNote | null;
   onSubmit: (payload: { student_id: string; title: string; note: string }) => void;
   isPending: boolean;
@@ -76,7 +76,10 @@ export function CounselingFormModal({
 
   const studentOptions = [
     { value: "Pilih", label: "Pilih siswa" },
-    ...students.map((student) => ({ value: student.id, label: `${student.name} - ${student.nis}` })),
+    ...students.map((student) => ({
+      value: student.id,
+      label: `${student.name} - ${student.class_name || "Kelas belum tersedia"}`,
+    })),
   ];
 
   const handleSubmit = () => {
@@ -99,26 +102,29 @@ export function CounselingFormModal({
       className="sm:!max-w-[760px]"
     >
       <div className="grid gap-5">
-        <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Siswa</label>
-          <RadixSelectField
-            value={studentId}
-            onValueChange={setStudentId}
-            options={studentOptions}
-            placeholder="Pilih siswa"
-            triggerClassName="h-12 rounded-[18px]"
-          />
-          <FieldError message={errors.student_id} />
-        </div>
-        <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Judul catatan</label>
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Contoh: Follow up alfa berulang"
-            className="h-12 rounded-[18px] border border-slate-300/80 bg-white/90 px-4 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:bg-emerald-50/25 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16)] focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/80"
-          />
-          <FieldError message={errors.title} />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className={premiumModalFieldClassName}>
+            <label className={premiumModalLabelClassName}>Siswa</label>
+            <ComboboxField
+              value={studentId}
+              onValueChange={setStudentId}
+              options={studentOptions}
+              placeholder="Pilih siswa"
+              searchPlaceholder="Cari nama atau kelas siswa..."
+              triggerClassName="h-12 rounded-[18px]"
+            />
+            <FieldError message={errors.student_id} />
+          </div>
+          <div className={premiumModalFieldClassName}>
+            <label className={premiumModalLabelClassName}>Judul catatan</label>
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Contoh: Follow up alfa berulang"
+              className="h-12 rounded-[18px] border border-slate-300/80 bg-white/90 px-4 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:bg-emerald-50/25 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16)] focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/80"
+            />
+            <FieldError message={errors.title} />
+          </div>
         </div>
         <div className={premiumModalFieldClassName}>
           <label className={premiumModalLabelClassName}>Catatan pembinaan</label>

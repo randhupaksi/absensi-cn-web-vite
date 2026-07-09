@@ -346,7 +346,9 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
                               )}
                             >
                               {s.name}
-                              <span className={cn("ml-1 opacity-60")}>{s.nis}</span>
+                              <span className={cn("ml-1 opacity-60")}>
+                                {s.class_name || "Kelas belum tersedia"}
+                              </span>
                             </button>
                           ))}
                         </div>

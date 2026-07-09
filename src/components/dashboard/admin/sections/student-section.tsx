@@ -689,6 +689,7 @@ export function StudentSection({
           open={membershipModalOpen}
           onOpenChange={setMembershipModalOpen}
           students={students}
+          memberships={memberships}
           classes={classes}
           schoolYears={schoolYears}
           isPending={createMembershipMutation.isPending}
@@ -702,6 +703,7 @@ export function StudentSection({
           open
           onOpenChange={(open) => { if (!open) setEditingMembership(null); }}
           students={students}
+          memberships={memberships}
           classes={classes}
           schoolYears={schoolYears}
           isPending={updateMembershipMutation.isPending}

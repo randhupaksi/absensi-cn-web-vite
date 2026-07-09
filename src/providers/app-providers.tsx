@@ -30,6 +30,31 @@ export function AppProviders({ children }: AppProvidersProps) {
   );
 
   useEffect(() => {
+    // Dialogs/menus restore focus to their trigger button when they close
+    // (for keyboard accessibility), which otherwise leaves a lingering focus
+    // ring on the button even though the user just clicked it with a mouse.
+    // Track the last input method on <body data-input-method> so CSS can
+    // suppress that ring for pointer interactions while still showing it for
+    // real keyboard (Tab) navigation.
+    const setInputMethod = (method: "pointer" | "keyboard") => {
+      if (document.body.dataset.inputMethod !== method) {
+        document.body.dataset.inputMethod = method;
+      }
+    };
+    const handlePointerDown = () => setInputMethod("pointer");
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Tab") setInputMethod("keyboard");
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, []);
+
+  useEffect(() => {
     const watermarkKey = "__absensi_cn_credit_logged__";
     if (window[watermarkKey as keyof Window]) return;
     Object.defineProperty(window, watermarkKey, {

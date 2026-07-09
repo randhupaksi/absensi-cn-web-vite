@@ -27,6 +27,7 @@ import {
 import { StaffShell } from "@/components/dashboard/staff/staff-shell";
 import { bkSidebarItems } from "@/components/dashboard/staff/staff-sidebar";
 import { Button } from "@/components/ui/button";
+import { ComboboxField } from "@/components/ui/combobox-field";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
@@ -100,7 +101,7 @@ export function BKCounselingPage() {
       { value: "Semua", label: "Semua siswa" },
       ...students.map((student) => ({
         value: student.id,
-        label: `${student.name} - ${student.nis}`,
+        label: `${student.name} - ${student.class_name || "Kelas belum tersedia"}`,
       })),
     ],
     [students],
@@ -214,11 +215,12 @@ export function BKCounselingPage() {
                   />
                 </div>
                 <div className="w-full sm:w-[260px]">
-                  <RadixSelectField
+                  <ComboboxField
                     value={studentFilter}
                     onValueChange={setStudentFilter}
                     options={studentOptions}
                     placeholder="Pilih siswa"
+                    searchPlaceholder="Cari nama atau kelas siswa..."
                     triggerClassName="h-14 rounded-[22px] pl-4"
                   />
                 </div>

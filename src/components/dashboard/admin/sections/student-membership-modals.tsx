@@ -3,6 +3,7 @@
 import { FieldGroup, ModalActions } from "@/components/dashboard/admin/sections/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";
+import { ComboboxField } from "@/components/ui/combobox-field";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
@@ -87,16 +88,38 @@ const EMPTY_FORM: AdminStudentClassMembershipPayload = {
 
 type SharedProps = {
   students: AdminStudent[];
+  memberships: AdminStudentClassMembership[];
   classes: AdminClass[];
   schoolYears: AdminSchoolYear[];
   isPending: boolean;
   onSubmit: (payload: AdminStudentClassMembershipPayload) => void;
 };
 
+function getStudentClassLabel(
+  studentId: string,
+  memberships: AdminStudentClassMembership[],
+) {
+  return (
+    memberships.find((membership) => membership.student_id === studentId && membership.is_active)
+      ?.class_name ?? "Belum ditempatkan"
+  );
+}
+
+function getStudentOptions(
+  students: AdminStudent[],
+  memberships: AdminStudentClassMembership[],
+) {
+  return students.map((student) => ({
+    value: student.id,
+    label: `${student.name} - ${getStudentClassLabel(student.id, memberships)}`,
+  }));
+}
+
 export function StudentMembershipCreateModal({
   open,
   onOpenChange,
   students,
+  memberships,
   classes,
   schoolYears,
   isPending,
@@ -126,7 +149,7 @@ export function StudentMembershipCreateModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Siswa">
-            <RadixSelectField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} placeholder="Pilih siswa" options={students.map((s) => ({ value: s.id, label: s.name, description: s.nis }))} />
+            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} placeholder="Pilih siswa" searchPlaceholder="Cari nama atau kelas siswa..." options={getStudentOptions(students, memberships)} />
             <FieldError message={errors.student_id} />
           </FieldGroup>
           <FieldGroup label="Kelas">
@@ -157,6 +180,7 @@ export function StudentMembershipEditModal({
   open,
   onOpenChange,
   students,
+  memberships,
   classes,
   schoolYears,
   isPending,
@@ -192,7 +216,7 @@ export function StudentMembershipEditModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Siswa">
-            <RadixSelectField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} placeholder="Pilih siswa" options={students.map((s) => ({ value: s.id, label: s.name, description: s.nis }))} />
+            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} placeholder="Pilih siswa" searchPlaceholder="Cari nama atau kelas siswa..." options={getStudentOptions(students, memberships)} />
             <FieldError message={errors.student_id} />
           </FieldGroup>
           <FieldGroup label="Kelas">

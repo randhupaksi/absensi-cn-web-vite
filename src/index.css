@@ -209,3 +209,20 @@
     pointer-events: none;
   }
 }
+
+/*
+ * Intentionally outside any @layer: unlayered rules always win over
+ * Tailwind's utility layer, so this reliably overrides focus-visible:ring-*
+ * without needing !important.
+ *
+ * Dialogs/menus programmatically restore focus to their trigger button on
+ * close for keyboard accessibility, which otherwise leaves a lingering
+ * "active" ring on the button after a plain mouse click/close. Suppress the
+ * ring only when the last input was pointer-based (see AppProviders); real
+ * keyboard (Tab) navigation still shows it.
+ */
+body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
+}

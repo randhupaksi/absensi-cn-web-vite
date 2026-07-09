@@ -130,10 +130,6 @@ export function BKSubmissionsPage() {
   const records = useMemo(() => overview?.records ?? [], [overview?.records]);
   const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
   const classes = overview?.classes ?? [];
-  const pendingItems = useMemo(
-    () => records.filter((item) => normalizeSubmissionStatus(item.status) === "menunggu").slice(0, 6),
-    [records],
-  );
 
   const kpiCards = [
     {
@@ -264,34 +260,6 @@ export function BKSubmissionsPage() {
                 <DataTablePagination {...recordsPagination} />
               ) : null}
             </motion.div>
-          </section>
-
-          <section className="rounded-[30px] border border-white/75 bg-white/90 p-5 shadow-[0_20px_48px_rgba(28,77,61,0.08)]">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-semibold text-slate-950">Fokus Review BK</h3>
-                <p className="mt-1 text-sm text-slate-500">Pengajuan yang masih menunggu tanggapan.</p>
-              </div>
-              <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Prioritas</span>
-            </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {pendingItems.length === 0 ? (
-                <EmptyState icon={ShieldCheck} title="Tidak ada pengajuan pending" description="Pengajuan pending akan muncul di panel ini." compact />
-              ) : (
-                pendingItems.map((item, index) => (
-                  <motion.article key={item.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: index * 0.04 }} className="rounded-[22px] border border-slate-100 bg-slate-50/92 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <p className="font-semibold text-slate-900">{item.student_name}</p>
-                        <p className="text-sm text-slate-500">{item.nis} - {item.class_name || "-"}</p>
-                        <p className="line-clamp-2 text-sm leading-6 text-slate-500">{item.reason}</p>
-                      </div>
-                      <SubmissionTypePill type={item.type} />
-                    </div>
-                  </motion.article>
-                ))
-              )}
-            </div>
           </section>
 
           {reportModalOpen && (
