@@ -1,0 +1,567 @@
+"use client";
+
+import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
+import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { StudentShell } from "@/features/student/components/shell";
+import { CameraCaptureModal } from "@/features/student/components/camera-capture-modal";
+import {
+  formatClock,
+  formatStudentDate,
+  formatStudentDateTime,
+  formatStudentTime,
+  StudentStatusPill,
+  StudentSubmissionPill,
+} from "@/features/student/components/common";
+import { Button } from "@/components/ui/button";
+import { openProtectedApiAsset } from "@/components/security/protected-api-asset";
+import {
+  PremiumModal,
+  premiumModalActionsClassName,
+  premiumModalFieldClassName,
+  premiumModalHelperClassName,
+  premiumModalLabelClassName,
+  premiumModalSurfaceClassName,
+} from "@/components/modals/premium-modal";
+import { FieldError } from "@/components/ui/field-error";
+import { RadixSelectField } from "@/components/ui/radix-select";
+import { Textarea } from "@/components/ui/textarea";
+import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  getStudentDashboard,
+  submitStudentDailyReport,
+} from "@/services/student.service";
+import type { StudentDailyReportPayload } from "@/types/student";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowUpRight,
+  Bell,
+  Camera,
+  CheckCircle2,
+  Clock,
+  FileImage,
+  FileText,
+  History,
+  ImageUp,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  TimerReset,
+} from "lucide-react";
+import { motion } from "motion/react";
+import { AppLink as Link } from "@/components/router/app-link";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
+const reportTypeOptions = [
+  { value: "HADIR", label: "Hadir", description: "Absensi masuk sekolah" },
+  { value: "SAKIT", label: "Sakit", description: "Lampirkan bukti atau surat sakit" },
+  { value: "IZIN", label: "Izin", description: "Lampirkan bukti izin atau keterangan" },
+];
+
+export function StudentDashboardPage() {
+  const queryClient = useQueryClient();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const photoPreviewRef = useRef("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [reportType, setReportType] =
+    useState<StudentDailyReportPayload["type"]>("HADIR");
+  const [reason, setReason] = useState("");
+  const [errors, setErrors] = useState<FieldErrors<"photo" | "type" | "reason">>({});
+  const [cameraModalOpen, setCameraModalOpen] = useState(false);
+
+  const dashboardQuery = useQuery({
+    queryKey: ["student-dashboard"],
+    queryFn: getStudentDashboard,
+    refetchInterval: 30_000,
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: submitStudentDailyReport,
+    onSuccess: async (data) => {
+      if (data?.can_submit !== false) {
+        toast.error("Absensi gagal tersimpan, silakan coba lagi.");
+        return;
+      }
+      toast.success("Absensi berhasil dikirim.");
+      setModalOpen(false);
+      resetCaptureState();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["student-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["student-history"] }),
+        queryClient.invalidateQueries({ queryKey: ["student-profile"] }),
+      ]);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  useEffect(
+    () => () => {
+      if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
+    },
+    [],
+  );
+
+  const dashboard = dashboardQuery.data;
+  const today = dashboard?.today;
+  const stats = dashboard?.stats;
+  const canSubmit = Boolean(today?.can_submit);
+  const alreadySubmitted = Boolean(today?.attendance && !today.can_submit);
+  const isWindowClosed = !canSubmit && !alreadySubmitted && (() => {
+    if (!today?.current_time || !today?.window.late_until) return false;
+    const serverNow = new Date(today.current_time);
+    const [h, m, s] = today.window.late_until.split(":").map(Number);
+    const lateUntil = new Date(serverNow);
+    lateUntil.setHours(h, m, s ?? 0, 0);
+    return serverNow > lateUntil;
+  })();
+
+  function resetCaptureState() {
+    setPhotoFile(null);
+    if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
+    photoPreviewRef.current = "";
+    setPhotoPreview("");
+    setReportType("HADIR");
+    setReason("");
+    setErrors({});
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
+
+  function handleStartAttendance() {
+    if (!canSubmit) return;
+    if (isMobileDevice()) {
+      inputRef.current?.click();
+    } else {
+      setCameraModalOpen(true);
+    }
+  }
+
+  function handlePhotoPicked(file?: File) {
+    if (!file) return;
+    if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
+    const previewUrl = URL.createObjectURL(file);
+    photoPreviewRef.current = previewUrl;
+    setPhotoFile(file);
+    setPhotoPreview(previewUrl);
+    setErrors({});
+    setModalOpen(true);
+  }
+
+  function handleSubmit() {
+    const nextErrors: FieldErrors<"photo" | "type" | "reason"> = {};
+    validateRequired(nextErrors, "photo", photoFile, "Foto absensi siswa");
+    validateRequired(nextErrors, "type", reportType, "Keterangan");
+    if (reportType === "IZIN" || reportType === "SAKIT") {
+      validateRequired(nextErrors, "reason", reason, `Alasan ${reportType === "SAKIT" ? "sakit" : "izin"}`);
+    }
+    setErrors(nextErrors);
+    if (hasFieldErrors(nextErrors) || !photoFile) return;
+
+    submitMutation.mutate({
+      type: reportType,
+      reason: reason.trim(),
+      photo: photoFile,
+    });
+  }
+
+  return (
+    <StudentShell>
+      {() => (
+        <div className="space-y-5">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(event) => handlePhotoPicked(event.target.files?.[0])}
+          />
+
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.42, ease: "easeOut" }}
+            className="overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]"
+          >
+            <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+              <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
+                <div className="space-y-4">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-50">
+                    <Sparkles className="size-4" />
+                    Portal Absensi Siswa
+                  </span>
+                  <div className="max-w-2xl space-y-3">
+                    <h1 className="text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[3.2rem]">
+                      {alreadySubmitted
+                        ? "Absensi hari ini sudah terkirim."
+                        : isWindowClosed
+                          ? "Kamu tidak hadir hari ini."
+                          : "Ambil foto dan kirim absensi hari ini."}
+                    </h1>
+                    <p className="max-w-xl text-base leading-7 text-emerald-50/82">
+                      {today?.message ??
+                        "Buka kamera, ambil foto, lalu pilih keterangan hadir, sakit, atau izin."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Button
+                    type="button"
+                    onClick={handleStartAttendance}
+                    disabled={!canSubmit || dashboardQuery.isLoading}
+                    className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition hover:bg-emerald-50 hover:shadow-[0_18px_34px_rgba(2,44,34,0.22)] disabled:bg-white/35 disabled:text-white/70"
+                  >
+                    {canSubmit ? (
+                      <Camera className="size-5" />
+                    ) : isWindowClosed ? (
+                      <ShieldAlert className="size-5" />
+                    ) : (
+                      <TimerReset className="size-5" />
+                    )}
+                    {canSubmit
+                      ? "Absen Hari Ini"
+                      : isWindowClosed
+                        ? "Waktu Absensi Sudah Habis"
+                        : "Cooldown Sampai Besok"}
+                  </Button>
+                  <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
+                    Batas hadir {formatClock(today?.window.on_time_until)} WIB, terlambat sampai{" "}
+                    {formatClock(today?.window.late_until)} WIB.
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid items-start gap-4">
+                <div className="rounded-[1.5rem] border border-slate-200/80 bg-white/86 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+                        Status Hari Ini
+                      </p>
+                      <h2 className="mt-3 text-2xl font-semibold text-slate-950">
+                        {today?.attendance
+                          ? "Sudah Terekam"
+                          : isWindowClosed
+                            ? "Tidak Hadir"
+                            : "Belum Ada Record"}
+                      </h2>
+                    </div>
+                    {today?.attendance ? (
+                      <StudentStatusPill status={today.attendance.status} />
+                    ) : isWindowClosed ? (
+                      <StudentStatusPill status="alfa" />
+                    ) : (
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+                        Menunggu
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <InfoTile label="Nama" value={today?.profile.name ?? "-"} />
+                    <InfoTile label="Kelas" value={today?.profile.class_name ?? "-"} />
+                    <InfoTile
+                      label="Check-in"
+                      value={formatStudentTime(today?.attendance?.check_in_at)}
+                    />
+                    <InfoTile
+                      label="Validasi"
+                      value={today?.attendance?.verified_at ? "Sudah direview" : "Menunggu"}
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-emerald-200/70 bg-emerald-50/70 p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_12px_24px_rgba(16,185,129,0.24)]">
+                      <ShieldCheck className="size-5" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-slate-950">Terkoneksi Walas dan BK</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                        Absensi, izin, dan sakit langsung masuk ke antrian validasi.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+            <KpiCard
+              label="Total Absen"
+              value={String(stats?.total_attendance ?? 0)}
+              icon={History}
+              accentClass="bg-emerald-100 text-emerald-700"
+            />
+            <KpiCard
+              label="Hadir"
+              value={String(stats?.present ?? 0)}
+              icon={CheckCircle2}
+              accentClass="bg-sky-100 text-sky-700"
+            />
+            <KpiCard
+              label="Terlambat"
+              value={String(stats?.late ?? 0)}
+              icon={Clock}
+              accentClass="bg-amber-100 text-amber-700"
+            />
+            <KpiCard
+              label="Pengajuan"
+              value={String(stats?.pending_requests ?? 0)}
+              icon={FileText}
+              accentClass="bg-rose-100 text-rose-700"
+            />
+          </section>
+
+          <section className="grid items-start gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08, duration: 0.34 }}
+              className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">Histori Terbaru</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Rekap absensi terakhir yang sudah masuk sistem.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/siswa/history"
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:shadow-[0_10px_22px_rgba(16,185,129,0.12)]"
+                >
+                  Lihat Semua
+                  <ArrowUpRight className="size-4" />
+                </Link>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {(dashboard?.recent_attendance ?? []).length > 0 ? (
+                  dashboard?.recent_attendance.map((record) => (
+                    <div
+                      key={record.id}
+                      className="flex flex-col gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <p className="font-semibold text-slate-950">
+                          {formatStudentDate(record.attendance_date)}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          Check-in {formatStudentTime(record.check_in_at)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <StudentStatusPill status={record.status} />
+                        {record.photo_url ? (
+                          <button
+                            type="button"
+                            onClick={() => void openProtectedApiAsset(record.photo_url!)}
+                            className="inline-flex size-9 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
+                            aria-label="Buka foto absensi"
+                          >
+                            <FileImage className="size-4" />
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState
+                    icon={History}
+                    title="Belum ada histori"
+                    description="Data absensi akan tampil setelah kamu mengirim absensi."
+                  />
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.13, duration: 0.34 }}
+              className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">Notification Center</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Informasi validasi dan pengajuan terbaru.
+                  </p>
+                </div>
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                  <Bell className="size-5" />
+                </span>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {(dashboard?.notifications ?? []).map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <Bell className="size-4" />
+                      </span>
+                      <div>
+                        <p className="font-semibold text-slate-950">{item.title}</p>
+                        <p className="mt-1 text-sm leading-6 text-slate-500">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {(dashboard?.recent_submissions ?? []).slice(0, 2).map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-[1.2rem] border border-slate-200/75 bg-white p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <StudentSubmissionPill value={item.type} />
+                      <StudentSubmissionPill value={item.status} />
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-500">{item.reason}</p>
+                    <p className="mt-2 text-xs font-medium text-slate-400">
+                      {formatStudentDateTime(item.created_at)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </section>
+
+          <PremiumModal
+            open={modalOpen}
+            onOpenChange={(open) => {
+              setModalOpen(open);
+              if (!open) resetCaptureState();
+            }}
+            title="Foto Absensi Siswa"
+            description="Periksa foto, pilih keterangan, lalu kirim agar walas dapat melakukan validasi."
+            icon={ImageUp}
+            className="sm:!max-w-[760px]"
+          >
+            <div className="space-y-5">
+              <div className={premiumModalSurfaceClassName}>
+                <div className="grid gap-4 p-4 md:grid-cols-[1fr_0.82fr]">
+                  <div className="overflow-hidden rounded-[1.2rem] border border-emerald-200/70 bg-slate-950">
+                    {photoPreview ? (
+                      <img
+                        src={photoPreview}
+                        alt="Preview foto absensi siswa"
+                        className="h-[280px] w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-[280px] items-center justify-center text-slate-300">
+                        Foto belum tersedia
+                      </div>
+                    )}
+                  </div>
+                  <FieldError message={errors.photo} />
+                  <div className="space-y-4">
+                    <div className={premiumModalFieldClassName}>
+                      <label className={premiumModalLabelClassName}>Keterangan</label>
+                      <RadixSelectField
+                        value={reportType}
+                        onValueChange={(value) =>
+                          setReportType(value as StudentDailyReportPayload["type"])
+                        }
+                        placeholder="Pilih keterangan"
+                        options={reportTypeOptions}
+                      />
+                      <FieldError message={errors.type} />
+                    </div>
+
+                    {reportType === "IZIN" || reportType === "SAKIT" ? (
+                      <div className={premiumModalFieldClassName}>
+                        <label className={premiumModalLabelClassName}>
+                          Alasan {reportType === "SAKIT" ? "Sakit" : "Izin"}
+                        </label>
+                        <p className={premiumModalHelperClassName}>
+                          Keterangan ini akan dibaca oleh walas dan BK.
+                        </p>
+                        <Textarea
+                          value={reason}
+                          onChange={(event) => setReason(event.target.value)}
+                          placeholder="Tuliskan keterangan singkat dan jelas"
+                          className="min-h-[130px] resize-none"
+                        />
+                        <FieldError message={errors.reason} />
+                      </div>
+                    ) : (
+                      <div className="rounded-[1.1rem] border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800">
+                        Untuk status hadir, foto akan langsung masuk sebagai record absensi
+                        dan menunggu validasi walas.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className={premiumModalActionsClassName}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-13 rounded-full border-slate-200 px-6 text-slate-600"
+                  onClick={() => {
+                    setModalOpen(false);
+                    resetCaptureState();
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="button"
+                  disabled={submitMutation.isPending}
+                  onClick={handleSubmit}
+                  className="h-13 rounded-full bg-emerald-700 px-7 text-white shadow-[0_14px_28px_rgba(16,185,129,0.22)] hover:bg-emerald-800"
+                >
+                  <ShieldCheck className="size-4.5" />
+                  {submitMutation.isPending ? "Mengirim..." : "Kirim Absensi"}
+                </Button>
+              </div>
+            </div>
+          </PremiumModal>
+
+          {cameraModalOpen ? (
+            <CameraCaptureModal
+              onCapture={(file) => {
+                setCameraModalOpen(false);
+                handlePhotoPicked(file);
+              }}
+              onClose={() => setCameraModalOpen(false)}
+            />
+          ) : null}
+        </div>
+      )}
+    </StudentShell>
+  );
+}
+
+function InfoTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/75 px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-1 truncate font-semibold text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return (
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)
+  );
+}
