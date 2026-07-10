@@ -38,6 +38,16 @@ function DashboardRedirect() {
   return <Navigate replace to={session ? getDashboardPathForUser(session.user) : "/login"} />;
 }
 
+function HomeRoute() {
+  const session = getAuthSession();
+  return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <HomePage />;
+}
+
+function LoginRoute() {
+  const session = getAuthSession();
+  return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <LoginPage />;
+}
+
 function TeacherDashboard() {
   const session = getAuthSession();
   if (!session) return <Navigate replace to="/login" />;
@@ -51,9 +61,9 @@ export default function App() {
   return (
     <PageBoundary>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin/dashboard" element={<Navigate replace to="/dashboard/admin" />} />
+        <Route path="/" element={<HomeRoute />} />
+        <Route path="/login" element={<LoginRoute />} />
+        <Route path="/admin/dashboard" element={<DashboardRedirect />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
 
         <Route path="/dashboard/admin" element={<AdminDashboardPage />} />

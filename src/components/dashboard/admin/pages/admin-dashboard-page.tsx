@@ -83,6 +83,20 @@ export function AdminDashboardPage() {
   });
 
   const dashboard = dashboardQuery.data ?? fallbackDashboard;
+  const todayStatus = dashboard.today_status;
+  const todayTotal =
+    (todayStatus.present ?? 0) +
+    (todayStatus.late ?? 0) +
+    (todayStatus.permission ?? 0) +
+    (todayStatus.sick ?? 0) +
+    (todayStatus.alpha ?? 0);
+  const todayPositive =
+    (todayStatus.present ?? 0) +
+    (todayStatus.late ?? 0) +
+    (todayStatus.permission ?? 0) +
+    (todayStatus.sick ?? 0);
+  const todayAttendancePercentage =
+    todayTotal > 0 ? Math.round((todayPositive / todayTotal) * 100) : 0;
 
   const kpiCards = [
     {
@@ -108,7 +122,7 @@ export function AdminDashboardPage() {
     },
     {
       label: "Kehadiran Hari Ini",
-      value: `${dashboard.attendance_percentage ?? 0}%`,
+      value: `${todayAttendancePercentage}%`,
       subtitle: "Persentase hadir dari data hari ini",
       icon: BookOpenCheck,
       accentClass: "bg-emerald-100 text-emerald-700",
@@ -182,7 +196,7 @@ export function AdminDashboardPage() {
                 permission={dashboard.today_status.permission ?? 0}
                 sick={dashboard.today_status.sick ?? 0}
                 alpha={dashboard.today_status.alpha ?? 0}
-                percentage={dashboard.attendance_percentage ?? 0}
+                percentage={todayAttendancePercentage}
               />
               <AnnouncementCard announcements={dashboard.announcements} />
             </div>

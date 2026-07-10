@@ -3,6 +3,13 @@
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import { MeasuredChart } from "@/components/dashboard/admin/charts/measured-chart";
 
+type AttendanceSegment = {
+  name: string;
+  value: number;
+  color: string;
+  dotClassName: string;
+};
+
 type AttendanceDonutChartProps = {
   present: number;
   late: number;
@@ -26,15 +33,43 @@ export function AttendanceDonutChart({
   subtitle = "Snapshot kehadiran sekolah hari ini",
   badgeText = "Hari ini",
 }: AttendanceDonutChartProps) {
-  const data = [
-    { name: "Hadir", value: present || 0, color: "#63c98f" },
-    { name: "Terlambat", value: late || 0, color: "#f3c560" },
-    { name: "Izin", value: permission || 0, color: "#7bc5df" },
-    { name: "Sakit", value: sick || 0, color: "#8dd3c7" },
-    { name: "Alfa", value: alpha || 0, color: "#f28b82" },
+  const data: AttendanceSegment[] = [
+    {
+      name: "Hadir",
+      value: present || 0,
+      color: "var(--color-emerald-500)",
+      dotClassName: "bg-emerald-500",
+    },
+    {
+      name: "Telat",
+      value: late || 0,
+      color: "var(--color-amber-400)",
+      dotClassName: "bg-amber-400",
+    },
+    {
+      name: "Izin",
+      value: permission || 0,
+      color: "var(--color-sky-400)",
+      dotClassName: "bg-sky-400",
+    },
+    {
+      name: "Sakit",
+      value: sick || 0,
+      color: "var(--color-violet-400)",
+      dotClassName: "bg-violet-400",
+    },
+    {
+      name: "Alfa",
+      value: alpha || 0,
+      color: "var(--color-rose-500)",
+      dotClassName: "bg-rose-500",
+    },
   ];
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  const safeData = total > 0 ? data : [{ name: "Kosong", value: 1, color: "#e5e7eb" }];
+  const chartData =
+    total > 0
+      ? data.filter((item) => item.value > 0)
+      : [{ name: "Belum ada data", value: 1, color: "var(--color-slate-200)" }];
 
   return (
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
@@ -59,7 +94,7 @@ export function AttendanceDonutChart({
               return (
                 <PieChart width={width} height={height}>
                   <Pie
-                    data={safeData}
+                    data={chartData}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
@@ -69,12 +104,16 @@ export function AttendanceDonutChart({
                     stroke="none"
                     paddingAngle={2}
                   >
-                    {safeData.map((entry) => (
+                    {chartData.map((entry) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value, name) => [`${Number(value ?? 0)}`, name ?? "Data"]}
+                    formatter={(value, name) => {
+                      const count = Number(value ?? 0);
+                      const share = total > 0 ? Math.round((count / total) * 100) : 0;
+                      return [`${count} siswa (${share}%)`, name ?? "Data"];
+                    }}
                     position={{
                       x: Math.max(width - 128, 16),
                       y: 18,
@@ -96,10 +135,19 @@ export function AttendanceDonutChart({
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div className="rounded-full bg-white/95 px-6 py-5 text-center shadow-[0_8px_24px_rgba(148,163,184,0.14)]">
               <p className="text-3xl font-semibold text-slate-950">{percentage}%</p>
-              <p className="mt-1 text-sm text-slate-500">Hadir</p>
+              <p className="mt-1 text-sm text-slate-500">Kehadiran</p>
             </div>
           </div>
         </div>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 sm:grid-cols-5">
+        {data.map((item) => (
+          <div key={item.name} className="flex items-center gap-2 rounded-[14px] bg-slate-50/80 px-2.5 py-2">
+            <span className={`size-2.5 rounded-full ${item.dotClassName}`} />
+            <span className="min-w-0 truncate">{item.name}</span>
+            <span className="ml-auto font-semibold text-slate-700">{item.value}</span>
+          </div>
+        ))}
       </div>
     </article>
   );
