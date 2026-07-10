@@ -124,7 +124,7 @@ export function StudentHistoryPage() {
               </div>
             </div>
 
-            <div className="mt-7 grid gap-4 grid-cols-2 xl:grid-cols-4">
+            <div className="mt-7 grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
               <KpiCard
                 label="Total Record"
                 value={String(stats?.total_attendance ?? 0)}

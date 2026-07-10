@@ -21,7 +21,7 @@ export function GreetingCard({ adminName }: GreetingCardProps) {
       transition={{ duration: 0.34, ease: "easeOut" }}
       className="overflow-hidden rounded-[34px] border border-white/75 bg-[linear-gradient(135deg,#fffdf9_0%,#f8f4ea_48%,#eef9f3_100%)] p-6 shadow-[0_24px_60px_rgba(150,163,184,0.14)]"
     >
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.72fr]">
+      <div className="grid items-start gap-6 lg:grid-cols-[1.1fr_0.72fr]">
         <div className="space-y-5">
           <div className="space-y-3">
             <p className="text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.15rem]">

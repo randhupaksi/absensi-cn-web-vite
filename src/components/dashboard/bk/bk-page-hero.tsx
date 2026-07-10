@@ -23,7 +23,7 @@ export function BkPageHero({
   description,
   kpiCards,
   onOpenReport,
-  kpiGridClassName = "grid gap-3 grid-cols-2 xl:grid-cols-4",
+  kpiGridClassName = "grid grid-cols-2 items-start gap-3 xl:grid-cols-4",
   topClassName = "flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between",
   contentClassName = "space-y-4",
   actionClassName = "flex justify-start lg:justify-end",

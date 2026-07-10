@@ -56,7 +56,7 @@ export function MapelRecapPage() {
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
             <p className="mb-4 text-lg font-semibold text-slate-950">Filter Rekap</p>
-            <div className="grid gap-4 sm:grid-cols-[1fr_1fr] lg:grid-cols-[2fr_1fr_1fr]">
+            <div className="grid items-start gap-4 sm:grid-cols-[1fr_1fr] lg:grid-cols-[2fr_1fr_1fr]">
               <div className="sm:col-span-2 lg:col-span-1">
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600">Mata Pelajaran</label>
                 <RadixSelectField

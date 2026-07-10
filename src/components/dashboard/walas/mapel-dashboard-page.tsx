@@ -103,7 +103,7 @@ export function MapelDashboardPage() {
           )}
 
           {/* Quick links */}
-          <section className="grid gap-4 sm:grid-cols-3">
+          <section className="grid items-start gap-4 sm:grid-cols-3">
             {[
               {
                 href: "/dashboard/teacher/subject/session",

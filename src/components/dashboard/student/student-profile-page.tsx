@@ -32,7 +32,7 @@ export function StudentProfilePage() {
             transition={{ duration: 0.38, ease: "easeOut" }}
             className="rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]"
           >
-            <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+            <div className="grid items-start gap-6 lg:grid-cols-[0.9fr_1.1fr]">
               <div className="rounded-[1.7rem] border border-emerald-200/70 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#20ba81_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.23)]">
                 <div className="flex items-center gap-4">
                   <span className="flex size-20 items-center justify-center rounded-[1.45rem] bg-white/16 text-2xl font-semibold shadow-inner">

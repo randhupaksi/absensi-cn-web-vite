@@ -107,7 +107,7 @@ export function WalasDashboardPage() {
     <WalasShell>
       {(session) => (
         <>
-          <section className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
+          <section className="grid items-start gap-5 xl:grid-cols-[1.25fr_0.75fr]">
             <HomeroomHeroCard
               teacherName={session.user.name}
               schoolYearName={dashboard.homeroom.school_year_name}
@@ -128,7 +128,7 @@ export function WalasDashboardPage() {
             />
           </section>
 
-          <section className="grid gap-4 grid-cols-2 xl:grid-cols-4">
+          <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
             {kpiCards.map((item, index) => (
               <motion.div
                 key={item.label}
@@ -145,7 +145,7 @@ export function WalasDashboardPage() {
             ))}
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+          <section className="grid items-start gap-5 xl:grid-cols-[1.1fr_0.9fr]">
             <HomeroomAttentionCard
               students={attentionStudents}
               isLoading={dashboardQuery.isLoading}

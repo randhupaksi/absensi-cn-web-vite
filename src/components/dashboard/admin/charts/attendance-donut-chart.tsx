@@ -140,12 +140,15 @@ export function AttendanceDonutChart({
           </div>
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 sm:grid-cols-5">
+      <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-slate-500">
         {data.map((item) => (
-          <div key={item.name} className="flex items-center gap-2 rounded-[14px] bg-slate-50/80 px-2.5 py-2">
-            <span className={`size-2.5 rounded-full ${item.dotClassName}`} />
-            <span className="min-w-0 truncate">{item.name}</span>
-            <span className="ml-auto font-semibold text-slate-700">{item.value}</span>
+          <div
+            key={item.name}
+            className="flex min-w-[92px] items-center gap-2 rounded-[14px] bg-slate-50/80 px-3 py-2"
+          >
+            <span className={`size-2.5 shrink-0 rounded-full ${item.dotClassName}`} />
+            <span className="whitespace-nowrap">{item.name}</span>
+            <span className="ml-auto shrink-0 tabular-nums font-semibold text-slate-700">{item.value}</span>
           </div>
         ))}
       </div>

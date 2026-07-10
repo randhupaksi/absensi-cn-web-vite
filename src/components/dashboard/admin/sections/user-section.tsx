@@ -180,7 +180,7 @@ export function UserSection({
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-3">
             {kpiCards.map((card) => (
               <StatCard
                 key={card.label}

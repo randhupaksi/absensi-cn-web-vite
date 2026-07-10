@@ -166,7 +166,7 @@ export function BKStudentsPage() {
               description={<>Pantau siswa lintas kelas, lihat pola telat atau alfa, dan buka catatan pembinaan dari satu tabel kerja BK.</>}
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
-              kpiGridClassName="grid gap-3 md:grid-cols-2 xl:grid-cols-4"
+              kpiGridClassName="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-4"
             />
 
             <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">

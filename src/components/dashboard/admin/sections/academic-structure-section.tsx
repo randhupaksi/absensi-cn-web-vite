@@ -43,7 +43,7 @@ export function AcademicStructureSection({ units, programs, isLoading }: { units
     <section className="mt-6 rounded-[30px] border border-white/75 bg-white/95 p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] sm:p-5 lg:p-6">
       <Tabs value={tab} onValueChange={(value) => { setTab(value as StructureTab); setCreateOpen(false); }}>
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-8 sm:gap-6"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Multi-unit Foundation</p><h2 className="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">Unit & Program Sekolah</h2><p className="mt-2 text-sm leading-6 text-slate-600">Satu struktur untuk SMA dan SMK; kelas, siswa, mapel, dan jadwal mengikuti relasi ini.</p></div>
-      <div className="grid grid-cols-2 gap-3"><StatCard label="Unit Aktif" value={units.filter((x) => x.is_active).length} icon={School} accentClass="from-emerald-500 to-teal-500" /><StatCard label="Program Aktif" value={programs.filter((x) => x.is_active).length} icon={Network} accentClass="from-sky-500 to-emerald-500" /></div>
+      <div className="grid grid-cols-2 items-start gap-3"><StatCard label="Unit Aktif" value={units.filter((x) => x.is_active).length} icon={School} accentClass="from-emerald-500 to-teal-500" /><StatCard label="Program Aktif" value={programs.filter((x) => x.is_active).length} icon={Network} accentClass="from-sky-500 to-emerald-500" /></div>
       <SectionTabSwitch tabs={[{ value: "units", label: "Unit Sekolah", icon: School }, { value: "programs", label: "Program/Jurusan", icon: Network }]} />
       </div>
         <div className="mt-3 flex justify-end"><AddButton label={tab === "units" ? "Unit Sekolah" : "Program"} onClick={() => setCreateOpen(true)} /></div>

@@ -169,7 +169,7 @@ export function WalasStudentsPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
                 <StaffStatCard
                   label="Total Siswa"
                   value={students.length}

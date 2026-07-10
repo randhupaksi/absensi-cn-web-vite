@@ -509,7 +509,7 @@ export function TeacherSection({
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
             {kpiCards.map((card) => (
               <StatCard
                 key={card.label}

@@ -186,7 +186,7 @@ export function StudentDashboardPage() {
             transition={{ duration: 0.42, ease: "easeOut" }}
             className="overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]"
           >
-            <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+            <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
                 <div className="space-y-4">
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-50">
@@ -235,7 +235,7 @@ export function StudentDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4">
+              <div className="grid items-start gap-4">
                 <div className="rounded-[1.5rem] border border-slate-200/80 bg-white/86 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -292,7 +292,7 @@ export function StudentDashboardPage() {
             </div>
           </motion.section>
 
-          <section className="grid gap-4 grid-cols-2 xl:grid-cols-4">
+          <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
             <KpiCard
               label="Total Absen"
               value={String(stats?.total_attendance ?? 0)}
@@ -319,7 +319,7 @@ export function StudentDashboardPage() {
             />
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+          <section className="grid items-start gap-5 xl:grid-cols-[1.08fr_0.92fr]">
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}

@@ -102,7 +102,7 @@ export function BKDashboardPage() {
     >
       {(session) => (
         <>
-          <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+          <section className="grid items-start gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <motion.article
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -167,7 +167,7 @@ export function BKDashboardPage() {
             />
           </section>
 
-          <section className="grid gap-4 grid-cols-2 xl:grid-cols-4">
+          <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
             {kpiCards.map((item, index) => (
               <motion.div
                 key={item.label}
@@ -214,7 +214,7 @@ export function BKDashboardPage() {
               </Link>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
               {dashboardQuery.error ? (
                 <EmptyState
                   icon={BellRing}

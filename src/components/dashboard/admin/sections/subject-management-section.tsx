@@ -363,7 +363,7 @@ export function SubjectManagementSection({
           </div>
 
           {/* KPI Cards */}
-          <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
             {kpiCards.map((card) => (
               <StatCard
                 key={card.label}
@@ -428,7 +428,7 @@ export function SubjectManagementSection({
 
           {/* Additional filters for schedules tab */}
           {activeTab === "schedules" && (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="mt-3 grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <RadixSelectField value={dayFilter} onValueChange={setDayFilter} placeholder="Semua hari" options={dayOptions} triggerClassName="h-12 rounded-[18px]" />
               <RadixSelectField value={schoolYearFilter} onValueChange={setSchoolYearFilter} placeholder="Semua tahun ajaran" options={[{ value: "all", label: "Semua tahun ajaran" }, ...schoolYears.map((y) => ({ value: y.id, label: y.name }))]} triggerClassName="h-12 rounded-[18px]" />
               <RadixSelectField value={teacherFilter} onValueChange={setTeacherFilter} placeholder="Semua guru" options={[{ value: "all", label: "Semua guru" }, ...teachers.map((t) => ({ value: t.id, label: t.name }))]} triggerClassName="h-12 rounded-[18px]" />

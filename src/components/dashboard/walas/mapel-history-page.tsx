@@ -80,7 +80,7 @@ export function MapelHistoryPage() {
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
             <p className="mb-4 text-lg font-semibold text-slate-950">Filter Riwayat Sesi</p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600">Mata Pelajaran</label>
                 <RadixSelectField

@@ -133,11 +133,11 @@ export function AdminDashboardPage() {
     <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
       {(session) => (
         <>
-          <section className="grid gap-5 xl:grid-cols-[1.45fr_0.78fr]">
+          <section className="grid items-start gap-5 xl:grid-cols-[1.45fr_0.78fr]">
             <div className="space-y-5">
               <GreetingCard adminName={session.user.name} />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid items-start gap-4 sm:grid-cols-2">
                 {kpiCards.map((item, index) => (
                   <motion.div
                     key={item.label}
@@ -202,7 +202,7 @@ export function AdminDashboardPage() {
             </div>
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-[1.15fr_0.95fr]">
+          <section className="grid items-start gap-5 xl:grid-cols-[1.15fr_0.95fr]">
             <SemesterAttendanceChart data={dashboard.semester_trend ?? []} />
             <ClassPerformanceChart data={dashboard.class_performance ?? []} />
           </section>
