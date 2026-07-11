@@ -19,6 +19,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             staleTime: 60_000,
             gcTime: 15 * 60 * 1000,
             retry: 1,
+            retryDelay: (attempt) => Math.min(1_000 * 2 ** attempt, 8_000) + Math.random() * 1_500,
             refetchOnWindowFocus: false,
             refetchOnReconnect: true,
           },

@@ -63,7 +63,7 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
         onCapture(file);
       },
       "image/jpeg",
-      0.9,
+      0.78,
     );
   }
 

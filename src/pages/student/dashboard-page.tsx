@@ -26,6 +26,7 @@ import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import { compressUploadImage } from "@/lib/images/compress-upload-image";
 import {
   getStudentDashboard,
   submitStudentDailyReport,
@@ -74,7 +75,8 @@ export function StudentDashboardPage() {
   const dashboardQuery = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: getStudentDashboard,
-    refetchInterval: 30_000,
+    staleTime: 2 * 60_000,
+    refetchOnReconnect: false,
   });
 
   const submitMutation = useMutation({
@@ -139,12 +141,18 @@ export function StudentDashboardPage() {
     }
   }
 
-  function handlePhotoPicked(file?: File) {
+  async function handlePhotoPicked(file?: File) {
     if (!file) return;
+    let uploadFile = file;
+    try {
+      uploadFile = await compressUploadImage(file);
+    } catch {
+      // A browser without bitmap decoding support can still upload the source.
+    }
     if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(uploadFile);
     photoPreviewRef.current = previewUrl;
-    setPhotoFile(file);
+    setPhotoFile(uploadFile);
     setPhotoPreview(previewUrl);
     setErrors({});
     setModalOpen(true);
@@ -177,7 +185,7 @@ export function StudentDashboardPage() {
             accept="image/*"
             capture="environment"
             className="hidden"
-            onChange={(event) => handlePhotoPicked(event.target.files?.[0])}
+            onChange={(event) => void handlePhotoPicked(event.target.files?.[0])}
           />
 
           <motion.section
@@ -536,7 +544,7 @@ export function StudentDashboardPage() {
             <CameraCaptureModal
               onCapture={(file) => {
                 setCameraModalOpen(false);
-                handlePhotoPicked(file);
+                void handlePhotoPicked(file);
               }}
               onClose={() => setCameraModalOpen(false)}
             />
