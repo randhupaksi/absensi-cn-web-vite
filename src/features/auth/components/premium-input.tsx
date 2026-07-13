@@ -17,6 +17,8 @@ export function PremiumInput({
   trailing,
   onFocus,
   onBlur,
+  onPointerEnter,
+  onPointerLeave,
   ...props
 }: PremiumInputProps) {
   const [focused, setFocused] = useState(false);
@@ -34,8 +36,6 @@ export function PremiumInput({
       }}
       transition={{ type: "spring", stiffness: 250, damping: 24 }}
       className="group relative rounded-[1.2rem]"
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
     >
       <motion.div
         className="pointer-events-none absolute inset-0 rounded-[1.2rem]"
@@ -72,6 +72,14 @@ export function PremiumInput({
           setFocused(false);
           onBlur?.(event);
         }}
+        onPointerEnter={(event) => {
+          setHovered(true);
+          onPointerEnter?.(event);
+        }}
+        onPointerLeave={(event) => {
+          setHovered(false);
+          onPointerLeave?.(event);
+        }}
         className={cn(
           "h-12 rounded-[1.2rem] border border-white/60 bg-white/76 pl-11 text-[14px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] backdrop-blur-md transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white/88 focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55",
           trailing ? "pr-12" : "",
@@ -79,7 +87,13 @@ export function PremiumInput({
         )}
       />
       {trailing ? (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">{trailing}</div>
+        <div
+          className="absolute right-3 top-1/2 -translate-y-1/2"
+          onPointerEnter={() => setHovered(true)}
+          onPointerLeave={() => setHovered(false)}
+        >
+          {trailing}
+        </div>
       ) : null}
     </motion.div>
   );
