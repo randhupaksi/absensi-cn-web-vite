@@ -5,6 +5,7 @@ import {
   canAccessDashboardRole,
   getAuthSession,
   getDashboardPathForUser,
+  subscribeAuthSession,
 } from "@/lib/auth";
 import type { AuthSession, DashboardRole } from "@/types/auth";
 import { usePathname, useRouter } from "@/lib/router";
@@ -29,8 +30,6 @@ type StaffShellProps = {
   children: (session: AuthSession) => ReactNode;
 };
 
-const subscribeToHydration = () => () => {};
-
 export function StaffShell({
   expectedRole,
   sidebarItems,
@@ -43,8 +42,7 @@ export function StaffShell({
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
-  const session = useMemo(() => (isHydrated ? getAuthSession() : null), [isHydrated]);
+  const session = useSyncExternalStore(subscribeAuthSession, getAuthSession, () => null);
 
   const teacherMeQuery = useQuery({
     queryKey: ["teacher-me"],
@@ -67,10 +65,6 @@ export function StaffShell({
   }, [session, sidebarItems, teacherMeQuery.data]);
 
   useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-
     if (!session) {
       router.replace("/login");
       return;
@@ -79,9 +73,9 @@ export function StaffShell({
     if (!isExpectedRole) {
       router.replace(getDashboardPathForUser(session.user));
     }
-  }, [isExpectedRole, isHydrated, router, session]);
+  }, [isExpectedRole, router, session]);
 
-  if (!isHydrated || !session || !isExpectedRole) {
+  if (!session || !isExpectedRole) {
     return <StaffShellFallback />;
   }
 

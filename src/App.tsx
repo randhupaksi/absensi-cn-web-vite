@@ -1,7 +1,7 @@
 import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
 import { lazy, Suspense, type ReactNode } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
@@ -60,48 +60,50 @@ function TeacherDashboard() {
 
 export default function App() {
   return (
-    <PageBoundary>
-      <Routes>
-        <Route path="/" element={<HomeRoute />} />
-        <Route path="/login" element={<Navigate replace to="/login/student" />} />
-        <Route path="/login/student" element={<LoginRoute portal="student" />} />
-        <Route path="/login/staff" element={<LoginRoute portal="staff" />} />
-        <Route path="/admin/dashboard" element={<DashboardRedirect />} />
-        <Route path="/dashboard" element={<DashboardRedirect />} />
+    <BrowserRouter>
+      <PageBoundary>
+        <Routes>
+          <Route path="/" element={<HomeRoute />} />
+          <Route path="/login" element={<Navigate replace to="/login/student" />} />
+          <Route path="/login/student" element={<LoginRoute portal="student" />} />
+          <Route path="/login/staff" element={<LoginRoute portal="staff" />} />
+          <Route path="/admin/dashboard" element={<DashboardRedirect />} />
+          <Route path="/dashboard" element={<DashboardRedirect />} />
 
-        <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
-        <Route path="/dashboard/admin/admins" element={<AdminAdminsPage />} />
-        <Route path="/dashboard/admin/classes" element={<AdminClassesPage />} />
-        <Route path="/dashboard/admin/students" element={<AdminStudentsPage />} />
-        <Route path="/dashboard/admin/subjects" element={<AdminSubjectsPage />} />
-        <Route path="/dashboard/admin/teachers" element={<AdminTeachersPage />} />
-        <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
-        <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Report" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah section ini dibuat." />} />
+          <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
+          <Route path="/dashboard/admin/admins" element={<AdminAdminsPage />} />
+          <Route path="/dashboard/admin/classes" element={<AdminClassesPage />} />
+          <Route path="/dashboard/admin/students" element={<AdminStudentsPage />} />
+          <Route path="/dashboard/admin/subjects" element={<AdminSubjectsPage />} />
+          <Route path="/dashboard/admin/teachers" element={<AdminTeachersPage />} />
+          <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
+          <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Report" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah section ini dibuat." />} />
 
-        <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
-        <Route path="/dashboard/teacher/bk/attendance" element={<BKAttendancePage />} />
-        <Route path="/dashboard/teacher/bk/counseling" element={<BKCounselingPage />} />
-        <Route path="/dashboard/teacher/bk/students" element={<BKStudentsPage />} />
-        <Route path="/dashboard/teacher/bk/submissions" element={<BKSubmissionsPage />} />
+          <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
+          <Route path="/dashboard/teacher/bk/attendance" element={<BKAttendancePage />} />
+          <Route path="/dashboard/teacher/bk/counseling" element={<BKCounselingPage />} />
+          <Route path="/dashboard/teacher/bk/students" element={<BKStudentsPage />} />
+          <Route path="/dashboard/teacher/bk/submissions" element={<BKSubmissionsPage />} />
 
-        <Route path="/dashboard/siswa" element={<StudentDashboardPage />} />
-        <Route path="/dashboard/siswa/history" element={<StudentHistoryPage />} />
-        <Route path="/dashboard/siswa/profile" element={<StudentProfilePage />} />
+          <Route path="/dashboard/siswa" element={<StudentDashboardPage />} />
+          <Route path="/dashboard/siswa/history" element={<StudentHistoryPage />} />
+          <Route path="/dashboard/siswa/profile" element={<StudentProfilePage />} />
 
-        <Route path="/dashboard/teacher/homeroom" element={<WalasDashboardPage />} />
-        <Route path="/dashboard/teacher/homeroom/attendance" element={<WalasAttendancePage />} />
-        <Route path="/dashboard/teacher/homeroom/students" element={<WalasStudentsPage />} />
-        <Route path="/dashboard/teacher/homeroom/submissions" element={<WalasSubmissionsPage />} />
-        <Route path="/dashboard/teacher/subject" element={<MapelDashboardPage />} />
-        <Route path="/dashboard/teacher/subject/history" element={<MapelHistoryPage />} />
-        <Route path="/dashboard/teacher/subject/recap" element={<MapelRecapPage />} />
-        <Route path="/dashboard/teacher/subject/session" element={<MapelSessionPage />} />
+          <Route path="/dashboard/teacher/homeroom" element={<WalasDashboardPage />} />
+          <Route path="/dashboard/teacher/homeroom/attendance" element={<WalasAttendancePage />} />
+          <Route path="/dashboard/teacher/homeroom/students" element={<WalasStudentsPage />} />
+          <Route path="/dashboard/teacher/homeroom/submissions" element={<WalasSubmissionsPage />} />
+          <Route path="/dashboard/teacher/subject" element={<MapelDashboardPage />} />
+          <Route path="/dashboard/teacher/subject/history" element={<MapelHistoryPage />} />
+          <Route path="/dashboard/teacher/subject/recap" element={<MapelRecapPage />} />
+          <Route path="/dashboard/teacher/subject/session" element={<MapelSessionPage />} />
 
-        <Route path="/dashboard/bk/*" element={<Navigate replace to="/dashboard/teacher" />} />
-        <Route path="/dashboard/walas/*" element={<Navigate replace to="/dashboard/teacher" />} />
+          <Route path="/dashboard/bk/*" element={<Navigate replace to="/dashboard/teacher" />} />
+          <Route path="/dashboard/walas/*" element={<Navigate replace to="/dashboard/teacher" />} />
 
-        <Route path="*" element={<Navigate replace to="/" />} />
-      </Routes>
-    </PageBoundary>
+          <Route path="*" element={<Navigate replace to="/" />} />
+        </Routes>
+      </PageBoundary>
+    </BrowserRouter>
   );
 }

@@ -18,7 +18,6 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { useRouter } from "@/lib/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -59,7 +58,6 @@ const formContent = {
 }>;
 
 export function LoginForm({ portal }: LoginFormProps) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const prefersReducedMotion = useReducedMotion();
@@ -89,7 +87,9 @@ export function LoginForm({ portal }: LoginFormProps) {
         description: `Selamat datang, ${response.user.name}.`,
       });
 
-      router.push(getDashboardPathForUser(response.user));
+      if (typeof window !== "undefined") {
+        window.location.replace(getDashboardPathForUser(response.user));
+      }
     } catch (error) {
       toast.error("Login gagal", {
         description:

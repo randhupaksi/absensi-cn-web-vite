@@ -3,6 +3,17 @@
 import type { ApiUserRole, AuthSession, AuthUser, DashboardRole } from "@/types/auth";
 
 const AUTH_STORAGE_KEY = "absensi-cn-auth";
+const AUTH_SESSION_EVENT = "absensi-cn-auth-change";
+let cachedSessionRaw: string | null = null;
+let cachedSessionValue: AuthSession | null = null;
+
+function emitAuthSessionChange() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new Event(AUTH_SESSION_EVENT));
+}
 
 export function saveAuthSession(session: AuthSession) {
   if (typeof window === "undefined") {
@@ -10,6 +21,7 @@ export function saveAuthSession(session: AuthSession) {
   }
 
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  emitAuthSessionChange();
 }
 
 export function getAuthSession(): AuthSession | null {
@@ -19,12 +31,23 @@ export function getAuthSession(): AuthSession | null {
 
   const rawSession = localStorage.getItem(AUTH_STORAGE_KEY);
   if (!rawSession) {
+    cachedSessionRaw = null;
+    cachedSessionValue = null;
     return null;
   }
 
+  if (rawSession === cachedSessionRaw) {
+    return cachedSessionValue;
+  }
+
   try {
-    return JSON.parse(rawSession) as AuthSession;
+    const parsedSession = JSON.parse(rawSession) as AuthSession;
+    cachedSessionRaw = rawSession;
+    cachedSessionValue = parsedSession;
+    return parsedSession;
   } catch {
+    cachedSessionRaw = null;
+    cachedSessionValue = null;
     localStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
   }
@@ -36,6 +59,27 @@ export function clearAuthSession() {
   }
 
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  emitAuthSessionChange();
+}
+
+export function subscribeAuthSession(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === AUTH_STORAGE_KEY) {
+      onStoreChange();
+    }
+  };
+
+  window.addEventListener("storage", handleStorage);
+  window.addEventListener(AUTH_SESSION_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+    window.removeEventListener(AUTH_SESSION_EVENT, onStoreChange);
+  };
 }
 
 export function getDefaultDashboardRole(user: AuthUser): DashboardRole {
