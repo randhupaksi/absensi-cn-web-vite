@@ -4,7 +4,6 @@ import dynamic from "@/lib/dynamic";
 import {
   AttendanceHero,
   AttendanceTableSection,
-  AttentionMonitoringPanel,
   type AttendanceKpi,
 } from "@/features/teacher/homeroom/components/attendance-sections";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
@@ -117,14 +116,6 @@ export function WalasAttendancePage() {
     { label: "Sudah Diverifikasi", value: String(reviewedCount), subtitle: "Sudah direview walas", icon: CheckCheck, accentClass: "bg-sky-100 text-sky-700" },
   ];
 
-  const attentionItems = useMemo(
-    () => [
-      ...summary.repeated_alpha.map((item) => ({ ...item, tone: "ALFA" as const })),
-      ...summary.repeated_late.map((item) => ({ ...item, tone: "TELAT" as const })),
-    ].slice(0, 6),
-    [summary.repeated_alpha, summary.repeated_late],
-  );
-
   const sortedRecords = useMemo(() => {
     if (statusFilter !== "Semua") return records;
     return [...records].sort((first, second) => {
@@ -160,7 +151,6 @@ export function WalasAttendancePage() {
             onOpenProof={setProofTarget}
             onOpenReview={setReviewTarget}
           />
-          <AttentionMonitoringPanel items={attentionItems} />
 
           {reviewTarget && (
             <AttendanceReviewModal

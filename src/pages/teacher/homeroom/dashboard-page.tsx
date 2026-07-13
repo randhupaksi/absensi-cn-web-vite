@@ -90,7 +90,7 @@ export function WalasDashboardPage() {
       accentClass: "bg-orange-100 text-orange-700",
     },
     {
-      label: "Pengajuan Pending",
+      label: "Pengajuan",
       value: String(pendingSubmissions),
       subtitle: "Izin atau sakit menunggu review",
       icon: ClipboardPenLine,
@@ -208,7 +208,7 @@ function HomeroomHeroCard({
           </div>
         </div>
 
-        <div className="relative min-h-[294px] overflow-hidden rounded-[30px] border border-emerald-300/70 bg-[linear-gradient(180deg,#e8fbf0_0%,#d9f5e4_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.78),0_18px_40px_rgba(74,151,112,0.16)]">
+        <div className="relative hidden min-h-[294px] overflow-hidden rounded-[30px] border border-emerald-300/70 bg-[linear-gradient(180deg,#e8fbf0_0%,#d9f5e4_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.78),0_18px_40px_rgba(74,151,112,0.16)] md:block">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(110,224,165,0.14),transparent_58%)]" />
           <div className="absolute left-8 top-9 h-18 w-18 rounded-[28px] bg-emerald-300/95 shadow-[0_10px_24px_rgba(52,173,116,0.22)]" />
           <div className="absolute bottom-10 left-18 h-18 w-18 rounded-[30px] border-[12px] border-slate-300/90 border-b-transparent border-l-transparent rotate-12" />

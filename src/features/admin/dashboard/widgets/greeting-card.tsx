@@ -50,7 +50,7 @@ export function GreetingCard({ adminName }: GreetingCardProps) {
           </div>
         </div>
 
-        <div className="relative min-h-[180px] overflow-hidden rounded-[30px] bg-[radial-gradient(circle_at_top,rgba(255,198,103,0.35),transparent_36%),linear-gradient(180deg,#f7faf7_0%,#ebf4ef_100%)]">
+        <div className="relative hidden min-h-[180px] overflow-hidden rounded-[30px] bg-[radial-gradient(circle_at_top,rgba(255,198,103,0.35),transparent_36%),linear-gradient(180deg,#f7faf7_0%,#ebf4ef_100%)] md:block">
           <div className="absolute -right-6 top-4 size-28 rounded-full bg-amber-200/75 blur-2xl" />
           <div className="absolute inset-x-12 bottom-10 h-4 rounded-full bg-slate-300/35 blur-xl" />
           <div className="absolute bottom-7 left-8 h-20 w-20 rounded-[26px] bg-emerald-100/90" />

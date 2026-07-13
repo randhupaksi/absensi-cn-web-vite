@@ -226,10 +226,7 @@ export function AttendanceTableSection({
                 <DataTableHeadRow labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
                 <DataTableBody>
                   {pageRecords.map((record) => (
-                    <DataTableRow
-                      key={record.id}
-                      className={!record.verified_at && statusFilter === "Semua" ? "bg-amber-50/45 hover:bg-amber-50/70" : ""}
-                    >
+                    <DataTableRow key={record.id}>
                       <DataTableCell>
                         <div className="space-y-1">
                           <p className="font-semibold text-slate-900">{record.student_name}</p>

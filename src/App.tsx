@@ -1,7 +1,7 @@
 import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
-import { lazy, Suspense, type ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { lazy, Suspense, useLayoutEffect, type ReactNode } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
@@ -34,6 +34,16 @@ function PageBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>;
 }
 
+function ScrollToTopOnNavigate() {
+  const { pathname, search } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, search]);
+
+  return null;
+}
+
 function DashboardRedirect() {
   const session = getAuthSession();
   return <Navigate replace to={session ? getDashboardPathForUser(session.user) : "/login/student"} />;
@@ -61,6 +71,7 @@ function TeacherDashboard() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTopOnNavigate />
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />

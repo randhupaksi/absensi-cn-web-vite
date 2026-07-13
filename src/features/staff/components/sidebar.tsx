@@ -157,7 +157,6 @@ export const walasSidebarItems = [
 ] satisfies StaffSidebarItem[];
 
 export const guruMapelSidebarItems = [
-  { label: "Daftar Hadir", href: "/dashboard/teacher/subject", icon: BookOpenCheck },
   { label: "Riwayat Sesi", href: "/dashboard/teacher/subject/history", icon: History },
   { label: "Rekap Mapel", href: "/dashboard/teacher/subject/recap", icon: ChartColumnBig },
 ] satisfies StaffSidebarItem[];

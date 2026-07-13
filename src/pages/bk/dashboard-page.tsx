@@ -85,7 +85,7 @@ export function BKDashboardPage() {
       accentClass: "bg-emerald-100 text-emerald-700",
     },
     {
-      label: "Pengajuan Pending",
+      label: "Pengajuan",
       value: String(dashboard.pending_submissions),
       subtitle: "Menunggu tindak lanjut",
       icon: ClipboardPenLine,
@@ -142,7 +142,7 @@ export function BKDashboardPage() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[290px] overflow-hidden rounded-[30px] border border-emerald-300/70 bg-[linear-gradient(180deg,#e8fbf0_0%,#d9f5e4_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.78),0_18px_40px_rgba(74,151,112,0.16)]">
+                <div className="relative hidden min-h-[290px] overflow-hidden rounded-[30px] border border-emerald-300/70 bg-[linear-gradient(180deg,#e8fbf0_0%,#d9f5e4_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.78),0_18px_40px_rgba(74,151,112,0.16)] md:block">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(110,224,165,0.14),transparent_58%)]" />
                   <div className="absolute left-8 top-10 h-18 w-18 rounded-[28px] bg-emerald-300/95 shadow-[0_10px_24px_rgba(52,173,116,0.22)]" />
                   <div className="absolute right-10 top-9 h-12 w-12 rounded-full bg-[#ffd2b6]" />
