@@ -56,6 +56,25 @@
   box-shadow: var(--landing-shadow-hero);
 }
 
+.landingHeroViewport {
+  min-height: max(620px, 100svh);
+  min-height: max(620px, 100dvh);
+}
+
+@media (min-width: 768px) {
+  .landingHeroViewport {
+    min-height: max(660px, 100svh);
+    min-height: max(660px, 100dvh);
+  }
+}
+
+@media (min-width: 1280px) {
+  .landingHeroViewport {
+    min-height: max(720px, 100svh);
+    min-height: max(720px, 100dvh);
+  }
+}
+
 .landingHeroOverlay {
   background: var(--landing-hero-overlay);
 }
@@ -237,7 +256,6 @@
 .landingFooterBrandBadge {
   background: linear-gradient(135deg, #34d399 0%, #a7f3d0 100%);
   color: #052e2b;
-  box-shadow: 0 14px 28px rgba(52, 211, 153, 0.3);
 }
 
 .landingFooterKicker {

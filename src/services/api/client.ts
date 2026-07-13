@@ -23,9 +23,16 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      clearAuthSession();
+      const requestUrl = error.config?.url ?? "";
+      const isLoginRequest = requestUrl.includes("/auth/login");
+      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      const isLoginRoute = currentPath.startsWith("/login");
 
-      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      if (!isLoginRequest) {
+        clearAuthSession();
+      }
+
+      if (typeof window !== "undefined" && !isLoginRequest && !isLoginRoute) {
         window.location.href = "/login";
       }
     }

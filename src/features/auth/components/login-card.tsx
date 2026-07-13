@@ -1,7 +1,6 @@
 "use client";
 
 import { LoginForm } from "@/features/auth/components/login-form";
-import { PortalToggle } from "@/features/auth/components/portal-toggle";
 import { Badge } from "@/components/ui/badge";
 import {
   motion,
@@ -15,8 +14,43 @@ import { ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { PortalType } from "@/lib/validations/login-schema";
 
-export function LoginCard() {
-  const [portal, setPortal] = useState<PortalType>("student");
+type LoginCardProps = {
+  portal: PortalType;
+};
+
+const portalContent = {
+  student: {
+    badge: "Portal Siswa",
+    title: "Absensi CN",
+    subtitle: "Masuk dengan NIS untuk melakukan absensi dan melihat riwayat kehadiran.",
+    intro: "Akses absensi siswa.",
+    introDetail: "Gunakan NIS sekolah dan password akun siswa.",
+    formShell:
+      "rounded-[1.7rem] border border-white/60 bg-white/42 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-md sm:p-5",
+    footer: "Copyright 2026 SMK Citra Negara. All rights reserved.",
+  },
+  staff: {
+    badge: "Portal Staff",
+    title: "Ruang Staff CN",
+    subtitle: "Masuk dengan username untuk wali kelas, BK, dan admin sekolah.",
+    intro: "Akses operasional sekolah.",
+    introDetail: "Gunakan username staff yang sudah terdaftar oleh admin.",
+    formShell:
+      "rounded-[1.7rem] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(236,253,245,0.38))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_18px_48px_rgba(15,118,110,0.08)] backdrop-blur-md sm:p-5",
+    footer: "Copyright 2026 SMK Citra Negara. All rights reserved.",
+  },
+} satisfies Record<PortalType, {
+  badge: string;
+  title: string;
+  subtitle: string;
+  intro: string;
+  introDetail: string;
+  formShell: string;
+  footer: string;
+}>;
+
+export function LoginCard({ portal }: LoginCardProps) {
+  const content = portalContent[portal];
   const prefersReducedMotion = useReducedMotion();
   const [supportsInteractiveTilt, setSupportsInteractiveTilt] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(true);
@@ -138,7 +172,7 @@ export function LoginCard() {
               <div className="space-y-3">
                 <Badge className="rounded-full border border-white/70 bg-white/65 px-3.5 py-1 text-emerald-800 shadow-sm hover:bg-white/65">
                   <Sparkles className="size-4" />
-                  Akses Masuk Premium
+                  {content.badge}
                 </Badge>
                 <div className="flex items-center gap-4 sm:gap-5">
                   <motion.div
@@ -174,10 +208,10 @@ export function LoginCard() {
 
                   <div className="space-y-1.5">
                     <h1 className="font-heading text-3xl font-semibold tracking-tight text-slate-950 sm:text-[2rem]">
-                      Absensi CN
+                      {content.title}
                     </h1>
                     <p className="max-w-sm text-sm leading-6 text-slate-600 sm:text-[15px]">
-                      Sistem Absensi SMK Citra Negara
+                      {content.subtitle}
                     </p>
                   </div>
                 </div>
@@ -199,22 +233,21 @@ export function LoginCard() {
 
             <div className="space-y-1">
               <p className="text-sm font-medium text-slate-700">
-                Masuk ke sistem absensi.
+                {content.intro}
               </p>
               <p className="text-sm text-slate-500">
-                Gunakan akun sekolah yang valid.
+                {content.introDetail}
               </p>
             </div>
 
-            <PortalToggle value={portal} onChange={setPortal} />
           </div>
 
-          <div className="rounded-[1.7rem] border border-white/60 bg-white/42 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-md sm:p-5">
+          <div className={content.formShell}>
             <LoginForm key={portal} portal={portal} />
           </div>
 
-          <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
-            <p>Validasi peran diproses secara otomatis oleh Tim IT SMK Citra Negara.</p>
+          <div className="flex items-center justify-center gap-3 text-center text-xs text-slate-500">
+            <p>{content.footer}</p>
            
           </div>
         </div>

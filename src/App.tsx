@@ -1,4 +1,5 @@
 import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
+import type { PortalType } from "@/lib/validations/login-schema";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
@@ -35,7 +36,7 @@ function PageBoundary({ children }: { children: ReactNode }) {
 
 function DashboardRedirect() {
   const session = getAuthSession();
-  return <Navigate replace to={session ? getDashboardPathForUser(session.user) : "/login"} />;
+  return <Navigate replace to={session ? getDashboardPathForUser(session.user) : "/login/student"} />;
 }
 
 function HomeRoute() {
@@ -43,14 +44,14 @@ function HomeRoute() {
   return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <HomePage />;
 }
 
-function LoginRoute() {
+function LoginRoute({ portal }: { portal: PortalType }) {
   const session = getAuthSession();
-  return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <LoginPage />;
+  return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <LoginPage portal={portal} />;
 }
 
 function TeacherDashboard() {
   const session = getAuthSession();
-  if (!session) return <Navigate replace to="/login" />;
+  if (!session) return <Navigate replace to="/login/staff" />;
   if (session.user.role !== "TEACHER") {
     return <Navigate replace to={getDashboardPathForUser(session.user)} />;
   }
@@ -62,7 +63,9 @@ export default function App() {
     <PageBoundary>
       <Routes>
         <Route path="/" element={<HomeRoute />} />
-        <Route path="/login" element={<LoginRoute />} />
+        <Route path="/login" element={<Navigate replace to="/login/student" />} />
+        <Route path="/login/student" element={<LoginRoute portal="student" />} />
+        <Route path="/login/staff" element={<LoginRoute portal="staff" />} />
         <Route path="/admin/dashboard" element={<DashboardRedirect />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
 

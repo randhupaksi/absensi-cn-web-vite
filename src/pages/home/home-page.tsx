@@ -22,66 +22,7 @@ import {
   FaWifi,
 } from "react-icons/fa";
 import { TestimonialsCarousel } from "@/features/landing/components/testimonials-carousel";
-import { siteConfig } from "@/lib/config/site";
-import { useQuery } from "@tanstack/react-query";
 import styles from "./home-page.module.css";
-
-type AttendanceWindow = {
-  check_in_start: string;
-  on_time_until: string;
-  late_until: string;
-};
-
-type ApiEnvelope<T> = {
-  success: boolean;
-  data?: T;
-};
-
-const defaultAttendanceWindow: AttendanceWindow = {
-  check_in_start: "06:30:00",
-  on_time_until: "07:00:00",
-  late_until: "07:30:00",
-};
-
-async function getLandingAttendanceWindow(): Promise<AttendanceWindow> {
-  try {
-    const response = await fetch(`${siteConfig.apiBaseUrl}/public/attendance-window`);
-
-    if (!response.ok) {
-      return defaultAttendanceWindow;
-    }
-
-    const payload = (await response.json()) as ApiEnvelope<AttendanceWindow>;
-    return payload.success && payload.data ? payload.data : defaultAttendanceWindow;
-  } catch {
-    return defaultAttendanceWindow;
-  }
-}
-
-function formatLandingClock(value: string) {
-  const [hour = "00", minute = "00"] = value.split(":");
-  return `${hour.padStart(2, "0")}.${minute.padStart(2, "0")}`;
-}
-
-function formatLandingClockRange(start: string, end: string) {
-  return `${formatLandingClock(start)}-${formatLandingClock(end)}`;
-}
-
-function buildHeroMetrics(attendanceWindow: AttendanceWindow) {
-  return [
-    {
-      label: "Jendela Absensi",
-      value: formatLandingClockRange(attendanceWindow.check_in_start, attendanceWindow.on_time_until),
-      detail: "Tepat waktu",
-    },
-    {
-      label: "Terlambat",
-      value: formatLandingClockRange(attendanceWindow.on_time_until, attendanceWindow.late_until),
-      detail: "Masuk review",
-    },
-    { label: "Sistem Waktu Nyata", value: "Real-time", detail: "Terpantau langsung " },
-  ];
-}
 
 const highlightChips = [
   "Absensi Foto",
@@ -229,20 +170,12 @@ const testimonials = [
 ];
 
 export default function HomePage() {
-  const attendanceWindowQuery = useQuery({
-    queryKey: ["public-attendance-window"],
-    queryFn: getLandingAttendanceWindow,
-    staleTime: 60_000,
-  });
-  const attendanceWindow = attendanceWindowQuery.data ?? defaultAttendanceWindow;
-  const heroMetrics = buildHeroMetrics(attendanceWindow);
-
   return (
     <main className={`${styles.landingPage} min-h-screen`}>
       <section className="w-full">
-        <div className="space-y-7 pb-14 md:pb-20">
+        <div className="space-y-7 pb-0">
           <div className={`${styles.landingHeroShell} relative overflow-hidden`}>
-            <div className="relative min-h-[620px] overflow-hidden md:min-h-[660px] xl:min-h-[720px]">
+            <div className={`${styles.landingHeroViewport} relative overflow-hidden`}>
               <Image
                 src="/images/optimized/cn-hero.jpg"
                 alt="Gedung SMK Citra Negara"
@@ -253,7 +186,7 @@ export default function HomePage() {
               />
               <div className={`${styles.landingHeroOverlay} ${styles.landingOverlayReveal} absolute inset-0`} />
               <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-emerald-950/70 via-emerald-950/18 to-transparent" />
-              <div className="relative z-10 mx-auto flex min-h-[620px] w-full max-w-[1480px] items-center px-6 py-16 md:min-h-[660px] md:px-10 xl:min-h-[720px] xl:px-14">
+              <div className={`${styles.landingHeroViewport} relative z-10 mx-auto flex w-full max-w-[1480px] items-center px-6 py-16 md:px-10 xl:px-14`}>
                 <div className="mx-auto max-w-[960px] space-y-6 text-center">
                   <div className={`${styles.landingReveal} inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-100 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl`}>
                     <FaCameraRetro className="size-3.5 text-emerald-300" />
@@ -276,7 +209,7 @@ export default function HomePage() {
 
                   <div className={`${styles.landingReveal} ${styles.landingDelayFour} flex justify-center`}>
                     <Link
-                      href="/login"
+                      href="/login/student"
                       className={`${styles.landingCtaButton} group inline-flex h-14 items-center justify-center gap-3 rounded-full px-6 text-sm font-semibold transition hover:-translate-y-0.5 hover:bg-emerald-50`}
                     >
                       Mulai Absensi Sekarang
@@ -284,19 +217,6 @@ export default function HomePage() {
                     </Link>
                   </div>
 
-                  <div className="mx-auto grid max-w-[820px] gap-3 pt-2 sm:grid-cols-3">
-                    {heroMetrics.map((metric, index) => (
-                      <div
-                        key={metric.label}
-                        className={`${styles.landingReveal} rounded-[1.15rem] border border-white/14 bg-white/10 p-3.5 shadow-[0_16px_38px_rgba(0,0,0,0.12)] backdrop-blur-xl`}
-                        style={{ animationDelay: `${760 + index * 95}ms` }}
-                      >
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-100/82">{metric.label}</p>
-                        <p className="mt-2 text-lg font-bold tracking-[-0.03em] text-white">{metric.value}</p>
-                        <p className="mt-1 text-xs font-medium text-white/62">{metric.detail}</p>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
@@ -459,11 +379,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className={`${styles.landingReviewSection} ${styles.landingReveal} mt-8 px-6 py-7 md:px-8 md:py-8 xl:px-12`}>
-              <TestimonialsCarousel testimonials={testimonials} />
-            </div>
+            {false ? (
+              <div className={`${styles.landingReviewSection} ${styles.landingReveal} mt-8 px-6 py-7 md:px-8 md:py-8 xl:px-12`}>
+                <TestimonialsCarousel testimonials={testimonials} />
+              </div>
+            ) : null}
 
-            <div className="mt-12 px-2 md:px-4 xl:px-6">
+            <div className="mt-8 px-2 md:px-4 xl:px-6">
               <div className={`${styles.landingCtaShell} ${styles.landingReveal} relative overflow-hidden rounded-[42px] px-6 py-8 md:px-10 md:py-10 xl:px-12 xl:py-12`}>
                 <div className={`${styles.landingCtaGlow} absolute inset-0`} />
                 <div className="absolute right-[-120px] top-[-120px] h-[260px] w-[260px] rounded-full bg-emerald-300/12 blur-3xl" />
@@ -502,13 +424,20 @@ export default function HomePage() {
 
                     <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
                       <Link
-                        href="/login"
-                        className={`${styles.landingCtaButton} group inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5`}
+                        href="/login/student"
+                        className={`${styles.landingCtaButton} group inline-flex w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5`}
                       >
-                        Mulai Aplikasi
+                        Masuk Siswa
                         <FaArrowRight className="size-4 transition group-hover:translate-x-0.5" />
                       </Link>
-                      <div className={`${styles.landingCtaPill} inline-flex items-center gap-3 rounded-full px-4 py-3 text-sm`}>
+                      <Link
+                        href="/login/staff"
+                        className="group inline-flex w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/18 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(0,0,0,0.14)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-emerald-200/35 hover:bg-white/16"
+                      >
+                        <FaShieldAlt className="size-4 text-emerald-200 transition group-hover:scale-105" />
+                        Portal Staff
+                      </Link>
+                      <div className={`${styles.landingCtaPill} inline-flex w-fit items-center gap-3 whitespace-nowrap rounded-full px-4 py-3 text-sm`}>
                         <span className={`${styles.landingCtaPillIcon} flex size-8 items-center justify-center rounded-full`}>
                           <FaCheckCircle className="size-4" />
                         </span>
@@ -523,7 +452,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className={`${styles.landingFooterShell} ${styles.landingReveal} relative mt-8 overflow-hidden px-4 pb-8 pt-10 text-white sm:px-6 md:mt-10 md:px-8 md:pb-10 md:pt-18`}>
+      <footer className={`${styles.landingFooterShell} ${styles.landingReveal} relative mt-0 overflow-hidden px-4 pb-8 pt-10 text-white sm:px-6 md:px-8 md:pb-10 md:pt-18`}>
         <div className="absolute left-[8%] top-12 h-24 w-24 rounded-full bg-emerald-400/10 blur-3xl" />
         <div className="absolute right-[10%] top-16 h-28 w-28 rounded-full bg-teal-300/8 blur-3xl" />
         <div className="mx-auto max-w-[1480px]">
@@ -587,7 +516,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="mt-5 text-sm leading-7 text-white/62">
-                pilihan yang tepat di sekolah
+                Pilihan yang tepat di sekolah
                 <br />
                 yang M.A.N.T.A.P
               </p>

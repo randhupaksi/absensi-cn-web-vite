@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   LoaderCircle,
+  LogIn,
   LockKeyhole,
   ShieldCheck,
   UserRound,
@@ -26,11 +27,43 @@ type LoginFormProps = {
   portal: PortalType;
 };
 
+const formContent = {
+  student: {
+    identifierLabel: "NIS",
+    identifierPlaceholder: "Masukkan NIS",
+    identifierHelper: "Gunakan 10 digit angka sesuai NIS sekolah.",
+    passwordHelper: "Masukkan password dari akun siswa anda.",
+    submitLabel: "Masuk sebagai Siswa",
+    submittingLabel: "Memproses absensi...",
+    buttonClass:
+      "border-emerald-300/40 bg-[linear-gradient(135deg,#149a73_0%,#50b98c_56%,#a8d38a_100%)] shadow-[0_18px_44px_rgba(20,154,115,0.24)] hover:shadow-[0_22px_56px_rgba(20,154,115,0.3)]",
+  },
+  staff: {
+    identifierLabel: "Username Staff",
+    identifierPlaceholder: "Masukkan Username Staff",
+    identifierHelper: "Untuk wali kelas, BK, dan admin.",
+    passwordHelper: "Gunakan password staff yang sudah terdaftar.",
+    submitLabel: "Masuk ke Portal Staff",
+    submittingLabel: "Memverifikasi staff...",
+    buttonClass:
+      "border-teal-300/45 bg-[linear-gradient(135deg,#0f766e_0%,#149a73_52%,#65c586_100%)] shadow-[0_18px_44px_rgba(15,118,110,0.22)] hover:shadow-[0_22px_56px_rgba(15,118,110,0.28)]",
+  },
+} satisfies Record<PortalType, {
+  identifierLabel: string;
+  identifierPlaceholder: string;
+  identifierHelper: string;
+  passwordHelper: string;
+  submitLabel: string;
+  submittingLabel: string;
+  buttonClass: string;
+}>;
+
 export function LoginForm({ portal }: LoginFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const content = formContent[portal];
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -68,7 +101,7 @@ export function LoginForm({ portal }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={form.handleSubmit(onSubmit)} className={portal === "staff" ? "space-y-5" : "space-y-4"}>
       <input type="hidden" {...form.register("portal")} value={portal} />
 
       <AnimatePresence mode="wait" initial={false}>
@@ -82,14 +115,14 @@ export function LoginForm({ portal }: LoginFormProps) {
             className="space-y-2"
           >
             <Label htmlFor="nis" className="text-sm font-medium text-slate-700">
-              NIS
+              {content.identifierLabel}
             </Label>
             <PremiumInput
               id="nis"
               icon={UserRound}
               inputMode="numeric"
               maxLength={10}
-              placeholder="Masukkan NIS"
+              placeholder={content.identifierPlaceholder}
               {...form.register("nis")}
               onChange={(e) => {
                 const filtered = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -102,7 +135,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               </p>
             ) : (
               <p className="text-xs text-slate-500">
-                Gunakan 10 digit angka sesuai NIS sekolah.
+                {content.identifierHelper}
               </p>
             )}
           </motion.div>
@@ -119,12 +152,12 @@ export function LoginForm({ portal }: LoginFormProps) {
               htmlFor="username"
               className="text-sm font-medium text-slate-700"
             >
-              Nama Pengguna
+              {content.identifierLabel}
             </Label>
             <PremiumInput
               id="username"
               icon={ShieldCheck}
-              placeholder="Masukkan Nama Pengguna"
+              placeholder={content.identifierPlaceholder}
               {...form.register("username")}
             />
             {form.formState.errors.username ? (
@@ -133,7 +166,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               </p>
             ) : (
               <p className="text-xs text-slate-500">
-                Digunakan untuk wali kelas, BK, dan admin.
+                {content.identifierHelper}
               </p>
             )}
           </motion.div>
@@ -175,7 +208,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           </p>
         ) : (
           <p className="text-xs text-slate-500">
-            Masukkan password dari akun anda.
+            {content.passwordHelper}
           </p>
         )}
       </div>
@@ -184,7 +217,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         type="submit"
         size="lg"
         disabled={form.formState.isSubmitting}
-        className="group relative h-12 w-full overflow-hidden rounded-[1.15rem] border border-emerald-300/40 bg-[linear-gradient(135deg,#149a73_0%,#50b98c_56%,#a8d38a_100%)] px-5 text-[14px] font-semibold text-white shadow-[0_18px_44px_rgba(20,154,115,0.24)] transition duration-300 hover:scale-[1.01] hover:shadow-[0_22px_56px_rgba(20,154,115,0.3)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold text-white transition duration-300 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 ${content.buttonClass}`}
       >
         <motion.span
           aria-hidden="true"
@@ -206,40 +239,24 @@ export function LoginForm({ portal }: LoginFormProps) {
               className="relative flex items-center gap-2"
             >
               <LoaderCircle className="size-4 animate-spin" />
-              Memproses...
-            </motion.span>
-          ) : portal === "student" ? (
-            <motion.span
-              key="student"
-              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-              className="relative flex items-center gap-2"
-            >
-              Masuk sebagai Siswa
-              <motion.span
-                initial={false}
-                animate={prefersReducedMotion ? undefined : { x: [0, 3, 0] }}
-                transition={prefersReducedMotion ? undefined : { repeat: Number.POSITIVE_INFINITY, duration: 1.8 }}
-              >
-                -&gt;
-              </motion.span>
+              {content.submittingLabel}
             </motion.span>
           ) : (
             <motion.span
-              key="staff"
+              key={portal}
               initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
               animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
               exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
               className="relative flex items-center gap-2"
             >
-              Masuk sebagai Staff
+              {content.submitLabel}
               <motion.span
                 initial={false}
                 animate={prefersReducedMotion ? undefined : { x: [0, 3, 0] }}
                 transition={prefersReducedMotion ? undefined : { repeat: Number.POSITIVE_INFINITY, duration: 1.8 }}
+                className="inline-flex"
               >
-                -&gt;
+                <LogIn className="size-4" />
               </motion.span>
             </motion.span>
           )}
