@@ -71,6 +71,7 @@ export function StudentDashboardPage() {
   const [reason, setReason] = useState("");
   const [errors, setErrors] = useState<FieldErrors<"photo" | "type" | "reason">>({});
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
+  const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
 
   const dashboardQuery = useQuery({
     queryKey: ["student-dashboard"],
@@ -143,19 +144,30 @@ export function StudentDashboardPage() {
 
   async function handlePhotoPicked(file?: File) {
     if (!file) return;
-    let uploadFile = file;
-    try {
-      uploadFile = await compressUploadImage(file);
-    } catch {
-      // A browser without bitmap decoding support can still upload the source.
-    }
-    if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
-    const previewUrl = URL.createObjectURL(uploadFile);
-    photoPreviewRef.current = previewUrl;
-    setPhotoFile(uploadFile);
-    setPhotoPreview(previewUrl);
+    setIsPreparingPhoto(true);
     setErrors({});
-    setModalOpen(true);
+
+    try {
+      const uploadFile = await compressUploadImage(file);
+      if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
+      const previewUrl = URL.createObjectURL(uploadFile);
+      photoPreviewRef.current = previewUrl;
+      setPhotoFile(uploadFile);
+      setPhotoPreview(previewUrl);
+      setModalOpen(true);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Foto tidak dapat diproses. Silakan ambil ulang foto.";
+      setErrors({ photo: message });
+      toast.error(message);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+    } finally {
+      setIsPreparingPhoto(false);
+    }
   }
 
   function handleSubmit() {
@@ -220,21 +232,25 @@ export function StudentDashboardPage() {
                   <Button
                     type="button"
                     onClick={handleStartAttendance}
-                    disabled={!canSubmit || dashboardQuery.isLoading}
+                    disabled={!canSubmit || dashboardQuery.isLoading || isPreparingPhoto}
                     className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition hover:bg-emerald-50 hover:shadow-[0_18px_34px_rgba(2,44,34,0.22)] disabled:bg-white/35 disabled:text-white/70"
                   >
-                    {canSubmit ? (
+                    {isPreparingPhoto ? (
+                      <TimerReset className="size-5" />
+                    ) : canSubmit ? (
                       <Camera className="size-5" />
                     ) : isWindowClosed ? (
                       <ShieldAlert className="size-5" />
                     ) : (
                       <TimerReset className="size-5" />
                     )}
-                    {canSubmit
-                      ? "Absen Hari Ini"
-                      : isWindowClosed
-                        ? "Waktu Absensi Sudah Habis"
-                        : "Cooldown Sampai Besok"}
+                    {isPreparingPhoto
+                      ? "Menyiapkan Foto..."
+                      : canSubmit
+                        ? "Absen Hari Ini"
+                        : isWindowClosed
+                          ? "Waktu Absensi Sudah Habis"
+                          : "Cooldown Sampai Besok"}
                   </Button>
                   <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
                     Batas hadir {formatClock(today?.window.on_time_until)} WIB, terlambat sampai{" "}
@@ -461,20 +477,25 @@ export function StudentDashboardPage() {
             <div className="space-y-5">
               <div className={premiumModalSurfaceClassName}>
                 <div className="grid gap-4 p-4 md:grid-cols-[1fr_0.82fr]">
-                  <div className="overflow-hidden rounded-[1.2rem] border border-emerald-200/70 bg-slate-950">
-                    {photoPreview ? (
-                      <img
-                        src={photoPreview}
-                        alt="Preview foto absensi siswa"
-                        className="h-[280px] w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-[280px] items-center justify-center text-slate-300">
-                        Foto belum tersedia
-                      </div>
-                    )}
+                  <div className="space-y-2">
+                    <div className="overflow-hidden rounded-[1.2rem] border border-emerald-200/70 bg-slate-950">
+                      {photoPreview ? (
+                        <img
+                          src={photoPreview}
+                          alt="Preview foto absensi siswa"
+                          className="h-[280px] w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-[280px] items-center justify-center text-slate-300">
+                          Foto belum tersedia
+                        </div>
+                      )}
+                    </div>
+                    <FieldError message={errors.photo} />
+                    <p className="text-xs font-medium text-slate-500">
+                      Foto otomatis dikompres sebelum dikirim agar upload tetap ringan.
+                    </p>
                   </div>
-                  <FieldError message={errors.photo} />
                   <div className="space-y-4">
                     <div className={premiumModalFieldClassName}>
                       <label className={premiumModalLabelClassName}>Keterangan</label>

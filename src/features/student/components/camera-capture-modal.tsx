@@ -58,12 +58,15 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
-        const file = new File([blob], "absensi.jpg", { type: "image/jpeg" });
+        const file = new File([blob], "absensi.jpg", {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        });
         stopStream();
         onCapture(file);
       },
       "image/jpeg",
-      0.78,
+      0.72,
     );
   }
 

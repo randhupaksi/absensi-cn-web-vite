@@ -1,6 +1,6 @@
 import axios from "axios";
 import { siteConfig } from "@/lib/config/site";
-import { clearAuthSession, getAuthSession } from "@/lib/auth";
+import { clearAuthSession, getAuthSession, getLoginPathForCurrentContext } from "@/lib/auth";
 
 export const apiClient = axios.create({
   baseURL: siteConfig.apiBaseUrl,
@@ -27,13 +27,14 @@ apiClient.interceptors.response.use(
       const isLoginRequest = requestUrl.includes("/auth/login");
       const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
       const isLoginRoute = currentPath.startsWith("/login");
+      const loginPath = getLoginPathForCurrentContext(currentPath);
 
       if (!isLoginRequest) {
         clearAuthSession();
       }
 
       if (typeof window !== "undefined" && !isLoginRequest && !isLoginRoute) {
-        window.location.href = "/login";
+        window.location.href = loginPath;
       }
     }
 

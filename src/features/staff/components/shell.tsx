@@ -5,6 +5,7 @@ import {
   canAccessDashboardRole,
   getAuthSession,
   getDashboardPathForUser,
+  getLoginPathForCurrentContext,
   subscribeAuthSession,
 } from "@/lib/auth";
 import type { AuthSession, DashboardRole } from "@/types/auth";
@@ -66,26 +67,27 @@ export function StaffShell({
 
   useEffect(() => {
     if (!session) {
-      router.replace("/login");
+      router.replace(getLoginPathForCurrentContext(pathname));
       return;
     }
 
     if (!isExpectedRole) {
       router.replace(getDashboardPathForUser(session.user));
     }
-  }, [isExpectedRole, router, session]);
+  }, [isExpectedRole, pathname, router, session]);
 
   if (!session || !isExpectedRole) {
     return <StaffShellFallback />;
   }
 
   const handleLogout = () => {
+    const loginPath = getLoginPathForCurrentContext(pathname);
     clearAuthSession();
     // Logout stays client-side (no hard reload), so the QueryClient created in
     // AppProviders would otherwise survive into the next login on this tab and
     // serve the previous account's cached data until staleTime expires.
     queryClient.clear();
-    router.replace("/");
+    router.replace(loginPath);
   };
 
   return (

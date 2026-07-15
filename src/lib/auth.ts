@@ -59,6 +59,8 @@ export function clearAuthSession() {
   }
 
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  cachedSessionRaw = null;
+  cachedSessionValue = null;
   emitAuthSessionChange();
 }
 
@@ -99,6 +101,30 @@ export function getDashboardPathForUser(user: AuthUser) {
   }
   const dashboardRole = getDefaultDashboardRole(user);
   return `/dashboard/${dashboardRole}`;
+}
+
+export function getLoginPathForUser(user?: AuthUser | null) {
+  return user?.role === "STUDENT" ? "/login/student" : "/login/staff";
+}
+
+export function getLoginPathForCurrentContext(pathname?: string) {
+  const session = getAuthSession();
+  if (session) {
+    return getLoginPathForUser(session.user);
+  }
+
+  const currentPath =
+    pathname ?? (typeof window !== "undefined" ? window.location.pathname : "");
+  if (
+    currentPath.startsWith("/dashboard/admin") ||
+    currentPath.startsWith("/dashboard/teacher") ||
+    currentPath.startsWith("/dashboard/bk") ||
+    currentPath.startsWith("/dashboard/walas") ||
+    currentPath.startsWith("/login/staff")
+  ) {
+    return "/login/staff";
+  }
+  return "/login/student";
 }
 
 export function canAccessDashboardRole(user: AuthUser, dashboardRole: DashboardRole) {

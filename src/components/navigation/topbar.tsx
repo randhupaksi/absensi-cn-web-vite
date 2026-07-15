@@ -1,7 +1,13 @@
 "use client";
 
 import { AppLink as Link } from "@/components/router/app-link";
-import { clearAuthSession, getAuthSession, getDashboardLabel, getDefaultDashboardRole } from "@/lib/auth";
+import {
+  clearAuthSession,
+  getAuthSession,
+  getDashboardLabel,
+  getDefaultDashboardRole,
+  getLoginPathForCurrentContext,
+} from "@/lib/auth";
 import { getDashboardNavigation } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/config/site";
 import { Button } from "@/components/ui/button";
@@ -25,8 +31,9 @@ export function Topbar() {
   const navigation = getDashboardNavigation(dashboardRole);
 
   const handleLogout = () => {
+    const loginPath = getLoginPathForCurrentContext(pathname);
     clearAuthSession();
-    router.replace("/login");
+    router.replace(loginPath);
   };
 
   return (
