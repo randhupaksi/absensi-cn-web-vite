@@ -103,6 +103,7 @@ export type StaffAttendanceRecord = {
   photo_url?: string;
   notes?: string;
   verified_by?: string;
+  verified_by_role?: string;
   verified_at?: string;
   verification_note?: string;
 };

@@ -232,7 +232,9 @@ export function AttendanceTableSection({
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
                 <DataTableBody>
-                  {pageRecords.map((record) => (
+                  {pageRecords.map((record) => {
+                    const reviewedByBK = isReviewedByBK(record);
+                    return (
                     <DataTableRow key={record.id}>
                       <DataTableCell>
                         <div className="space-y-1">
@@ -247,7 +249,7 @@ export function AttendanceTableSection({
                         </div>
                       </DataTableCell>
                       <DataTableCell className="text-center"><AttendanceStatusPill status={record.status} /></DataTableCell>
-                      <DataTableCell className="text-center"><ReviewStatusPill reviewed={Boolean(record.verified_at)} /></DataTableCell>
+                      <DataTableCell className="text-center"><ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} /></DataTableCell>
                       <DataTableCell>
                         <p className="line-clamp-2 max-w-[280px] text-sm leading-6 text-slate-500">
                           {record.verification_note || record.notes || "Belum ada catatan"}
@@ -272,19 +274,24 @@ export function AttendanceTableSection({
                             size="icon"
                             className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
                             onClick={() => onOpenReview(record)}
+                            disabled={reviewedByBK}
                             aria-label="Verifikasi absensi"
+                            title={reviewedByBK ? "Sudah direview BK" : "Verifikasi absensi"}
                           >
                             <BadgeCheck className="size-4.5" />
                           </Button>
                         </div>
                       </DataTableCell>
                     </DataTableRow>
-                  ))}
+                  );
+                  })}
                 </DataTableBody>
               </DataTable>
             </div>
             <MobileDataList>
-              {pageRecords.map((record) => (
+              {pageRecords.map((record) => {
+                const reviewedByBK = isReviewedByBK(record);
+                return (
                 <MobileDataCard key={record.id}>
                   <MobileDataHeader
                     title={record.student_name}
@@ -294,7 +301,7 @@ export function AttendanceTableSection({
                   <div className="mt-4 grid gap-3">
                     <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
                     <MobileDataField label="Check-in" value={formatCheckInTime(record.check_in_at)} />
-                    <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} />} />
+                    <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} />} />
                   </div>
                   <MobileDataSection label="Catatan">
                     <p className="text-sm leading-6 text-slate-600">
@@ -319,13 +326,16 @@ export function AttendanceTableSection({
                       size="icon"
                       className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
                       onClick={() => onOpenReview(record)}
+                      disabled={reviewedByBK}
                       aria-label="Verifikasi absensi"
+                      title={reviewedByBK ? "Sudah direview BK" : "Verifikasi absensi"}
                     >
                       <BadgeCheck className="size-4.5" />
                     </Button>
                   </MobileDataFooter>
                 </MobileDataCard>
-              ))}
+              );
+              })}
             </MobileDataList>
             </>
           )}
@@ -472,10 +482,14 @@ function AttendanceDateButton({ selectedDate, onSelectDate }: { selectedDate?: D
   );
 }
 
-function ReviewStatusPill({ reviewed }: { reviewed: boolean }) {
+function isReviewedByBK(record: StaffAttendanceRecord) {
+  return record.verified_by_role?.toUpperCase() === "BK";
+}
+
+function ReviewStatusPill({ reviewed, reviewedByBK = false }: { reviewed: boolean; reviewedByBK?: boolean }) {
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${reviewed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
-      {reviewed ? "Direview" : "Belum"}
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${reviewedByBK ? "border-sky-200 bg-sky-50 text-sky-700" : reviewed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
+      {reviewedByBK ? "Direview BK" : reviewed ? "Direview" : "Belum"}
     </span>
   );
 }

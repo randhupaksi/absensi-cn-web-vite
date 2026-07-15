@@ -85,14 +85,17 @@ export function AttendanceReviewModal({
     record?.verification_note || record?.notes || "",
   );
   const [errors, setErrors] = useState<FieldErrors<"status" | "verification_note">>({});
+  const isFinalPresent = status === "hadir";
 
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "verification_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
-    validateRequired(nextErrors, "verification_note", verificationNote, "Catatan review");
+    if (!isFinalPresent) {
+      validateRequired(nextErrors, "verification_note", verificationNote, "Catatan review");
+    }
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
-    onSubmit({ status, verification_note: verificationNote });
+    onSubmit({ status, verification_note: isFinalPresent ? "" : verificationNote });
   };
 
   return (
@@ -141,19 +144,21 @@ export function AttendanceReviewModal({
             </div>
           </div>
 
-          <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Catatan review</label>
-            <p className={premiumModalHelperClassName}>
-              Catatan ini akan membantu walas dan BK membaca alasan perubahan status.
-            </p>
-            <Textarea
-              value={verificationNote}
-              onChange={(event) => setVerificationNote(event.target.value)}
-              placeholder="Tulis catatan review singkat"
-              className="min-h-[140px] rounded-[20px]"
-            />
-            <FieldError message={errors.verification_note} />
-          </div>
+          {!isFinalPresent ? (
+            <div className={premiumModalFieldClassName}>
+              <label className={premiumModalLabelClassName}>Catatan review</label>
+              <p className={premiumModalHelperClassName}>
+                Catatan ini akan membantu walas dan BK membaca alasan perubahan status.
+              </p>
+              <Textarea
+                value={verificationNote}
+                onChange={(event) => setVerificationNote(event.target.value)}
+                placeholder="Tulis catatan review singkat"
+                className="min-h-[140px] rounded-[20px]"
+              />
+              <FieldError message={errors.verification_note} />
+            </div>
+          ) : null}
 
           <div className={premiumModalActionsClassName}>
             <Button
