@@ -7,6 +7,12 @@ import {
   DataTableHeadRow,
   DataTablePagination,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
@@ -221,7 +227,8 @@ export function AttendanceTableSection({
               />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            <div className="hidden overflow-x-auto md:block">
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
                 <DataTableBody>
@@ -276,6 +283,51 @@ export function AttendanceTableSection({
                 </DataTableBody>
               </DataTable>
             </div>
+            <MobileDataList>
+              {pageRecords.map((record) => (
+                <MobileDataCard key={record.id}>
+                  <MobileDataHeader
+                    title={record.student_name}
+                    subtitle={`${record.nis} - ${record.class_name}`}
+                    badge={<AttendanceStatusPill status={record.status} />}
+                  />
+                  <div className="mt-4 grid gap-3">
+                    <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
+                    <MobileDataField label="Check-in" value={formatCheckInTime(record.check_in_at)} />
+                    <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} />} />
+                  </div>
+                  <MobileDataSection label="Catatan">
+                    <p className="text-sm leading-6 text-slate-600">
+                      {record.verification_note || record.notes || "Belum ada catatan"}
+                    </p>
+                  </MobileDataSection>
+                  <MobileDataFooter>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                      onClick={() => onOpenProof(record)}
+                      disabled={!record.photo_url}
+                      aria-label="Lihat bukti absensi"
+                    >
+                      <ImageIcon className="size-4.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
+                      onClick={() => onOpenReview(record)}
+                      aria-label="Verifikasi absensi"
+                    >
+                      <BadgeCheck className="size-4.5" />
+                    </Button>
+                  </MobileDataFooter>
+                </MobileDataCard>
+              ))}
+            </MobileDataList>
+            </>
           )}
           {!error && !isLoading && records.length > 0 ? (
             <DataTablePagination {...recordsPagination} />

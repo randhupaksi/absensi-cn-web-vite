@@ -11,6 +11,12 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
   SectionTabSwitch,
   StatCard,
@@ -574,6 +580,39 @@ export function TeacherSection({
               emptyDescription="Tambahkan akun dengan role TEACHER lalu buat teacher profile agar data muncul di sini."
               icon={UsersRound}
               pagination={teacherProfilesPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageTeacherProfiles.map((teacher) => (
+                    <MobileDataCard key={teacher.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-11 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700">
+                            {getInitials(teacher.name)}
+                          </span>
+                        }
+                        title={teacher.name}
+                        subtitle={teacher.user_id}
+                        badge={<StatusBadge isActive={teacher.is_active} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Username" value={teacher.username || "-"} />
+                        <MobileDataField label="Gender" value={teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "-"} />
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <TeacherMetricPill label="Mapel" value={subjectAssignmentsByTeacher[teacher.id] ?? 0} tone="emerald" />
+                        <TeacherMetricPill label="Walas" value={homeroomAssignmentsByTeacher[teacher.id] ?? 0} tone="sky" />
+                      </div>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingProfile(teacher)}
+                          onDelete={() => setDeleteTarget({ type: "profile", item: teacher })}
+                          isDeletePending={deleteTeacherProfileMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Guru", "Username", "Gender", "Mapel", "Walas", "Status", "Aksi"]} />
@@ -627,6 +666,35 @@ export function TeacherSection({
               emptyDescription="Data wali kelas per tahun ajaran akan tampil di sini."
               icon={GraduationCap}
               pagination={homeroomAssignmentsPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageHomeroomAssignments.map((assignment) => (
+                    <MobileDataCard key={assignment.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-11 items-center justify-center rounded-full bg-emerald-50 text-xs font-semibold text-emerald-700">
+                            {getInitials(assignment.teacher_name)}
+                          </span>
+                        }
+                        title={assignment.teacher_name}
+                        subtitle={assignment.id}
+                        badge={<StatusBadge isActive={assignment.is_active} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Kelas" value={assignment.class_name} />
+                        <MobileDataField label="Tahun Ajaran" value={assignment.school_year_name} />
+                      </div>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingHomeroomAssignment(assignment)}
+                          onDelete={() => setDeleteTarget({ type: "homeroom", item: assignment })}
+                          isDeletePending={deleteHomeroomAssignmentMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Guru", "Kelas", "Tahun Ajaran", "Status", "ID Assignment", "Aksi"]} />
@@ -663,6 +731,51 @@ export function TeacherSection({
               emptyDescription="Tambahkan guru dan pilih unit sekolah yang menjadi cakupan monitoringnya."
               icon={UserCog}
               pagination={bkTeachersPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageBkTeachers.map((teacher) => (
+                    <MobileDataCard key={teacher.user_id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-11 items-center justify-center rounded-full bg-[linear-gradient(180deg,#ecfdf5_0%,#f8fafc_100%)] text-xs font-semibold text-emerald-700">
+                            {getInitials(teacher.name)}
+                          </span>
+                        }
+                        title={teacher.name}
+                        subtitle={teacher.username || "-"}
+                        badge={
+                          <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                            BK
+                          </Badge>
+                        }
+                      />
+                      <MobileDataSection label="Cakupan Unit">
+                        <div className="flex flex-wrap gap-1.5">
+                          {bkScopesByUser[teacher.user_id]?.length ? (
+                            bkScopesByUser[teacher.user_id].map((scope) => (
+                              <Badge key={scope.id} variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                                {scope.school_unit_code}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-sm text-slate-500">Belum ada unit</span>
+                          )}
+                        </div>
+                      </MobileDataSection>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => {
+                            setEditingBkTeacher(teacher);
+                            setBkModalOpen(true);
+                          }}
+                          onDelete={() => setRevokeBkTarget(teacher)}
+                          isDeletePending={revokeBkAssignmentMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Nama", "Username", "Cakupan Unit", "Aksi"]} />
@@ -832,4 +945,28 @@ function getTeacherDeleteDescription(target: TeacherDeleteTarget | null) {
     return `Profil dan akun guru "${target.item.name}" akan dihapus permanen.`;
   }
   return `Assignment wali kelas "${target.item.class_name}" untuk ${target.item.teacher_name} akan dihapus permanen.`;
+}
+
+function TeacherMetricPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "emerald" | "sky";
+}) {
+  const toneClass =
+    tone === "emerald"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+      : "border-sky-100 bg-sky-50 text-sky-700";
+
+  return (
+    <span
+      className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-semibold ${toneClass}`}
+    >
+      <span className="text-slate-500">{label}</span>
+      <span className="tabular-nums text-slate-950">{value}</span>
+    </span>
+  );
 }

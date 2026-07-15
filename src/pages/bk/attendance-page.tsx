@@ -24,6 +24,12 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
 } from "@/features/admin/management/shared/section-ui";
 import { StaffShell } from "@/features/staff/components/shell";
@@ -231,7 +237,8 @@ export function BKAttendancePage() {
                   <EmptyState icon={FileSearch} title="Belum ada record absensi" description="Ubah tanggal, kelas, status, atau pencarian untuk melihat data absensi." />
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="hidden overflow-x-auto md:block">
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Kelas", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
                     <DataTableBody>
@@ -285,6 +292,49 @@ export function BKAttendancePage() {
                     </DataTableBody>
                   </DataTable>
                 </div>
+                <MobileDataList>
+                  {pageRecords.map((record) => (
+                    <MobileDataCard key={record.id}>
+                      <MobileDataHeader
+                        title={record.student_name}
+                        subtitle={`${record.nis} - ${record.class_name}`}
+                        badge={<AttendanceStatusPill status={record.status} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
+                        <MobileDataField label="Check-in" value={formatCheckInTime(record.check_in_at)} />
+                        <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} />} />
+                      </div>
+                      <MobileDataSection label="Catatan">
+                        <p className="text-sm leading-6 text-slate-600">
+                          {record.verification_note || record.notes || "-"}
+                        </p>
+                      </MobileDataSection>
+                      <MobileDataFooter>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
+                          disabled={!record.photo_url}
+                          onClick={() => setProofTarget(record)}
+                        >
+                          <FileImage className="size-4.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-10 rounded-2xl border border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                          onClick={() => setReviewTarget(record)}
+                        >
+                          <BadgeCheck className="size-4.5" />
+                        </Button>
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+                </>
               )}
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />

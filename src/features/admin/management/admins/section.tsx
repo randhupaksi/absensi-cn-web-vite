@@ -10,6 +10,11 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
   SearchFilterBar,
   StatCard,
   getInitials,
@@ -202,6 +207,39 @@ export function AdminManagementSection({
             emptyDescription="Coba ubah pencarian atau tambahkan akun administrator baru."
             icon={ShieldCheck}
             pagination={adminsPagination}
+            mobileView={
+              <MobileDataList>
+                {pageAdmins.map((user) => (
+                  <MobileDataCard key={user.id}>
+                    <MobileDataHeader
+                      leading={
+                        <span className="flex size-10 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                          {getInitials(user.name)}
+                        </span>
+                      }
+                      title={user.name}
+                      subtitle={user.id}
+                      badge={
+                        <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                          ADMIN
+                        </Badge>
+                      }
+                    />
+                    <div className="mt-4 space-y-3">
+                      <MobileDataField label="Username" value={user.username || "-"} />
+                      <MobileDataField label="Akses" value="Kontrol penuh dashboard dan master data" />
+                    </div>
+                    <MobileDataFooter>
+                      <ActionButtons
+                        onEdit={() => setEditingUser(user)}
+                        onDelete={() => setDeleteTarget(user)}
+                        isDeletePending={deleteAdminMutation.isPending}
+                      />
+                    </MobileDataFooter>
+                  </MobileDataCard>
+                ))}
+              </MobileDataList>
+            }
           >
             <DataTable>
               <DataTableHeadRow labels={["Administrator", "Username", "Role", "Akses", "Aksi"]} />

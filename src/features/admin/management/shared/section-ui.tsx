@@ -125,6 +125,7 @@ export function FieldGroup({
 
 export function DataTableCard({
   children,
+  mobileView,
   icon,
   emptyTitle,
   emptyDescription,
@@ -134,6 +135,7 @@ export function DataTableCard({
   pagination,
 }: {
   children: ReactNode;
+  mobileView?: ReactNode;
   icon: LucideIcon;
   emptyTitle: string;
   emptyDescription: string;
@@ -159,7 +161,8 @@ export function DataTableCard({
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">{children}</div>
+          <div className={mobileView ? "hidden overflow-x-auto md:block" : "overflow-x-auto"}>{children}</div>
+          {mobileView ? <div className="md:hidden">{mobileView}</div> : null}
           {pagination ? <DataTablePagination {...pagination} /> : null}
         </>
       )}
@@ -405,6 +408,7 @@ export function ActionButtons({
         size="icon-sm"
         className="rounded-[14px] border-emerald-200/80 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
         onClick={onEdit}
+        aria-label="Edit data"
       >
         <PencilLine className="size-4" />
       </Button>
@@ -414,9 +418,101 @@ export function ActionButtons({
         className="rounded-[14px] border-red-200/80 bg-white text-red-500 hover:border-red-300 hover:bg-red-50 hover:text-red-500"
         onClick={onDelete}
         disabled={isDeletePending}
+        aria-label="Hapus data"
       >
         <Trash2 className="size-4" />
       </Button>
+    </div>
+  );
+}
+
+export function MobileDataList({ children }: { children: ReactNode }) {
+  return <div className="space-y-3 bg-white/90 p-3 md:hidden">{children}</div>;
+}
+
+export function MobileDataCard({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <article
+      className={cn(
+        "rounded-[22px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,253,250,0.96)_100%)] p-4 shadow-[0_14px_32px_rgba(15,23,42,0.06)]",
+        className,
+      )}
+    >
+      {children}
+    </article>
+  );
+}
+
+export function MobileDataHeader({
+  leading,
+  title,
+  subtitle,
+  badge,
+}: {
+  leading?: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  badge?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        {leading ? <div className="shrink-0">{leading}</div> : null}
+        <div className="min-w-0">
+          <div className="truncate text-sm font-semibold text-slate-900">{title}</div>
+          {subtitle ? <div className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</div> : null}
+        </div>
+      </div>
+      {badge ? <div className="shrink-0">{badge}</div> : null}
+    </div>
+  );
+}
+
+export function MobileDataField({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: ReactNode;
+  icon?: LucideIcon;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex shrink-0 items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+        {Icon ? <Icon className="size-3" /> : null}
+        {label}
+      </div>
+      <div className="min-w-0 text-right text-xs font-medium text-slate-700">{value}</div>
+    </div>
+  );
+}
+
+export function MobileDataSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+      <div className="text-xs leading-5 text-slate-600">{children}</div>
+    </div>
+  );
+}
+
+export function MobileDataFooter({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-3 flex items-center justify-end gap-2 border-t border-emerald-50 pt-3">
+      {children}
     </div>
   );
 }

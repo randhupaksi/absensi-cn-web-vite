@@ -1,6 +1,11 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import {
+  MobileDataCard,
+  MobileDataHeader,
+  MobileDataList,
+} from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -111,7 +116,8 @@ export function MapelRecapPage() {
               {recap.students.length === 0 ? (
                 <EmptyState icon={BookOpenCheck} title="Belum ada data pertemuan" description="Belum ada sesi yang divalidasi dalam rentang tanggal ini." />
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="hidden overflow-x-auto md:block">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -162,6 +168,23 @@ export function MapelRecapPage() {
                     </tfoot>
                   </table>
                 </div>
+                <MobileDataList>
+                  {recap.students.map((s) => (
+                    <MobileDataCard key={s.student_id}>
+                      <MobileDataHeader title={s.student_name} subtitle={s.nis} />
+                      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                        <RecapMetric label="Hadir" value={s.hadir} cls="text-emerald-700 bg-emerald-50" />
+                        <RecapMetric label="Telat" value={s.telat} cls="text-amber-700 bg-amber-50" />
+                        <RecapMetric label="Alfa Kelas" value={s.alfa_kelas} cls="text-orange-700 bg-orange-50" />
+                        <RecapMetric label="Dispensasi" value={s.dispensasi} cls="text-violet-700 bg-violet-50" />
+                        <RecapMetric label="Alfa" value={s.alfa} cls="text-rose-700 bg-rose-50" />
+                        <RecapMetric label="Sakit" value={s.sakit} cls="text-sky-700 bg-sky-50" />
+                        <RecapMetric label="Izin" value={s.izin} cls="text-slate-600 bg-slate-50" />
+                      </div>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+                </>
               )}
             </section>
           ) : null}
@@ -219,6 +242,17 @@ function RecapCell({ value, cls }: { value: number; cls: string }) {
         <span className="text-xs text-slate-300">—</span>
       )}
     </td>
+  );
+}
+
+function RecapMetric({ label, value, cls }: { label: string; value: number; cls: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-white/70 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
+      <span className={`mt-2 inline-flex min-w-8 justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${value > 0 ? cls : "bg-slate-50 text-slate-300"}`}>
+        {value}
+      </span>
+    </div>
   );
 }
 

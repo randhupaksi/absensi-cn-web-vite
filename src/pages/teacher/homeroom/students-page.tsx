@@ -9,6 +9,11 @@ import {
   DataTableHeadRow,
   DataTablePagination,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
   SearchFilterBar,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
@@ -259,7 +264,8 @@ export function WalasStudentsPage() {
                   />
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="hidden overflow-x-auto md:block">
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Identitas", "Gender", "Status", "Telat", "Alfa", "Ringkasan", "Aksi"]} />
                     <DataTableBody>
@@ -325,6 +331,46 @@ export function WalasStudentsPage() {
                     </DataTableBody>
                   </DataTable>
                 </div>
+                <MobileDataList>
+                  {pageStudents.map((student) => (
+                    <MobileDataCard key={student.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
+                            {getInitials(student.name)}
+                          </span>
+                        }
+                        title={student.name}
+                        subtitle={student.class_name || "-"}
+                        badge={<StatusPill isActive={student.is_active} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="NIS" value={student.nis} />
+                        <MobileDataField label="NISN" value={student.nisn || "-"} />
+                        <MobileDataField label="Gender" value={formatGender(student.gender)} />
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <AttendanceMetricPill label="Hadir" value={student.present_count} tone="success" />
+                        <AttendanceMetricPill label="Telat" value={student.late_count} tone="warning" />
+                        <AttendanceMetricPill label="Alfa" value={student.alpha_count} tone="danger" />
+                        <AttendanceMetricPill label="Izin" value={student.permission_count} tone="info" />
+                        <AttendanceMetricPill label="Sakit" value={student.sick_count} tone="violet" />
+                      </div>
+                      <MobileDataFooter>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          className="rounded-[14px] border-emerald-200/80 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                          onClick={() => setSelectedStudentId(student.id)}
+                          aria-label={`Lihat detail ${student.name}`}
+                        >
+                          <Eye className="size-4" />
+                        </Button>
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+                </>
               )}
               {!studentsQuery.isLoading && !homeroomQuery.isLoading && filteredStudents.length > 0 ? (
                 <DataTablePagination {...studentsPagination} />
@@ -408,5 +454,32 @@ function CountBadge({
     >
       {value}
     </Badge>
+  );
+}
+
+function AttendanceMetricPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "success" | "warning" | "danger" | "info" | "violet";
+}) {
+  const toneClass = {
+    success: "border-emerald-100 bg-emerald-50 text-emerald-700",
+    warning: "border-amber-100 bg-amber-50 text-amber-700",
+    danger: "border-rose-100 bg-rose-50 text-rose-700",
+    info: "border-sky-100 bg-sky-50 text-sky-700",
+    violet: "border-violet-100 bg-violet-50 text-violet-700",
+  }[tone];
+
+  return (
+    <span
+      className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-semibold ${toneClass}`}
+    >
+      <span className="text-slate-500">{label}</span>
+      <span className="tabular-nums text-slate-950">{value}</span>
+    </span>
   );
 }

@@ -7,6 +7,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
+    dedupe: ["react", "react-dom", "@tanstack/react-query"],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },

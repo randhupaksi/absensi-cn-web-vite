@@ -20,6 +20,11 @@ import {
   DataTableHeadRow,
   DataTablePagination,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
   SearchFilterBar,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
@@ -222,6 +227,8 @@ export function BKStudentsPage() {
                     />
                   </div>
                 ) : (
+                  <>
+                  <div className="hidden md:block">
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Kelas", "Identitas", "Telat", "Alfa", "Izin/Sakit", "Status", "Aksi"]} />
                     <DataTableBody>
@@ -289,6 +296,63 @@ export function BKStudentsPage() {
                       ))}
                     </DataTableBody>
                   </DataTable>
+                  </div>
+                  <MobileDataList>
+                    {pageStudents.map((student) => (
+                      <MobileDataCard key={student.id}>
+                        <MobileDataHeader
+                          leading={
+                            <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
+                              {getInitials(student.name)}
+                            </span>
+                          }
+                          title={student.name}
+                          subtitle={student.nis}
+                          badge={<StatusBadge active={student.is_active} />}
+                        />
+                        <div className="mt-4 grid gap-3">
+                          <MobileDataField label="Kelas" value={student.class_name || "-"} />
+                          <MobileDataField label="Tahun Ajaran" value={student.school_year_name || "-"} />
+                          <MobileDataField label="Identitas" value={`${formatGender(student.gender)} - ${student.nisn || "-"}`} />
+                        </div>
+                        <div className="mt-4 grid grid-cols-3 gap-2">
+                          <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">Telat</p>
+                            <div className="mt-1"><CountBadge value={student.late_count} tone="warning" /></div>
+                          </div>
+                          <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-700">Alfa</p>
+                            <div className="mt-1"><CountBadge value={student.alpha_count} tone="danger" /></div>
+                          </div>
+                          <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">I/S</p>
+                            <div className="mt-1"><CountBadge value={student.permission_count + student.sick_count} tone="info" /></div>
+                          </div>
+                        </div>
+                        <MobileDataFooter>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
+                            onClick={() => setSelectedStudentId(student.id)}
+                          >
+                            <Eye className="size-4.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-2xl border border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                            onClick={() => setNoteTargetId(student.id)}
+                          >
+                            <NotebookPen className="size-4.5" />
+                          </Button>
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
+                  </>
                 )}
               </div>
               {!overviewQuery.isLoading && !overviewQuery.error && students.length > 0 ? (

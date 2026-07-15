@@ -10,6 +10,12 @@ import {
   DataTableHeadRow,
   DataTablePagination,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
@@ -296,6 +302,8 @@ export function WalasSubmissionsPage() {
                     />
                   </div>
                 ) : (
+                  <>
+                  <div className="hidden md:block">
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Pengajuan", "Waktu", "Status", "Lampiran", "Catatan", "Aksi"]} />
                     <DataTableBody>
@@ -375,6 +383,60 @@ export function WalasSubmissionsPage() {
                       ))}
                     </DataTableBody>
                   </DataTable>
+                  </div>
+                  <MobileDataList>
+                    {pageRecords.map((record) => (
+                      <MobileDataCard key={record.id}>
+                        <MobileDataHeader
+                          title={record.student_name}
+                          subtitle={`${record.nis} - ${record.class_name || "Kelas belum tersambung"}`}
+                          badge={<SubmissionStatusPill status={record.status} />}
+                        />
+                        <div className="mt-4 grid gap-3">
+                          <MobileDataField label="Tipe" value={<SubmissionTypePill type={record.type} />} />
+                          <MobileDataField label="Tanggal" value={formatDate(record.created_at)} />
+                          <MobileDataField label="Update" value={formatDateTime(record.updated_at)} />
+                        </div>
+                        <MobileDataSection label="Alasan">
+                          <p className="text-sm leading-6 text-slate-600">{record.reason}</p>
+                        </MobileDataSection>
+                        <MobileDataSection label="Catatan Walas">
+                          <p className="text-sm leading-6 text-slate-600">{record.review_note || "Belum ada tanggapan walas"}</p>
+                        </MobileDataSection>
+                        <MobileDataFooter>
+                          {record.attachment ? (
+                            <button
+                              type="button"
+                              onClick={() => openSubmissionAttachment(record.attachment)}
+                              className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-100"
+                            >
+                              <FileImage className="size-3.5" />
+                              Buka
+                            </button>
+                          ) : null}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                            onClick={() => setDetailTarget(record)}
+                          >
+                            <Eye className="size-4.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-10 rounded-2xl border border-slate-200 text-slate-600 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                            onClick={() => setReviewTarget(record)}
+                          >
+                            <PencilLine className="size-4.5" />
+                          </Button>
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
+                  </>
                 )}
               </div>
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (

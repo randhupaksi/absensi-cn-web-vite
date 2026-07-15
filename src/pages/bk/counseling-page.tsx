@@ -21,6 +21,12 @@ import {
   DataTableHeadRow,
   DataTablePagination,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
@@ -249,7 +255,8 @@ export function BKCounselingPage() {
                   <EmptyState icon={BookHeart} title="Belum ada catatan konseling" description="Tambah catatan BK atau ubah filter untuk melihat histori pembinaan." />
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="hidden overflow-x-auto md:block">
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Catatan", "Kelas", "Dibuat Oleh", "Waktu", "Aksi"]} />
                     <DataTableBody>
@@ -285,6 +292,36 @@ export function BKCounselingPage() {
                     </DataTableBody>
                   </DataTable>
                 </div>
+                <MobileDataList>
+                  {pageRecords.map((record) => (
+                    <MobileDataCard key={record.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-sm font-semibold text-emerald-800">
+                            {getInitials(record.student_name)}
+                          </span>
+                        }
+                        title={record.student_name}
+                        subtitle={record.nis}
+                        badge={<span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">BK</span>}
+                      />
+                      <MobileDataSection label={record.title}>
+                        <p className="text-sm leading-6 text-slate-600">{record.note}</p>
+                      </MobileDataSection>
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Kelas" value={record.class_name || "-"} />
+                        <MobileDataField label="Dibuat Oleh" value={record.created_by_name || "-"} />
+                        <MobileDataField label="Waktu" value={formatDateTime(record.created_at)} />
+                      </div>
+                      <MobileDataFooter>
+                        <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
+                        <IconAction icon={Edit3} onClick={() => setEditTarget(record)} tone="sky" />
+                        <IconAction icon={Trash2} onClick={() => setDeleteTarget(record)} tone="rose" disabled={deleteMutation.isPending} />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+                </>
               )}
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />

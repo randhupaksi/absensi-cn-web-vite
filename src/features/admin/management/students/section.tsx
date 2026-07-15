@@ -11,6 +11,11 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
   SearchFilterBar,
   SectionTabSwitch,
   StatCard,
@@ -531,7 +536,49 @@ export function StudentSection({
         </div>
 
           <TabsContent value="profiles" className="mt-4">
-            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredStudents.length === 0} emptyTitle="Belum ada siswa" emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini." icon={UsersRound} pagination={studentsPagination}>
+            <DataTableCard
+              isLoading={isLoading}
+              columnCount={6}
+              isEmpty={filteredStudents.length === 0}
+              emptyTitle="Belum ada siswa"
+              emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini."
+              icon={UsersRound}
+              pagination={studentsPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageStudents.map((student) => {
+                    const activeMembership = memberships.find((membership) => membership.student_id === student.id && membership.is_active);
+                    return (
+                      <MobileDataCard key={student.id}>
+                        <MobileDataHeader
+                          leading={
+                            <span className="flex size-10 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                              {getInitials(student.name)}
+                            </span>
+                          }
+                          title={student.name}
+                          subtitle={student.user_id}
+                          badge={<StatusBadge isActive={student.is_active} />}
+                        />
+                        <div className="mt-4 space-y-3">
+                          <MobileDataField label="NIS" value={student.nis} />
+                          <MobileDataField label="NISN" value={student.nisn || "-"} />
+                          <MobileDataField label="Kelas Aktif" value={activeMembership?.class_name || "Belum ditempatkan"} />
+                          <MobileDataField label="Gender" value={formatGender(student.gender)} />
+                        </div>
+                        <MobileDataFooter>
+                          <ActionButtons
+                            onEdit={() => setEditingStudent(student)}
+                            onDelete={() => setDeleteTarget({ type: "profile", item: student })}
+                            isDeletePending={deleteStudentMutation.isPending}
+                          />
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    );
+                  })}
+                </MobileDataList>
+              }
+            >
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "NIS / NISN", "Kelas Aktif", "Gender", "Status", "Aksi"]} />
                 <DataTableBody>
@@ -576,7 +623,46 @@ export function StudentSection({
           </TabsContent>
 
           <TabsContent value="memberships" className="mt-4">
-            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredMemberships.length === 0} emptyTitle="Belum ada penempatan kelas" emptyDescription="Riwayat kelas siswa per tahun ajaran akan tampil di sini." icon={GraduationCap} pagination={membershipsPagination}>
+            <DataTableCard
+              isLoading={isLoading}
+              columnCount={6}
+              isEmpty={filteredMemberships.length === 0}
+              emptyTitle="Belum ada penempatan kelas"
+              emptyDescription="Riwayat kelas siswa per tahun ajaran akan tampil di sini."
+              icon={GraduationCap}
+              pagination={membershipsPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageMemberships.map((membership) => (
+                    <MobileDataCard key={membership.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-xs font-semibold text-emerald-700">
+                            {getInitials(membership.student_name)}
+                          </span>
+                        }
+                        title={membership.student_name}
+                        subtitle={membership.nis}
+                        badge={<MembershipStatusBadge status={membership.status} />}
+                      />
+                      <div className="mt-4 space-y-3">
+                        <MobileDataField label="Kelas" value={membership.class_name} />
+                        <MobileDataField label="Tahun Ajaran" value={membership.school_year_name} />
+                        <MobileDataField label="Masuk" value={formatDateTime(membership.joined_at)} />
+                        <MobileDataField label="Keluar" value={formatDateTime(membership.left_at)} />
+                      </div>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingMembership(membership)}
+                          onDelete={() => setDeleteTarget({ type: "membership", item: membership })}
+                          isDeletePending={deleteMembershipMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
+            >
               <DataTable>
                 <DataTableHeadRow labels={["Siswa", "Kelas", "Tahun Ajaran", "Status", "Waktu", "Aksi"]} />
                 <DataTableBody>
@@ -614,7 +700,54 @@ export function StudentSection({
           </TabsContent>
 
           <TabsContent value="rules" className="mt-4">
-            <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredRules.length === 0} emptyTitle="Belum ada aturan absensi" emptyDescription="Rule jam hadir, telat, dan cutoff alfa akan muncul di tabel ini." icon={TimerReset} pagination={rulesPagination}>
+            <DataTableCard
+              isLoading={isLoading}
+              columnCount={6}
+              isEmpty={filteredRules.length === 0}
+              emptyTitle="Belum ada aturan absensi"
+              emptyDescription="Rule jam hadir, telat, dan cutoff alfa akan muncul di tabel ini."
+              icon={TimerReset}
+              pagination={rulesPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageRules.map((rule) => (
+                    <MobileDataCard key={rule.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-emerald-700">
+                            <TimerReset className="size-4" />
+                          </span>
+                        }
+                        title={rule.school_year}
+                        subtitle="Window absensi harian"
+                        badge={<StatusBadge isActive={rule.is_active} />}
+                      />
+                      <div className="mt-4 grid grid-cols-3 gap-2">
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Mulai</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-900">{rule.check_in_start}</p>
+                        </div>
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Tepat</p>
+                          <p className="mt-1 text-sm font-semibold text-emerald-700">{rule.on_time_until}</p>
+                        </div>
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Telat</p>
+                          <p className="mt-1 text-sm font-semibold text-amber-700">{rule.late_until}</p>
+                        </div>
+                      </div>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingRule(rule)}
+                          onDelete={() => setDeleteTarget({ type: "rule", item: rule })}
+                          isDeletePending={deleteRuleMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
+            >
               <DataTable>
                 <DataTableHeadRow labels={["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Telat", "Status", "Aksi"]} />
                 <DataTableBody>

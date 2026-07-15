@@ -10,6 +10,11 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
   SearchFilterBar,
   SectionTabSwitch,
   StatCard,
@@ -223,7 +228,45 @@ export function UserSection({
 
           {(["all", "admins", "teachers"] as UserTab[]).map((tab) => (
             <TabsContent key={tab} value={tab} className="mt-4">
-              <DataTableCard isLoading={isLoading} columnCount={6} isEmpty={filteredUsers.length === 0} emptyTitle="Belum ada role staff" emptyDescription="Tambahkan administrator di sini atau akun guru dari workspace Guru." icon={ShieldCheck} pagination={usersPagination}>
+              <DataTableCard
+                isLoading={isLoading}
+                columnCount={6}
+                isEmpty={filteredUsers.length === 0}
+                emptyTitle="Belum ada role staff"
+                emptyDescription="Tambahkan administrator di sini atau akun guru dari workspace Guru."
+                icon={ShieldCheck}
+                pagination={usersPagination}
+                mobileView={
+                  <MobileDataList>
+                    {pageUsers.map((user) => (
+                      <MobileDataCard key={user.id}>
+                        <MobileDataHeader
+                          leading={
+                            <span className="flex size-10 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                              {getInitials(user.name)}
+                            </span>
+                          }
+                          title={user.name}
+                          subtitle={user.id}
+                          badge={<UserRoleBadge role={user.role} />}
+                        />
+                        <div className="mt-4 space-y-3">
+                          <MobileDataField label="Username" value={user.username || "-"} />
+                          <MobileDataField label="Identifier" value={user.username || user.nis || "-"} />
+                          <MobileDataField label="Akses" value={roleDescription(user.role)} />
+                        </div>
+                        <MobileDataFooter>
+                          <ActionButtons
+                            onEdit={() => setEditingUser(user)}
+                            onDelete={() => setDeleteTarget(user)}
+                            isDeletePending={deleteUserMutation.isPending}
+                          />
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
+                }
+              >
                 <DataTable>
                   <DataTableHeadRow labels={["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"]} />
                   <DataTableBody>

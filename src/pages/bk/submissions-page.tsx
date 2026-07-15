@@ -21,6 +21,12 @@ import {
   DataTablePagination,
   DataTableRow,
   usePagination,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
 } from "@/features/admin/management/shared/section-ui";
 import { StaffShell } from "@/features/staff/components/shell";
@@ -215,7 +221,8 @@ export function BKSubmissionsPage() {
                   <EmptyState icon={FileSearch} title="Belum ada pengajuan" description="Ubah filter untuk melihat pengajuan siswa lintas kelas." />
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="hidden overflow-x-auto md:block">
                   <DataTable>
                     <DataTableHeadRow labels={["Siswa", "Pengajuan", "Kelas", "Waktu", "Status", "Lampiran", "Aksi"]} />
                     <DataTableBody>
@@ -255,6 +262,35 @@ export function BKSubmissionsPage() {
                     </DataTableBody>
                   </DataTable>
                 </div>
+                <MobileDataList>
+                  {pageRecords.map((record) => (
+                    <MobileDataCard key={record.id}>
+                      <MobileDataHeader
+                        title={record.student_name}
+                        subtitle={`${record.nis} - ${record.class_name || "-"}`}
+                        badge={<SubmissionStatusPill status={record.status} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Tipe" value={<SubmissionTypePill type={record.type} />} />
+                        <MobileDataField label="Waktu" value={formatDateTime(record.created_at)} />
+                      </div>
+                      <MobileDataSection label="Alasan">
+                        <p className="text-sm leading-6 text-slate-600">{record.reason}</p>
+                      </MobileDataSection>
+                      <MobileDataFooter>
+                        {record.attachment ? (
+                          <Button type="button" variant="outline" className="h-10 rounded-2xl px-3 text-xs" onClick={() => openAttachment(record.attachment)}>
+                            <FileImage className="size-3.5" />
+                            Buka
+                          </Button>
+                        ) : null}
+                        <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
+                        <IconAction icon={PencilLine} onClick={() => setReviewTarget(record)} tone="sky" />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+                </>
               )}
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />

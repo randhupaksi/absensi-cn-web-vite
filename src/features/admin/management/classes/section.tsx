@@ -10,6 +10,11 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
   SearchFilterBar,
   StatCard,
   usePagination,
@@ -236,6 +241,58 @@ export function ClassManagementSection({
             emptyDescription="Coba ubah pencarian, filter status, atau tambahkan kelas baru."
             icon={Building2}
             pagination={classesPagination}
+            mobileView={
+              <MobileDataList>
+                {pageClasses.map((item) => (
+                  <MobileDataCard key={item.id}>
+                    <MobileDataHeader
+                      leading={
+                        <span className="flex size-10 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                          {item.grade}
+                        </span>
+                      }
+                      title={item.display_name}
+                      subtitle={`${item.major_code} - ${item.school_year_name}`}
+                      badge={
+                        <Badge variant="outline" className={item.is_active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"}>
+                          {item.is_active ? "Aktif" : "Nonaktif"}
+                        </Badge>
+                      }
+                    />
+                    <div className="mt-4 space-y-3">
+                      <MobileDataField label="Jurusan" value={item.major_name} />
+                      <MobileDataField
+                        label="Walas"
+                        value={
+                          item.homeroom_teacher_name ? (
+                            <span className="text-emerald-700">{item.homeroom_teacher_name}</span>
+                          ) : (
+                            <span className="text-amber-700">Belum Ada</span>
+                          )
+                        }
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Siswa</p>
+                          <p className="mt-1 text-lg font-semibold text-slate-900">{item.student_count}</p>
+                        </div>
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Mapel</p>
+                          <p className="mt-1 text-lg font-semibold text-slate-900">{item.subject_assignment_count}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <MobileDataFooter>
+                      <ActionButtons
+                        onEdit={() => setEditingClass(item)}
+                        onDelete={() => setDeleteTarget(item)}
+                        isDeletePending={deleteMutation.isPending}
+                      />
+                    </MobileDataFooter>
+                  </MobileDataCard>
+                ))}
+              </MobileDataList>
+            }
           >
             <DataTable>
               <DataTableHeadRow labels={["Kelas", "Jurusan", "Tahun Ajaran", "Walas", "Siswa", "Mapel", "Status", "Aksi"]} />

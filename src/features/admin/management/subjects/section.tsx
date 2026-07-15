@@ -10,6 +10,12 @@ import {
   DataTableCell,
   DataTableHeadRow,
   DataTableRow,
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
   SearchFilterBar,
   SectionTabSwitch,
   StatCard,
@@ -447,6 +453,45 @@ export function SubjectManagementSection({
               emptyDescription="Tambahkan master mapel baru atau ubah filter pencarian."
               icon={BookOpenCheck}
               pagination={subjectsPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageSubjects.map((subject) => (
+                    <MobileDataCard key={subject.id}>
+                      <MobileDataHeader
+                        leading={
+                          <Badge variant="outline" className="border-slate-200 bg-slate-50 font-mono text-xs text-slate-600">
+                            {subject.code}
+                          </Badge>
+                        }
+                        title={subject.name}
+                        subtitle={subject.group || "Tanpa kelompok"}
+                        badge={<StatusBadge isActive={subject.is_active} />}
+                      />
+                      <div className="mt-4 grid grid-cols-3 gap-2">
+                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700">Guru</p>
+                          <p className="mt-1 text-lg font-semibold text-slate-950">{subject.teacher_count}</p>
+                        </div>
+                        <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700">Kelas</p>
+                          <p className="mt-1 text-lg font-semibold text-slate-950">{subject.class_count}</p>
+                        </div>
+                        <div className="rounded-2xl border border-violet-100 bg-violet-50/60 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-700">Slot</p>
+                          <p className="mt-1 text-lg font-semibold text-slate-950">{subject.schedule_count}</p>
+                        </div>
+                      </div>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingSubject(subject)}
+                          onDelete={() => setDeleteSubjectTarget(subject)}
+                          isDeletePending={deleteSubjectMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Kode", "Mata Pelajaran", "Guru", "Kelas", "Slot Jadwal", "Status", "Aksi"]} />
@@ -492,6 +537,46 @@ export function SubjectManagementSection({
               emptyDescription="Tambahkan penempatan guru dan slot jadwal, atau ubah filter pencarian."
               icon={CalendarClock}
               pagination={assignmentsPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageAssignments.map((assignment) => (
+                    <MobileDataCard key={assignment.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700">
+                            {getInitials(assignment.teacher_name)}
+                          </span>
+                        }
+                        title={assignment.teacher_name}
+                        subtitle={`${assignment.subject_code} - ${assignment.subject_name}`}
+                        badge={<StatusBadge isActive={assignment.is_active} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Kelas" value={assignment.class_name} />
+                        <MobileDataField label="Tahun Ajaran" value={assignment.school_year_name} />
+                      </div>
+                      <MobileDataSection label="Status Jadwal">
+                        {assignment.schedules.length > 0 ? (
+                          <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                            Sudah dijadwalkan
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-rose-100 bg-rose-50 text-rose-600">
+                            Belum dijadwalkan
+                          </Badge>
+                        )}
+                      </MobileDataSection>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingAssignment(assignment)}
+                          onDelete={() => setDeleteAssignmentTarget(assignment)}
+                          isDeletePending={deleteAssignmentMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Kelas", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
@@ -550,6 +635,35 @@ export function SubjectManagementSection({
               emptyDescription="Tambahkan ruang yang dapat dipakai jadwal."
               icon={DoorOpen}
               pagination={roomsPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageRooms.map((item) => (
+                    <MobileDataCard key={item.id}>
+                      <MobileDataHeader
+                        leading={
+                          <span className="flex size-11 items-center justify-center rounded-full bg-emerald-50 font-mono text-xs font-semibold text-emerald-700">
+                            {item.code}
+                          </span>
+                        }
+                        title={item.name}
+                        subtitle={item.room_type}
+                        badge={<Pill>{item.school_unit_code}</Pill>}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField label="Kapasitas" value={item.capacity} />
+                        <MobileDataField label="Unit" value={item.school_unit_code} />
+                      </div>
+                      <MobileDataFooter>
+                        <ActionButtons
+                          onEdit={() => setEditingRoom(item)}
+                          onDelete={() => setDeleteRoomTarget(item)}
+                          isDeletePending={deleteRoomMutation.isPending}
+                        />
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  ))}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Kode", "Nama", "Unit", "Tipe", "Kapasitas", "Aksi"]} />
@@ -585,6 +699,34 @@ export function SubjectManagementSection({
               emptyDescription="Jadwal normal tetap berlaku selama tidak ada override."
               icon={CalendarSync}
               pagination={overridesPagination}
+              mobileView={
+                <MobileDataList>
+                  {pageOverrides.map((item) => {
+                    const schedule = schedules.find((x) => x.id === item.schedule_id);
+                    return (
+                      <MobileDataCard key={item.id}>
+                        <MobileDataHeader
+                          title={schedule?.subject_code ?? "Jadwal"}
+                          subtitle={schedule?.class_name ?? item.schedule_id}
+                          badge={<StatusBadge isActive={item.status === "ACTIVE"} />}
+                        />
+                        <div className="mt-4 grid gap-3">
+                          <MobileDataField label="Tanggal Asal" value={item.original_date} />
+                          <MobileDataField label="Jenis" value={<Pill>{item.override_type}</Pill>} />
+                          <MobileDataField label="Pengganti" value={item.replacement_date || item.replacement_room_id || item.substitute_teacher_id || "-"} />
+                        </div>
+                        <MobileDataFooter>
+                          <ActionButtons
+                            onEdit={() => setEditingOverride(item)}
+                            onDelete={() => setDeleteOverrideTarget(item)}
+                            isDeletePending={deleteOverrideMutation.isPending}
+                          />
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    );
+                  })}
+                </MobileDataList>
+              }
             >
               <DataTable>
                 <DataTableHeadRow labels={["Jadwal", "Tanggal Asal", "Jenis", "Pengganti", "Status", "Aksi"]} />

@@ -1,6 +1,13 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import {
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+} from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { KoreksiModal } from "@/features/teacher/subject/components/session-modals";
 import { Button } from "@/components/ui/button";
@@ -256,7 +263,8 @@ export function MapelSessionPage() {
                 ) : records.length === 0 ? (
                   <EmptyState icon={Users} title="Belum ada data siswa" description="Pastikan siswa terdaftar di kelas ini." />
                 ) : (
-                  <div className="overflow-x-auto">
+                  <>
+                  <div className="hidden overflow-x-auto md:block">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -334,6 +342,89 @@ export function MapelSessionPage() {
                       </tbody>
                     </table>
                   </div>
+                  <MobileDataList>
+                    {records.map((r) => {
+                      const effective = pendingOverrides[r.student_id] ?? r.status_mapel;
+                      return (
+                        <MobileDataCard key={r.student_id}>
+                          <MobileDataHeader
+                            title={
+                              <span className="inline-flex items-center gap-2">
+                                {r.student_name}
+                                {r.is_edited ? (
+                                  <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+                                    EDIT
+                                  </span>
+                                ) : null}
+                              </span>
+                            }
+                            subtitle={r.nis}
+                            badge={
+                              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_MAPEL_CLS[effective] ?? "bg-slate-100 text-slate-600"}`}>
+                                {STATUS_LABELS[effective] ?? effective}
+                              </span>
+                            }
+                          />
+                          <div className="mt-4 grid gap-3">
+                            <MobileDataField
+                              label="Status Pagi"
+                              value={
+                                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_PAGI_CLS[r.status_pagi] ?? "bg-slate-100 text-slate-600"}`}>
+                                  {STATUS_LABELS[r.status_pagi] ?? r.status_pagi}
+                                </span>
+                              }
+                            />
+                            <MobileDataField
+                              label="Status Mapel"
+                              value={
+                                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_MAPEL_CLS[effective] ?? "bg-slate-100 text-slate-600"}`}>
+                                  {STATUS_LABELS[effective] ?? effective}
+                                </span>
+                              }
+                            />
+                          </div>
+                          <MobileDataFooter>
+                            {isValidated ? (
+                              r.is_editable ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setKoreksiTarget(r);
+                                    setKoreksiStatus(r.status_mapel);
+                                    setKoreksiAlasan("");
+                                  }}
+                                  className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                                >
+                                  Koreksi
+                                </button>
+                              ) : (
+                                <span className="text-xs text-slate-400">Terkunci</span>
+                              )
+                            ) : r.is_editable ? (
+                              <select
+                                value={pendingOverrides[r.student_id] ?? r.status_mapel}
+                                onChange={(e) =>
+                                  setPendingOverrides((prev) => ({
+                                    ...prev,
+                                    [r.student_id]: e.target.value,
+                                  }))
+                                }
+                                className="h-10 rounded-2xl border border-slate-200 bg-white px-3 text-xs text-slate-800 focus:border-emerald-400 focus:outline-none"
+                              >
+                                <option value="hadir">Hadir</option>
+                                <option value="telat">Telat</option>
+                                <option value="alfa_kelas">Alfa Kelas</option>
+                                <option value="dispensasi">Dispensasi</option>
+                              </select>
+                            ) : (
+                              <span className="text-xs text-slate-400">Terkunci</span>
+                            )}
+                          </MobileDataFooter>
+                        </MobileDataCard>
+                      );
+                    })}
+                  </MobileDataList>
+                  </>
                 )}
 
                 {validateMutation.isError && (

@@ -1,6 +1,14 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import {
+  MobileDataCard,
+  MobileDataField,
+  MobileDataFooter,
+  MobileDataHeader,
+  MobileDataList,
+  MobileDataSection,
+} from "@/features/admin/management/shared/section-ui";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StudentShell } from "@/features/student/components/shell";
 import {
@@ -181,7 +189,8 @@ export function StudentHistoryPage() {
             </div>
 
             {records.length > 0 ? (
-              <div className="mt-5 overflow-x-auto rounded-[1.45rem] border border-emerald-100">
+              <>
+              <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block">
                 <div className="min-w-[560px]">
                   <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 bg-emerald-50 px-5 py-4 text-sm font-semibold text-slate-700">
                     <span>Aktivitas</span>
@@ -199,6 +208,18 @@ export function StudentHistoryPage() {
                   )}
                 </div>
               </div>
+              <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100">
+                <MobileDataList>
+                  {records.map((item) =>
+                    item.kind === "attendance" ? (
+                      <MobileAttendanceCard key={item.id} record={item.record} />
+                    ) : (
+                      <MobileSubmissionCard key={item.id} submission={item.submission} />
+                    ),
+                  )}
+                </MobileDataList>
+              </div>
+              </>
             ) : (
               <div className="mt-5 rounded-[1.45rem] border border-emerald-100 p-5">
                 <EmptyState
@@ -259,6 +280,40 @@ function AttendanceRow({ record }: { record: StaffAttendanceRecord }) {
   );
 }
 
+function MobileAttendanceCard({ record }: { record: StaffAttendanceRecord }) {
+  return (
+    <MobileDataCard>
+      <MobileDataHeader
+        title="Absensi Harian"
+        subtitle={formatStudentDate(record.attendance_date)}
+        badge={<StudentStatusPill status={record.status} />}
+      />
+      <div className="mt-4 grid gap-3">
+        <MobileDataField label="Waktu" value={formatStudentTime(record.check_in_at)} />
+        <MobileDataField label="Validasi" value={record.verified_at ? "Sudah direview" : "Menunggu"} />
+      </div>
+      <MobileDataSection label="Catatan">
+        <p className="text-sm leading-6 text-slate-600">
+          {record.notes || record.verification_note || "Record absensi siswa"}
+        </p>
+      </MobileDataSection>
+      {record.photo_url ? (
+        <MobileDataFooter>
+          <button
+            type="button"
+            onClick={() => void openProtectedApiAsset(record.photo_url!)}
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            aria-label="Buka bukti absensi"
+          >
+            <FileImage className="size-4.5" />
+            Bukti
+          </button>
+        </MobileDataFooter>
+      ) : null}
+    </MobileDataCard>
+  );
+}
+
 function SubmissionRow({ submission }: { submission: StudentSubmission }) {
   return (
     <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
@@ -299,5 +354,38 @@ function SubmissionRow({ submission }: { submission: StudentSubmission }) {
         )}
       </div>
     </div>
+  );
+}
+
+function MobileSubmissionCard({ submission }: { submission: StudentSubmission }) {
+  return (
+    <MobileDataCard>
+      <MobileDataHeader
+        title="Pengajuan"
+        subtitle={formatStudentDateTime(submission.created_at)}
+        badge={<StudentSubmissionPill value={submission.status} />}
+      />
+      <div className="mt-4 grid gap-3">
+        <MobileDataField label="Tipe" value={<StudentSubmissionPill value={submission.type} />} />
+        <MobileDataField label="Validasi" value={submission.review_note || submission.reviewed_by_name || "-"} />
+      </div>
+      <MobileDataSection label="Alasan">
+        <p className="text-sm leading-6 text-slate-600">{submission.reason}</p>
+      </MobileDataSection>
+      {submission.attachment ? (
+        <MobileDataFooter>
+          <a
+            href={studentAttachmentUrl(submission.attachment)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            aria-label="Buka lampiran pengajuan"
+          >
+            <FileImage className="size-4.5" />
+            Lampiran
+          </a>
+        </MobileDataFooter>
+      ) : null}
+    </MobileDataCard>
   );
 }
