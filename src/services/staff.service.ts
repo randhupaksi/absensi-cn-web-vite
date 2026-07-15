@@ -91,6 +91,8 @@ export async function getTeacherHomeroomStudentDetail(studentId: string) {
 
 export async function getTeacherHomeroomAttendanceOverview(params: {
   date?: string;
+  date_from?: string;
+  date_to?: string;
   status?: string;
   query?: string;
 }) {

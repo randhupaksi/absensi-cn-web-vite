@@ -18,11 +18,9 @@ import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/s
 import { getTeacherHomeroomAttendanceOverview } from "@/services/staff.service";
 import type { StaffAttendanceRecord, StaffHomeroomContext } from "@/types/staff";
 import { Activity, ArrowUpDown, CalendarClock, ListChecks, Printer } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { id as localeID } from "date-fns/locale";
 import { toast } from "sonner";
-
-// ─── helpers ──────────────────────────────────────────────────────────────────
 
 function toDateInputValue(d: Date) {
   const y = d.getFullYear();
@@ -33,7 +31,7 @@ function toDateInputValue(d: Date) {
 
 function parseDateValue(v: string): Date | undefined {
   if (!v) return undefined;
-  const d = new Date(v + "T00:00:00");
+  const d = new Date(`${v}T00:00:00`);
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
@@ -46,12 +44,15 @@ function formatDisplayDate(v: string) {
 const todayStr = () => toDateInputValue(new Date());
 const todayDisplay = () => formatDisplayDate(todayStr());
 
-// ─── PDF generator ────────────────────────────────────────────────────────────
-
 type DateMode = "today" | "specific" | "range";
+type ReportType = "daily" | "cumulative";
 type StatusFilter = "Semua" | "hadir" | "telat" | "alfa" | "izin" | "sakit";
-type SortBy = "name" | "nis" | "status" | "checkin";
-type Columns = { nis: boolean; status: boolean; checkin: boolean; catatan: boolean };
+type SortBy = "name" | "nis" | "status" | "checkin" | "h" | "i" | "s" | "a";
+type Columns = { nis: boolean; status: boolean; checkin: boolean };
+type CumulativeColumns = { nis: boolean };
+type CumulativeRow = { student_id: string; student_name: string; nis: string; h: number; i: number; s: number; a: number };
+type ReportTableCell = string | { content: string; colSpan?: number; styles?: Record<string, unknown> };
+type SortOption = { value: SortBy; label: string };
 
 const STATUS_LABELS: Record<StatusFilter, string> = {
   Semua: "Semua Status",
@@ -62,7 +63,7 @@ const STATUS_LABELS: Record<StatusFilter, string> = {
   sakit: "Sakit",
 };
 
-async function generateWalasAbsensiPdf(
+async function generateDailyWalasAbsensiPdf(
   records: StaffAttendanceRecord[],
   homeroom: StaffHomeroomContext,
   periodeLabel: string,
@@ -81,6 +82,7 @@ async function generateWalasAbsensiPdf(
     subtitle: "Laporan Wali Kelas",
   });
   const pills = [
+    "Tipe: Periodik per hari",
     `Kelas: ${homeroom.class_name}`,
     `Periode: ${periodeLabel}`,
     `Status: ${statusLabel}`,
@@ -93,19 +95,19 @@ async function generateWalasAbsensiPdf(
   if (columns.nis) head[0].push("NIS");
   if (columns.status) head[0].push("Status");
   if (columns.checkin) head[0].push("Check-in");
-  if (columns.catatan) head[0].push("Catatan");
 
-  const body = records.map((r, i) => {
-    const tanggal = r.attendance_date
-      ? new Date(r.attendance_date + "T00:00:00").toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
-      : "—";
-    const row: string[] = [String(i + 1), r.student_name, tanggal];
-    if (columns.nis) row.push(r.nis);
-    if (columns.status) row.push(r.status ? r.status.charAt(0).toUpperCase() + r.status.slice(1).toLowerCase() : "—");
-    if (columns.checkin) {
-      row.push(r.check_in_at ? new Date(r.check_in_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "—");
+  const body = records.map((record, index) => {
+    const tanggal = record.attendance_date
+      ? new Date(`${record.attendance_date}T00:00:00`).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+      : "-";
+    const row: string[] = [String(index + 1), record.student_name, tanggal];
+    if (columns.nis) row.push(record.nis);
+    if (columns.status) {
+      row.push(record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1).toLowerCase() : "-");
     }
-    if (columns.catatan) row.push((r as unknown as Record<string, string>).verification_note ?? "—");
+    if (columns.checkin) {
+      row.push(record.check_in_at ? new Date(record.check_in_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "-");
+    }
     return row;
   });
 
@@ -117,12 +119,156 @@ async function generateWalasAbsensiPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Laporan Absensi Kelas — ${homeroom.class_name} — ABSENSI CN`);
-
+  drawReportPdfFooter(doc, `Laporan Absensi Kelas - ${homeroom.class_name} - ABSENSI CN`);
   doc.save(`Laporan-Walas-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
-// ─── Modal ────────────────────────────────────────────────────────────────────
+async function generateCumulativeWalasAbsensiPdf(
+  rows: CumulativeRow[],
+  homeroom: StaffHomeroomContext,
+  periodeLabel: string,
+  sortLabel: string,
+  columns: CumulativeColumns,
+) {
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  applyPdfCreditMetadata(doc, "Laporan Walas Rekap Absensi");
+  const mx = REPORT_PDF_MARGIN_X;
+  const { metaY } = drawReportPdfHeader(doc, {
+    title: "REKAP ABSENSI KELAS",
+    subtitle: "Laporan Akumulatif Wali Kelas",
+  });
+  const pills = [
+    "Tipe: Rekap akumulatif",
+    `Kelas: ${homeroom.class_name}`,
+    `Periode: ${periodeLabel}`,
+    `Total: ${rows.length} siswa`,
+    `Urutan: ${sortLabel}`,
+  ];
+  drawReportPdfPills(doc, pills, metaY);
+
+  const head: string[][] = [["No", "Nama Siswa"]];
+  if (columns.nis) head[0].push("NIS");
+  head[0].push("H", "I", "S", "A");
+
+  const totals = rows.reduce(
+    (acc, row) => ({
+      h: acc.h + row.h,
+      i: acc.i + row.i,
+      s: acc.s + row.s,
+      a: acc.a + row.a,
+    }),
+    { h: 0, i: 0, s: 0, a: 0 },
+  );
+
+  const body: ReportTableCell[][] = rows.map((row, index) => {
+    const cells: ReportTableCell[] = [String(index + 1), row.student_name];
+    if (columns.nis) cells.push(row.nis);
+    cells.push(
+      { content: String(row.h), styles: { halign: "center" } },
+      { content: String(row.i), styles: { halign: "center" } },
+      { content: String(row.s), styles: { halign: "center" } },
+      { content: String(row.a), styles: { halign: "center" } },
+    );
+    return cells;
+  });
+  body.push([
+    {
+      content: "Total Akumulatif",
+      colSpan: columns.nis ? 3 : 2,
+      styles: {
+        fillColor: [236, 253, 245],
+        fontStyle: "bold",
+        halign: "center",
+        textColor: [6, 78, 59],
+      },
+    },
+    { content: String(totals.h), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
+    { content: String(totals.i), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
+    { content: String(totals.s), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
+    { content: String(totals.a), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
+  ]);
+
+  autoTable(doc, {
+    head,
+    body,
+    startY: metaY + 8,
+    margin: { left: mx, right: mx },
+    ...REPORT_TABLE_STYLE,
+  });
+
+  drawReportPdfFooter(doc, `Rekap Absensi Kelas - ${homeroom.class_name} - ABSENSI CN`);
+  doc.save(`Laporan-Walas-Rekap-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+function buildCumulativeRows(records: StaffAttendanceRecord[]) {
+  const rowsByStudent = new Map<string, CumulativeRow>();
+
+  records.forEach((record) => {
+    const row = rowsByStudent.get(record.student_id) ?? {
+      student_id: record.student_id,
+      student_name: record.student_name,
+      nis: record.nis,
+      h: 0,
+      i: 0,
+      s: 0,
+      a: 0,
+    };
+
+    switch (record.status?.toLowerCase()) {
+      case "hadir":
+      case "telat":
+        row.h += 1;
+        break;
+      case "izin":
+        row.i += 1;
+        break;
+      case "sakit":
+        row.s += 1;
+        break;
+      case "alfa":
+        row.a += 1;
+        break;
+    }
+    rowsByStudent.set(record.student_id, row);
+  });
+
+  return Array.from(rowsByStudent.values());
+}
+
+function getDailySortOptions(columns: Columns): SortOption[] {
+  return [
+    { value: "name", label: "Nama (A-Z)" },
+    ...(columns.nis ? [{ value: "nis" as const, label: "NIS" }] : []),
+    ...(columns.status ? [{ value: "status" as const, label: "Status" }] : []),
+    ...(columns.checkin ? [{ value: "checkin" as const, label: "Waktu check-in" }] : []),
+  ];
+}
+
+function getCumulativeSortOptions(columns: CumulativeColumns): SortOption[] {
+  return [
+    { value: "name", label: "Nama (A-Z)" },
+    ...(columns.nis ? [{ value: "nis" as const, label: "NIS" }] : []),
+    { value: "h", label: "Hadir terbanyak" },
+    { value: "i", label: "Izin terbanyak" },
+    { value: "s", label: "Sakit terbanyak" },
+    { value: "a", label: "Alfa terbanyak" },
+  ];
+}
+
+function getSortLabel(sortBy: SortBy | null) {
+  if (sortBy === "name") return "Nama (A-Z)";
+  if (sortBy === "nis") return "NIS";
+  if (sortBy === "status") return "Status";
+  if (sortBy === "checkin") return "Waktu Check-in";
+  if (sortBy === "h") return "Hadir terbanyak";
+  if (sortBy === "i") return "Izin terbanyak";
+  if (sortBy === "s") return "Sakit terbanyak";
+  if (sortBy === "a") return "Alfa terbanyak";
+  return "-";
+}
 
 type Props = {
   open: boolean;
@@ -131,6 +277,7 @@ type Props = {
 };
 
 export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props) {
+  const [reportType, setReportType] = useState<ReportType | null>(null);
   const [dateMode, setDateMode] = useState<DateMode | null>(null);
   const [specificDate, setSpecificDate] = useState("");
   const [rangeFrom, setRangeFrom] = useState("");
@@ -140,27 +287,42 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
   const [rangeToOpen, setRangeToOpen] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
-  const [columns, setColumns] = useState<Columns>({ nis: true, status: true, checkin: false, catatan: false });
+  const [columns, setColumns] = useState<Columns>({ nis: true, status: true, checkin: false });
+  const [cumulativeColumns, setCumulativeColumns] = useState<CumulativeColumns>({ nis: true });
   const [sortBy, setSortBy] = useState<SortBy | null>(null);
   const [generating, setGenerating] = useState(false);
 
   const rangeValid = !rangeFrom || !rangeTo || rangeFrom <= rangeTo;
-  const q1Answered =
+  const typeAnswered = reportType !== null;
+  const periodAnswered =
     dateMode === "today" ||
     (dateMode === "specific" && specificDate !== "") ||
     (dateMode === "range" && rangeFrom !== "" && rangeTo !== "" && rangeValid);
 
-  const showQ2 = q1Answered;
-  const showQ3 = q1Answered && statusFilter !== null;
-  const canDownload = showQ3 && sortBy !== null;
+  const showPeriod = typeAnswered;
+  const showStatus = periodAnswered && reportType === "daily";
+  const showColumns = periodAnswered && (reportType === "cumulative" || statusFilter !== null);
+  const canDownload = showColumns && sortBy !== null;
+  const sortOptions = useMemo(
+    () => (reportType === "cumulative" ? getCumulativeSortOptions(cumulativeColumns) : getDailySortOptions(columns)),
+    [columns, cumulativeColumns, reportType],
+  );
+
+  useEffect(() => {
+    if (sortBy && !sortOptions.some((option) => option.value === sortBy)) {
+      setSortBy(null);
+    }
+  }, [sortBy, sortOptions]);
 
   function resetState() {
+    setReportType(null);
     setDateMode(null);
     setSpecificDate("");
     setRangeFrom("");
     setRangeTo("");
     setStatusFilter(null);
-    setColumns({ nis: true, status: true, checkin: false, catatan: false });
+    setColumns({ nis: true, status: true, checkin: false });
+    setCumulativeColumns({ nis: true });
     setSortBy(null);
   }
 
@@ -174,17 +336,44 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
     setGenerating(true);
     try {
       const dateParam = dateMode === "today" ? todayStr() : dateMode === "specific" ? specificDate : "";
-      const statusParam = statusFilter === "Semua" ? "" : (statusFilter ?? "");
+      const overview = await getTeacherHomeroomAttendanceOverview(
+        dateMode === "range"
+          ? { date_from: rangeFrom, date_to: rangeTo }
+          : { date: dateParam },
+      );
+      const rawRecords = overview.records ?? [];
 
-      const overview = await getTeacherHomeroomAttendanceOverview({ date: dateParam, status: statusParam });
-      let records = overview.records ?? [];
+      const periodeLabel =
+        dateMode === "today"
+          ? `Hari ini (${todayDisplay()})`
+          : dateMode === "specific"
+            ? formatDisplayDate(specificDate)
+            : `${formatDisplayDate(rangeFrom)} - ${formatDisplayDate(rangeTo)}`;
 
-      if (dateMode === "range" && rangeFrom && rangeTo) {
-        records = records.filter((r) => r.attendance_date >= rangeFrom && r.attendance_date <= rangeTo);
+      if (reportType === "cumulative") {
+        const cumulativeRows = buildCumulativeRows(rawRecords);
+        if (cumulativeRows.length === 0) {
+          toast.warning("Tidak ada data absensi yang sesuai filter.");
+          return;
+        }
+
+        const sortedRows = [...cumulativeRows].sort((first, second) => {
+          if (sortBy === "name") return first.student_name.localeCompare(second.student_name, "id");
+          if (sortBy === "nis") return first.nis.localeCompare(second.nis, "id");
+          if (sortBy === "h") return second.h - first.h;
+          if (sortBy === "i") return second.i - first.i;
+          if (sortBy === "s") return second.s - first.s;
+          if (sortBy === "a") return second.a - first.a;
+          return 0;
+        });
+
+        await generateCumulativeWalasAbsensiPdf(sortedRows, homeroom, periodeLabel, getSortLabel(sortBy), cumulativeColumns);
+        return;
       }
 
+      let records = rawRecords;
       if (statusFilter && statusFilter !== "Semua") {
-        records = records.filter((r) => r.status?.toLowerCase() === statusFilter);
+        records = records.filter((record) => record.status?.toLowerCase() === statusFilter);
       }
 
       if (records.length === 0) {
@@ -192,28 +381,16 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
         return;
       }
 
-      const sorted = [...records].sort((a, b) => {
-        if (sortBy === "name") return a.student_name.localeCompare(b.student_name, "id");
-        if (sortBy === "nis") return a.nis.localeCompare(b.nis, "id");
-        if (sortBy === "status") return (a.status ?? "").localeCompare(b.status ?? "", "id");
-        if (sortBy === "checkin") return (a.check_in_at ?? "").localeCompare(b.check_in_at ?? "", "id");
+      const sorted = [...records].sort((first, second) => {
+        if (sortBy === "name") return first.student_name.localeCompare(second.student_name, "id");
+        if (sortBy === "nis") return first.nis.localeCompare(second.nis, "id");
+        if (sortBy === "status") return (first.status ?? "").localeCompare(second.status ?? "", "id");
+        if (sortBy === "checkin") return (first.check_in_at ?? "").localeCompare(second.check_in_at ?? "", "id");
         return 0;
       });
 
-      const periodeLabel =
-        dateMode === "today"
-          ? `Hari ini (${todayDisplay()})`
-          : dateMode === "specific"
-          ? formatDisplayDate(specificDate)
-          : `${formatDisplayDate(rangeFrom)} – ${formatDisplayDate(rangeTo)}`;
-
       const statusLabel = statusFilter ? STATUS_LABELS[statusFilter] : "Semua Status";
-      const sortLabel =
-        sortBy === "name" ? "Nama (A–Z)" :
-        sortBy === "nis" ? "NIS" :
-        sortBy === "status" ? "Status" : "Waktu Check-in";
-
-      await generateWalasAbsensiPdf(sorted, homeroom, periodeLabel, statusLabel, sortLabel, columns);
+      await generateDailyWalasAbsensiPdf(sorted, homeroom, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
     } catch {
       toast.error("Gagal membuat PDF. Silakan coba lagi.");
     } finally {
@@ -226,120 +403,159 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
       open={open}
       onOpenChange={handleClose}
       title="Cetak Laporan Absensi Kelas"
-      description="Pilih periode dan filter, lalu unduh PDF rekap absensi kelas siap cetak."
+      description="Pilih tipe laporan, periode, dan kolom yang dibutuhkan sebelum mengunduh PDF."
       icon={Printer}
       className="sm:!max-w-[660px]"
     >
       <div className="space-y-4">
-        {/* Q1 — Periode */}
-        <QuestionBlock icon={CalendarClock} label="Pilih periode absensi" answered={q1Answered}>
-          <div className="grid gap-2 sm:grid-cols-3">
+        <QuestionBlock icon={Printer} label="Pilih tipe laporan" answered={typeAnswered}>
+          <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio
-              selected={dateMode === "today"}
-              label="Hari ini"
-              badge={todayDisplay()}
-              onClick={() => { setDateMode("today"); setStatusFilter(null); setSortBy(null); }}
+              selected={reportType === "daily"}
+              label="Periodik per hari"
+              badge="Per tanggal"
+              onClick={() => {
+                setReportType("daily");
+                setDateMode(null);
+                setSpecificDate("");
+                setRangeFrom("");
+                setRangeTo("");
+                setStatusFilter(null);
+                setSortBy(null);
+              }}
             />
             <ReportRadio
-              selected={dateMode === "specific"}
-              label="Tanggal tertentu"
-              onClick={() => { setDateMode("specific"); setSpecificDate(""); setStatusFilter(null); setSortBy(null); }}
-            />
-            <ReportRadio
-              selected={dateMode === "range"}
-              label="Rentang tanggal"
-              onClick={() => { setDateMode("range"); setRangeFrom(""); setRangeTo(""); setStatusFilter(null); setSortBy(null); }}
+              selected={reportType === "cumulative"}
+              label="Rekap akumulatif"
+              badge="Total periode"
+              onClick={() => {
+                setReportType("cumulative");
+                setDateMode(null);
+                setSpecificDate("");
+                setRangeFrom("");
+                setRangeTo("");
+                setStatusFilter(null);
+                setSortBy(null);
+              }}
             />
           </div>
-
-          {/* Specific date picker */}
-          <AnimatePresence>
-            {dateMode === "specific" && (
-              <motion.div key="specific" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
-                <div className="mt-3">
-                  <Popover open={specificDateOpen} onOpenChange={setSpecificDateOpen}>
-                    <PopoverTrigger
-                      render={<Button type="button" variant="outline" />}
-                      className="h-11 w-full justify-start rounded-[16px] border-slate-300/80 bg-white px-4 text-left text-slate-700"
-                    >
-                      <CalendarClock className="mr-2 size-4 text-emerald-600" />
-                      {specificDate ? formatDisplayDate(specificDate) : "Pilih tanggal"}
-                    </PopoverTrigger>
-                    <PopoverContent sideOffset={8} className="w-auto rounded-[22px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
-                      <PopoverHeader className="px-2 pt-1 pb-2">
-                        <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal absensi</PopoverTitle>
-                      </PopoverHeader>
-                      <Calendar
-                        mode="single"
-                        selected={parseDateValue(specificDate)}
-                        onSelect={(d) => { setSpecificDate(d ? toDateInputValue(d) : ""); setStatusFilter(null); setSortBy(null); setSpecificDateOpen(false); }}
-                        locale={localeID}
-                        buttonVariant="ghost"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Range date picker */}
-          <AnimatePresence>
-            {dateMode === "range" && (
-              <motion.div key="range" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-wide text-slate-500">Mulai</p>
-                    <Popover open={rangeFromOpen} onOpenChange={setRangeFromOpen}>
-                      <PopoverTrigger
-                        render={<Button type="button" variant="outline" />}
-                        className="h-11 w-full justify-start rounded-[16px] border-slate-300/80 bg-white px-3 text-left text-sm text-slate-700"
-                      >
-                        <CalendarClock className="mr-1.5 size-3.5 shrink-0 text-emerald-600" />
-                        <span className="truncate">{rangeFrom ? formatDisplayDate(rangeFrom) : "Pilih tanggal"}</span>
-                      </PopoverTrigger>
-                      <PopoverContent sideOffset={8} className="w-auto rounded-[22px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
-                        <PopoverHeader className="px-2 pt-1 pb-2"><PopoverTitle className="text-sm font-semibold text-slate-900">Tanggal mulai</PopoverTitle></PopoverHeader>
-                        <Calendar mode="single" selected={parseDateValue(rangeFrom)} onSelect={(d) => { setRangeFrom(d ? toDateInputValue(d) : ""); setStatusFilter(null); setSortBy(null); setRangeFromOpen(false); }} locale={localeID} buttonVariant="ghost" />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div>
-                    <p className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-wide text-slate-500">Sampai</p>
-                    <Popover open={rangeToOpen} onOpenChange={setRangeToOpen}>
-                      <PopoverTrigger
-                        render={<Button type="button" variant="outline" />}
-                        className="h-11 w-full justify-start rounded-[16px] border-slate-300/80 bg-white px-3 text-left text-sm text-slate-700"
-                      >
-                        <CalendarClock className="mr-1.5 size-3.5 shrink-0 text-emerald-600" />
-                        <span className="truncate">{rangeTo ? formatDisplayDate(rangeTo) : "Pilih tanggal"}</span>
-                      </PopoverTrigger>
-                      <PopoverContent sideOffset={8} className="w-auto rounded-[22px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
-                        <PopoverHeader className="px-2 pt-1 pb-2"><PopoverTitle className="text-sm font-semibold text-slate-900">Tanggal akhir</PopoverTitle></PopoverHeader>
-                        <Calendar mode="single" selected={parseDateValue(rangeTo)} onSelect={(d) => { setRangeTo(d ? toDateInputValue(d) : ""); setStatusFilter(null); setSortBy(null); setRangeToOpen(false); }} locale={localeID} buttonVariant="ghost" />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-                {rangeFrom && rangeTo && !rangeValid && (
-                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-2 flex items-center gap-1.5 text-[0.8rem] font-medium text-rose-600">
-                    <span className="inline-flex size-4 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold">!</span>
-                    Tanggal mulai tidak boleh lebih dari tanggal akhir.
-                  </motion.p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
         </QuestionBlock>
 
-        {/* Q2 — Status filter */}
         <AnimatePresence>
-          {showQ2 && (
+          {showPeriod && (
+            <motion.div key="period" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
+              <QuestionBlock icon={CalendarClock} label="Pilih periode absensi" answered={periodAnswered}>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <ReportRadio
+                    selected={dateMode === "today"}
+                    label="Hari ini"
+                    badge={todayDisplay()}
+                    onClick={() => { setDateMode("today"); setStatusFilter(null); setSortBy(null); }}
+                  />
+                  <ReportRadio
+                    selected={dateMode === "specific"}
+                    label="Tanggal tertentu"
+                    onClick={() => { setDateMode("specific"); setSpecificDate(""); setStatusFilter(null); setSortBy(null); }}
+                  />
+                  <ReportRadio
+                    selected={dateMode === "range"}
+                    label="Rentang tanggal"
+                    onClick={() => { setDateMode("range"); setRangeFrom(""); setRangeTo(""); setStatusFilter(null); setSortBy(null); }}
+                  />
+                </div>
+
+                <AnimatePresence>
+                  {dateMode === "specific" && (
+                    <motion.div key="specific" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
+                      <div className="mt-3">
+                        <Popover open={specificDateOpen} onOpenChange={setSpecificDateOpen}>
+                          <PopoverTrigger
+                            render={<Button type="button" variant="outline" />}
+                            className="h-11 w-full justify-start rounded-[16px] border-slate-300/80 bg-white px-4 text-left text-slate-700"
+                          >
+                            <CalendarClock className="mr-2 size-4 text-emerald-600" />
+                            {specificDate ? formatDisplayDate(specificDate) : "Pilih tanggal"}
+                          </PopoverTrigger>
+                          <PopoverContent sideOffset={8} className="w-auto rounded-[22px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
+                            <PopoverHeader className="px-2 pt-1 pb-2">
+                              <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal absensi</PopoverTitle>
+                            </PopoverHeader>
+                            <Calendar
+                              mode="single"
+                              selected={parseDateValue(specificDate)}
+                              onSelect={(date) => { setSpecificDate(date ? toDateInputValue(date) : ""); setStatusFilter(null); setSortBy(null); setSpecificDateOpen(false); }}
+                              locale={localeID}
+                              buttonVariant="ghost"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {dateMode === "range" && (
+                    <motion.div key="range" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
+                      <div className="mt-3 grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-wide text-slate-500">Mulai</p>
+                          <Popover open={rangeFromOpen} onOpenChange={setRangeFromOpen}>
+                            <PopoverTrigger
+                              render={<Button type="button" variant="outline" />}
+                              className="h-11 w-full justify-start rounded-[16px] border-slate-300/80 bg-white px-3 text-left text-sm text-slate-700"
+                            >
+                              <CalendarClock className="mr-1.5 size-3.5 shrink-0 text-emerald-600" />
+                              <span className="truncate">{rangeFrom ? formatDisplayDate(rangeFrom) : "Pilih tanggal"}</span>
+                            </PopoverTrigger>
+                            <PopoverContent sideOffset={8} className="w-auto rounded-[22px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
+                              <PopoverHeader className="px-2 pt-1 pb-2">
+                                <PopoverTitle className="text-sm font-semibold text-slate-900">Tanggal mulai</PopoverTitle>
+                              </PopoverHeader>
+                              <Calendar mode="single" selected={parseDateValue(rangeFrom)} onSelect={(date) => { setRangeFrom(date ? toDateInputValue(date) : ""); setStatusFilter(null); setSortBy(null); setRangeFromOpen(false); }} locale={localeID} buttonVariant="ghost" />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        <div>
+                          <p className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-wide text-slate-500">Sampai</p>
+                          <Popover open={rangeToOpen} onOpenChange={setRangeToOpen}>
+                            <PopoverTrigger
+                              render={<Button type="button" variant="outline" />}
+                              className="h-11 w-full justify-start rounded-[16px] border-slate-300/80 bg-white px-3 text-left text-sm text-slate-700"
+                            >
+                              <CalendarClock className="mr-1.5 size-3.5 shrink-0 text-emerald-600" />
+                              <span className="truncate">{rangeTo ? formatDisplayDate(rangeTo) : "Pilih tanggal"}</span>
+                            </PopoverTrigger>
+                            <PopoverContent sideOffset={8} className="w-auto rounded-[22px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
+                              <PopoverHeader className="px-2 pt-1 pb-2">
+                                <PopoverTitle className="text-sm font-semibold text-slate-900">Tanggal akhir</PopoverTitle>
+                              </PopoverHeader>
+                              <Calendar mode="single" selected={parseDateValue(rangeTo)} onSelect={(date) => { setRangeTo(date ? toDateInputValue(date) : ""); setStatusFilter(null); setSortBy(null); setRangeToOpen(false); }} locale={localeID} buttonVariant="ghost" />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </div>
+                      {rangeFrom && rangeTo && !rangeValid && (
+                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-2 flex items-center gap-1.5 text-[0.8rem] font-medium text-rose-600">
+                          <span className="inline-flex size-4 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold">!</span>
+                          Tanggal mulai tidak boleh lebih dari tanggal akhir.
+                        </motion.p>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </QuestionBlock>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showStatus && (
             <motion.div key="q2" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
               <QuestionBlock icon={Activity} label="Filter berdasarkan status kehadiran" answered={statusFilter !== null}>
                 <div className="grid gap-2 sm:grid-cols-3">
-                  {(["Semua", "hadir", "telat", "alfa", "izin", "sakit"] as StatusFilter[]).map((s) => (
-                    <ReportRadio key={s} selected={statusFilter === s} label={STATUS_LABELS[s]} onClick={() => { setStatusFilter(s); setSortBy(null); }} />
+                  {(["Semua", "hadir", "telat", "alfa", "izin", "sakit"] as StatusFilter[]).map((status) => (
+                    <ReportRadio key={status} selected={statusFilter === status} label={STATUS_LABELS[status]} onClick={() => { setStatusFilter(status); setSortBy(null); }} />
                   ))}
                 </div>
               </QuestionBlock>
@@ -347,33 +563,44 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
           )}
         </AnimatePresence>
 
-        {/* Q3 — Kolom */}
         <AnimatePresence>
-          {showQ3 && (
+          {showColumns && (
             <motion.div key="q3" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
               <QuestionBlock icon={ListChecks} label="Kolom yang ingin ditampilkan" answered>
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama & Tanggal" badge="wajib" />
-                  <ReportCheckbox checked={columns.nis} onChange={(v) => setColumns((c) => ({ ...c, nis: v }))} label="NIS" />
-                  <ReportCheckbox checked={columns.status} onChange={(v) => setColumns((c) => ({ ...c, status: v }))} label="Status" />
-                  <ReportCheckbox checked={columns.checkin} onChange={(v) => setColumns((c) => ({ ...c, checkin: v }))} label="Waktu Check-in" />
-                  <ReportCheckbox checked={columns.catatan} onChange={(v) => setColumns((c) => ({ ...c, catatan: v }))} label="Catatan" />
+                <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-2">
+                  {reportType === "cumulative" ? (
+                    <>
+                      <ReportCheckbox checked disabled label="Nama Siswa" badge="wajib" />
+                      <ReportCheckbox checked={cumulativeColumns.nis} onChange={(value) => setCumulativeColumns((current) => ({ ...current, nis: value }))} label="NIS" />
+                      <ReportCheckbox checked disabled label="Rekap H I S A" badge="wajib" />
+                    </>
+                  ) : (
+                    <>
+                      <ReportCheckbox checked disabled label="Nama & Tanggal" badge="wajib" />
+                      <ReportCheckbox checked={columns.nis} onChange={(value) => setColumns((current) => ({ ...current, nis: value }))} label="NIS" />
+                      <ReportCheckbox checked={columns.status} onChange={(value) => setColumns((current) => ({ ...current, status: value }))} label="Status" />
+                      <ReportCheckbox checked={columns.checkin} onChange={(value) => setColumns((current) => ({ ...current, checkin: value }))} label="Waktu Check-in" />
+                    </>
+                  )}
                 </div>
               </QuestionBlock>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Q4 — Urutan */}
         <AnimatePresence>
-          {showQ3 && (
+          {showColumns && (
             <motion.div key="q4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut", delay: 0.08 }}>
               <QuestionBlock icon={ArrowUpDown} label="Urutkan data berdasarkan" answered={sortBy !== null}>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <ReportRadio selected={sortBy === "name"} label="Nama (A–Z)" onClick={() => setSortBy("name")} />
-                  <ReportRadio selected={sortBy === "nis"} label="NIS" onClick={() => setSortBy("nis")} />
-                  <ReportRadio selected={sortBy === "status"} label="Status" onClick={() => setSortBy("status")} />
-                  <ReportRadio selected={sortBy === "checkin"} label="Waktu check-in" onClick={() => setSortBy("checkin")} />
+                  {sortOptions.map((option) => (
+                    <ReportRadio
+                      key={option.value}
+                      selected={sortBy === option.value}
+                      label={option.label}
+                      onClick={() => setSortBy(option.value)}
+                    />
+                  ))}
                 </div>
               </QuestionBlock>
             </motion.div>
