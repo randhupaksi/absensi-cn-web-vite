@@ -707,7 +707,7 @@ export function SubjectManagementSection({
                       <MobileDataCard key={item.id}>
                         <MobileDataHeader
                           title={schedule?.subject_code ?? "Jadwal"}
-                          subtitle={schedule?.class_name ?? item.schedule_id}
+                          subtitle={schedule?.class_name ?? "Kelas belum tersedia"}
                           badge={<StatusBadge isActive={item.status === "ACTIVE"} />}
                         />
                         <div className="mt-4 grid gap-3">
@@ -735,7 +735,7 @@ export function SubjectManagementSection({
                     const schedule = schedules.find((x) => x.id === item.schedule_id);
                     return (
                       <DataTableRow key={item.id}>
-                        <DataTableCell><b>{schedule?.subject_code ?? "Jadwal"}</b><small>{schedule?.class_name ?? item.schedule_id}</small></DataTableCell>
+                      <DataTableCell><b>{schedule?.subject_code ?? "Jadwal"}</b><small>{schedule?.class_name ?? "Kelas belum tersedia"}</small></DataTableCell>
                         <DataTableCell>{item.original_date}</DataTableCell>
                         <DataTableCell><Pill>{item.override_type}</Pill></DataTableCell>
                         <DataTableCell>{item.replacement_date || item.replacement_room_id || item.substitute_teacher_id || "—"}</DataTableCell>

@@ -656,7 +656,6 @@ export function TeacherSection({
                           </span>
                         }
                         title={teacher.name}
-                        subtitle={teacher.user_id}
                         badge={<StatusBadge isActive={teacher.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">
@@ -692,9 +691,6 @@ export function TeacherSection({
                           <div>
                             <p className="font-medium text-slate-700">
                               {teacher.name}
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              {teacher.user_id}
                             </p>
                           </div>
                         </div>
@@ -742,7 +738,6 @@ export function TeacherSection({
                           </span>
                         }
                         title={assignment.teacher_name}
-                        subtitle={assignment.id}
                         badge={<StatusBadge isActive={assignment.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">

@@ -142,7 +142,7 @@ export const adminSidebarItems = [
   { label: "Guru", href: "/dashboard/admin/teachers", icon: GraduationCap },
   { label: "Manajemen Mapel", href: "/dashboard/admin/subjects", icon: BookOpenCheck },
   { label: "Siswa", href: "/dashboard/admin/students", icon: Users },
-  { label: "Kelas", href: "/dashboard/admin/classes", icon: Building2 },
+  { label: "Struktur Akademik", href: "/dashboard/admin/classes", icon: Building2 },
   { label: "Admin", href: "/dashboard/admin/admins", icon: ShieldCheck },
   { label: "Manajemen Role", href: "/dashboard/admin/users", icon: UserCog },
   { label: "Report", href: "/dashboard/admin/reports", icon: FileBarChart2 },

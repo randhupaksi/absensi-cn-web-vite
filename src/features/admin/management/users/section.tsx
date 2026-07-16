@@ -247,7 +247,6 @@ export function UserSection({
                             </span>
                           }
                           title={user.name}
-                          subtitle={user.id}
                           badge={<UserRoleBadge role={user.role} />}
                         />
                         <div className="mt-4 space-y-3">
@@ -279,7 +278,6 @@ export function UserSection({
                             </span>
                             <div>
                               <p className="font-medium text-slate-700">{user.name}</p>
-                              <p className="text-xs text-slate-400">{user.id}</p>
                             </div>
                           </div>
                         </DataTableCell>

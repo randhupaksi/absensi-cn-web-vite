@@ -349,7 +349,6 @@ export function ClassManagementSection({
                         </span>
                         <div>
                           <p className="font-semibold text-slate-800">{item.display_name}</p>
-                          <p className="text-xs text-slate-400">ID: {item.id}</p>
                         </div>
                       </div>
                     </DataTableCell>

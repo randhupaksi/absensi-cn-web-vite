@@ -599,7 +599,6 @@ export function StudentSection({
                             </span>
                           }
                           title={student.name}
-                          subtitle={student.user_id}
                           badge={<StatusBadge isActive={student.is_active} />}
                         />
                         <div className="mt-4 space-y-3">
@@ -633,7 +632,6 @@ export function StudentSection({
                           </span>
                           <div>
                             <p className="font-medium text-slate-700">{student.name}</p>
-                            <p className="text-xs text-slate-400">{student.user_id}</p>
                           </div>
                         </div>
                       </DataTableCell>

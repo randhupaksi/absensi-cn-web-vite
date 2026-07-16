@@ -218,7 +218,6 @@ export function AdminManagementSection({
                         </span>
                       }
                       title={user.name}
-                      subtitle={user.id}
                       badge={
                         <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
                           ADMIN
@@ -253,7 +252,6 @@ export function AdminManagementSection({
                         </span>
                         <div>
                           <p className="font-medium text-slate-700">{user.name}</p>
-                          <p className="text-xs text-slate-400">{user.id}</p>
                         </div>
                       </div>
                     </DataTableCell>
