@@ -51,10 +51,10 @@
 :root {
   --font-plus-jakarta-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-space-grotesk: "Space Grotesk", system-ui, sans-serif;
-  --app-team: "RBAR Team";
-  --app-author: "Randhu Paksi Membumi - Creator & Lead Fullstack Developer";
-  --app-credit: "Absensi CN dibuat oleh RBAR Team dan dipimpin oleh Randhu Paksi Membumi";
-  --app-copyright: "Copyright 2026 RBAR Team. All rights reserved.";
+  --app-team: "Randhu Paksi Membumi";
+  --app-author: "Randhu Paksi Membumi - Creator & Fullstack Developer";
+  --app-credit: "Absensi CN dibuat sepenuhnya oleh Randhu Paksi Membumi";
+  --app-copyright: "Copyright 2026 Randhu Paksi Membumi. All rights reserved.";
   --background: oklch(0.985 0.01 235);
   --foreground: oklch(0.24 0.04 245);
   --card: oklch(1 0 0);

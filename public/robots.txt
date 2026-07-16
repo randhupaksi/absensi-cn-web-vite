@@ -2,6 +2,5 @@ User-agent: *
 Allow: /
 
 # Project: Absensi CN
-# Team: RBAR Team
-# Lead Creator: Randhu Paksi Membumi - Creator & Lead Fullstack Developer
-# Copyright 2026 RBAR Team. All rights reserved.
+# Creator: Randhu Paksi Membumi - Creator & Fullstack Developer
+# Copyright 2026 Randhu Paksi Membumi. All rights reserved.
