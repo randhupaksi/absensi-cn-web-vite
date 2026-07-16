@@ -100,6 +100,8 @@ export function LoginForm({ portal }: LoginFormProps) {
     }
   };
 
+  const isSubmitting = form.formState.isSubmitting;
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className={portal === "staff" ? "space-y-5" : "space-y-4"}>
       <input type="hidden" {...form.register("portal")} value={portal} />
@@ -216,51 +218,58 @@ export function LoginForm({ portal }: LoginFormProps) {
       <Button
         type="submit"
         size="lg"
-        disabled={form.formState.isSubmitting}
-        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold text-white transition duration-300 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 ${content.buttonClass}`}
+        disabled={isSubmitting}
+        aria-busy={isSubmitting}
+        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold text-white transition-[transform,box-shadow,filter] duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-wait disabled:!opacity-100 ${content.buttonClass}`}
       >
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-[-45%] w-[42%] bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.28),transparent)]"
-          animate={{ x: ["0%", "360%"] }}
-          transition={{
-            duration: 3.6,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-        />
-        <AnimatePresence mode="wait" initial={false}>
-          {form.formState.isSubmitting ? (
-            <motion.span
-              key="loading"
-              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-              className="relative flex items-center gap-2"
-            >
-              <LoaderCircle className="size-4 animate-spin" />
-              {content.submittingLabel}
-            </motion.span>
-          ) : (
-            <motion.span
-              key={portal}
-              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-              className="relative flex items-center gap-2"
-            >
-              {content.submitLabel}
-              <motion.span
-                initial={false}
-                animate={prefersReducedMotion ? undefined : { x: [0, 3, 0] }}
-                transition={prefersReducedMotion ? undefined : { repeat: Number.POSITIVE_INFINITY, duration: 1.8 }}
-                className="inline-flex"
-              >
-                <LogIn className="size-4" />
-              </motion.span>
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {!isSubmitting ? (
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-[-45%] w-[42%] bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.28),transparent)]"
+            animate={{ x: ["0%", "360%"] }}
+            transition={{
+              duration: 3.6,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+            }}
+          />
+        ) : null}
+        <span className="relative flex items-center justify-center gap-2">
+          <span className="relative inline-flex size-4 shrink-0 items-center justify-center">
+            <AnimatePresence initial={false} mode="sync">
+              {isSubmitting ? (
+                <motion.span
+                  key="loading-icon"
+                  initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, rotate: -36 }}
+                  animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 0 }}
+                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, rotate: 36 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute inset-0"
+                >
+                  <LoaderCircle className="size-4 animate-spin" />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="login-icon"
+                  initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, y: 3 }}
+                  animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, y: -3 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute inset-0"
+                >
+                  <motion.span
+                    animate={prefersReducedMotion ? undefined : { x: [0, 3, 0] }}
+                    transition={prefersReducedMotion ? undefined : { repeat: Number.POSITIVE_INFINITY, duration: 1.8 }}
+                    className="inline-flex"
+                  >
+                    <LogIn className="size-4" />
+                  </motion.span>
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </span>
+          <span>{isSubmitting ? content.submittingLabel : content.submitLabel}</span>
+        </span>
       </Button>
     </form>
   );

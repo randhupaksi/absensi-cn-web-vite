@@ -107,12 +107,6 @@ type StudentDeleteTarget =
   | { type: "membership"; item: AdminStudentClassMembership }
   | { type: "rule"; item: AdminAttendanceRule };
 
-const statusOptions = [
-  { value: "Semua", label: "Semua" },
-  { value: "Aktif", label: "Aktif" },
-  { value: "Nonaktif", label: "Nonaktif" },
-];
-
 export function StudentSection({
   students,
   memberships,
@@ -125,7 +119,8 @@ export function StudentSection({
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [statusFilter, setStatusFilter] = useState("Semua");
+  const [unitFilter, setUnitFilter] = useState("all");
+  const [majorFilter, setMajorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState<StudentTab>("profiles");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -139,6 +134,47 @@ export function StudentSection({
   const [deleteTarget, setDeleteTarget] = useState<StudentDeleteTarget | null>(null);
 
   const normalizedQuery = deferredQuery.trim().toLowerCase();
+
+  const unitFilterOptions = useMemo(() => {
+    const units = new Map<string, string>();
+    classes.forEach((item) => units.set(item.school_unit_id, item.school_unit_code));
+
+    return [
+      { value: "all", label: "Semua jenjang" },
+      ...Array.from(units, ([value, label]) => ({ value, label })).sort((left, right) =>
+        left.label.localeCompare(right.label, "id"),
+      ),
+    ];
+  }, [classes]);
+
+  const majorFilterOptions = useMemo(() => {
+    const majors = new Map<string, string>();
+    classes
+      .filter((item) => unitFilter === "all" || item.school_unit_id === unitFilter)
+      .forEach((item) => majors.set(item.major_id, `${item.major_code} - ${item.major_name}`));
+
+    return [
+      { value: "all", label: "Semua program / jurusan" },
+      ...Array.from(majors, ([value, label]) => ({ value, label })).sort((left, right) =>
+        left.label.localeCompare(right.label, "id"),
+      ),
+    ];
+  }, [classes, unitFilter]);
+
+  const hasAcademicFilter = unitFilter !== "all" || majorFilter !== "all";
+  const matchingClassIDs = useMemo(
+    () =>
+      new Set(
+        classes
+          .filter(
+            (item) =>
+              (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+              (majorFilter === "all" || item.major_id === majorFilter),
+          )
+          .map((item) => item.id),
+      ),
+    [classes, majorFilter, unitFilter],
+  );
 
   const createStudentMutation = useMutation({
     mutationFn: createAdminStudent,
@@ -257,27 +293,28 @@ export function StudentSection({
   const filteredStudents = useMemo(
     () =>
       students.filter((student) => {
-        const matchesStatus =
-          statusFilter === "Semua" ||
-          (statusFilter === "Aktif" && student.is_active) ||
-          (statusFilter === "Nonaktif" && !student.is_active);
+        const matchesAcademic =
+          !hasAcademicFilter ||
+          memberships.some(
+            (membership) =>
+              membership.student_id === student.id &&
+              membership.is_active &&
+              matchingClassIDs.has(membership.class_id),
+          );
         const matchesQuery =
           normalizedQuery.length === 0 ||
           student.name.toLowerCase().includes(normalizedQuery) ||
           student.nis.toLowerCase().includes(normalizedQuery) ||
           (student.nisn ?? "").toLowerCase().includes(normalizedQuery);
-        return matchesStatus && matchesQuery;
+        return matchesAcademic && matchesQuery;
       }),
-    [students, statusFilter, normalizedQuery],
+    [hasAcademicFilter, matchingClassIDs, memberships, normalizedQuery, students],
   );
 
   const filteredMemberships = useMemo(
     () =>
       memberships.filter((membership) => {
-        const matchesStatus =
-          statusFilter === "Semua" ||
-          (statusFilter === "Aktif" && membership.is_active) ||
-          (statusFilter === "Nonaktif" && !membership.is_active);
+        const matchesAcademic = !hasAcademicFilter || matchingClassIDs.has(membership.class_id);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           membership.student_name.toLowerCase().includes(normalizedQuery) ||
@@ -285,27 +322,23 @@ export function StudentSection({
           membership.class_name.toLowerCase().includes(normalizedQuery) ||
           membership.school_year_name.toLowerCase().includes(normalizedQuery) ||
           membership.status.toLowerCase().includes(normalizedQuery);
-        return matchesStatus && matchesQuery;
+        return matchesAcademic && matchesQuery;
       }),
-    [memberships, statusFilter, normalizedQuery],
+    [hasAcademicFilter, matchingClassIDs, memberships, normalizedQuery],
   );
 
   const filteredRules = useMemo(
     () =>
       attendanceRules.filter((rule) => {
-        const matchesStatus =
-          statusFilter === "Semua" ||
-          (statusFilter === "Aktif" && rule.is_active) ||
-          (statusFilter === "Nonaktif" && !rule.is_active);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           rule.school_year.toLowerCase().includes(normalizedQuery) ||
           rule.check_in_start.toLowerCase().includes(normalizedQuery) ||
           rule.on_time_until.toLowerCase().includes(normalizedQuery) ||
           rule.late_until.toLowerCase().includes(normalizedQuery);
-        return matchesStatus && matchesQuery;
+        return matchesQuery;
       }),
-    [attendanceRules, statusFilter, normalizedQuery],
+    [attendanceRules, normalizedQuery],
   );
 
   const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(filteredStudents);
@@ -512,20 +545,29 @@ export function StudentSection({
         ) : null}
 
         <div className="mt-3">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="text-xs font-medium text-slate-400">
-              {activeStudentCount} siswa aktif tercatat
-            </div>
-
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
               <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, kelas, atau NIS" />
 
-              <div className="w-full sm:w-[190px]">
+              <div className="w-full sm:w-[210px]">
                 <RadixSelectField
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                  placeholder="Pilih status"
-                  options={statusOptions}
+                  value={unitFilter}
+                  onValueChange={(value) => {
+                    setUnitFilter(value);
+                    setMajorFilter("all");
+                  }}
+                  placeholder="Pilih jenjang"
+                  options={unitFilterOptions}
+                  triggerClassName="h-14 rounded-[22px] pl-4"
+                />
+              </div>
+
+              <div className="w-full sm:w-[250px]">
+                <RadixSelectField
+                  value={majorFilter}
+                  onValueChange={setMajorFilter}
+                  placeholder="Pilih program / jurusan"
+                  options={majorFilterOptions}
                   triggerClassName="h-14 rounded-[22px] pl-4"
                 />
               </div>

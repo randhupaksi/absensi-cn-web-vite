@@ -92,12 +92,6 @@ type TeacherSectionProps = {
   errorMessage?: string;
 };
 
-const profileStatusOptions = [
-  { value: "Semua", label: "Semua" },
-  { value: "Aktif", label: "Aktif" },
-  { value: "Nonaktif", label: "Nonaktif" },
-];
-
 type TeacherTab = "profiles" | "homerooms" | "bk";
 
 type TeacherDeleteTarget =
@@ -116,7 +110,8 @@ export function TeacherSection({
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [statusFilter, setStatusFilter] = useState("Semua");
+  const [unitFilter, setUnitFilter] = useState("all");
+  const [majorFilter, setMajorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState<TeacherTab>("profiles");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -138,6 +133,8 @@ export function TeacherSection({
     queryKey: ["admin-school-years"],
     queryFn: getAdminSchoolYears,
   });
+
+  const classes = classesQuery.data ?? [];
 
   const createTeacherProfileMutation = useMutation({
     mutationFn: createAdminTeacherAccount,
@@ -259,6 +256,46 @@ export function TeacherSection({
 
   const normalizedQuery = deferredQuery.trim().toLowerCase();
 
+  const unitFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "Semua jenjang" },
+      ...schoolUnits
+        .filter((unit) => unit.is_active)
+        .sort((left, right) => left.code.localeCompare(right.code, "id"))
+        .map((unit) => ({ value: unit.id, label: unit.code })),
+    ],
+    [schoolUnits],
+  );
+
+  const majorFilterOptions = useMemo(() => {
+    const majors = new Map<string, string>();
+    classes
+      .filter((item) => unitFilter === "all" || item.school_unit_id === unitFilter)
+      .forEach((item) => majors.set(item.major_id, `${item.major_code} - ${item.major_name}`));
+
+    return [
+      { value: "all", label: "Semua program / jurusan" },
+      ...Array.from(majors, ([value, label]) => ({ value, label })).sort((left, right) =>
+        left.label.localeCompare(right.label, "id"),
+      ),
+    ];
+  }, [classes, unitFilter]);
+
+  const hasAcademicFilter = unitFilter !== "all" || majorFilter !== "all";
+  const matchingClassIDs = useMemo(
+    () =>
+      new Set(
+        classes
+          .filter(
+            (item) =>
+              (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+              (majorFilter === "all" || item.major_id === majorFilter),
+          )
+          .map((item) => item.id),
+      ),
+    [classes, majorFilter, unitFilter],
+  );
+
   const bkScopesByUser = useMemo(
     () => bkUnitScopes.reduce<Record<string, AdminBKUnitScope[]>>((result, scope) => {
       (result[scope.user_id] ??= []).push(scope);
@@ -297,43 +334,62 @@ export function TeacherSection({
     );
   }, [homeroomAssignments]);
 
+  const teachersWithMatchingClasses = useMemo(() => {
+    const teacherIDs = new Set<string>();
+    teacherSubjectAssignments.forEach((assignment) => {
+      if (matchingClassIDs.has(assignment.class_id)) teacherIDs.add(assignment.teacher_id);
+    });
+    homeroomAssignments.forEach((assignment) => {
+      if (matchingClassIDs.has(assignment.class_id)) teacherIDs.add(assignment.teacher_id);
+    });
+    return teacherIDs;
+  }, [homeroomAssignments, matchingClassIDs, teacherSubjectAssignments]);
+
   const filteredTeacherProfiles = useMemo(
     () =>
       teacherProfiles.filter((teacher) => {
-        const matchesStatus =
-          statusFilter === "Semua" ||
-          (statusFilter === "Aktif" && teacher.is_active) ||
-          (statusFilter === "Nonaktif" && !teacher.is_active);
+        const matchesAcademic = !hasAcademicFilter || teachersWithMatchingClasses.has(teacher.id);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           teacher.name.toLowerCase().includes(normalizedQuery) ||
           (teacher.username ?? "").toLowerCase().includes(normalizedQuery);
-        return matchesStatus && matchesQuery;
+        return matchesAcademic && matchesQuery;
       }),
-    [teacherProfiles, statusFilter, normalizedQuery],
+    [hasAcademicFilter, normalizedQuery, teacherProfiles, teachersWithMatchingClasses],
   );
 
   const filteredHomeroomAssignments = useMemo(
     () =>
-      homeroomAssignments.filter(
-        (assignment) =>
+      homeroomAssignments.filter((assignment) => {
+        const matchesAcademic = !hasAcademicFilter || matchingClassIDs.has(assignment.class_id);
+        const matchesQuery =
           normalizedQuery.length === 0 ||
           assignment.teacher_name.toLowerCase().includes(normalizedQuery) ||
           assignment.class_name.toLowerCase().includes(normalizedQuery) ||
-          assignment.school_year_name.toLowerCase().includes(normalizedQuery),
-      ),
-    [homeroomAssignments, normalizedQuery],
+          assignment.school_year_name.toLowerCase().includes(normalizedQuery);
+
+        return matchesAcademic && matchesQuery;
+      }),
+    [hasAcademicFilter, homeroomAssignments, matchingClassIDs, normalizedQuery],
   );
 
   const filteredBkTeachers = useMemo(
     () =>
-      bkTeachers.filter(
-        (teacher) =>
+      bkTeachers.filter((teacher) => {
+        const matchesUnit =
+          unitFilter === "all" ||
+          (bkScopesByUser[teacher.user_id] ?? []).some(
+            (scope) => scope.school_unit_id === unitFilter,
+          );
+        const matchesMajor = majorFilter === "all" || teachersWithMatchingClasses.has(teacher.id);
+        const matchesQuery =
           normalizedQuery.length === 0 ||
           teacher.name.toLowerCase().includes(normalizedQuery) ||
-          (teacher.username ?? "").toLowerCase().includes(normalizedQuery),
-      ),
-    [bkTeachers, normalizedQuery],
+          (teacher.username ?? "").toLowerCase().includes(normalizedQuery);
+
+        return matchesUnit && matchesMajor && matchesQuery;
+      }),
+    [bkScopesByUser, bkTeachers, majorFilter, normalizedQuery, teachersWithMatchingClasses, unitFilter],
   );
 
   const { pageItems: pageTeacherProfiles, pagination: teacherProfilesPagination } = usePagination(filteredTeacherProfiles);
@@ -548,20 +604,29 @@ export function TeacherSection({
         ) : null}
 
         <div className="mt-3">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="text-xs font-medium text-slate-400">
-              {activeTeacherCount} guru aktif
-            </div>
-
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
               <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari guru, mapel, kelas" />
 
-              <div className="w-full sm:w-[190px]">
+              <div className="w-full sm:w-[210px]">
                 <RadixSelectField
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                  placeholder="Pilih status"
-                  options={profileStatusOptions}
+                  value={unitFilter}
+                  onValueChange={(value) => {
+                    setUnitFilter(value);
+                    setMajorFilter("all");
+                  }}
+                  placeholder="Pilih jenjang"
+                  options={unitFilterOptions}
+                  triggerClassName="h-14 rounded-[22px] pl-4"
+                />
+              </div>
+
+              <div className="w-full sm:w-[250px]">
+                <RadixSelectField
+                  value={majorFilter}
+                  onValueChange={setMajorFilter}
+                  placeholder="Pilih program / jurusan"
+                  options={majorFilterOptions}
                   triggerClassName="h-14 rounded-[22px] pl-4"
                 />
               </div>
