@@ -20,15 +20,8 @@ type ClassPerformanceChartProps = {
   }>;
 };
 
-const fallbackData = [
-  { class_name: "X PPLG 1", percentage: 0, present_text: "0/0 hadir" },
-  { class_name: "X PPLG 2", percentage: 0, present_text: "0/0 hadir" },
-  { class_name: "XI PPLG 1", percentage: 0, present_text: "0/0 hadir" },
-  { class_name: "XI PPLG 2", percentage: 0, present_text: "0/0 hadir" },
-];
-
 export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
-  const chartData = data.length ? data : fallbackData;
+  const chartData = data;
   const isEmpty = chartData.every((item) => item.percentage === 0);
 
   return (

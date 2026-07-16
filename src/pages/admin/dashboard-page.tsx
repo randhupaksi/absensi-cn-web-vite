@@ -58,20 +58,8 @@ const fallbackDashboard: AdminDashboardData = {
     sick: 0,
     alpha: 0,
   },
-  semester_trend: [
-    { label: "Jul", present: 0, late: 0, alpha: 0 },
-    { label: "Agu", present: 0, late: 0, alpha: 0 },
-    { label: "Sep", present: 0, late: 0, alpha: 0 },
-    { label: "Okt", present: 0, late: 0, alpha: 0 },
-    { label: "Nov", present: 0, late: 0, alpha: 0 },
-    { label: "Des", present: 0, late: 0, alpha: 0 },
-  ],
-  class_performance: [
-    { class_name: "X PPLG 1", percentage: 0, present_text: "0/0 hadir" },
-    { class_name: "X PPLG 2", percentage: 0, present_text: "0/0 hadir" },
-    { class_name: "XI PPLG 1", percentage: 0, present_text: "0/0 hadir" },
-    { class_name: "XI PPLG 2", percentage: 0, present_text: "0/0 hadir" },
-  ],
+  semester_trend: [],
+  class_performance: [],
   announcements: [],
 };
 
@@ -137,7 +125,7 @@ export function AdminDashboardPage() {
             <div className="space-y-5">
               <GreetingCard adminName={session.user.name} />
 
-              <div className="grid items-start gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 items-start gap-3 sm:gap-4">
                 {kpiCards.map((item, index) => (
                   <motion.div
                     key={item.label}

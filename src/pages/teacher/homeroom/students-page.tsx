@@ -252,7 +252,7 @@ export function WalasStudentsPage() {
             >
               {studentsQuery.isLoading || homeroomQuery.isLoading ? (
                 <div className="overflow-x-auto">
-                  <LoadingTable columnCount={8} />
+                  <LoadingTable columnCount={9} />
                 </div>
               ) : filteredStudents.length === 0 ? (
                 <div className="p-5">
@@ -267,7 +267,10 @@ export function WalasStudentsPage() {
                 <>
                 <div className="hidden overflow-x-auto md:block">
                   <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Identitas", "Gender", "Status", "Telat", "Alfa", "Ringkasan", "Aksi"]} />
+                    <DataTableHeadRow
+                      labels={["Siswa", "NIS/NISN", "Gender", "Status", "H", "I", "S", "A", "Aksi"]}
+                      centerLabels={["Status", "H", "I", "S", "A"]}
+                    />
                     <DataTableBody>
                         {pageStudents.map((student) => (
                           <DataTableRow key={student.id}>
@@ -280,7 +283,6 @@ export function WalasStudentsPage() {
                                   <p className="truncate font-semibold text-slate-900">
                                     {student.name}
                                   </p>
-                                  <p className="truncate text-slate-500">{student.class_name || "-"}</p>
                                 </div>
                               </div>
                             </DataTableCell>
@@ -292,7 +294,7 @@ export function WalasStudentsPage() {
                               {formatGender(student.gender)}
                             </DataTableCell>
                             <DataTableCell>
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-wrap justify-center gap-2">
                                 <StatusPill isActive={student.is_active} />
                                 {student.late_count > 0 || student.alpha_count > 0 ? (
                                   <Badge className="border-amber-200 bg-amber-50 text-amber-700">
@@ -301,18 +303,25 @@ export function WalasStudentsPage() {
                                 ) : null}
                               </div>
                             </DataTableCell>
-                            <DataTableCell>
-                              <CountBadge value={student.late_count} tone="warning" />
+                            <DataTableCell className="text-center">
+                              <span className="font-semibold tabular-nums text-emerald-700">
+                                {student.present_count + student.late_count}
+                              </span>
                             </DataTableCell>
-                            <DataTableCell>
-                              <CountBadge value={student.alpha_count} tone="danger" />
+                            <DataTableCell className="text-center">
+                              <span className="font-semibold tabular-nums text-sky-700">
+                                {student.permission_count}
+                              </span>
                             </DataTableCell>
-                            <DataTableCell>
-                              <div className="space-y-1 text-xs text-slate-500">
-                                <p>Hadir: {student.present_count}</p>
-                                <p>Izin: {student.permission_count}</p>
-                                <p>Sakit: {student.sick_count}</p>
-                              </div>
+                            <DataTableCell className="text-center">
+                              <span className="font-semibold tabular-nums text-violet-700">
+                                {student.sick_count}
+                              </span>
+                            </DataTableCell>
+                            <DataTableCell className="text-center">
+                              <span className="font-semibold tabular-nums text-rose-700">
+                                {student.alpha_count}
+                              </span>
                             </DataTableCell>
                             <DataTableCell>
                               <div className="flex justify-center">
@@ -341,7 +350,6 @@ export function WalasStudentsPage() {
                           </span>
                         }
                         title={student.name}
-                        subtitle={student.class_name || "-"}
                         badge={<StatusPill isActive={student.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">
@@ -350,11 +358,10 @@ export function WalasStudentsPage() {
                         <MobileDataField label="Gender" value={formatGender(student.gender)} />
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <AttendanceMetricPill label="Hadir" value={student.present_count} tone="success" />
-                        <AttendanceMetricPill label="Telat" value={student.late_count} tone="warning" />
-                        <AttendanceMetricPill label="Alfa" value={student.alpha_count} tone="danger" />
+                        <AttendanceMetricPill label="Hadir" value={student.present_count + student.late_count} tone="success" />
                         <AttendanceMetricPill label="Izin" value={student.permission_count} tone="info" />
                         <AttendanceMetricPill label="Sakit" value={student.sick_count} tone="violet" />
+                        <AttendanceMetricPill label="Alfa" value={student.alpha_count} tone="danger" />
                       </div>
                       <MobileDataFooter>
                         <Button
@@ -434,26 +441,6 @@ function StaffStatCard({
         </div>
       </div>
     </div>
-  );
-}
-
-function CountBadge({
-  value,
-  tone,
-}: {
-  value: number;
-  tone: "warning" | "danger";
-}) {
-  return (
-    <Badge
-      className={
-        tone === "warning"
-          ? "border-amber-200 bg-amber-50 text-amber-700"
-          : "border-rose-200 bg-rose-50 text-rose-700"
-      }
-    >
-      {value}
-    </Badge>
   );
 }
 

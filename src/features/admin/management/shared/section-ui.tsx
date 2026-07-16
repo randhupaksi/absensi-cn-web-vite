@@ -573,14 +573,23 @@ export function DataTable({ children }: { children: ReactNode }) {
   return <table className="w-max min-w-full text-sm">{children}</table>;
 }
 
-export function DataTableHeadRow({ labels }: { labels: string[] }) {
+export function DataTableHeadRow({
+  labels,
+  centerLabels = [],
+}: {
+  labels: string[];
+  centerLabels?: string[];
+}) {
   return (
     <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700">
       <tr>
         {labels.map((label) => (
           <th
             key={label}
-            className={cn("whitespace-nowrap px-5 py-4 font-semibold", label === "Aksi" && "text-center")}
+            className={cn(
+              "whitespace-nowrap px-5 py-4 font-semibold",
+              (label === "Aksi" || centerLabels.includes(label)) && "text-center",
+            )}
           >
             {label}
           </th>

@@ -127,6 +127,11 @@ export type StaffAttendanceReviewPayload = {
 export type StaffHomeroomStudentDetail = {
   student: StaffStudentSummary;
   attendance_summary: StaffAttendanceSummary;
+  attendance_period?: {
+    total: number;
+    from_date?: string;
+    until_date?: string;
+  };
   recent_attendance: StaffAttendanceRecord[];
   recent_submissions: StaffSubmission[];
 };

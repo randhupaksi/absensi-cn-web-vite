@@ -230,7 +230,10 @@ export function AttendanceTableSection({
             <>
             <div className="hidden overflow-x-auto md:block">
               <DataTable>
-                <DataTableHeadRow labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]}
+                  centerLabels={["Status", "Review"]}
+                />
                 <DataTableBody>
                   {pageRecords.map((record) => {
                     const reviewedByBK = isReviewedByBK(record);

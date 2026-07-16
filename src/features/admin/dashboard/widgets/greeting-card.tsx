@@ -1,7 +1,19 @@
 "use client";
 
 import { motion } from "motion/react";
-import { BadgeCheck, CalendarDays, RadioTower } from "lucide-react";
+import { AppLink as Link } from "@/components/router/app-link";
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  BookOpenCheck,
+  Building2,
+  CalendarDays,
+  GraduationCap,
+  RadioTower,
+  ShieldCheck,
+  UserCog,
+  Users,
+} from "lucide-react";
 
 type GreetingCardProps = {
   adminName: string;
@@ -11,6 +23,45 @@ const badges = [
   { label: "Hari ini", icon: CalendarDays },
   { label: "Sistem aktif", icon: BadgeCheck },
   { label: "Data real-time lokal", icon: RadioTower },
+];
+
+const quickActions = [
+  {
+    label: "Kelola Guru",
+    href: "/dashboard/admin/teachers",
+    icon: GraduationCap,
+    iconClass: "bg-sky-50 text-sky-700 group-hover:bg-sky-100",
+  },
+  {
+    label: "Kelola Siswa",
+    href: "/dashboard/admin/students",
+    icon: Users,
+    iconClass: "bg-amber-50 text-amber-700 group-hover:bg-amber-100",
+  },
+  {
+    label: "Manajemen Mapel",
+    href: "/dashboard/admin/subjects",
+    icon: BookOpenCheck,
+    iconClass: "bg-violet-50 text-violet-700 group-hover:bg-violet-100",
+  },
+  {
+    label: "Struktur Akademik",
+    href: "/dashboard/admin/classes",
+    icon: Building2,
+    iconClass: "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100",
+  },
+  {
+    label: "Kelola Admin",
+    href: "/dashboard/admin/admins",
+    icon: ShieldCheck,
+    iconClass: "bg-rose-50 text-rose-700 group-hover:bg-rose-100",
+  },
+  {
+    label: "Role dan Akses",
+    href: "/dashboard/admin/users",
+    icon: UserCog,
+    iconClass: "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-100",
+  },
 ];
 
 export function GreetingCard({ adminName }: GreetingCardProps) {
@@ -59,6 +110,24 @@ export function GreetingCard({ adminName }: GreetingCardProps) {
           <div className="absolute bottom-18 right-20 h-16 w-9 rounded-full bg-[#252348]" />
           <div className="absolute bottom-26 right-24 h-11 w-11 rounded-full bg-[#ffcfb2]" />
         </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-3">
+        {quickActions.map(({ label, href, icon: Icon, iconClass }) => (
+          <Link
+            key={href}
+            href={href}
+            className="group flex min-h-14 items-center justify-between gap-3 rounded-[20px] border border-white/80 bg-white/74 px-3 py-3 text-xs font-semibold text-slate-700 shadow-[0_12px_26px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/80 hover:text-emerald-800 hover:shadow-[0_16px_34px_rgba(15,23,42,0.08)] sm:px-3.5 sm:text-sm"
+          >
+            <span className="inline-flex min-w-0 items-center gap-2 sm:gap-2.5">
+              <span className={`inline-flex size-8 shrink-0 items-center justify-center rounded-2xl transition sm:size-9 ${iconClass}`}>
+                <Icon className="size-4" />
+              </span>
+              <span className="truncate">{label}</span>
+            </span>
+            <ArrowUpRight className="size-4 shrink-0 text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-700" />
+          </Link>
+        ))}
       </div>
     </motion.article>
   );

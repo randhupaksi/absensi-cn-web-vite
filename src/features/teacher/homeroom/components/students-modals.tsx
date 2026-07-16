@@ -108,19 +108,44 @@ function SubmissionStatusPill({ status }: { status: string }) {
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;
 }
 
-function MiniStatCard({ label, value, tone }: { label: string; value: number; tone: "success" | "warning" | "danger" }) {
+function formatAttendancePeriod(fromDate?: string, untilDate?: string) {
+  if (!fromDate && !untilDate) return "Belum ada tanggal absensi";
+  if (!fromDate) return `Sampai ${formatDate(untilDate)}`;
+  if (!untilDate) return `Sejak ${formatDate(fromDate)}`;
+  return `${formatDate(fromDate)} - ${formatDate(untilDate)}`;
+}
+
+function AttendanceSummaryCard({
+  summary,
+  period,
+}: {
+  summary: StaffHomeroomStudentDetail["attendance_summary"];
+  period?: StaffHomeroomStudentDetail["attendance_period"];
+}) {
+  const metrics = [
+    { label: "H", value: summary.present + summary.late, className: "text-emerald-700" },
+    { label: "I", value: summary.permission, className: "text-sky-700" },
+    { label: "S", value: summary.sick, className: "text-violet-700" },
+    { label: "A", value: summary.alpha, className: "text-rose-700" },
+  ];
+  const fallbackTotal = metrics.reduce((total, item) => total + item.value, 0);
+
   return (
-    <div
-      className={`rounded-[20px] border px-4 py-4 shadow-[0_14px_28px_rgba(15,23,42,0.08)] ${
-        tone === "success"
-          ? "border-emerald-200 bg-[linear-gradient(180deg,rgba(220,252,231,0.95)_0%,rgba(187,247,208,0.82)_100%)]"
-          : tone === "warning"
-            ? "border-amber-200 bg-[linear-gradient(180deg,rgba(254,243,199,0.95)_0%,rgba(253,230,138,0.82)_100%)]"
-            : "border-rose-200 bg-[linear-gradient(180deg,rgba(255,228,230,0.95)_0%,rgba(254,205,211,0.84)_100%)]"
-      }`}
-    >
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+    <div className="rounded-[24px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(250,255,252,0.98)_0%,rgba(240,250,246,0.94)_100%)] p-4 shadow-[0_16px_30px_rgba(15,23,42,0.05)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Rekap Kehadiran</p>
+      <div className="mt-3 grid grid-cols-4 divide-x divide-emerald-100">
+        {metrics.map((item) => (
+          <div key={item.label} className="px-2 text-center first:pl-0 last:pr-0">
+            <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-400">{item.label}</p>
+            <p className={`mt-1 text-xl font-semibold tabular-nums ${item.className}`}>{item.value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 border-t border-emerald-100 pt-3 text-xs leading-5 text-slate-500">
+        <span className="font-semibold text-slate-700">Total {period?.total ?? fallbackTotal} catatan</span>
+        <span className="mx-1.5 text-slate-300">|</span>
+        {formatAttendancePeriod(period?.from_date, period?.until_date)}
+      </div>
     </div>
   );
 }
@@ -182,18 +207,16 @@ export function StudentDetailModal({
                       <p>NISN: {student.nisn || "-"}</p>
                       <p>Gender: {formatGender(student.gender)}</p>
                       <p>Tahun ajaran: {student.school_year_name || "-"}</p>
-                      <p>NISN: {student.nisn || "-"}</p>
                       <p>Status kelas: {student.membership_status || "-"}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid gap-3 self-start sm:grid-cols-2 md:grid-cols-1">
-                <MiniStatCard label="Hadir" value={studentDetail.attendance_summary.present} tone="success" />
-                <MiniStatCard label="Telat" value={studentDetail.attendance_summary.late} tone="warning" />
-                <MiniStatCard label="Alfa" value={studentDetail.attendance_summary.alpha} tone="danger" />
-              </div>
+              <AttendanceSummaryCard
+                summary={studentDetail.attendance_summary}
+                period={studentDetail.attendance_period}
+              />
             </div>
 
             <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">

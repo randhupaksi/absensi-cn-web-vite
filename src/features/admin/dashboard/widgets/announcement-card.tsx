@@ -28,7 +28,7 @@ export function AnnouncementCard({ announcements }: AnnouncementCardProps) {
 
       <div className="mt-5 space-y-3">
         {hasData ? (
-          announcements.slice(0, 3).map((item, index) => (
+          announcements.slice(0, 5).map((item, index) => (
             <motion.article
               key={item.id}
               initial={{ opacity: 0, y: 8 }}

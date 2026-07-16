@@ -24,19 +24,10 @@ type SemesterAttendanceChartProps = {
   data: SemesterPoint[];
 };
 
-const fallbackData: SemesterPoint[] = [
-  { label: "Jul", present: 0, late: 0, alpha: 0 },
-  { label: "Agu", present: 0, late: 0, alpha: 0 },
-  { label: "Sep", present: 0, late: 0, alpha: 0 },
-  { label: "Okt", present: 0, late: 0, alpha: 0 },
-  { label: "Nov", present: 0, late: 0, alpha: 0 },
-  { label: "Des", present: 0, late: 0, alpha: 0 },
-];
-
 export function SemesterAttendanceChart({
   data,
 }: SemesterAttendanceChartProps) {
-  const chartData = data.length ? data : fallbackData;
+  const chartData = data;
   const isEmpty = chartData.every(
     (item) => item.present === 0 && item.late === 0 && item.alpha === 0,
   );

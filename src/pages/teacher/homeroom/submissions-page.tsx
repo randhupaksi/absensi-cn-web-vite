@@ -305,7 +305,10 @@ export function WalasSubmissionsPage() {
                   <>
                   <div className="hidden md:block">
                   <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Pengajuan", "Waktu", "Status", "Lampiran", "Catatan", "Aksi"]} />
+                    <DataTableHeadRow
+                      labels={["Siswa", "Pengajuan", "Waktu", "Status", "Lampiran", "Catatan", "Aksi"]}
+                      centerLabels={["Status"]}
+                    />
                     <DataTableBody>
                       {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
