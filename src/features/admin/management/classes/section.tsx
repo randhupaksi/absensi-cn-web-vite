@@ -45,12 +45,6 @@ type ClassManagementSectionProps = {
   errorMessage?: string;
 };
 
-const statusOptions = [
-  { value: "all", label: "Semua" },
-  { value: "active", label: "Aktif" },
-  { value: "inactive", label: "Nonaktif" },
-];
-
 type AcademicWorkspaceTab = "classes" | AcademicStructureTab;
 
 export function ClassManagementSection({
@@ -64,26 +58,47 @@ export function ClassManagementSection({
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState<AcademicWorkspaceTab>("classes");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<AdminClass | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminClass | null>(null);
+  const [unitFilter, setUnitFilter] = useState("all");
+  const [majorFilter, setMajorFilter] = useState("all");
 
   const activeClasses = classes.filter((item) => item.is_active);
-  const totalAssignments = classes.reduce(
-    (sum, item) => sum + (item.subject_assignment_count ?? 0),
-    0,
-  );
   const activeSchoolUnits = schoolUnits.filter((item) => item.is_active).length;
   const activeMajors = majors.filter((item) => item.is_active).length;
+
+  const unitFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "Semua jenjang" },
+      ...schoolUnits
+        .filter((unit) => unit.is_active)
+        .sort((left, right) => left.code.localeCompare(right.code, "id"))
+        .map((unit) => ({
+          value: unit.id,
+          label: unit.code,
+        })),
+    ],
+    [schoolUnits],
+  );
+
+  const majorFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "Semua program / jurusan" },
+      ...majors
+        .filter((major) => major.is_active && (unitFilter === "all" || major.school_unit_id === unitFilter))
+        .sort((left, right) => left.name.localeCompare(right.name, "id"))
+        .map((major) => ({ value: major.id, label: `${major.code} - ${major.name}` })),
+    ],
+    [majors, unitFilter],
+  );
 
   const filteredClasses = useMemo(() => {
     const normalized = deferredQuery.trim().toLowerCase();
     return classes.filter((item) => {
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "active" ? item.is_active : !item.is_active);
+      const matchesUnit = unitFilter === "all" || item.school_unit_id === unitFilter;
+      const matchesMajor = majorFilter === "all" || item.major_id === majorFilter;
       const matchesQuery =
         normalized.length === 0 ||
         item.display_name.toLowerCase().includes(normalized) ||
@@ -91,9 +106,9 @@ export function ClassManagementSection({
         item.school_year_name.toLowerCase().includes(normalized) ||
         (item.homeroom_teacher_name ?? "").toLowerCase().includes(normalized);
 
-      return matchesStatus && matchesQuery;
+      return matchesUnit && matchesMajor && matchesQuery;
     });
-  }, [classes, deferredQuery, statusFilter]);
+  }, [classes, deferredQuery, majorFilter, unitFilter]);
 
   const { pageItems: pageClasses, pagination: classesPagination } = usePagination(filteredClasses);
 
@@ -218,20 +233,29 @@ export function ClassManagementSection({
         </div>
 
         <TabsContent value="classes" className="mt-5">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="text-xs font-medium text-slate-400">
-              {totalAssignments} assignment mapel aktif terhubung ke struktur kelas
-            </div>
-
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
               <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari kelas, jurusan, walas" />
 
-              <div className="w-full sm:w-[180px]">
+              <div className="w-full sm:w-[210px]">
                 <RadixSelectField
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                  placeholder="Pilih status"
-                  options={statusOptions}
+                  value={unitFilter}
+                  onValueChange={(value) => {
+                    setUnitFilter(value);
+                    setMajorFilter("all");
+                  }}
+                  placeholder="Pilih jenjang"
+                  options={unitFilterOptions}
+                  triggerClassName="h-14 rounded-[22px] pl-4"
+                />
+              </div>
+
+              <div className="w-full sm:w-[250px]">
+                <RadixSelectField
+                  value={majorFilter}
+                  onValueChange={setMajorFilter}
+                  placeholder="Pilih program / jurusan"
+                  options={majorFilterOptions}
                   triggerClassName="h-14 rounded-[22px] pl-4"
                 />
               </div>
@@ -257,7 +281,7 @@ export function ClassManagementSection({
             columnCount={8}
             isEmpty={filteredClasses.length === 0}
             emptyTitle="Kelas tidak ditemukan"
-            emptyDescription="Coba ubah pencarian, filter status, atau tambahkan kelas baru."
+            emptyDescription="Coba ubah pencarian, jenjang, atau program/jurusan, atau tambahkan kelas baru."
             icon={Building2}
             pagination={classesPagination}
             mobileView={

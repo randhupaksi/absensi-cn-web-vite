@@ -181,7 +181,7 @@ export function AcademicStructureTabContent({
                         </span>
                       }
                       title={item.name}
-                      subtitle={item.education_level}
+                      subtitle={educationLevelLabel(item.education_level)}
                       badge={<StatusBadge isActive={item.is_active} />}
                     />
                     <MobileDataFooter>
@@ -205,7 +205,7 @@ export function AcademicStructureTabContent({
                   <DataTableRow key={item.id}>
                     <DataTableCell className="font-semibold">{item.code}</DataTableCell>
                     <DataTableCell>{item.name}</DataTableCell>
-                    <DataTableCell>{item.education_level}</DataTableCell>
+                    <DataTableCell>{educationLevelLabel(item.education_level)}</DataTableCell>
                     <DataTableCell>
                       <StatusBadge isActive={item.is_active} />
                     </DataTableCell>
@@ -567,6 +567,15 @@ function unitValues(item: AdminSchoolUnit | null): SchoolUnitFormValues {
     education_level: item?.education_level ?? "",
     is_active: item?.is_active ?? true,
   };
+}
+
+function educationLevelLabel(value: string) {
+  const labels: Record<string, string> = {
+    SMP: "Sekolah Menengah Pertama",
+    SMA: "Sekolah Menengah Atas",
+    SMK: "Sekolah Menengah Kejuruan",
+  };
+  return labels[value.toUpperCase()] ?? value;
 }
 
 function majorValues(item: AdminMajor | null): ProgramFormValues {

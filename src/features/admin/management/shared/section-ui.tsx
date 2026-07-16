@@ -188,7 +188,7 @@ export type PaginationControls = {
  * caller to render; page auto-clamps to the last valid page whenever the
  * (filtered) data set shrinks, e.g. after a search/status filter changes.
  */
-export function usePagination<T>(data: T[], initialPageSize = 10) {
+export function usePagination<T>(data: T[], initialPageSize = 25) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
 
@@ -238,7 +238,7 @@ export function DataTablePagination({
 }: PaginationControls) {
   return (
     <div className="flex flex-col gap-3 border-t border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-4 py-3.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Baris</span>
           <RowsPerPageSelect value={pageSize} onChange={setPageSize} />
@@ -259,20 +259,20 @@ export function DataTablePagination({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex w-full items-center gap-3 sm:w-auto">
         <span className="hidden whitespace-nowrap text-xs font-medium text-slate-400 sm:inline">
           Halaman <b className="font-semibold text-slate-700">{page}</b> dari{" "}
           <b className="font-semibold text-slate-700">{totalPages}</b>
         </span>
 
-        <div className="flex items-center gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
+        <div className="flex w-full items-center justify-between gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] sm:w-auto sm:justify-start">
           <PaginationNavButton onClick={() => setPage(1)} disabled={page <= 1} ariaLabel="Halaman pertama">
             <ChevronsLeft className="size-4" />
           </PaginationNavButton>
           <PaginationNavButton onClick={() => setPage(page - 1)} disabled={page <= 1} ariaLabel="Halaman sebelumnya">
             <ChevronLeft className="size-4" />
           </PaginationNavButton>
-          <span className="flex size-9 items-center justify-center rounded-[12px] bg-[linear-gradient(180deg,#10b981_0%,#0d9488_100%)] text-sm font-semibold text-white shadow-[0_10px_20px_rgba(16,185,129,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(180deg,#10b981_0%,#0d9488_100%)] text-sm font-semibold text-white shadow-[0_10px_20px_rgba(16,185,129,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]">
             {page}
           </span>
           <PaginationNavButton onClick={() => setPage(page + 1)} disabled={page >= totalPages} ariaLabel="Halaman berikutnya">
@@ -304,7 +304,7 @@ function PaginationNavButton({
       aria-label={ariaLabel}
       onClick={onClick}
       disabled={disabled}
-      className="flex size-9 items-center justify-center rounded-[11px] text-emerald-700 transition-all duration-150 hover:bg-emerald-50 active:scale-90 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:active:scale-100"
+      className="flex size-9 flex-1 items-center justify-center rounded-[11px] text-emerald-700 transition-all duration-150 hover:bg-emerald-50 active:scale-90 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:active:scale-100 sm:flex-none"
     >
       {children}
     </button>
@@ -326,6 +326,8 @@ function RowsPerPageSelect({
       options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: String(size) }))}
       triggerClassName="h-10 w-[5.25rem] min-w-[5.25rem] rounded-[14px] border-emerald-200/80 px-3.5 text-sm font-bold text-slate-800"
       contentClassName="rounded-[1.15rem] p-1.5"
+      hideIndicator
+      itemClassName="justify-center text-center font-semibold hover:!border-emerald-400 hover:!bg-emerald-200 data-[highlighted]:!border-emerald-300 data-[highlighted]:!bg-emerald-100 data-[state=checked]:!border-emerald-400 data-[state=checked]:!bg-emerald-200"
     />
   );
 }

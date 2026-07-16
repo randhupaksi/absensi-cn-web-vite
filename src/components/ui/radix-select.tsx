@@ -19,6 +19,8 @@ type RadixSelectProps = {
   className?: string;
   contentClassName?: string;
   triggerClassName?: string;
+  hideIndicator?: boolean;
+  itemClassName?: string;
 };
 
 export function RadixSelectField({
@@ -29,6 +31,8 @@ export function RadixSelectField({
   className,
   contentClassName,
   triggerClassName,
+  hideIndicator = false,
+  itemClassName,
 }: RadixSelectProps) {
   return (
     <Select.Root value={value} onValueChange={onValueChange}>
@@ -56,7 +60,7 @@ export function RadixSelectField({
         >
           <Select.Viewport className="max-h-[280px] space-y-1">
             {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value} value={option.value} hideIndicator={hideIndicator} className={itemClassName}>
                 <div className="min-w-0">
                   <p className="truncate font-medium text-slate-700">{option.label}</p>
                   {option.description ? (
@@ -77,9 +81,13 @@ export function RadixSelectField({
 function SelectItem({
   value,
   children,
+  hideIndicator,
+  className,
 }: {
   value: string;
   children: ReactNode;
+  hideIndicator?: boolean;
+  className?: string;
 }) {
   const pointerStartedOnItem = useRef(false);
 
@@ -102,11 +110,16 @@ function SelectItem({
       onPointerCancel={() => {
         pointerStartedOnItem.current = false;
       }}
-      className="group/item relative flex cursor-pointer select-none items-start gap-3 rounded-[1rem] border border-transparent px-3 py-3 text-sm outline-none transition-[background-color,border-color,box-shadow,color] hover:!border-emerald-200 hover:!bg-emerald-100 hover:!text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-[highlighted]:border-transparent data-[highlighted]:bg-transparent data-[highlighted]:text-slate-700 data-[state=checked]:border-emerald-200 data-[state=checked]:bg-emerald-100 data-[state=checked]:text-emerald-950 data-[state=checked]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
+      className={cn(
+        "group/item relative flex cursor-pointer select-none items-start gap-3 rounded-[1rem] border border-transparent px-3 py-3 text-sm outline-none transition-[background-color,border-color,box-shadow,color] hover:!border-emerald-200 hover:!bg-emerald-100 hover:!text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-[highlighted]:border-transparent data-[highlighted]:bg-transparent data-[highlighted]:text-slate-700 data-[state=checked]:border-emerald-200 data-[state=checked]:bg-emerald-100 data-[state=checked]:text-emerald-950 data-[state=checked]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]",
+        className,
+      )}
     >
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-emerald-700 transition-colors group-hover/item:!border-emerald-300 group-hover/item:!bg-emerald-50 group-data-[state=checked]/item:border-emerald-300 group-data-[state=checked]/item:bg-emerald-50">
-        <Check className="size-3.5 opacity-0 transition-opacity group-hover/item:opacity-100 group-data-[state=checked]/item:opacity-100" />
-      </span>
+      {hideIndicator ? null : (
+        <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-emerald-700 transition-colors group-hover/item:!border-emerald-300 group-hover/item:!bg-emerald-50 group-data-[state=checked]/item:border-emerald-300 group-data-[state=checked]/item:bg-emerald-50">
+          <Check className="size-3.5 opacity-0 transition-opacity group-hover/item:opacity-100 group-data-[state=checked]/item:opacity-100" />
+        </span>
+      )}
       <Select.ItemText asChild>{children}</Select.ItemText>
     </Select.Item>
   );
