@@ -1,4 +1,5 @@
 import { apiClient } from "@/services/api/client";
+import { retryTransientRequest } from "@/services/api/transient-retry";
 import { LoginSchema } from "@/lib/validations/login-schema";
 import type { AuthSession } from "@/types/auth";
 import axios from "axios";
@@ -19,9 +20,8 @@ type ApiEnvelope<T> = {
 
 export async function login(payload: LoginSchema) {
   try {
-    const response = await apiClient.post<ApiEnvelope<ApiAuthSession>>(
-      "/auth/login",
-      payload,
+    const response = await retryTransientRequest(() =>
+      apiClient.post<ApiEnvelope<ApiAuthSession>>("/auth/login", payload),
     );
 
     return {
