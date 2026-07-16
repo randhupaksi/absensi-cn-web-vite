@@ -16,17 +16,23 @@ import {
   MobileDataHeader,
   MobileDataList,
   SearchFilterBar,
+  SectionTabSwitch,
   StatCard,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
+import {
+  AcademicStructureTabContent,
+  type AcademicStructureTab,
+} from "@/features/admin/management/academic/section";
 import { ClassFormModal } from "@/features/admin/management/classes/modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
 import { RadixSelectField } from "@/components/ui/radix-select";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { createAdminClass, deleteAdminClass, updateAdminClass } from "@/services/admin.service";
 import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, ShieldCheck, Users } from "lucide-react";
+import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, Network, School } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -45,6 +51,8 @@ const statusOptions = [
   { value: "inactive", label: "Nonaktif" },
 ];
 
+type AcademicWorkspaceTab = "classes" | AcademicStructureTab;
+
 export function ClassManagementSection({
   classes,
   majors,
@@ -57,17 +65,18 @@ export function ClassManagementSection({
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<AcademicWorkspaceTab>("classes");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<AdminClass | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminClass | null>(null);
 
   const activeClasses = classes.filter((item) => item.is_active);
-  const totalStudents = classes.reduce((sum, item) => sum + (item.student_count ?? 0), 0);
   const totalAssignments = classes.reduce(
     (sum, item) => sum + (item.subject_assignment_count ?? 0),
     0,
   );
-  const homeroomCovered = classes.filter((item) => item.homeroom_teacher_name).length;
+  const activeSchoolUnits = schoolUnits.filter((item) => item.is_active).length;
+  const activeMajors = majors.filter((item) => item.is_active).length;
 
   const filteredClasses = useMemo(() => {
     const normalized = deferredQuery.trim().toLowerCase();
@@ -139,16 +148,16 @@ export function ClassManagementSection({
       accentClass: "from-teal-500 via-emerald-500 to-green-500",
     },
     {
-      label: "Siswa",
-      value: totalStudents,
-      icon: Users,
+      label: "Unit Aktif",
+      value: activeSchoolUnits,
+      icon: School,
       accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
     },
     {
-      label: "Walas",
-      value: homeroomCovered,
-      icon: ShieldCheck,
-      accentClass: "from-amber-400 via-orange-400 to-emerald-500",
+      label: "Jurusan Aktif",
+      value: activeMajors,
+      icon: Network,
+      accentClass: "from-violet-500 via-fuchsia-500 to-emerald-500",
     },
   ];
 
@@ -158,21 +167,22 @@ export function ClassManagementSection({
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
-        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AcademicWorkspaceTab)} className="relative">
+        <div className="flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                 <LayoutPanelTop className="size-3.5" />
-                Class Workspace
+                Struktur Akademik
               </div>
 
               <div className="space-y-2">
                 <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Class Management
+                  Struktur Akademik
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Kelola rombel, jurusan, tahun ajaran, walas, dan relasi data kelas dari satu
-                  area operasional admin.
+                  Kelola unit sekolah, jurusan, dan rombel dari satu area operasional yang saling
+                  terhubung.
                 </p>
               </div>
             </div>
@@ -183,9 +193,9 @@ export function ClassManagementSection({
                   <GraduationCap className="size-4.5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">Relasi data kelas</p>
+                  <p className="text-sm font-semibold text-slate-800">Struktur data terhubung</p>
                   <p className="text-xs leading-5 text-slate-500">
-                    Hapus kelas akan membersihkan walas, mapel, membership, dan absensi terkait.
+                    Kelas, jurusan, dan unit menjadi fondasi relasi siswa, mapel, dan jadwal.
                   </p>
                 </div>
               </div>
@@ -198,6 +208,16 @@ export function ClassManagementSection({
             ))}
           </div>
 
+          <SectionTabSwitch
+            tabs={[
+              { value: "classes", label: "Kelas", icon: Building2 },
+              { value: "units", label: "Unit Sekolah", icon: School },
+              { value: "majors", label: "Jurusan", icon: Network },
+            ]}
+          />
+        </div>
+
+        <TabsContent value="classes" className="mt-5">
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="text-xs font-medium text-slate-400">
               {totalAssignments} assignment mapel aktif terhubung ke struktur kelas
@@ -219,7 +239,6 @@ export function ClassManagementSection({
               <AddButton label="Kelas" onClick={() => setModalOpen(true)} />
             </div>
           </div>
-        </div>
 
         {errorMessage ? (
           <div className="mt-5">
@@ -346,6 +365,26 @@ export function ClassManagementSection({
             </DataTable>
           </DataTableCard>
         </div>
+        </TabsContent>
+
+        <TabsContent value="units" className="mt-0">
+          <AcademicStructureTabContent
+            activeTab="units"
+            units={schoolUnits}
+            majors={majors}
+            isLoading={isLoading}
+          />
+        </TabsContent>
+
+        <TabsContent value="majors" className="mt-0">
+          <AcademicStructureTabContent
+            activeTab="majors"
+            units={schoolUnits}
+            majors={majors}
+            isLoading={isLoading}
+          />
+        </TabsContent>
+        </Tabs>
       </section>
 
       {modalOpen && (

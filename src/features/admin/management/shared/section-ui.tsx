@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { ScrollableTabsWrapper } from "@/features/admin/dashboard/widgets/scrollable-tabs";
+import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   premiumModalActionsClassName,
   premiumModalFieldClassName,
@@ -12,9 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import * as Select from "@radix-ui/react-select";
 import type { LucideIcon } from "lucide-react";
-import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -319,35 +319,14 @@ function RowsPerPageSelect({
   onChange: (size: number) => void;
 }) {
   return (
-    <Select.Root value={String(value)} onValueChange={(next) => onChange(Number(next))}>
-      <Select.Trigger className="group flex h-10 min-w-[4.5rem] items-center justify-between gap-2 rounded-[14px] border border-emerald-200/80 bg-white px-3.5 text-sm font-bold text-slate-800 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/70 data-[state=open]:border-emerald-400 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/70">
-        <Select.Value />
-        <Select.Icon className="text-emerald-600 transition-transform duration-200 group-data-[state=open]:rotate-180">
-          <ChevronDown className="size-3.5" />
-        </Select.Icon>
-      </Select.Trigger>
-
-      <Select.Portal>
-        <Select.Content
-          position="popper"
-          sideOffset={8}
-          className="z-[80] w-fit overflow-hidden rounded-[1.15rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(243,252,247,0.99)_100%)] p-1.5 shadow-[0_28px_64px_rgba(15,23,42,0.18)] backdrop-blur-xl"
-        >
-          <Select.Viewport className="space-y-0.5">
-            {PAGE_SIZE_OPTIONS.map((size) => (
-              <Select.Item
-                key={size}
-                value={String(size)}
-                className="group/row-option relative flex cursor-pointer select-none items-center gap-3 rounded-[0.85rem] px-3.5 py-2.5 text-sm font-semibold text-slate-700 outline-none transition data-[highlighted]:bg-emerald-50 data-[state=checked]:bg-emerald-100/70 data-[state=checked]:text-emerald-800"
-              >
-                <Select.ItemText>{size}</Select.ItemText>
-                <Check className="size-4 shrink-0 text-emerald-600 opacity-0 group-data-[state=checked]/row-option:opacity-100" />
-              </Select.Item>
-            ))}
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
+    <RadixSelectField
+      value={String(value)}
+      onValueChange={(next) => onChange(Number(next))}
+      placeholder="Baris"
+      options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: String(size) }))}
+      triggerClassName="h-10 w-[5.25rem] min-w-[5.25rem] rounded-[14px] border-emerald-200/80 px-3.5 text-sm font-bold text-slate-800"
+      contentClassName="rounded-[1.15rem] p-1.5"
+    />
   );
 }
 

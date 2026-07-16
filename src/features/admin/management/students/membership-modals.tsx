@@ -15,7 +15,7 @@ import type {
   AdminStudentClassMembershipPayload,
 } from "@/types/admin";
 import { GraduationCap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const membershipStatusOptions = [
   { value: "ACTIVE", label: "Aktif" },
@@ -131,6 +131,125 @@ function getStudentOptions(
     }));
 }
 
+function ClassPlacementFields({
+  classes,
+  schoolYearId,
+  classId,
+  onClassChange,
+  classError,
+}: {
+  classes: AdminClass[];
+  schoolYearId: string;
+  classId: string;
+  onClassChange: (classId: string) => void;
+  classError?: string;
+}) {
+  const [selectedUnitId, setSelectedUnitId] = useState("");
+  const [selectedMajorId, setSelectedMajorId] = useState("");
+  const yearClasses = useMemo(
+    () => classes.filter((item) => item.is_active && item.school_year_id === schoolYearId),
+    [classes, schoolYearId],
+  );
+  const selectedClass = yearClasses.find((item) => item.id === classId);
+
+  useEffect(() => {
+    if (!selectedClass) return;
+    setSelectedUnitId(selectedClass.school_unit_id);
+    setSelectedMajorId(selectedClass.major_id);
+  }, [selectedClass]);
+
+  const unitOptions = useMemo(() => {
+    const units = new Map<string, AdminClass>();
+    yearClasses.forEach((item) => units.set(item.school_unit_id, item));
+
+    return [...units.values()]
+      .sort((left, right) => left.school_unit_code.localeCompare(right.school_unit_code, "id"))
+      .map((item) => ({
+        value: item.school_unit_id,
+        label: schoolLevelLabel(item.school_unit_code),
+        description: item.school_unit_name,
+      }));
+  }, [yearClasses]);
+
+  const majorOptions = useMemo(() => {
+    const majors = new Map<string, AdminClass>();
+    yearClasses
+      .filter((item) => !selectedUnitId || item.school_unit_id === selectedUnitId)
+      .forEach((item) => majors.set(item.major_id, item));
+
+    return [...majors.values()]
+      .sort((left, right) => left.major_name.localeCompare(right.major_name, "id"))
+      .map((item) => ({
+        value: item.major_id,
+        label: item.major_name,
+        description: schoolLevelLabel(item.school_unit_code),
+      }));
+  }, [selectedUnitId, yearClasses]);
+
+  const classOptions = useMemo(
+    () => yearClasses
+      .filter((item) => !selectedUnitId || item.school_unit_id === selectedUnitId)
+      .filter((item) => !selectedMajorId || item.major_id === selectedMajorId)
+      .sort(compareClasses)
+      .map((item) => ({
+        value: item.id,
+        label: item.display_name,
+        description: `${item.major_name} · ${item.school_year_name}`,
+      })),
+    [selectedMajorId, selectedUnitId, yearClasses],
+  );
+
+  const changeUnit = (unitId: string) => {
+    setSelectedUnitId(unitId);
+    setSelectedMajorId("");
+    if (selectedClass && selectedClass.school_unit_id !== unitId) onClassChange("");
+  };
+
+  const changeMajor = (majorId: string) => {
+    setSelectedMajorId(majorId);
+    if (selectedClass && selectedClass.major_id !== majorId) onClassChange("");
+  };
+
+  return (
+    <>
+      <div className="grid gap-4 md:grid-cols-2">
+        <FieldGroup label="Jenjang">
+          <RadixSelectField
+            value={selectedUnitId}
+            onValueChange={changeUnit}
+            placeholder="Pilih SMA atau SMK"
+            options={unitOptions}
+          />
+        </FieldGroup>
+        <FieldGroup label="Jurusan">
+          <RadixSelectField
+            value={selectedMajorId}
+            onValueChange={changeMajor}
+            placeholder="Pilih jurusan"
+            options={majorOptions}
+          />
+        </FieldGroup>
+      </div>
+      <FieldGroup label="Kelas">
+        <RadixSelectField
+          value={classId}
+          onValueChange={(nextClassId) => {
+            onClassChange(nextClassId);
+            const nextClass = yearClasses.find((item) => item.id === nextClassId);
+            if (nextClass) {
+              setSelectedUnitId(nextClass.school_unit_id);
+              setSelectedMajorId(nextClass.major_id);
+            }
+          }}
+          placeholder="Pilih kelas"
+          options={classOptions}
+        />
+        <FieldError message={classError} />
+      </FieldGroup>
+    </>
+  );
+}
+
 export function StudentMembershipCreateModal({
   open,
   onOpenChange,
@@ -144,6 +263,11 @@ export function StudentMembershipCreateModal({
   const [form, setForm] = useState<AdminStudentClassMembershipPayload>(EMPTY_FORM);
   const [errors, setErrors] = useState<FieldErrors<keyof AdminStudentClassMembershipPayload>>({});
   const availableStudentOptions = getStudentOptions(students, memberships, form.school_year_id);
+
+  useEffect(() => {
+    if (!open || form.school_year_id || schoolYears.length === 0) return;
+    setForm((previous) => ({ ...previous, school_year_id: schoolYears[0].id }));
+  }, [form.school_year_id, open, schoolYears]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     onOpenChange(nextOpen);
@@ -168,26 +292,29 @@ export function StudentMembershipCreateModal({
     <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Penempatan Kelas" description="Hubungkan siswa ke kelas aktif per tahun ajaran tanpa menghilangkan riwayat akademik." icon={GraduationCap}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
-          <FieldGroup label="Siswa">
-            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} disabled={!form.school_year_id} placeholder={form.school_year_id ? "Pilih siswa" : "Pilih tahun ajaran terlebih dahulu"} searchPlaceholder="Cari nama atau NIS siswa..." emptyText="Semua siswa sudah memiliki penempatan aktif pada tahun ini." options={availableStudentOptions} />
-            <FieldError message={errors.student_id} />
-          </FieldGroup>
-          <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => setForm((prev) => ({ ...prev, class_id: v }))} placeholder="Pilih kelas" options={classes.filter((c) => c.school_year_id === form.school_year_id).map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
-            <FieldError message={errors.class_id} />
-          </FieldGroup>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Tahun Ajaran">
             <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v, student_id: "", class_id: "" }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
-          <FieldGroup label="Status Penempatan">
-            <RadixSelectField value={form.status} onValueChange={(v) => setForm((prev) => ({ ...prev, status: v, is_active: deriveMembershipIsActive(v) }))} placeholder="Pilih status" options={membershipStatusOptions} />
-            <FieldError message={errors.status} />
+          <FieldGroup label="Siswa">
+            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} disabled={!form.school_year_id} placeholder={form.school_year_id ? "Pilih siswa" : "Pilih tahun ajaran terlebih dahulu"} searchPlaceholder="Cari nama atau NIS siswa..." emptyText="Semua siswa sudah memiliki penempatan aktif pada tahun ini." options={availableStudentOptions} />
+            <FieldError message={errors.student_id} />
           </FieldGroup>
         </div>
+
+        <ClassPlacementFields
+          key={form.school_year_id}
+          classes={classes}
+          schoolYearId={form.school_year_id}
+          classId={form.class_id}
+          onClassChange={(classId) => setForm((prev) => ({ ...prev, class_id: classId }))}
+          classError={errors.class_id}
+        />
+
+        <FieldGroup label="Status Penempatan">
+          <RadixSelectField value={form.status} onValueChange={(v) => setForm((prev) => ({ ...prev, status: v, is_active: deriveMembershipIsActive(v) }))} placeholder="Pilih status" options={membershipStatusOptions} />
+          <FieldError message={errors.status} />
+        </FieldGroup>
 
         <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Penempatan" />
       </div>
@@ -221,6 +348,11 @@ export function StudentMembershipEditModal({
   );
   const [errors, setErrors] = useState<FieldErrors<keyof AdminStudentClassMembershipPayload>>({});
 
+  useEffect(() => {
+    if (!open || form.school_year_id || schoolYears.length === 0) return;
+    setForm((previous) => ({ ...previous, school_year_id: schoolYears[0].id }));
+  }, [form.school_year_id, open, schoolYears]);
+
   const handleSubmit = () => {
     const payload = { ...form, is_active: deriveMembershipIsActive(form.status) };
     const nextErrors = validateStudentMembershipForm(payload);
@@ -235,29 +367,46 @@ export function StudentMembershipEditModal({
     <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Penempatan Kelas" description="Perbarui rombel siswa per tahun ajaran tanpa menghilangkan struktur riwayatnya." icon={GraduationCap}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
-          <FieldGroup label="Siswa">
-            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} disabled={!form.school_year_id} placeholder={form.school_year_id ? "Pilih siswa" : "Pilih tahun ajaran terlebih dahulu"} searchPlaceholder="Cari nama atau NIS siswa..." emptyText="Semua siswa sudah memiliki penempatan aktif pada tahun ini." options={getStudentOptions(students, memberships, form.school_year_id, membership.id)} />
-            <FieldError message={errors.student_id} />
-          </FieldGroup>
-          <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => setForm((prev) => ({ ...prev, class_id: v }))} placeholder="Pilih kelas" options={classes.filter((c) => c.school_year_id === form.school_year_id).map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
-            <FieldError message={errors.class_id} />
-          </FieldGroup>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Tahun Ajaran">
             <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v, student_id: "", class_id: "" }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
-          <FieldGroup label="Status Penempatan">
-            <RadixSelectField value={form.status} onValueChange={(v) => setForm((prev) => ({ ...prev, status: v, is_active: deriveMembershipIsActive(v) }))} placeholder="Pilih status" options={membershipStatusOptions} />
-            <FieldError message={errors.status} />
+          <FieldGroup label="Siswa">
+            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} disabled={!form.school_year_id} placeholder={form.school_year_id ? "Pilih siswa" : "Pilih tahun ajaran terlebih dahulu"} searchPlaceholder="Cari nama atau NIS siswa..." emptyText="Semua siswa sudah memiliki penempatan aktif pada tahun ini." options={getStudentOptions(students, memberships, form.school_year_id, membership.id)} />
+            <FieldError message={errors.student_id} />
           </FieldGroup>
         </div>
+
+        <ClassPlacementFields
+          key={form.school_year_id}
+          classes={classes}
+          schoolYearId={form.school_year_id}
+          classId={form.class_id}
+          onClassChange={(classId) => setForm((prev) => ({ ...prev, class_id: classId }))}
+          classError={errors.class_id}
+        />
+
+        <FieldGroup label="Status Penempatan">
+          <RadixSelectField value={form.status} onValueChange={(v) => setForm((prev) => ({ ...prev, status: v, is_active: deriveMembershipIsActive(v) }))} placeholder="Pilih status" options={membershipStatusOptions} />
+          <FieldError message={errors.status} />
+        </FieldGroup>
 
         <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Penempatan" />
       </div>
     </PremiumModal>
   );
+}
+
+function schoolLevelLabel(schoolUnitCode: string) {
+  const code = schoolUnitCode.toUpperCase();
+  if (code.includes("SMK")) return "SMK";
+  if (code.includes("SMA")) return "SMA";
+  return schoolUnitCode;
+}
+
+function compareClasses(left: AdminClass, right: AdminClass) {
+  return left.major_name.localeCompare(right.major_name, "id")
+    || left.grade.localeCompare(right.grade, "id", { numeric: true })
+    || left.name.localeCompare(right.name, "id", { numeric: true })
+    || left.display_name.localeCompare(right.display_name, "id", { numeric: true });
 }
