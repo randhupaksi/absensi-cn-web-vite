@@ -88,6 +88,19 @@ export async function submitStudentDailyReport(payload: StudentDailyReportPayloa
       formData.append("type", payload.type);
       formData.append("reason", payload.reason ?? "");
       formData.append("photo", payload.photo);
+      if (payload.location.latitude !== undefined) {
+        formData.append("location_latitude", String(payload.location.latitude));
+      }
+      if (payload.location.longitude !== undefined) {
+        formData.append("location_longitude", String(payload.location.longitude));
+      }
+      if (payload.location.accuracy_meters !== undefined) {
+        formData.append("location_accuracy_meters", String(payload.location.accuracy_meters));
+      }
+      if (payload.location.captured_at) {
+        formData.append("location_captured_at", payload.location.captured_at);
+      }
+      formData.append("location_client_status", payload.location.client_status);
 
       return apiClient.post<ApiEnvelope<StudentToday>>(
         "/student/daily-report",

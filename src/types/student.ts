@@ -1,4 +1,9 @@
 import type { StaffAttendanceRecord } from "@/types/staff";
+import type {
+  AttendanceLocationCapture,
+  AttendanceLocationEvidence,
+  AttendanceLocationPolicy,
+} from "@/types/location";
 
 export type StudentProfile = {
   id: string;
@@ -20,7 +25,7 @@ export type StudentProfile = {
   membership_status?: string;
 };
 
-export type StudentSubmission = {
+export type StudentSubmission = AttendanceLocationEvidence & {
   id: string;
   student_id: string;
   student_name: string;
@@ -63,6 +68,7 @@ export type StudentToday = {
   current_status: string;
   current_time: string;
   message: string;
+  location_policy?: AttendanceLocationPolicy;
 };
 
 export type StudentNotification = {
@@ -92,4 +98,5 @@ export type StudentDailyReportPayload = {
   type: "HADIR" | "IZIN" | "SAKIT";
   reason?: string;
   photo: File;
+  location: AttendanceLocationCapture;
 };

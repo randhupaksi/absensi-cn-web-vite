@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
 import {
   PremiumModal,
   premiumModalActionsClassName,
@@ -234,6 +235,7 @@ export function AttendanceProofModal({
                 compact
               />
             )}
+            <AttendanceLocationEvidence evidence={record} className="mt-4 px-1 pb-1" />
           </div>
         </div>
       ) : null}

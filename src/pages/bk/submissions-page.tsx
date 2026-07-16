@@ -13,6 +13,8 @@ import {
   TableSkeleton,
 } from "@/features/bk/components/common";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
+import { ProtectedApiImage } from "@/components/security/protected-api-asset";
 import {
   DataTable,
   DataTableBody,
@@ -47,7 +49,6 @@ import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-v
 import { getBKSubmissionsOverview, reviewBKSubmission } from "@/services/staff.service";
 import type { StaffSubmission } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AppImage as Image } from "@/components/media/app-image";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -363,13 +364,10 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
                 isImageAttachment(submission.attachment) ? (
                   <div className="space-y-3">
                     <div className="overflow-hidden rounded-[20px] border border-emerald-100 bg-slate-50/80">
-                      <Image
+                      <ProtectedApiImage
                         src={normalizeAttachmentUrl(submission.attachment)}
                         alt={`Lampiran ${submission.student_name}`}
-                        width={720}
-                        height={360}
                         className="h-[260px] w-full object-cover"
-                        unoptimized
                       />
                     </div>
                     <Button type="button" variant="outline" className="w-full rounded-[16px]" onClick={() => openAttachment(submission.attachment)}>
@@ -386,6 +384,7 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
               ) : (
                 <EmptyState icon={FileImage} title="Tidak ada lampiran" description="Siswa belum mengunggah bukti pendukung." compact />
               )}
+              <AttendanceLocationEvidence evidence={submission} className="mt-4" />
             </div>
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">

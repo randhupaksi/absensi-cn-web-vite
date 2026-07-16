@@ -2,6 +2,8 @@
 
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
+import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import { StudentShell } from "@/features/student/components/shell";
 import { CameraCaptureModal } from "@/features/student/components/camera-capture-modal";
 import {
@@ -13,7 +15,6 @@ import {
   StudentSubmissionPill,
 } from "@/features/student/components/common";
 import { Button } from "@/components/ui/button";
-import { openProtectedApiAsset } from "@/components/security/protected-api-asset";
 import {
   PremiumModal,
   premiumModalActionsClassName,
@@ -27,11 +28,14 @@ import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
 import { compressUploadImage } from "@/lib/images/compress-upload-image";
+import { captureAttendanceLocation } from "@/lib/location/capture-attendance-location";
 import {
   getStudentDashboard,
   submitStudentDailyReport,
 } from "@/services/student.service";
 import type { StudentDailyReportPayload } from "@/types/student";
+import type { AttendanceLocationCaptureResult } from "@/types/location";
+import type { StaffAttendanceRecord } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
@@ -63,6 +67,7 @@ export function StudentDashboardPage() {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const photoPreviewRef = useRef("");
+  const locationCaptureSequenceRef = useRef(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState("");
@@ -72,6 +77,9 @@ export function StudentDashboardPage() {
   const [errors, setErrors] = useState<FieldErrors<"photo" | "type" | "reason">>({});
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
+  const [locationState, setLocationState] = useState<"idle" | "loading" | "complete">("idle");
+  const [locationResult, setLocationResult] = useState<AttendanceLocationCaptureResult | null>(null);
+  const [evidenceRecord, setEvidenceRecord] = useState<StaffAttendanceRecord | null>(null);
 
   const dashboardQuery = useQuery({
     queryKey: ["student-dashboard"],
@@ -121,6 +129,7 @@ export function StudentDashboardPage() {
   })();
 
   function resetCaptureState() {
+    locationCaptureSequenceRef.current += 1;
     setPhotoFile(null);
     if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
     photoPreviewRef.current = "";
@@ -128,6 +137,8 @@ export function StudentDashboardPage() {
     setReportType("HADIR");
     setReason("");
     setErrors({});
+    setLocationState("idle");
+    setLocationResult(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -135,6 +146,7 @@ export function StudentDashboardPage() {
 
   function handleStartAttendance() {
     if (!canSubmit) return;
+    void refreshAttendanceLocation();
     if (isMobileDevice()) {
       inputRef.current?.click();
     } else {
@@ -144,6 +156,7 @@ export function StudentDashboardPage() {
 
   async function handlePhotoPicked(file?: File) {
     if (!file) return;
+    if (locationState === "idle") void refreshAttendanceLocation();
     setIsPreparingPhoto(true);
     setErrors({});
 
@@ -170,6 +183,17 @@ export function StudentDashboardPage() {
     }
   }
 
+  async function refreshAttendanceLocation() {
+    const sequence = ++locationCaptureSequenceRef.current;
+    setLocationState("loading");
+    const result = await captureAttendanceLocation();
+    if (sequence === locationCaptureSequenceRef.current) {
+      setLocationResult(result);
+      setLocationState("complete");
+    }
+    return result;
+  }
+
   function handleSubmit() {
     const nextErrors: FieldErrors<"photo" | "type" | "reason"> = {};
     validateRequired(nextErrors, "photo", photoFile, "Foto absensi siswa");
@@ -184,6 +208,7 @@ export function StudentDashboardPage() {
       type: reportType,
       reason: reason.trim(),
       photo: photoFile,
+      location: locationResult?.capture ?? { client_status: "unavailable" },
     });
   }
 
@@ -386,7 +411,7 @@ export function StudentDashboardPage() {
                         {record.photo_url ? (
                           <button
                             type="button"
-                            onClick={() => void openProtectedApiAsset(record.photo_url!)}
+                            onClick={() => setEvidenceRecord(record)}
                             className="inline-flex size-9 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
                             aria-label="Buka foto absensi"
                           >
@@ -495,6 +520,29 @@ export function StudentDashboardPage() {
                     <p className="text-xs font-medium text-slate-500">
                       Foto otomatis dikompres sebelum dikirim agar upload tetap ringan.
                     </p>
+                    <AttendanceLocationEvidence
+                      evidence={
+                        locationResult
+                          ? {
+                              location_latitude: locationResult.capture.latitude,
+                              location_longitude: locationResult.capture.longitude,
+                              location_accuracy_meters: locationResult.capture.accuracy_meters,
+                              location_captured_at: locationResult.capture.captured_at,
+                              location_status:
+                                locationResult.outcome === "captured"
+                                  ? "captured_unverified"
+                                  : locationResult.outcome,
+                            }
+                          : {}
+                      }
+                      isLoading={locationState === "loading"}
+                      message={
+                        locationResult?.outcome === "captured" && today?.location_policy?.configured
+                          ? "Lokasi siap dihitung terhadap radius sekolah saat absensi dikirim."
+                          : locationResult?.message
+                      }
+                      onRetry={() => void refreshAttendanceLocation()}
+                    />
                   </div>
                   <div className="space-y-4">
                     <div className={premiumModalFieldClassName}>
@@ -550,16 +598,25 @@ export function StudentDashboardPage() {
                 </Button>
                 <Button
                   type="button"
-                  disabled={submitMutation.isPending}
+                  disabled={submitMutation.isPending || locationState === "loading"}
                   onClick={handleSubmit}
                   className="h-13 rounded-full bg-emerald-700 px-7 text-white shadow-[0_14px_28px_rgba(16,185,129,0.22)] hover:bg-emerald-800"
                 >
                   <ShieldCheck className="size-4.5" />
-                  {submitMutation.isPending ? "Mengirim..." : "Kirim Absensi"}
+                  {submitMutation.isPending
+                    ? "Mengirim..."
+                    : locationState === "loading"
+                      ? "Membaca Lokasi..."
+                      : "Kirim Absensi"}
                 </Button>
               </div>
             </div>
           </PremiumModal>
+
+          <AttendanceEvidenceModal
+            record={evidenceRecord}
+            onOpenChange={(open) => !open && setEvidenceRecord(null)}
+          />
 
           {cameraModalOpen ? (
             <CameraCaptureModal

@@ -26,7 +26,9 @@ export type StaffHomeroomContext = {
   is_active: boolean;
 };
 
-export type StaffSubmission = {
+import type { AttendanceLocationEvidence } from "@/types/location";
+
+export type StaffSubmission = AttendanceLocationEvidence & {
   id: string;
   student_id: string;
   student_name: string;
@@ -84,7 +86,7 @@ export type StaffStudentSummary = {
   alpha_count: number;
 };
 
-export type StaffAttendanceRecord = {
+export type StaffAttendanceRecord = AttendanceLocationEvidence & {
   id: string;
   student_id: string;
   student_name: string;

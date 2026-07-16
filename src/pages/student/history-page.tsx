@@ -11,16 +11,16 @@ import {
 } from "@/features/admin/management/shared/section-ui";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StudentShell } from "@/features/student/components/shell";
+import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
+import { StudentSubmissionEvidenceModal } from "@/features/student/components/submission-evidence-modal";
 import {
   formatStudentDate,
   formatStudentDateTime,
   formatStudentTime,
-  studentAttachmentUrl,
   StudentStatusPill,
   StudentSubmissionPill,
 } from "@/features/student/components/common";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { openProtectedApiAsset } from "@/components/security/protected-api-asset";
 import { getStudentHistory } from "@/services/student.service";
 import type { StaffAttendanceRecord } from "@/types/staff";
 import type { StudentSubmission } from "@/types/student";
@@ -50,6 +50,8 @@ const statusOptions = [
 export function StudentHistoryPage() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
+  const [attendanceEvidence, setAttendanceEvidence] = useState<StaffAttendanceRecord | null>(null);
+  const [submissionEvidence, setSubmissionEvidence] = useState<StudentSubmission | null>(null);
 
   const historyQuery = useQuery({
     queryKey: ["student-history"],
@@ -201,9 +203,9 @@ export function StudentHistoryPage() {
                   </div>
                   {records.map((item) =>
                     item.kind === "attendance" ? (
-                      <AttendanceRow key={item.id} record={item.record} />
+                      <AttendanceRow key={item.id} record={item.record} onOpen={setAttendanceEvidence} />
                     ) : (
-                      <SubmissionRow key={item.id} submission={item.submission} />
+                      <SubmissionRow key={item.id} submission={item.submission} onOpen={setSubmissionEvidence} />
                     ),
                   )}
                 </div>
@@ -212,9 +214,9 @@ export function StudentHistoryPage() {
                 <MobileDataList>
                   {records.map((item) =>
                     item.kind === "attendance" ? (
-                      <MobileAttendanceCard key={item.id} record={item.record} />
+                      <MobileAttendanceCard key={item.id} record={item.record} onOpen={setAttendanceEvidence} />
                     ) : (
-                      <MobileSubmissionCard key={item.id} submission={item.submission} />
+                      <MobileSubmissionCard key={item.id} submission={item.submission} onOpen={setSubmissionEvidence} />
                     ),
                   )}
                 </MobileDataList>
@@ -230,13 +232,22 @@ export function StudentHistoryPage() {
               </div>
             )}
           </motion.section>
+
+          <AttendanceEvidenceModal
+            record={attendanceEvidence}
+            onOpenChange={(open) => !open && setAttendanceEvidence(null)}
+          />
+          <StudentSubmissionEvidenceModal
+            submission={submissionEvidence}
+            onOpenChange={(open) => !open && setSubmissionEvidence(null)}
+          />
         </div>
       )}
     </StudentShell>
   );
 }
 
-function AttendanceRow({ record }: { record: StaffAttendanceRecord }) {
+function AttendanceRow({ record, onOpen }: { record: StaffAttendanceRecord; onOpen: (record: StaffAttendanceRecord) => void }) {
   return (
     <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
       <div>
@@ -266,7 +277,7 @@ function AttendanceRow({ record }: { record: StaffAttendanceRecord }) {
         {record.photo_url ? (
           <button
             type="button"
-            onClick={() => void openProtectedApiAsset(record.photo_url!)}
+            onClick={() => onOpen(record)}
             className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
             aria-label="Buka bukti absensi"
           >
@@ -280,7 +291,7 @@ function AttendanceRow({ record }: { record: StaffAttendanceRecord }) {
   );
 }
 
-function MobileAttendanceCard({ record }: { record: StaffAttendanceRecord }) {
+function MobileAttendanceCard({ record, onOpen }: { record: StaffAttendanceRecord; onOpen: (record: StaffAttendanceRecord) => void }) {
   return (
     <MobileDataCard>
       <MobileDataHeader
@@ -301,7 +312,7 @@ function MobileAttendanceCard({ record }: { record: StaffAttendanceRecord }) {
         <MobileDataFooter>
           <button
             type="button"
-            onClick={() => void openProtectedApiAsset(record.photo_url!)}
+            onClick={() => onOpen(record)}
             className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
             aria-label="Buka bukti absensi"
           >
@@ -314,7 +325,7 @@ function MobileAttendanceCard({ record }: { record: StaffAttendanceRecord }) {
   );
 }
 
-function SubmissionRow({ submission }: { submission: StudentSubmission }) {
+function SubmissionRow({ submission, onOpen }: { submission: StudentSubmission; onOpen: (submission: StudentSubmission) => void }) {
   return (
     <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
       <div>
@@ -340,15 +351,14 @@ function SubmissionRow({ submission }: { submission: StudentSubmission }) {
       </div>
       <div className="flex justify-center">
         {submission.attachment ? (
-          <a
-            href={studentAttachmentUrl(submission.attachment)}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
+            onClick={() => onOpen(submission)}
             className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
             aria-label="Buka lampiran pengajuan"
           >
             <FileImage className="size-4.5" />
-          </a>
+          </button>
         ) : (
           <span className="text-slate-300">-</span>
         )}
@@ -357,7 +367,7 @@ function SubmissionRow({ submission }: { submission: StudentSubmission }) {
   );
 }
 
-function MobileSubmissionCard({ submission }: { submission: StudentSubmission }) {
+function MobileSubmissionCard({ submission, onOpen }: { submission: StudentSubmission; onOpen: (submission: StudentSubmission) => void }) {
   return (
     <MobileDataCard>
       <MobileDataHeader
@@ -374,16 +384,15 @@ function MobileSubmissionCard({ submission }: { submission: StudentSubmission })
       </MobileDataSection>
       {submission.attachment ? (
         <MobileDataFooter>
-          <a
-            href={studentAttachmentUrl(submission.attachment)}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
+            onClick={() => onOpen(submission)}
             className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
             aria-label="Buka lampiran pengajuan"
           >
             <FileImage className="size-4.5" />
             Lampiran
-          </a>
+          </button>
         </MobileDataFooter>
       ) : null}
     </MobileDataCard>

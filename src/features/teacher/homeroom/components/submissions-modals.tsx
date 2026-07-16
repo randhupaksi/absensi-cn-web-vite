@@ -1,6 +1,8 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
+import { ProtectedApiImage } from "@/components/security/protected-api-asset";
 import {
   PremiumModal,
   premiumModalActionsClassName,
@@ -184,7 +186,7 @@ export function SubmissionDetailModal({
                 isImageAttachment(submission.attachment) ? (
                   <div className="space-y-3">
                     <div className="overflow-hidden rounded-[20px] border border-emerald-100 bg-slate-50/80">
-                      <img
+                      <ProtectedApiImage
                         src={normalizeSubmissionAttachment(submission.attachment)}
                         alt={`Lampiran ${submission.student_name}`}
                         className="h-[240px] w-full object-cover"
@@ -222,6 +224,7 @@ export function SubmissionDetailModal({
                   compact
                 />
               )}
+              <AttendanceLocationEvidence evidence={submission} className="mt-4" />
             </div>
 
             <div className={`${premiumModalSurfaceClassName} p-5`}>
