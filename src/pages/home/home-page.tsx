@@ -178,7 +178,7 @@ export default function HomePage() {
             <div className={`${styles.landingHeroViewport} relative overflow-hidden`}>
               <Image
                 src="/images/optimized/cn-hero.jpg"
-                alt="Gedung SMK Citra Negara"
+                alt="Gedung Sekolah Citra Negara"
                 fill
                 priority
                 sizes="100vw"
@@ -195,7 +195,7 @@ export default function HomePage() {
 
                   <div className="space-y-4">
                     <p className={`${styles.landingReveal} ${styles.landingDelayOne} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}>
-                      SMK Citra Negara Attendance System
+                      Sekolah Citra Negara Attendance System
                     </p>
                     <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[0.96] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] xl:text-[5.6rem]`}>
                       Absensi pagi tanpa antre.
@@ -254,7 +254,7 @@ export default function HomePage() {
                   <div className={`${styles.landingPanelImage} relative h-[320px] overflow-hidden`}>
                     <Image
                       src="/images/optimized/side-look-cn-panel.jpg"
-                      alt="Area sekolah SMK Citra Negara"
+                      alt="Area Sekolah Citra Negara"
                       fill
                       sizes="(min-width: 1024px) 420px, 92vw"
                       className="object-cover object-left"
@@ -280,7 +280,7 @@ export default function HomePage() {
                     <h2 className={`${styles.landingInkText} font-heading text-3xl font-bold tracking-tight md:text-[2.8rem]`}>
                       Keistimewaan Aplikasi
                       <br />
-                      Absensi SMK Citra Negara
+                      Absensi Sekolah Citra Negara
                     </h2>
                   </div>
 
@@ -344,7 +344,7 @@ export default function HomePage() {
                     <div className="relative h-[340px]">
                       <Image
                         src={majorImage}
-                        alt={`Jurusan ${major.name} di SMK Citra Negara`}
+                        alt={`Jurusan ${major.name} di Sekolah Citra Negara`}
                         fill
                         sizes="(min-width: 1024px) 310px, (min-width: 640px) 45vw, 86vw"
                         className={`object-cover ${majorImagePosition} transition duration-700 group-hover:scale-110 group-hover:rotate-[0.6deg]`}
@@ -467,7 +467,7 @@ export default function HomePage() {
                     Absensi Siswa
                   </p>
                   <h3 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">
-                    SMK CITRA NEGARA
+                    SEKOLAH CITRA NEGARA
                   </h3>
                 </div>
               </div>
@@ -524,7 +524,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/56 sm:mt-8 sm:pt-6 sm:text-sm">
-            <p>2026@ SMK CITRA NEGARA ALL RIGHT RESERVED</p>
+            <p>2026@ SEKOLAH CITRA NEGARA ALL RIGHT RESERVED</p>
           </div>
         </div>
       </footer>

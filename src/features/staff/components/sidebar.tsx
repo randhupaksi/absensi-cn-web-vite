@@ -62,7 +62,7 @@ export function StaffSidebar({
               <div className="flex size-16 items-center justify-center">
                 <Image
                   src="/images/optimized/logo-cn.png"
-                  alt="Logo SMK Citra Negara"
+                  alt="Logo Sekolah Citra Negara"
                   width={52}
                   height={52}
                   priority
@@ -72,7 +72,7 @@ export function StaffSidebar({
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[15px] font-semibold text-white">
-                  SMK Citra Negara
+                  Sekolah Citra Negara
                 </p>
                 <p className="mt-1 text-sm leading-5 text-emerald-50/78">
                   Pusat kendali absensi dan data sekolah

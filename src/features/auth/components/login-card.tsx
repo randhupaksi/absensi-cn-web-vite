@@ -27,7 +27,7 @@ const portalContent = {
     introDetail: "Gunakan NIS sekolah dan password akun siswa.",
     formShell:
       "rounded-[1.7rem] border border-white/60 bg-white/42 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-md sm:p-5",
-    footer: "Copyright 2026 SMK Citra Negara. All rights reserved.",
+    footer: "Copyright 2026 Sekolah Citra Negara. All rights reserved.",
   },
   staff: {
     badge: "Portal Staff",
@@ -37,7 +37,7 @@ const portalContent = {
     introDetail: "Gunakan username staff yang sudah terdaftar oleh admin.",
     formShell:
       "rounded-[1.7rem] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(236,253,245,0.38))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_18px_48px_rgba(15,118,110,0.08)] backdrop-blur-md sm:p-5",
-    footer: "Copyright 2026 SMK Citra Negara. All rights reserved.",
+    footer: "Copyright 2026 Sekolah Citra Negara. All rights reserved.",
   },
 } satisfies Record<PortalType, {
   badge: string;
@@ -197,7 +197,7 @@ export function LoginCard({ portal }: LoginCardProps) {
                     >
                       <Image
                         src="/images/optimized/logo-cn.png"
-                        alt="Logo SMK Citra Negara"
+                        alt="Logo Sekolah Citra Negara"
                         fill
                         sizes="88px"
                         className="object-contain drop-shadow-[0_10px_22px_rgba(22,85,58,0.14)]"

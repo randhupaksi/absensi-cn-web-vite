@@ -15,7 +15,7 @@ export function applyPdfCreditMetadata(doc: PdfWithProperties, title: string) {
     title,
     subject: appCreditLongStatement,
     author: appCredits.leadCreator,
-    keywords: `${appCredits.project}, ${appCredits.team}, SMK Citra Negara, ${appCredits.leadCreator}`,
+    keywords: `${appCredits.project}, ${appCredits.team}, Sekolah Citra Negara, ${appCredits.leadCreator}`,
     creator: `${appCredits.project} by ${appCredits.team}`,
   });
 }
