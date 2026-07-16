@@ -12,21 +12,36 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { getTeacherSubjectAssignments, getTeacherSubjectRecap } from "@/services/staff.service";
+import dynamic from "@/lib/dynamic";
 import type { StaffSubjectRecapStudentRow } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { motion } from "motion/react";
-import { BookOpenCheck, CalendarDays, ChartColumnBig, Loader2 } from "lucide-react";
+import { BookOpenCheck, CalendarDays, ChartColumnBig, Printer } from "lucide-react";
 import { useState } from "react";
+
+const SubjectRecapReportModal = dynamic(
+  () => import("@/features/reports/subject/subject-recap-report-modal").then((module) => module.SubjectRecapReportModal),
+  { ssr: false },
+);
+
+type DateFilterMode = "single" | "range";
 
 export function MapelRecapPage() {
   const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [dateFilterMode, setDateFilterMode] = useState<DateFilterMode>("range");
+  const [singleDate, setSingleDate] = useState<Date | undefined>(undefined);
+  const [rangeDateFrom, setRangeDateFrom] = useState<Date | undefined>(undefined);
+  const [rangeDateTo, setRangeDateTo] = useState<Date | undefined>(undefined);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
-  const dateFromStr = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
-  const dateToStr = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
+  const dateFromStr = dateFilterMode === "single"
+    ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
+    : rangeDateFrom ? format(rangeDateFrom, "yyyy-MM-dd") : "";
+  const dateToStr = dateFilterMode === "single"
+    ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
+    : rangeDateTo ? format(rangeDateTo, "yyyy-MM-dd") : "";
 
   const assignmentsQuery = useQuery({
     queryKey: ["teacher-subject-assignments"],
@@ -43,11 +58,13 @@ export function MapelRecapPage() {
         date_to: dateToStr || undefined,
       }),
     enabled: !!selectedAssignmentId,
+    placeholderData: (previousData) => previousData,
     staleTime: 0,
   });
 
   const assignments = assignmentsQuery.data ?? [];
   const recap = recapQuery.data;
+  const periodeLabel = buildPeriodLabel(dateFromStr, dateToStr, recap?.period_start, recap?.period_end);
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
@@ -60,8 +77,19 @@ export function MapelRecapPage() {
         <>
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-            <p className="mb-4 text-lg font-semibold text-slate-950">Filter Rekap</p>
-            <div className="grid items-start gap-4 sm:grid-cols-[1fr_1fr] lg:grid-cols-[2fr_1fr_1fr]">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-lg font-semibold text-slate-950">Filter Rekap</p>
+              <Button
+                type="button"
+                disabled={!recap || recap.students.length === 0 || recapQuery.isLoading}
+                onClick={() => setReportModalOpen(true)}
+                className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800"
+              >
+                <Printer className="size-4" />
+                Cetak Laporan
+              </Button>
+            </div>
+            <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">
               <div className="sm:col-span-2 lg:col-span-1">
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600">Mata Pelajaran</label>
                 <RadixSelectField
@@ -72,22 +100,45 @@ export function MapelRecapPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Dari Tanggal</label>
-                <DatePickerButton
-                  value={dateFrom}
-                  onChange={setDateFrom}
-                  placeholder="Pilih tanggal"
-                />
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Mode Tanggal</label>
+                <DateFilterModeSwitch value={dateFilterMode} onChange={setDateFilterMode} />
               </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Sampai Tanggal</label>
-                <DatePickerButton
-                  value={dateTo}
-                  onChange={setDateTo}
-                  placeholder="Pilih tanggal"
-                />
-              </div>
+              {dateFilterMode === "single" ? (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">Tanggal Tertentu</label>
+                  <DatePickerButton
+                    value={singleDate}
+                    onChange={setSingleDate}
+                    placeholder="Pilih tanggal"
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">Dari</label>
+                    <DatePickerButton
+                      value={rangeDateFrom}
+                      onChange={setRangeDateFrom}
+                      placeholder="Dari"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">Sampai</label>
+                    <DatePickerButton
+                      value={rangeDateTo}
+                      onChange={setRangeDateTo}
+                      placeholder="Sampai"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
+            {dateFilterMode === "range" && !dateFromStr && !dateToStr ? (
+              <p className="mt-3 text-sm text-slate-500">
+                Tanpa tanggal terpilih, sistem menampilkan semua data pada periode{" "}
+                <span className="font-medium text-emerald-700">{periodeLabel}</span>.
+              </p>
+            ) : null}
           </section>
 
           {/* Recap table */}
@@ -95,9 +146,9 @@ export function MapelRecapPage() {
             <section>
               <EmptyState icon={ChartColumnBig} title="Pilih mata pelajaran" description="Pilih mata pelajaran untuk melihat rekap kehadiran siswa." />
             </section>
-          ) : recapQuery.isLoading ? (
-            <section>
-              <EmptyState icon={Loader2} title="Memuat rekap..." description="Mengambil data rekap kehadiran." />
+          ) : recapQuery.error ? (
+            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <EmptyState icon={ChartColumnBig} title="Rekap belum bisa dimuat" description={recapQuery.error.message} />
             </section>
           ) : recap ? (
             <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
@@ -109,6 +160,9 @@ export function MapelRecapPage() {
                   <p className="mt-1 text-sm text-slate-500">
                     {recap.assignment.school_year_name} ·{" "}
                     <span className="font-medium text-emerald-700">{recap.total_pertemuan} pertemuan</span>
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Periode: <span className="font-medium text-emerald-700">{periodeLabel}</span>
                   </p>
                 </div>
               </div>
@@ -123,13 +177,13 @@ export function MapelRecapPage() {
                       <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
                         <th className="pb-3 pr-4">Siswa</th>
                         <th className="pb-3 pr-4">NIS</th>
-                        <th className="pb-3 pr-4 text-right text-emerald-600">Hadir</th>
-                        <th className="pb-3 pr-4 text-right text-amber-600">Telat</th>
-                        <th className="pb-3 pr-4 text-right text-orange-600">Alfa Kelas</th>
-                        <th className="pb-3 pr-4 text-right text-violet-600">Dispensasi</th>
-                        <th className="pb-3 pr-4 text-right text-rose-600">Alfa</th>
-                        <th className="pb-3 pr-4 text-right text-sky-600">Sakit</th>
-                        <th className="pb-3 text-right text-slate-500">Izin</th>
+                        <th className="pb-3 pr-4 text-center text-emerald-600">Hadir</th>
+                        <th className="pb-3 pr-4 text-center text-amber-600">Telat</th>
+                        <th className="pb-3 pr-4 text-center text-orange-600">Alfa Kelas</th>
+                        <th className="pb-3 pr-4 text-center text-violet-600">Dispensasi</th>
+                        <th className="pb-3 pr-4 text-center text-rose-600">Alfa</th>
+                        <th className="pb-3 pr-4 text-center text-sky-600">Sakit</th>
+                        <th className="pb-3 text-center text-slate-500">Izin</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -187,11 +241,41 @@ export function MapelRecapPage() {
                 </>
               )}
             </section>
+          ) : (
+            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <EmptyState icon={BookOpenCheck} title="Belum ada data rekap" description="Pilih filter lain atau pastikan seed sesi mapel sudah berjalan." />
+            </section>
+          )}
+
+          {reportModalOpen ? (
+            <SubjectRecapReportModal
+              open={reportModalOpen}
+              onOpenChange={setReportModalOpen}
+              recap={recap}
+              periodeLabel={periodeLabel}
+            />
           ) : null}
         </>
       )}
     </WalasShell>
   );
+}
+
+function buildPeriodLabel(from: string, to: string, periodStart?: string, periodEnd?: string) {
+  if (from && to && from === to) return `Tanggal ${formatReportDate(from)}`;
+  if (from && to) return `${formatReportDate(from)} - ${formatReportDate(to)}`;
+  if (from) return `Mulai ${formatReportDate(from)}`;
+  if (to) return `Sampai ${formatReportDate(to)}`;
+
+  if (periodStart && periodEnd && periodStart === periodEnd) return `Tanggal ${formatReportDate(periodStart)}`;
+  if (periodStart && periodEnd) return `${formatReportDate(periodStart)} - ${formatReportDate(periodEnd)}`;
+  return "Belum ada tanggal tercatat";
+}
+
+function formatReportDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function DatePickerButton({
@@ -233,9 +317,42 @@ function DatePickerButton({
   );
 }
 
+function DateFilterModeSwitch({
+  value,
+  onChange,
+}: {
+  value: DateFilterMode;
+  onChange: (value: DateFilterMode) => void;
+}) {
+  return (
+    <div className="grid h-14 grid-cols-2 rounded-[1.25rem] border border-slate-300/80 bg-white/70 p-1 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)]">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => onChange("single")}
+        className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
+          value === "single" ? "bg-emerald-600 !text-white hover:bg-emerald-700 hover:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+        }`}
+      >
+        Tanggal
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => onChange("range")}
+        className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
+          value === "range" ? "bg-emerald-600 !text-white hover:bg-emerald-700 hover:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+        }`}
+      >
+        Rentang
+      </Button>
+    </div>
+  );
+}
+
 function RecapCell({ value, cls }: { value: number; cls: string }) {
   return (
-    <td className="py-3 pr-4 text-right">
+    <td className="py-3 pr-4 text-center">
       {value > 0 ? (
         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>{value}</span>
       ) : (
@@ -258,5 +375,5 @@ function RecapMetric({ label, value, cls }: { label: string; value: number; cls:
 
 function SumCell({ rows, field, cls }: { rows: StaffSubjectRecapStudentRow[]; field: keyof StaffSubjectRecapStudentRow; cls: string }) {
   const total = rows.reduce((sum, r) => sum + (r[field] as number), 0);
-  return <td className={`py-3 pr-4 text-right text-xs font-bold ${cls}`}>{total}</td>;
+  return <td className={`py-3 pr-4 text-center text-xs font-bold ${cls}`}>{total}</td>;
 }

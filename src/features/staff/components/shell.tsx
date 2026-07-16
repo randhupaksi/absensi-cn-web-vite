@@ -15,8 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { getTeacherMe } from "@/services/staff.service";
 import {
-  buildUnifiedTeacherSidebarItems,
-  buildWalasSidebarItems,
+  buildTeacherWorkspaceSidebarItems,
   StaffSidebar,
   type StaffSidebarItem,
 } from "./sidebar";
@@ -49,20 +48,20 @@ export function StaffShell({
     queryKey: ["teacher-me"],
     queryFn: getTeacherMe,
     staleTime: 60_000,
-    enabled: Boolean(session?.user.role === "TEACHER" && session.user.has_bk_scope),
+    enabled: Boolean(session?.user.role === "TEACHER"),
   });
 
   const isExpectedRole = session && canAccessDashboardRole(session.user, expectedRole);
   const visibleSidebarItems = useMemo(() => {
-    if (!session || session.user.role !== "TEACHER" || !session.user.has_bk_scope) {
+    if (!session || session.user.role !== "TEACHER") {
       return sidebarItems;
     }
 
-    const teacherItems = buildWalasSidebarItems({
+    return buildTeacherWorkspaceSidebarItems({
       isHomeroomTeacher: teacherMeQuery.data?.is_homeroom_teacher ?? false,
       hasSubjectAssignments: teacherMeQuery.data?.has_subject_assignments ?? false,
+      hasBKScope: session.user.has_bk_scope,
     });
-    return buildUnifiedTeacherSidebarItems(teacherItems);
   }, [session, sidebarItems, teacherMeQuery.data]);
 
   useEffect(() => {

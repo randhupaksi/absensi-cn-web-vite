@@ -13,7 +13,6 @@ const AdminSubjectsPage = lazy(() => import("@/pages/admin/subjects-page").then(
 const AdminTeachersPage = lazy(() => import("@/pages/admin/teachers-page").then((module) => ({ default: module.AdminTeachersPage })));
 const AdminUsersPage = lazy(() => import("@/pages/admin/users-page").then((module) => ({ default: module.AdminUsersPage })));
 const AdminPlaceholderPage = lazy(() => import("@/pages/admin/placeholder-page").then((module) => ({ default: module.AdminPlaceholderPage })));
-const BKDashboardPage = lazy(() => import("@/pages/bk/dashboard-page").then((module) => ({ default: module.BKDashboardPage })));
 const BKAttendancePage = lazy(() => import("@/pages/bk/attendance-page").then((module) => ({ default: module.BKAttendancePage })));
 const BKCounselingPage = lazy(() => import("@/pages/bk/counseling-page").then((module) => ({ default: module.BKCounselingPage })));
 const BKStudentsPage = lazy(() => import("@/pages/bk/students-page").then((module) => ({ default: module.BKStudentsPage })));
@@ -21,11 +20,10 @@ const BKSubmissionsPage = lazy(() => import("@/pages/bk/submissions-page").then(
 const StudentDashboardPage = lazy(() => import("@/pages/student/dashboard-page").then((module) => ({ default: module.StudentDashboardPage })));
 const StudentHistoryPage = lazy(() => import("@/pages/student/history-page").then((module) => ({ default: module.StudentHistoryPage })));
 const StudentProfilePage = lazy(() => import("@/pages/student/profile-page").then((module) => ({ default: module.StudentProfilePage })));
-const WalasDashboardPage = lazy(() => import("@/pages/teacher/homeroom/dashboard-page").then((module) => ({ default: module.WalasDashboardPage })));
+const TeacherDashboardPage = lazy(() => import("@/pages/teacher/dashboard-page").then((module) => ({ default: module.TeacherDashboardPage })));
 const WalasAttendancePage = lazy(() => import("@/pages/teacher/homeroom/attendance-page").then((module) => ({ default: module.WalasAttendancePage })));
 const WalasStudentsPage = lazy(() => import("@/pages/teacher/homeroom/students-page").then((module) => ({ default: module.WalasStudentsPage })));
 const WalasSubmissionsPage = lazy(() => import("@/pages/teacher/homeroom/submissions-page").then((module) => ({ default: module.WalasSubmissionsPage })));
-const MapelDashboardPage = lazy(() => import("@/pages/teacher/subject/dashboard-page").then((module) => ({ default: module.MapelDashboardPage })));
 const MapelHistoryPage = lazy(() => import("@/pages/teacher/subject/history-page").then((module) => ({ default: module.MapelHistoryPage })));
 const MapelRecapPage = lazy(() => import("@/pages/teacher/subject/recap-page").then((module) => ({ default: module.MapelRecapPage })));
 const MapelSessionPage = lazy(() => import("@/pages/teacher/subject/session-page").then((module) => ({ default: module.MapelSessionPage })));
@@ -65,7 +63,7 @@ function TeacherDashboard() {
   if (session.user.role !== "TEACHER") {
     return <Navigate replace to={getDashboardPathForUser(session.user)} />;
   }
-  return session.user.has_bk_scope ? <BKDashboardPage /> : <WalasDashboardPage />;
+  return <TeacherDashboardPage />;
 }
 
 export default function App() {
@@ -100,11 +98,11 @@ export default function App() {
           <Route path="/dashboard/siswa/history" element={<StudentHistoryPage />} />
           <Route path="/dashboard/siswa/profile" element={<StudentProfilePage />} />
 
-          <Route path="/dashboard/teacher/homeroom" element={<WalasDashboardPage />} />
+          <Route path="/dashboard/teacher/homeroom" element={<Navigate replace to="/dashboard/teacher" />} />
           <Route path="/dashboard/teacher/homeroom/attendance" element={<WalasAttendancePage />} />
           <Route path="/dashboard/teacher/homeroom/students" element={<WalasStudentsPage />} />
           <Route path="/dashboard/teacher/homeroom/submissions" element={<WalasSubmissionsPage />} />
-          <Route path="/dashboard/teacher/subject" element={<MapelDashboardPage />} />
+          <Route path="/dashboard/teacher/subject" element={<Navigate replace to="/dashboard/teacher" />} />
           <Route path="/dashboard/teacher/subject/history" element={<MapelHistoryPage />} />
           <Route path="/dashboard/teacher/subject/recap" element={<MapelRecapPage />} />
           <Route path="/dashboard/teacher/subject/session" element={<MapelSessionPage />} />

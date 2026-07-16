@@ -8,11 +8,14 @@ import {
   MobileDataHeader,
   MobileDataList,
 } from "@/features/admin/management/shared/section-ui";
+import {
+  premiumModalFieldClassName,
+  premiumModalLabelClassName,
+} from "@/components/modals/premium-modal";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { KoreksiModal } from "@/features/teacher/subject/components/session-modals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
@@ -30,6 +33,8 @@ import {
   Clock3,
   FilePenLine,
   Loader2,
+  Lock,
+  Pencil,
   Send,
   Save,
   Users,
@@ -68,6 +73,9 @@ const STATUS_MAPEL_CLS: Record<string, string> = {
   sakit: "bg-sky-100 text-sky-700",
   izin: "bg-slate-100 text-slate-600",
 };
+
+const sessionDetailInputClassName =
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm text-slate-800 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] placeholder:text-slate-400";
 
 export function MapelSessionPage() {
   const searchParams = useSearchParams();
@@ -225,11 +233,45 @@ export function MapelSessionPage() {
 
           {session && (
             <>
-			  <section className="grid items-start gap-4 rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm lg:grid-cols-[1fr_1.4fr_auto]">
-				<div><label htmlFor="session-topic" className="mb-2 block text-sm font-semibold text-slate-700">Topik Pertemuan</label><Input id="session-topic" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Contoh: Persamaan kuadrat" disabled={isValidated} className="h-12 rounded-[18px]" /></div>
-				<div><label htmlFor="session-notes" className="mb-2 block text-sm font-semibold text-slate-700">Catatan Pengajaran</label><Textarea id="session-notes" value={sessionNotes} onChange={(event) => setSessionNotes(event.target.value)} placeholder="Catatan materi, tugas, atau kendala kelas" disabled={isValidated} className="min-h-12 rounded-[18px]" /></div>
-				<Button type="button" className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900" disabled={isValidated || detailsMutation.isPending} onClick={() => detailsMutation.mutate()}><Save className="size-4" />{detailsMutation.isPending ? "Menyimpan..." : "Simpan Detail"}</Button>
-			  </section>
+              <section className="grid items-end gap-4 rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_auto]">
+                <div className={premiumModalFieldClassName}>
+                  <label htmlFor="session-topic" className={premiumModalLabelClassName}>
+                    Topik Pertemuan
+                  </label>
+                  <Input
+                    id="session-topic"
+                    value={topic}
+                    onChange={(event) => setTopic(event.target.value)}
+                    placeholder="Contoh: Persamaan kuadrat"
+                    disabled={isValidated}
+                    className={sessionDetailInputClassName}
+                  />
+                </div>
+
+                <div className={premiumModalFieldClassName}>
+                  <label htmlFor="session-notes" className={premiumModalLabelClassName}>
+                    Catatan Pengajaran
+                  </label>
+                  <Input
+                    id="session-notes"
+                    value={sessionNotes}
+                    onChange={(event) => setSessionNotes(event.target.value)}
+                    placeholder="Catatan materi, tugas, atau kendala kelas"
+                    disabled={isValidated}
+                    className={sessionDetailInputClassName}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  className="h-14 w-full shrink-0 rounded-[1.25rem] bg-emerald-700 px-6 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 lg:w-auto"
+                  disabled={isValidated || detailsMutation.isPending}
+                  onClick={() => detailsMutation.mutate()}
+                >
+                  <Save className="size-4" />
+                  {detailsMutation.isPending ? "Menyimpan..." : "Simpan Detail"}
+                </Button>
+              </section>
               {/* KPI row */}
               <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
                 {[
@@ -270,9 +312,11 @@ export function MapelSessionPage() {
                         <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
                           <th className="pb-3 pr-4">Siswa</th>
                           <th className="pb-3 pr-4">NIS</th>
-                          <th className="pb-3 pr-4">Status Pagi</th>
-                          <th className="pb-3 pr-4">Status Mapel</th>
-                          <th className="pb-3">{isValidated ? "Koreksi" : "Override"}</th>
+                          <th className="pb-3 pr-4">Konteks Sesi</th>
+                          <th className="pb-3 pr-4 text-center">Status Pagi</th>
+                          <th className="pb-3 pr-4 text-center">Status Mapel</th>
+                          <th className="pb-3 pr-4">Keterangan / Koreksi</th>
+                          <th className="pb-3 text-center">{isValidated ? "Koreksi" : "Override"}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
@@ -290,16 +334,29 @@ export function MapelSessionPage() {
                               </td>
                               <td className="py-3 pr-4 text-slate-500">{r.nis}</td>
                               <td className="py-3 pr-4">
-                                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_PAGI_CLS[r.status_pagi] ?? "bg-slate-100 text-slate-600"}`}>
+                                <p className="font-medium text-slate-800">{session.assignment.subject_name}</p>
+                                <p className="mt-0.5 text-xs text-slate-500">{session.assignment.class_name} · {session.tanggal}</p>
+                              </td>
+                              <td className="py-3 pr-4 text-center">
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_PAGI_CLS[r.status_pagi] ?? "bg-slate-100 text-slate-600"}`}>
                                   {STATUS_LABELS[r.status_pagi] ?? r.status_pagi}
                                 </span>
                               </td>
-                              <td className="py-3 pr-4">
-                                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_MAPEL_CLS[effective] ?? "bg-slate-100 text-slate-600"}`}>
+                              <td className="py-3 pr-4 text-center">
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_MAPEL_CLS[effective] ?? "bg-slate-100 text-slate-600"}`}>
                                   {STATUS_LABELS[effective] ?? effective}
                                 </span>
                               </td>
-                              <td className="py-3">
+                              <td className="max-w-[260px] py-3 pr-4 text-sm text-slate-600">
+                                {r.is_edited ? (
+                                  <span className="line-clamp-2">{r.alasan_edit || "Sudah dikoreksi oleh guru mapel."}</span>
+                                ) : r.keterangan ? (
+                                  <span className="line-clamp-2">{r.keterangan}</span>
+                                ) : (
+                                  <span className="text-slate-400">Tidak ada catatan</span>
+                                )}
+                              </td>
+                              <td className="py-3 text-center">
                                 {isValidated ? (
                                   r.is_editable ? (
                                     <button
@@ -309,12 +366,17 @@ export function MapelSessionPage() {
                                         setKoreksiStatus(r.status_mapel);
                                         setKoreksiAlasan("");
                                       }}
-                                      className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                                      className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
+                                      aria-label={`Koreksi ${r.student_name}`}
+                                      title="Koreksi"
                                     >
-                                      Koreksi
+                                      <Pencil className="size-4" />
                                     </button>
                                   ) : (
-                                    <span className="text-xs text-slate-400">Terkunci</span>
+                                    <span className="inline-flex items-center justify-center gap-1 text-xs text-slate-400">
+                                      <Lock className="size-3.5" />
+                                      Terkunci
+                                    </span>
                                   )
                                 ) : r.is_editable ? (
                                   <select
@@ -367,6 +429,10 @@ export function MapelSessionPage() {
                           />
                           <div className="mt-4 grid gap-3">
                             <MobileDataField
+                              label="Konteks Sesi"
+                              value={`${session.assignment.subject_name} · ${session.tanggal}`}
+                            />
+                            <MobileDataField
                               label="Status Pagi"
                               value={
                                 <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_PAGI_CLS[r.status_pagi] ?? "bg-slate-100 text-slate-600"}`}>
@@ -382,6 +448,10 @@ export function MapelSessionPage() {
                                 </span>
                               }
                             />
+                            <MobileDataField
+                              label="Keterangan / Koreksi"
+                              value={r.is_edited ? (r.alasan_edit || "Sudah dikoreksi oleh guru mapel.") : (r.keterangan || "Tidak ada catatan")}
+                            />
                           </div>
                           <MobileDataFooter>
                             {isValidated ? (
@@ -393,12 +463,17 @@ export function MapelSessionPage() {
                                     setKoreksiStatus(r.status_mapel);
                                     setKoreksiAlasan("");
                                   }}
-                                  className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                                  className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
+                                  aria-label={`Koreksi ${r.student_name}`}
+                                  title="Koreksi"
                                 >
-                                  Koreksi
+                                  <Pencil className="size-4" />
                                 </button>
                               ) : (
-                                <span className="text-xs text-slate-400">Terkunci</span>
+                                <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                                  <Lock className="size-3.5" />
+                                  Terkunci
+                                </span>
                               )
                             ) : r.is_editable ? (
                               <select

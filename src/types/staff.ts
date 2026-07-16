@@ -352,6 +352,8 @@ export type StaffSubjectRecapStudentRow = {
 export type StaffSubjectRecap = {
   assignment: StaffSubjectAssignment;
   total_pertemuan: number;
+  period_start?: string;
+  period_end?: string;
   students: StaffSubjectRecapStudentRow[];
 };
 
@@ -369,6 +371,11 @@ export type StaffSubjectSessionListItem = {
   closed_at?: string;
   divalidasi_oleh?: string;
   divalidasi_at?: string;
+  hadir: number;
+  izin: number;
+  sakit: number;
+  alfa: number;
+  dispensasi: number;
 };
 
 export type StaffSubjectSessionList = {

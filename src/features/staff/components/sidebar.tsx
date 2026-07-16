@@ -85,7 +85,7 @@ export function StaffSidebar({
           <nav className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70">
             {items.map((item) => {
               const Icon = item.icon;
-              const isActive = activePath === item.href;
+              const isActive = resolveStaffSidebarActivePath(activePath) === item.href;
 
               return (
                 <Link
@@ -128,6 +128,13 @@ export function StaffSidebar({
       </aside>
     </>
   );
+}
+
+function resolveStaffSidebarActivePath(pathname: string) {
+  if (pathname.startsWith("/dashboard/teacher/subject/session")) {
+    return "/dashboard/teacher/subject/history";
+  }
+  return pathname;
 }
 
 export const adminSidebarItems = [
@@ -185,21 +192,37 @@ export function buildWalasSidebarItems(opts: {
   return items;
 }
 
-export function buildUnifiedTeacherSidebarItems(
-  teacherItems: StaffSidebarItem[],
-): StaffSidebarItem[] {
-  const contextualTeacherItems = teacherItems.flatMap((item) => {
-    if (item.href === "/dashboard/teacher") {
-      if (teacherItems.length === 1) return [];
-      return [{ ...item, label: "Wali Kelas", href: "/dashboard/teacher/homeroom", icon: GraduationCap }];
-    }
-    if (item.href === "/dashboard/teacher/homeroom/submissions") {
-      return [{ ...item, label: "Pengajuan Kelas" }];
-    }
-    return [item];
-  });
+export function buildTeacherWorkspaceSidebarItems(opts: {
+  isHomeroomTeacher: boolean;
+  hasSubjectAssignments: boolean;
+  hasBKScope: boolean;
+}): StaffSidebarItem[] {
+  const items: StaffSidebarItem[] = [
+    { label: "Dashboard Guru", href: "/dashboard/teacher", icon: LayoutDashboard },
+  ];
 
-  return [...bkSidebarItems, ...contextualTeacherItems];
+  if (opts.isHomeroomTeacher) {
+    items.push(
+      { label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students", icon: Users },
+      { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardList },
+      { label: "Pengajuan Kelas", href: "/dashboard/teacher/homeroom/submissions", icon: FileClock },
+    );
+  }
+
+  if (opts.hasSubjectAssignments) {
+    items.push(...guruMapelSidebarItems);
+  }
+
+  if (opts.hasBKScope) {
+    items.push(
+      { label: "Monitoring Siswa", href: "/dashboard/teacher/bk/students", icon: Users },
+      { label: "Review Absensi", href: "/dashboard/teacher/bk/attendance", icon: BookOpenCheck },
+      { label: "Konseling", href: "/dashboard/teacher/bk/counseling", icon: FileClock },
+      { label: "Pengajuan BK", href: "/dashboard/teacher/bk/submissions", icon: ClipboardList },
+    );
+  }
+
+  return items;
 }
 
 export const bkSidebarItems = [
