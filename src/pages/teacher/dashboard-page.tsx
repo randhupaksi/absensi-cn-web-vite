@@ -27,6 +27,7 @@ import {
   BookOpenCheck,
   CalendarClock,
   ChartColumnBig,
+  ChevronRight,
   ClipboardPenLine,
   Clock3,
   GraduationCap,
@@ -247,28 +248,67 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
   );
 }
 
-function TeacherHero({ name, isHomeroomTeacher, hasSubjectAssignments, hasBKScope, schoolYearName }: { name: string; isHomeroomTeacher: boolean; hasSubjectAssignments: boolean; hasBKScope: boolean; schoolYearName: string }) {
+function TeacherHero({
+  name,
+  isHomeroomTeacher,
+  hasSubjectAssignments,
+  hasBKScope,
+  schoolYearName,
+}: {
+  name: string;
+  isHomeroomTeacher: boolean;
+  hasSubjectAssignments: boolean;
+  hasBKScope: boolean;
+  schoolYearName: string;
+}) {
   const roles = [
     isHomeroomTeacher && { icon: GraduationCap, label: "Wali kelas" },
     hasSubjectAssignments && { icon: BookOpenCheck, label: "Guru mapel" },
     hasBKScope && { icon: ShieldAlert, label: "Guru BK" },
   ].filter(Boolean) as Array<{ icon: typeof GraduationCap; label: string }>;
+  const quickActions = [
+    isHomeroomTeacher && { icon: Users, label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students" },
+    isHomeroomTeacher && { icon: ClipboardPenLine, label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance" },
+    hasSubjectAssignments && { icon: History, label: "Sesi Mapel", href: "/dashboard/teacher/subject/history" },
+    hasSubjectAssignments && { icon: ChartColumnBig, label: "Rekap Mapel", href: "/dashboard/teacher/subject/recap" },
+    hasBKScope && { icon: ShieldAlert, label: "Monitoring BK", href: "/dashboard/teacher/bk/students" },
+    hasBKScope && { icon: BookHeart, label: "Konseling", href: "/dashboard/teacher/bk/counseling" },
+  ].filter(Boolean) as Array<{ icon: typeof CalendarClock; label: string; href: string }>;
 
   return (
-    <motion.article initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="overflow-hidden rounded-[34px] border border-white/75 bg-[radial-gradient(circle_at_top_right,rgba(255,212,132,0.3),transparent_24%),linear-gradient(135deg,#fffdf9_0%,#f7f5ee_38%,#ebf8f0_100%)] p-6 shadow-[0_24px_60px_rgba(150,163,184,0.14)]">
-      <div className="space-y-5">
+    <motion.article initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="h-fit self-start overflow-hidden rounded-[34px] border border-white/75 bg-[radial-gradient(circle_at_top_right,rgba(255,212,132,0.3),transparent_24%),linear-gradient(135deg,#fffdf9_0%,#f7f5ee_38%,#ebf8f0_100%)] p-5 shadow-[0_24px_60px_rgba(150,163,184,0.14)] md:p-6">
+      <div className="space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
           <LayoutPanelTop className="size-3.5" />
           Ruang Kerja Guru
         </div>
         <div>
           <p className="text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.1rem]">Halo, {name}!</p>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-[15px]">Satu pusat kendali untuk memantau kelas, menjalankan sesi mapel, dan menindaklanjuti kebutuhan siswa sesuai peran akunmu.</p>
+          <p className="mt-2.5 max-w-2xl text-sm leading-7 text-slate-600 md:text-[15px]">Satu pusat kendali untuk memantau kelas, menjalankan sesi mapel, dan menindaklanjuti kebutuhan siswa sesuai peran akunmu.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {roles.length > 0 ? roles.map(({ icon: Icon, label }) => <HeroChip key={label} icon={Icon} label={label} />) : <HeroChip icon={CalendarClock} label="Menunggu assignment" />}
           <HeroChip icon={SquareLibrary} label={schoolYearName || "Tahun ajaran aktif"} />
         </div>
+        {quickActions.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 pt-1 xl:grid-cols-3">
+            {quickActions.map(({ icon: Icon, label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                className="group flex min-h-14 items-center justify-between gap-2 rounded-[20px] border border-white/80 bg-white/74 px-3 py-3 text-xs font-semibold text-slate-700 shadow-[0_12px_26px_rgba(15,23,42,0.05)] transition hover:border-emerald-200 hover:bg-emerald-50/80 hover:text-emerald-800 sm:gap-3 sm:px-3.5 sm:text-sm"
+              >
+                <span className="inline-flex min-w-0 items-center gap-2 sm:gap-2.5">
+                  <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-100 sm:size-9">
+                    <Icon className="size-4 sm:size-4.5" />
+                  </span>
+                  <span className="truncate">{label}</span>
+                </span>
+                <ArrowUpRight className="size-4 shrink-0 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-700" />
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </div>
     </motion.article>
   );
@@ -291,8 +331,65 @@ function ActiveSessionCard({ session, isLoading, day, time }: { session: Awaited
   );
 }
 
-function SubjectAssignmentsCard({ assignments, isLoading, errorMessage }: { assignments: Awaited<ReturnType<typeof getTeacherSubjectAssignments>>; isLoading: boolean; errorMessage?: string }) {
-  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">Mata Pelajaran Saya</p><p className="mt-1 text-sm text-slate-500">Kelas dan jadwal mengajar yang aktif</p></div><Link href="/dashboard/teacher/subject/recap" className="rounded-full bg-violet-50 p-2.5 text-violet-700 transition hover:bg-violet-100" aria-label="Buka rekap mata pelajaran"><ChartColumnBig className="size-4" /></Link></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={BookOpenCheck} title="Mapel belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <EmptyState icon={Loader2} title="Memuat mata pelajaran" description="Menyiapkan assignment mengajar." compact /> : assignments.length === 0 ? <EmptyState icon={BookOpenCheck} title="Belum ada mapel aktif" description="Assignment mata pelajaran akan muncul setelah ditetapkan admin." compact /> : assignments.slice(0, 4).map((item) => <Link key={item.id} href={`/dashboard/teacher/subject/history?assignment_id=${item.id}`} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5 transition hover:border-emerald-200 hover:bg-emerald-50/45"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{item.subject_name}</p><p className="mt-1 text-xs text-slate-500">{item.class_name} · {item.schedules.length} jadwal</p></div><History className="size-4 shrink-0 text-emerald-600" /></Link>)}</div></article>;
+function SubjectAssignmentsCard({
+  assignments,
+  isLoading,
+  errorMessage,
+}: {
+  assignments: Awaited<ReturnType<typeof getTeacherSubjectAssignments>>;
+  isLoading: boolean;
+  errorMessage?: string;
+}) {
+  return (
+    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xl font-semibold text-slate-950">Mata Pelajaran Saya</p>
+          <p className="mt-1 text-sm text-slate-500">Kelas dan jadwal mengajar yang aktif</p>
+        </div>
+        <Link
+          href="/dashboard/teacher/subject/recap"
+          className="rounded-full bg-violet-50 p-2.5 text-violet-700 transition hover:bg-violet-100"
+          aria-label="Buka rekap mata pelajaran"
+        >
+          <ChartColumnBig className="size-4" />
+        </Link>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {errorMessage ? (
+          <EmptyState icon={BookOpenCheck} title="Mapel belum bisa dimuat" description={errorMessage} compact />
+        ) : isLoading ? (
+          <EmptyState icon={Loader2} title="Memuat mata pelajaran" description="Menyiapkan assignment mengajar." compact />
+        ) : assignments.length === 0 ? (
+          <EmptyState icon={BookOpenCheck} title="Belum ada mapel aktif" description="Assignment mata pelajaran akan muncul setelah ditetapkan admin." compact />
+        ) : (
+          assignments.slice(0, 4).map((item) => (
+            <Link
+              key={item.id}
+              href={`/dashboard/teacher/subject/history?assignment_id=${item.id}`}
+              className="group flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/70 hover:shadow-[0_16px_34px_rgba(15,23,42,0.08)]"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-slate-900 transition group-hover:text-emerald-900">
+                  {item.subject_name}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {item.class_name} · {item.schedules.length} jadwal
+                </p>
+              </div>
+              <span
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-emerald-100 bg-white text-emerald-700 transition group-hover:border-emerald-200 group-hover:bg-emerald-100 group-hover:text-emerald-900"
+                aria-hidden="true"
+              >
+                <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
+          ))
+        )}
+      </div>
+    </article>
+  );
 }
 
 function AttentionCard({ title, subtitle, students, isLoading, errorMessage, href, badge }: { title: string; subtitle: string; students: StaffRiskStudentRecord[]; isLoading: boolean; errorMessage?: string; href: string; badge: string }) {

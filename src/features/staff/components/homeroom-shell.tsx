@@ -44,7 +44,7 @@ export function resolveWalasSectionTitle(pathname: string): string {
   if (pathname.startsWith("/dashboard/teacher/homeroom/students")) return "Class Students Dashboard";
   if (pathname.startsWith("/dashboard/teacher/homeroom/attendance")) return "Class Attendance Dashboard";
   if (pathname.startsWith("/dashboard/teacher/homeroom/submissions")) return "Submission Review Dashboard";
-  if (pathname.startsWith("/dashboard/teacher/subject/history")) return "Riwayat Sesi Mapel";
+  if (pathname.startsWith("/dashboard/teacher/subject/history")) return "Sesi Mapel";
   if (pathname.startsWith("/dashboard/teacher/subject/recap")) return "Rekap Kehadiran Mapel";
   if (pathname.startsWith("/dashboard/teacher/subject/session")) return "Sesi Mapel";
   if (pathname.startsWith("/dashboard/teacher/subject")) return "Daftar Hadir Mapel";

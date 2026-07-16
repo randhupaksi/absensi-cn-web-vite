@@ -84,7 +84,7 @@ export function SubjectSessionHistoryReportModal({
 
       await generateSubjectSessionHistoryPdf(sorted, assignment, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
     } catch {
-      toast.error("Gagal membuat PDF riwayat sesi. Silakan coba lagi.");
+      toast.error("Gagal membuat PDF sesi mapel. Silakan coba lagi.");
     } finally {
       setGenerating(false);
     }
@@ -94,8 +94,8 @@ export function SubjectSessionHistoryReportModal({
     <PremiumModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Cetak Laporan Riwayat Sesi"
-      description="Pilih kolom dan urutan data sebelum mengunduh PDF riwayat sesi mapel."
+      title="Cetak Laporan Sesi Mapel"
+      description="Pilih kolom dan urutan data sebelum mengunduh PDF sesi mapel."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
@@ -148,11 +148,11 @@ async function generateSubjectSessionHistoryPdf(
   const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-  applyPdfCreditMetadata(doc, "Laporan Riwayat Sesi Mapel");
+  applyPdfCreditMetadata(doc, "Laporan Sesi Mapel");
   const mx = REPORT_PDF_MARGIN_X;
   const { metaY } = drawReportPdfHeader(doc, {
     title: "LAPORAN RIWAYAT SESI MAPEL",
-    subtitle: "Riwayat Sesi Guru Mapel",
+    subtitle: "Sesi Guru Mapel",
   });
   drawReportPdfPills(doc, [
     `Mapel: ${assignment.subject_name}`,
@@ -215,7 +215,7 @@ async function generateSubjectSessionHistoryPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Riwayat Sesi Mapel - ${assignment.subject_name} - ABSENSI CN`);
+  drawReportPdfFooter(doc, `Sesi Mapel - ${assignment.subject_name} - ABSENSI CN`);
   doc.save(`Laporan-Riwayat-Sesi-${assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 

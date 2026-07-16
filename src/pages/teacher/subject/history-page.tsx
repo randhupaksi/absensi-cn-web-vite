@@ -103,7 +103,7 @@ export function MapelHistoryPage() {
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-lg font-semibold text-slate-950">Filter Riwayat Sesi</p>
+              <p className="text-lg font-semibold text-slate-950">Filter Sesi Mapel</p>
               <Button
                 type="button"
                 disabled={!selectedAssignmentId || sessions.length === 0 || sessionsQuery.isLoading}
@@ -184,7 +184,7 @@ export function MapelHistoryPage() {
               <EmptyState
                 icon={History}
                 title="Pilih mata pelajaran"
-                description="Pilih mata pelajaran di atas untuk melihat riwayat sesi."
+                description="Pilih mata pelajaran di atas untuk melihat sesi mapel."
               />
             </section>
           ) : sessionsQuery.error ? (
@@ -202,7 +202,7 @@ export function MapelHistoryPage() {
           ) : (
             <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
               <p className="mb-4 text-lg font-semibold text-slate-950">
-                Riwayat Sesi
+                Sesi Mapel
                 <span className="ml-2 text-sm font-normal text-slate-500">
                   ({sessions.length} sesi)
                 </span>

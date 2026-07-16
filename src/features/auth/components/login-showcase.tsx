@@ -60,13 +60,13 @@ export function LoginShowcase() {
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: "easeOut" }}
-        className="relative z-10 max-w-xl space-y-8 pt-2"
+        className="relative z-10 max-w-xl space-y-5 pt-2"
       >
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.06 }}
-          className="flex flex-col items-start gap-4"
+          className="flex flex-col items-start gap-8"
         >
           <div className="w-full">
             <Link

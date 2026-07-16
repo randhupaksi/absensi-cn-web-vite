@@ -166,7 +166,7 @@ export const walasSidebarItems = [
 export const guruMapelSidebarItems = [
   // Daftar Hadir intentionally hidden from sidebar while the route remains available.
   // { label: "Daftar Hadir", href: "/dashboard/teacher/subject/session", icon: BookOpenCheck },
-  { label: "Riwayat Sesi", href: "/dashboard/teacher/subject/history", icon: History },
+  { label: "Sesi Mapel", href: "/dashboard/teacher/subject/history", icon: History },
   { label: "Rekap Mapel", href: "/dashboard/teacher/subject/recap", icon: ChartColumnBig },
 ] satisfies StaffSidebarItem[];
 

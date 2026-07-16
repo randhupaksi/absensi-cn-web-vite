@@ -277,7 +277,7 @@ export function MapelSessionPage() {
                 {[
                   { label: "Hadir", value: stats.hadir, icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-700" },
                   { label: "Telat", value: stats.telat, icon: Clock3, cls: "bg-amber-50 text-amber-700" },
-                  { label: "Alfa Kelas", value: stats.alfaKelas, icon: AlertCircle, cls: "bg-orange-50 text-orange-700" },
+                  { label: "Alfa Kelas", value: stats.alfaKelas, icon: AlertCircle, cls: "bg-rose-50 text-rose-600" },
                   { label: "Dispensasi", value: stats.dispensasi, icon: FilePenLine, cls: "bg-violet-50 text-violet-700" },
                 ].map((item, i) => (
                   <motion.article
@@ -285,13 +285,15 @@ export function MapelSessionPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04 }}
-                    className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-sm"
+                    className="grid min-h-[118px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-[24px] border border-white/70 bg-white/88 p-5 shadow-sm"
                   >
-                    <span className={`inline-flex size-9 items-center justify-center rounded-xl ${item.cls}`}>
-                      <item.icon className="size-4.5" />
+                    <div className="min-w-0">
+                      <p className="text-3xl font-bold leading-none text-slate-950">{item.value}</p>
+                      <p className="mt-2 text-sm font-medium text-slate-500">{item.label}</p>
+                    </div>
+                    <span className={`inline-flex size-14 items-center justify-center rounded-2xl ${item.cls}`}>
+                      <item.icon className="size-7" />
                     </span>
-                    <p className="mt-3 text-2xl font-bold text-slate-950">{item.value}</p>
-                    <p className="text-xs font-medium text-slate-500">{item.label}</p>
                   </motion.article>
                 ))}
               </section>
