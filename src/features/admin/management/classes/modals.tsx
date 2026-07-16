@@ -32,7 +32,13 @@ const EMPTY_FORM: ClassFormState = {
   is_active: true,
 };
 
-const GRADE_OPTIONS = ["X", "XI", "XII"];
+const GRADE_OPTIONS_BY_LEVEL = {
+  SMP: ["VII", "VIII", "IX"],
+  SMA: ["X", "XI", "XII"],
+  SMK: ["X", "XI", "XII"],
+} as const;
+
+const ALL_GRADE_OPTIONS = [...GRADE_OPTIONS_BY_LEVEL.SMP, ...GRADE_OPTIONS_BY_LEVEL.SMA];
 
 const INPUT_CN =
   "h-14 rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80";
@@ -74,6 +80,10 @@ export function ClassFormModal({
       : EMPTY_FORM,
   );
   const [errors, setErrors] = useState<FieldErrors<ClassFormField>>({});
+  const selectedUnit = schoolUnits.find((unit) => unit.id === form.school_unit_id);
+  const selectedLevel = (selectedUnit?.education_level || selectedUnit?.code || "").toUpperCase();
+  const gradeOptions =
+    GRADE_OPTIONS_BY_LEVEL[selectedLevel as keyof typeof GRADE_OPTIONS_BY_LEVEL] ?? ALL_GRADE_OPTIONS;
 
   const validate = () => {
     const nextErrors: FieldErrors<ClassFormField> = {};
@@ -116,7 +126,7 @@ export function ClassFormModal({
               value={form.grade}
               onValueChange={(value) => setForm((prev) => ({ ...prev, grade: value }))}
               placeholder="Pilih tingkat"
-              options={GRADE_OPTIONS.map((grade) => ({ value: grade, label: grade }))}
+              options={gradeOptions.map((grade) => ({ value: grade, label: grade }))}
             />
             <FieldError message={errors.grade} />
           </FieldGroup>
@@ -132,7 +142,7 @@ export function ClassFormModal({
             <RadixSelectField
               value={form.school_unit_id}
               onValueChange={(value) =>
-                setForm((prev) => ({ ...prev, school_unit_id: value, major_id: "" }))
+                setForm((prev) => ({ ...prev, school_unit_id: value, grade: "", major_id: "" }))
               }
               placeholder="Pilih unit sekolah"
               options={schoolUnits
@@ -141,11 +151,11 @@ export function ClassFormModal({
             />
             <FieldError message={errors.school_unit_id} />
           </FieldGroup>
-          <FieldGroup label="Jurusan">
+          <FieldGroup label="Jurusan / Program">
             <RadixSelectField
               value={form.major_id}
               onValueChange={(value) => setForm((prev) => ({ ...prev, major_id: value }))}
-              placeholder="Pilih jurusan"
+              placeholder="Pilih jurusan / program"
               options={majors
                 .filter((major) => !form.school_unit_id || major.school_unit_id === form.school_unit_id)
                 .map((major) => ({ value: major.id, label: `${major.code} - ${major.name}` }))}

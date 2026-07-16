@@ -145,7 +145,7 @@ export function SubjectFormModal({
 		    <label className={premiumModalLabelClassName}>Cakupan Unit</label>
 		    <Controller control={form.control} name="scope" render={({ field }) => (
 		      <RadixSelectField value={field.value} onValueChange={field.onChange} placeholder="Pilih cakupan" options={[
-		        { value: "ALL", label: "Semua Unit" }, { value: "SMK", label: "SMK" }, { value: "SMA", label: "SMA" },
+		        { value: "ALL", label: "Semua Unit" }, { value: "SMP", label: "SMP" }, { value: "SMA", label: "SMA" }, { value: "SMK", label: "SMK" },
 		      ]} />
 		    )} />
 		  </div>
@@ -536,7 +536,7 @@ function subjectValues(subject: AdminSubject | null): SubjectFormValues {
     name: subject?.name ?? "",
     group: subject?.group ?? "",
     description: subject?.description ?? "",
-    scope: subject?.scope === "SMA" || subject?.scope === "SMK" ? subject.scope : "ALL",
+    scope: subject?.scope === "SMP" || subject?.scope === "SMA" || subject?.scope === "SMK" ? subject.scope : "ALL",
     major_ids: subject?.major_ids ?? [],
     is_active: subject?.is_active ?? true,
   };

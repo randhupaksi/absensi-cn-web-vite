@@ -20,7 +20,7 @@ export const subjectSchema = z.object({
   name: z.string().trim().min(1, "Nama mapel wajib diisi").max(150, "Maksimal 150 karakter"),
   group: z.string().trim().max(100, "Maksimal 100 karakter"),
   description: z.string().trim(),
-  scope: z.enum(["ALL", "SMA", "SMK"]),
+  scope: z.enum(["ALL", "SMP", "SMA", "SMK"]),
   major_ids: z.array(z.string()),
   is_active: z.boolean(),
 });

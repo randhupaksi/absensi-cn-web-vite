@@ -148,7 +148,7 @@ export type AdminSubject = {
   name: string;
   group?: string;
   description?: string;
-  scope: "ALL" | "SMA" | "SMK" | string;
+  scope: "ALL" | "SMP" | "SMA" | "SMK" | string;
   major_ids: string[];
   is_active: boolean;
   assignment_count: number;
@@ -162,7 +162,7 @@ export type AdminSubjectPayload = {
   name: string;
   group: string;
   description: string;
-  scope: "ALL" | "SMA" | "SMK";
+  scope: "ALL" | "SMP" | "SMA" | "SMK";
   major_ids: string[];
   is_active: boolean;
 };

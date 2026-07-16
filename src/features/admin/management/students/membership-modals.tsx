@@ -217,7 +217,7 @@ function ClassPlacementFields({
           <RadixSelectField
             value={selectedUnitId}
             onValueChange={changeUnit}
-            placeholder="Pilih SMA atau SMK"
+            placeholder="Pilih jenjang sekolah"
             options={unitOptions}
           />
         </FieldGroup>
@@ -399,6 +399,7 @@ export function StudentMembershipEditModal({
 
 function schoolLevelLabel(schoolUnitCode: string) {
   const code = schoolUnitCode.toUpperCase();
+  if (code.includes("SMP")) return "SMP";
   if (code.includes("SMK")) return "SMK";
   if (code.includes("SMA")) return "SMA";
   return schoolUnitCode;
@@ -406,7 +407,13 @@ function schoolLevelLabel(schoolUnitCode: string) {
 
 function compareClasses(left: AdminClass, right: AdminClass) {
   return left.major_name.localeCompare(right.major_name, "id")
+    || gradeOrder(left.grade) - gradeOrder(right.grade)
     || left.grade.localeCompare(right.grade, "id", { numeric: true })
     || left.name.localeCompare(right.name, "id", { numeric: true })
     || left.display_name.localeCompare(right.display_name, "id", { numeric: true });
+}
+
+function gradeOrder(grade: string) {
+  const order: Record<string, number> = { VII: 7, VIII: 8, IX: 9, X: 10, XI: 11, XII: 12 };
+  return order[grade.toUpperCase()] ?? Number.MAX_SAFE_INTEGER;
 }

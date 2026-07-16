@@ -123,18 +123,18 @@ export function AcademicStructureTabContent({
   });
   const createMajor = useMutation({
     mutationFn: createAdminMajor,
-    onSuccess: () => finish("Jurusan berhasil ditambahkan."),
+    onSuccess: () => finish("Program berhasil ditambahkan."),
     onError: errorToast,
   });
   const updateMajor = useMutation({
     mutationFn: ({ id, values }: { id: string; values: ProgramFormValues }) =>
       updateAdminMajor(id, values),
-    onSuccess: () => finish("Jurusan berhasil diperbarui."),
+    onSuccess: () => finish("Program berhasil diperbarui."),
     onError: errorToast,
   });
   const removeMajor = useMutation({
     mutationFn: deleteAdminMajor,
-    onSuccess: () => finish("Jurusan berhasil dihapus."),
+    onSuccess: () => finish("Program berhasil dihapus."),
     onError: errorToast,
   });
 
@@ -147,16 +147,16 @@ export function AcademicStructureTabContent({
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-slate-800">
-              {isUnitsTab ? "Unit Sekolah" : "Jurusan"}
+              {isUnitsTab ? "Unit Sekolah" : "Program / Jurusan"}
             </p>
             <p className="mt-1 text-xs leading-5 text-slate-500">
               {isUnitsTab
-                ? "Kelola struktur unit SMA dan SMK yang menjadi batas data akademik."
+                ? "Kelola struktur unit SMP, SMA, dan SMK yang menjadi batas data akademik."
                 : "Kelola jurusan dan program pembelajaran yang dipakai dalam pembentukan kelas."}
             </p>
           </div>
           <AddButton
-            label={isUnitsTab ? "Unit Sekolah" : "Jurusan"}
+            label={isUnitsTab ? "Unit Sekolah" : "Program"}
             onClick={() => setCreateOpen(true)}
           />
         </div>
@@ -167,7 +167,7 @@ export function AcademicStructureTabContent({
             columnCount={5}
             isEmpty={units.length === 0}
             emptyTitle="Belum ada unit sekolah"
-            emptyDescription="Tambahkan unit SMA atau SMK untuk memulai struktur akademik."
+            emptyDescription="Tambahkan unit SMP, SMA, atau SMK untuk memulai struktur akademik."
             icon={School}
             pagination={unitsPagination}
             mobileView={
@@ -228,8 +228,8 @@ export function AcademicStructureTabContent({
             isLoading={isLoading}
             columnCount={6}
             isEmpty={majors.length === 0}
-            emptyTitle="Belum ada jurusan"
-            emptyDescription="Tambahkan jurusan SMK atau program umum SMA."
+            emptyTitle="Belum ada program"
+            emptyDescription="Tambahkan program SMP, peminatan SMA, atau jurusan SMK."
             icon={Building2}
             pagination={majorsPagination}
             mobileView={
@@ -393,7 +393,7 @@ function SchoolUnitModal({
       onOpenChange={onOpenChange}
       icon={School}
       title={item ? "Edit Unit Sekolah" : "Tambah Unit Sekolah"}
-      description="Unit menjadi batas utama data SMA dan SMK."
+      description="Unit menjadi batas utama data SMP, SMA, dan SMK."
       footer={
         <ModalActions
           isPending={pending}
@@ -415,6 +415,7 @@ function SchoolUnitModal({
           options={[
             { value: "SMK", label: "Sekolah Menengah Kejuruan" },
             { value: "SMA", label: "Sekolah Menengah Atas" },
+            { value: "SMP", label: "Sekolah Menengah Pertama" },
           ]}
         />
         <SelectControl
@@ -460,14 +461,14 @@ function MajorModal({
       open={open}
       onOpenChange={onOpenChange}
       icon={Network}
-      title={item ? "Edit Jurusan" : "Tambah Jurusan"}
+      title={item ? "Edit Program / Jurusan" : "Tambah Program / Jurusan"}
       description="Tetapkan unit sekolah dan tipe program agar dapat dipakai saat membentuk kelas."
       footer={
         <ModalActions
           isPending={pending}
           onCancel={() => onOpenChange(false)}
           onSubmit={form.handleSubmit(onSubmit)}
-          submitLabel={item ? "Simpan Perubahan" : "Simpan Jurusan"}
+          submitLabel={item ? "Simpan Perubahan" : "Simpan Program"}
         />
       }
     >
@@ -481,8 +482,8 @@ function MajorModal({
             .map((unit) => ({ value: unit.id, label: `${unit.code} · ${unit.name}` }))}
         />
         <div className="grid gap-4 min-[480px]:grid-cols-2">
-          <InputField form={form} name="code" label="Kode Jurusan" placeholder="Contoh: PPLG" />
-          <InputField form={form} name="name" label="Nama Jurusan" placeholder="Contoh: Pengembangan Perangkat Lunak dan Gim" />
+          <InputField form={form} name="code" label="Kode Program" placeholder="Contoh: PPLG atau IPA" />
+          <InputField form={form} name="name" label="Nama Program" placeholder="Contoh: Pengembangan Perangkat Lunak dan Gim" />
         </div>
         <SelectControl
           control={form.control}
