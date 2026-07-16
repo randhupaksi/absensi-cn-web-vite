@@ -196,7 +196,7 @@ export function LoginCard({ portal }: LoginCardProps) {
                       className="relative h-22 w-22"
                     >
                       <Image
-                        src="/images/optimized/logo-cn.png"
+                        src="/images/optimized/logo-sma-smk-yatkj.png"
                         alt="Logo Sekolah Citra Negara"
                         fill
                         sizes="88px"

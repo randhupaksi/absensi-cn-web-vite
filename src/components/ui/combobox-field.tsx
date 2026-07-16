@@ -27,6 +27,7 @@ type ComboboxFieldProps = {
   searchPlaceholder?: string;
   emptyText?: string;
   options: ComboboxOption[];
+  disabled?: boolean;
   className?: string;
   contentClassName?: string;
   triggerClassName?: string;
@@ -39,6 +40,7 @@ export function ComboboxField({
   searchPlaceholder = "Cari data...",
   emptyText = "Tidak ditemukan.",
   options,
+  disabled = false,
   className,
   contentClassName,
   triggerClassName,
@@ -51,9 +53,11 @@ export function ComboboxField({
       <PopoverTrigger
         className={cn(
           "group flex h-14 w-full items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[popup-open]:border-emerald-500 data-[popup-open]:ring-4 data-[popup-open]:ring-emerald-200/80",
+          "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-60",
           triggerClassName,
           className,
         )}
+        disabled={disabled}
       >
         <span className={cn("truncate", !selected && "text-slate-400")}>
           {selected ? selected.label : placeholder}

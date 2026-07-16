@@ -43,11 +43,9 @@ export function MeasuredChart({
     });
 
     observer.observe(element);
-    window.addEventListener("resize", updateSize);
 
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", updateSize);
     };
   }, []);
 

@@ -98,9 +98,14 @@ type SharedProps = {
 function getStudentClassLabel(
   studentId: string,
   memberships: AdminStudentClassMembership[],
+  schoolYearId: string,
 ) {
   return (
-    memberships.find((membership) => membership.student_id === studentId && membership.is_active)
+    memberships.find((membership) =>
+      membership.student_id === studentId &&
+      membership.school_year_id === schoolYearId &&
+      membership.is_active,
+    )
       ?.class_name ?? "Belum ditempatkan"
   );
 }
@@ -108,11 +113,22 @@ function getStudentClassLabel(
 function getStudentOptions(
   students: AdminStudent[],
   memberships: AdminStudentClassMembership[],
+  schoolYearId: string,
+  currentMembershipId?: string,
 ) {
-  return students.map((student) => ({
-    value: student.id,
-    label: `${student.name} - ${getStudentClassLabel(student.id, memberships)}`,
-  }));
+  if (!schoolYearId) return [];
+
+  return students
+    .filter((student) => !memberships.some((membership) =>
+      membership.id !== currentMembershipId &&
+      membership.student_id === student.id &&
+      membership.school_year_id === schoolYearId &&
+      membership.is_active,
+    ))
+    .map((student) => ({
+      value: student.id,
+      label: `${student.name} - ${getStudentClassLabel(student.id, memberships, schoolYearId)}`,
+    }));
 }
 
 export function StudentMembershipCreateModal({
@@ -127,6 +143,7 @@ export function StudentMembershipCreateModal({
 }: { open: boolean; onOpenChange: (open: boolean) => void } & SharedProps) {
   const [form, setForm] = useState<AdminStudentClassMembershipPayload>(EMPTY_FORM);
   const [errors, setErrors] = useState<FieldErrors<keyof AdminStudentClassMembershipPayload>>({});
+  const availableStudentOptions = getStudentOptions(students, memberships, form.school_year_id);
 
   const handleOpenChange = (nextOpen: boolean) => {
     onOpenChange(nextOpen);
@@ -139,6 +156,9 @@ export function StudentMembershipCreateModal({
   const handleSubmit = () => {
     const payload = { ...form, is_active: deriveMembershipIsActive(form.status) };
     const nextErrors = validateStudentMembershipForm(payload);
+    if (payload.student_id && !availableStudentOptions.some((option) => option.value === payload.student_id)) {
+      nextErrors.student_id = "Siswa sudah memiliki penempatan aktif pada tahun ajaran ini.";
+    }
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
     onSubmit(payload);
@@ -149,18 +169,18 @@ export function StudentMembershipCreateModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Siswa">
-            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} placeholder="Pilih siswa" searchPlaceholder="Cari nama atau kelas siswa..." options={getStudentOptions(students, memberships)} />
+            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} disabled={!form.school_year_id} placeholder={form.school_year_id ? "Pilih siswa" : "Pilih tahun ajaran terlebih dahulu"} searchPlaceholder="Cari nama atau NIS siswa..." emptyText="Semua siswa sudah memiliki penempatan aktif pada tahun ini." options={availableStudentOptions} />
             <FieldError message={errors.student_id} />
           </FieldGroup>
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => setForm((prev) => ({ ...prev, class_id: v }))} placeholder="Pilih kelas" options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
+            <RadixSelectField value={form.class_id} onValueChange={(v) => setForm((prev) => ({ ...prev, class_id: v }))} placeholder="Pilih kelas" options={classes.filter((c) => c.school_year_id === form.school_year_id).map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
             <FieldError message={errors.class_id} />
           </FieldGroup>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Tahun Ajaran">
-            <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
+            <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v, student_id: "", class_id: "" }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
           <FieldGroup label="Status Penempatan">
@@ -216,18 +236,18 @@ export function StudentMembershipEditModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Siswa">
-            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} placeholder="Pilih siswa" searchPlaceholder="Cari nama atau kelas siswa..." options={getStudentOptions(students, memberships)} />
+            <ComboboxField value={form.student_id} onValueChange={(v) => setForm((prev) => ({ ...prev, student_id: v }))} disabled={!form.school_year_id} placeholder={form.school_year_id ? "Pilih siswa" : "Pilih tahun ajaran terlebih dahulu"} searchPlaceholder="Cari nama atau NIS siswa..." emptyText="Semua siswa sudah memiliki penempatan aktif pada tahun ini." options={getStudentOptions(students, memberships, form.school_year_id, membership.id)} />
             <FieldError message={errors.student_id} />
           </FieldGroup>
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => setForm((prev) => ({ ...prev, class_id: v }))} placeholder="Pilih kelas" options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
+            <RadixSelectField value={form.class_id} onValueChange={(v) => setForm((prev) => ({ ...prev, class_id: v }))} placeholder="Pilih kelas" options={classes.filter((c) => c.school_year_id === form.school_year_id).map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
             <FieldError message={errors.class_id} />
           </FieldGroup>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Tahun Ajaran">
-            <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
+            <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v, student_id: "", class_id: "" }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
           <FieldGroup label="Status Penempatan">

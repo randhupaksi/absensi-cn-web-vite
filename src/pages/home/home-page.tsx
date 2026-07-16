@@ -178,6 +178,7 @@ export default function HomePage() {
             <div className={`${styles.landingHeroViewport} relative overflow-hidden`}>
               <Image
                 src="/images/optimized/cn-hero.jpg"
+                srcSet="/images/optimized/cn-panel.jpg 960w, /images/optimized/cn-hero.jpg 1920w"
                 alt="Gedung Sekolah Citra Negara"
                 fill
                 priority
