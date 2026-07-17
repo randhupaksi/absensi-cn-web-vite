@@ -1,13 +1,21 @@
-import { lazy, type ComponentType } from "react";
+import { createElement, lazy, Suspense, type ComponentType, type ReactNode } from "react";
 
 type LoadedComponent<Props> = ComponentType<Props> | { default: ComponentType<Props> };
 
-export default function dynamic<Props>(
+export default function dynamic<Props extends object>(
   loader: () => Promise<LoadedComponent<Props>>,
-  _options?: { ssr?: boolean },
+  options?: { ssr?: boolean; fallback?: ReactNode },
 ) {
-  return lazy(async () => {
+  const LazyComponent = lazy(async () => {
     const loaded = await loader();
     return typeof loaded === "function" ? { default: loaded } : loaded;
   });
+
+  return function DynamicComponent(props: Props) {
+    return (
+      <Suspense fallback={options?.fallback ?? null}>
+        {createElement(LazyComponent, props)}
+      </Suspense>
+    );
+  };
 }

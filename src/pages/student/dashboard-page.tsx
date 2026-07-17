@@ -63,6 +63,8 @@ import { motion } from "motion/react";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { StudentDashboardSkeleton } from "@/components/loading/loading-system";
+import { ProcessStatus, type ProcessStep } from "@/components/loading/process-status";
 
 const reportTypeOptions = [
   { value: "HADIR", label: "Hadir", description: "Absensi masuk sekolah" },
@@ -84,6 +86,7 @@ export function StudentDashboardPage() {
   const [errors, setErrors] = useState<FieldErrors<"photo" | "type" | "reason">>({});
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [locationState, setLocationState] = useState<"idle" | "loading" | "complete">("idle");
   const [locationResult, setLocationResult] = useState<AttendanceLocationCaptureResult | null>(null);
   const [evidenceRecord, setEvidenceRecord] = useState<StaffAttendanceRecord | null>(null);
@@ -96,12 +99,15 @@ export function StudentDashboardPage() {
   });
 
   const submitMutation = useMutation({
-    mutationFn: submitStudentDailyReport,
+    mutationFn: (payload: StudentDailyReportPayload) =>
+      submitStudentDailyReport(payload, setUploadProgress),
+    onMutate: () => setUploadProgress(6),
     onSuccess: async (data) => {
       if (data?.can_submit !== false) {
         toast.error("Absensi gagal tersimpan, silakan coba lagi.");
         return;
       }
+      setUploadProgress(100);
       toast.success("Absensi berhasil dikirim.");
       setModalOpen(false);
       resetCaptureState();
@@ -111,7 +117,10 @@ export function StudentDashboardPage() {
         queryClient.invalidateQueries({ queryKey: ["student-profile"] }),
       ]);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => {
+      setUploadProgress(0);
+      toast.error(error.message);
+    },
   });
 
   useEffect(
@@ -146,6 +155,7 @@ export function StudentDashboardPage() {
     setErrors({});
     setLocationState("idle");
     setLocationResult(null);
+    setUploadProgress(0);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -219,9 +229,55 @@ export function StudentDashboardPage() {
     });
   }
 
+  const attendanceProcessSteps: ProcessStep[] = [
+    {
+      id: "capture",
+      label: "Foto",
+      icon: Camera,
+      state: photoFile ? "complete" : cameraModalOpen ? "active" : "pending",
+    },
+    {
+      id: "compress",
+      label: "Optimasi",
+      icon: ImageUp,
+      state: isPreparingPhoto ? "active" : photoFile ? "complete" : "pending",
+    },
+    {
+      id: "location",
+      label: "Lokasi",
+      icon: School,
+      state:
+        locationState === "loading"
+          ? "active"
+          : locationState === "complete" && locationResult?.outcome === "captured"
+            ? "complete"
+            : locationState === "complete"
+              ? "error"
+              : "pending",
+    },
+    {
+      id: "upload",
+      label: "Kirim",
+      icon: ImageUp,
+      state: submitMutation.isPending
+        ? "active"
+        : uploadProgress >= 100
+          ? "complete"
+          : "pending",
+    },
+    {
+      id: "review",
+      label: "Validasi",
+      icon: BadgeCheck,
+      state: "pending",
+    },
+  ];
+
   return (
     <StudentShell>
-      {() => (
+      {() => dashboardQuery.isLoading && !dashboard ? (
+        <StudentDashboardSkeleton />
+      ) : (
         <div className="space-y-5">
           <input
             ref={inputRef}
@@ -534,6 +590,10 @@ export function StudentDashboardPage() {
             }
           >
             <div className="space-y-5">
+              <ProcessStatus
+                steps={attendanceProcessSteps}
+                progress={submitMutation.isPending ? uploadProgress : undefined}
+              />
               <div className={premiumModalSurfaceClassName}>
                 <div className="space-y-5 p-4 sm:p-5">
                   <div className="space-y-3">

@@ -249,3 +249,9 @@ body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
   box-shadow: none;
   border-color: transparent;
 }
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(200%);
+  }
+}

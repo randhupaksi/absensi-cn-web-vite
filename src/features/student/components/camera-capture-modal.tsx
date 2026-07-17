@@ -5,6 +5,8 @@ import {
   premiumModalActionsClassName,
 } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
+import { AsyncButton } from "@/components/ui/async-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Camera, ShieldAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -90,7 +92,7 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
             <p className="text-[0.88rem] font-medium text-rose-700">{cameraError}</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-[1.3rem] border border-emerald-200/70 bg-slate-950">
+          <div className="relative overflow-hidden rounded-[1.3rem] border border-emerald-200/70 bg-slate-950">
             <video
               ref={videoRef}
               autoPlay
@@ -99,6 +101,18 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
               onCanPlay={() => setVideoReady(true)}
               className="h-[300px] w-full object-cover"
             />
+            {!videoReady ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/92 p-6 text-center">
+                <Skeleton className="absolute inset-0 rounded-none bg-slate-800/80" />
+                <span className="relative flex size-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+                  <Camera className="size-5" />
+                </span>
+                <div className="relative">
+                  <p className="text-sm font-semibold text-white">Menyiapkan kamera</p>
+                  <p className="mt-1 text-xs text-slate-400">Browser sedang memeriksa izin dan perangkat kamera.</p>
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
         <canvas ref={canvasRef} className="hidden" />
@@ -113,15 +127,16 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
             Batal
           </Button>
           {!cameraError && (
-            <Button
+            <AsyncButton
               type="button"
-              disabled={!videoReady}
+              isPending={!videoReady}
+              pendingLabel="Menyiapkan kamera..."
+              icon={Camera}
               onClick={handleCapture}
               className="h-13 rounded-full bg-emerald-700 px-7 text-white shadow-[0_14px_28px_rgba(16,185,129,0.22)] hover:bg-emerald-800 disabled:bg-slate-300"
             >
-              <Camera className="size-4.5" />
-              {videoReady ? "Ambil Foto" : "Memuat kamera..."}
-            </Button>
+              Ambil Foto
+            </AsyncButton>
           )}
         </div>
       </div>

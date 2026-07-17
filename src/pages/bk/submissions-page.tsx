@@ -110,6 +110,7 @@ export function BKSubmissionsPage() {
         class_id: classFilter === "Semua" ? "" : classFilter,
         query: query.trim(),
       }),
+    placeholderData: (previousData) => previousData,
   });
 
   const reviewMutation = useMutation({

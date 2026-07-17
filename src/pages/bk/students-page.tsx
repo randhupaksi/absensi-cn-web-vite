@@ -87,6 +87,7 @@ export function BKStudentsPage() {
         risk: riskFilter === "Semua" ? "" : riskFilter,
         query: debouncedQuery.trim(),
       }),
+    placeholderData: (previousData) => previousData,
   });
 
   const detailQuery = useQuery({

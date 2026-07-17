@@ -5,6 +5,7 @@ import { resolveApiAssetUrl } from "@/lib/config/site";
 import { formatDisplayLabel } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { id as localeID } from "date-fns/locale";
+import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loading-system";
 
 export const classFilterOptions = (classes: Array<{ class_id: string; class_name: string; school_unit_code?: string }>) => [
   { value: "Semua", label: "Semua kelas" },
@@ -141,22 +142,5 @@ export function openAttachment(attachment?: string) {
 }
 
 export function TableSkeleton({ columns, rows = 6 }: { columns: number; rows?: number }) {
-  return (
-    <div className="space-y-3 p-5">
-      {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div
-          key={`bk-table-loading-${rowIndex}`}
-          className="grid gap-3 rounded-[18px] border border-slate-100 bg-slate-50/75 px-4 py-4"
-          style={{ gridTemplateColumns: `repeat(${columns}, minmax(100px, 1fr))` }}
-        >
-          {Array.from({ length: columns }).map((__, cellIndex) => (
-            <div
-              key={`bk-table-loading-${rowIndex}-${cellIndex}`}
-              className="h-4 animate-pulse rounded-full bg-slate-200"
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <DetailedTableSkeleton columns={columns} rows={rows} embedded />;
 }

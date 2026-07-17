@@ -1,7 +1,6 @@
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { Button } from "@/components/ui/button";
 import { LayoutPanelTop, Printer } from "lucide-react";
-import { motion } from "motion/react";
 import type { ComponentProps, ReactNode } from "react";
 
 type BkPageHeroProps = {
@@ -61,15 +60,10 @@ export function BkPageHero({
       </div>
 
       <div className={kpiGridClassName}>
-        {kpiCards.map((item, index) => (
-          <motion.div
-            key={item.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.24, delay: index * 0.04 }}
-          >
+        {kpiCards.map((item) => (
+          <div key={item.label}>
             <KpiCard {...item} />
-          </motion.div>
+          </div>
         ))}
       </div>
 

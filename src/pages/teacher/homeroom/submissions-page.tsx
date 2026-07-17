@@ -116,6 +116,7 @@ export function WalasSubmissionsPage() {
         type: typeFilter === "Semua" ? "" : typeFilter,
         query: debouncedQuery.trim(),
       }),
+    placeholderData: (previousData) => previousData,
   });
 
   const reviewMutation = useMutation({

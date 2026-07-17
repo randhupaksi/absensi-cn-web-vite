@@ -19,7 +19,6 @@ import type {
   StaffRiskStudentRecord,
 } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "motion/react";
 import {
   ArrowUpRight,
   BellRing,
@@ -33,13 +32,13 @@ import {
   GraduationCap,
   History,
   LayoutPanelTop,
-  Loader2,
   ShieldAlert,
   SquareLibrary,
   Users,
   UsersRound,
 } from "lucide-react";
 import type { AuthSession } from "@/types/auth";
+import { ListRowsSkeleton, PageSkeleton } from "@/components/loading/loading-system";
 
 const HARI_LABEL: Record<string, string> = {
   senin: "Senin",
@@ -137,6 +136,10 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
     refetchInterval: 30_000,
     staleTime: 0,
   });
+
+  if (teacherMeQuery.isLoading && !teacherMe) {
+    return <PageSkeleton variant="dashboard" />;
+  }
 
   const homeroom = normalizeHomeroom(homeroomQuery.data ?? fallbackHomeroom);
   const bk = normalizeBK(bkQuery.data ?? fallbackBK);
@@ -276,7 +279,7 @@ function TeacherHero({
   ].filter(Boolean) as Array<{ icon: typeof CalendarClock; label: string; href: string }>;
 
   return (
-    <motion.article initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="h-fit self-start overflow-hidden rounded-[34px] border border-white/75 bg-[radial-gradient(circle_at_top_right,rgba(255,212,132,0.3),transparent_24%),linear-gradient(135deg,#fffdf9_0%,#f7f5ee_38%,#ebf8f0_100%)] p-5 shadow-[0_24px_60px_rgba(150,163,184,0.14)] md:p-6">
+    <article className="h-fit self-start overflow-hidden rounded-[34px] border border-white/75 bg-[radial-gradient(circle_at_top_right,rgba(255,212,132,0.3),transparent_24%),linear-gradient(135deg,#fffdf9_0%,#f7f5ee_38%,#ebf8f0_100%)] p-5 shadow-[0_24px_60px_rgba(150,163,184,0.14)] md:p-6">
       <div className="space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
           <LayoutPanelTop className="size-3.5" />
@@ -310,7 +313,7 @@ function TeacherHero({
           </div>
         ) : null}
       </div>
-    </motion.article>
+    </article>
   );
 }
 
@@ -323,7 +326,7 @@ function ActiveSessionCard({ session, isLoading, day, time }: { session: Awaited
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">Sesi Mapel Saat Ini</p><p className="mt-1 text-sm text-slate-500">Akses daftar hadir saat jam pelajaran sedang berjalan</p></div><span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Live</span></div>
       <div className="mt-5">
-        {isLoading ? <EmptyState icon={Loader2} title="Mendeteksi sesi aktif" description="Memeriksa jadwal pelajaran saat ini." compact /> : session ? (
+        {isLoading ? <ListRowsSkeleton rows={1} /> : session ? (
           <div className="rounded-[24px] border border-emerald-100 bg-emerald-50/60 p-4"><div className="flex items-start justify-between gap-4"><div className="min-w-0"><p className="font-semibold text-slate-900">{session.assignment.subject_name}</p><p className="mt-1 text-sm text-slate-500">{session.assignment.class_name} · {HARI_LABEL[session.hari] ?? session.hari}, {session.jam_mulai}–{session.jam_selesai}</p>{session.topic && <p className="mt-3 text-sm text-slate-600">{session.topic}</p>}</div><CalendarClock className="size-5 shrink-0 text-emerald-700" /></div><Link href={`/dashboard/teacher/subject/session?session_id=${session.session_id}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Buka daftar hadir<ArrowUpRight className="size-4" /></Link></div>
         ) : <EmptyState icon={Clock3} title="Tidak ada sesi aktif" description={`${HARI_LABEL[day] ?? day}, ${time}. Sesi mapel yang berjalan akan tampil di sini.`} compact />}
       </div>
@@ -360,7 +363,7 @@ function SubjectAssignmentsCard({
         {errorMessage ? (
           <EmptyState icon={BookOpenCheck} title="Mapel belum bisa dimuat" description={errorMessage} compact />
         ) : isLoading ? (
-          <EmptyState icon={Loader2} title="Memuat mata pelajaran" description="Menyiapkan assignment mengajar." compact />
+          <ListRowsSkeleton rows={4} />
         ) : assignments.length === 0 ? (
           <EmptyState icon={BookOpenCheck} title="Belum ada mapel aktif" description="Assignment mata pelajaran akan muncul setelah ditetapkan admin." compact />
         ) : (
@@ -393,15 +396,15 @@ function SubjectAssignmentsCard({
 }
 
 function AttentionCard({ title, subtitle, students, isLoading, errorMessage, href, badge }: { title: string; subtitle: string; students: StaffRiskStudentRecord[]; isLoading: boolean; errorMessage?: string; href: string; badge: string }) {
-  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{badge}</span></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={ShieldAlert} title="Data prioritas belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <EmptyState icon={Loader2} title="Memuat prioritas siswa" description="Menyiapkan data yang perlu ditindaklanjuti." compact /> : students.length === 0 ? <EmptyState icon={ShieldAlert} title="Belum ada prioritas" description="Siswa dengan pola telat atau alfa akan muncul di panel ini." compact /> : students.slice(0, 4).map((item) => <div key={item.student_id} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><p className="mt-1 text-xs text-slate-500">{item.nis} · {item.class_name}</p></div><span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">{item.occurrences}x</span></div>)}</div><MoreLink href={href} label="Buka monitoring" /></article>;
+  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{badge}</span></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={ShieldAlert} title="Data prioritas belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : students.length === 0 ? <EmptyState icon={ShieldAlert} title="Belum ada prioritas" description="Siswa dengan pola telat atau alfa akan muncul di panel ini." compact /> : students.slice(0, 4).map((item) => <div key={item.student_id} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><p className="mt-1 text-xs text-slate-500">{item.nis} · {item.class_name}</p></div><span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">{item.occurrences}x</span></div>)}</div><MoreLink href={href} label="Buka monitoring" /></article>;
 }
 
 function SubmissionCard({ submissions, isLoading, errorMessage, href, title, subtitle }: { submissions: StaffHomeroomDashboard["recent_submissions"]; isLoading: boolean; errorMessage?: string; href: string; title: string; subtitle: string }) {
-  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><BellRing className="size-5 text-sky-600" /></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={BellRing} title="Pengajuan belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <EmptyState icon={Loader2} title="Memuat pengajuan" description="Menyiapkan pengajuan siswa terbaru." compact /> : submissions.length === 0 ? <EmptyState icon={BellRing} title="Belum ada pengajuan" description="Pengajuan izin dan sakit baru akan muncul di sini." compact /> : submissions.slice(0, 4).map((item) => <div key={item.id} className="rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="flex items-center justify-between gap-3"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><span className="rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase text-sky-700">{item.type}</span></div><p className="mt-1 text-xs text-slate-500">{item.class_name ?? "Kelas"} · {item.status}</p></div>)}</div><MoreLink href={href} label="Buka pengajuan" /></article>;
+  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><BellRing className="size-5 text-sky-600" /></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={BellRing} title="Pengajuan belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : submissions.length === 0 ? <EmptyState icon={BellRing} title="Belum ada pengajuan" description="Pengajuan izin dan sakit baru akan muncul di sini." compact /> : submissions.slice(0, 4).map((item) => <div key={item.id} className="rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="flex items-center justify-between gap-3"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><span className="rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase text-sky-700">{item.type}</span></div><p className="mt-1 text-xs text-slate-500">{item.class_name ?? "Kelas"} · {item.status}</p></div>)}</div><MoreLink href={href} label="Buka pengajuan" /></article>;
 }
 
 function CounselingCard({ dashboard, isLoading, errorMessage }: { dashboard: StaffBKDashboard; isLoading: boolean; errorMessage?: string }) {
-  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">Catatan Pembinaan</p><p className="mt-1 text-sm text-slate-500">Riwayat konseling terbaru dalam scope BK</p></div><BookHeart className="size-5 text-emerald-600" /></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={BookHeart} title="Catatan belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <EmptyState icon={Loader2} title="Memuat catatan pembinaan" description="Menyiapkan riwayat konseling terbaru." compact /> : dashboard.recent_counseling_notes.length === 0 ? <EmptyState icon={BookHeart} title="Belum ada catatan pembinaan" description="Catatan konseling yang dibuat akan tampil di panel ini." compact /> : dashboard.recent_counseling_notes.slice(0, 4).map((item) => <div key={item.id} className="rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><p className="truncate text-sm font-semibold text-slate-900">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.student_name} · {item.class_name ?? "Kelas"}</p><p className="mt-2 line-clamp-1 text-xs leading-5 text-slate-500">{item.note}</p></div>)}</div><MoreLink href="/dashboard/teacher/bk/counseling" label="Buka catatan konseling" /></article>;
+  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">Catatan Pembinaan</p><p className="mt-1 text-sm text-slate-500">Riwayat konseling terbaru dalam scope BK</p></div><BookHeart className="size-5 text-emerald-600" /></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={BookHeart} title="Catatan belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : dashboard.recent_counseling_notes.length === 0 ? <EmptyState icon={BookHeart} title="Belum ada catatan pembinaan" description="Catatan konseling yang dibuat akan tampil di panel ini." compact /> : dashboard.recent_counseling_notes.slice(0, 4).map((item) => <div key={item.id} className="rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><p className="truncate text-sm font-semibold text-slate-900">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.student_name} · {item.class_name ?? "Kelas"}</p><p className="mt-2 line-clamp-1 text-xs leading-5 text-slate-500">{item.note}</p></div>)}</div><MoreLink href="/dashboard/teacher/bk/counseling" label="Buka catatan konseling" /></article>;
 }
 
 function MoreLink({ href, label }: { href: string; label: string }) { return <Link href={href} className="group mx-auto mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/60 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:border-emerald-400 hover:bg-emerald-100/80 hover:text-emerald-900"><span>{label}</span><ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></Link>; }

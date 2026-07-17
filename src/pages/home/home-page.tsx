@@ -232,8 +232,8 @@ export default function HomePage() {
                       Citra Negara School Attendance System
                     </p>
                     <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
-                      Absensi pagi tanpa antre.
-                      <span className={`${styles.landingHeroTitle} block`}>Cukup foto, data langsung masuk.</span>
+                      Absensi pagi tanpa antre,
+                      <span className={`${styles.landingHeroTitle} block`}>Cukup foto saja</span>
                     </h1>
                     <p className={`${styles.landingReveal} ${styles.landingDelayThree} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}>
                       Siswa absen masuk dari kamera, wali kelas memvalidasi, BK memantau
@@ -348,19 +348,19 @@ export default function HomePage() {
 
             <section className={`${styles.landingStepsSection} ${styles.landingReveal} mt-8 px-5 py-9 md:px-10 md:py-11 xl:px-14`} aria-labelledby="attendance-steps-title">
               <div className="mx-auto grid max-w-[1220px] gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
-                <div className="flex flex-col justify-center">
+                <div className="flex w-full flex-col justify-center">
                   <div className={`${styles.landingMajorBadge} inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em]`}>
                     <FaCameraRetro className="size-3" />
                     Panduan siswa
                   </div>
-                  <h2 id="attendance-steps-title" className={`${styles.landingInkText} mt-5 max-w-[480px] font-heading text-[2.2rem] font-bold leading-[1.02] tracking-[-0.055em] md:text-[3.35rem]`}>
+                  <h2 id="attendance-steps-title" className={`${styles.landingInkText} mt-5 w-full max-w-none whitespace-nowrap font-heading text-[1.95rem] font-bold leading-[1.08] tracking-[-0.055em] md:max-w-[480px] md:whitespace-normal md:text-[3.35rem]`}>
                     Absen masuk
-                    <span className={`${styles.landingHeroTitle} block`}>tanpa ragu.</span>
+                    <span className={`${styles.landingHeroTitle} inline md:block`}> tanpa ragu.</span>
                   </h2>
-                  <p className={`${styles.landingMutedText} mt-5 max-w-[430px] text-sm leading-7 md:text-base`}>
+                  <p className={`${styles.landingMutedText} mt-5 w-full max-w-none text-sm leading-7 md:max-w-[430px] md:text-base`}>
                     Ikuti alur singkat ini agar bukti, lokasi, dan status kehadiranmu tercatat dengan jelas di sistem sekolah.
                   </p>
-                  <div className={`${styles.landingStepsDetail} mt-8 flex max-w-[440px] items-start gap-3 px-4 py-3`}>
+                  <div className={`${styles.landingStepsDetail} mt-8 flex w-full max-w-none items-start gap-3 px-4 py-3 md:max-w-[440px]`}>
                     <FaMapMarkerAlt className={`${styles.landingStepIcon} mt-0.5 size-4 shrink-0`} />
                     <p className={`${styles.landingMutedText} text-xs leading-5`}>
                       <span className={`${styles.landingInkText} font-semibold`}>Lokasi dan bukti tercatat.</span> Pastikan izin kamera serta lokasi aktif sebelum mengirim absensi.
@@ -467,7 +467,7 @@ export default function HomePage() {
               </div>
             ) : null}
 
-            <div className="mt-8 px-2 md:px-4 xl:px-6">
+            <div className="mt-8 mb-10 px-2 sm:mb-0 md:px-4 xl:px-6">
               <div className={`${styles.landingCtaShell} ${styles.landingReveal} relative overflow-hidden rounded-[42px] px-6 py-8 md:px-10 md:py-10 xl:px-12 xl:py-12`}>
                 <div className={`${styles.landingCtaGlow} absolute inset-0`} />
                 <div className="absolute right-[-120px] top-[-120px] h-[260px] w-[260px] rounded-full bg-emerald-300/12 blur-3xl" />
@@ -504,20 +504,13 @@ export default function HomePage() {
                       dengan pengalaman yang lebih cepat, rapi, dan terintegrasi.
                     </p>
 
-                    <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-start">
                       <Link
                         href="/login/student"
                         className={`${styles.landingCtaButton} group inline-flex w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5`}
                       >
                         Masuk Siswa
                         <FaArrowRight className="size-4 transition group-hover:translate-x-0.5" />
-                      </Link>
-                      <Link
-                        href="/login/staff"
-                        className="group inline-flex w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/18 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(0,0,0,0.14)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-emerald-200/35 hover:bg-white/16"
-                      >
-                        <FaShieldAlt className="size-4 text-emerald-200 transition group-hover:scale-105" />
-                        Portal Staff
                       </Link>
                       <div className={`${styles.landingCtaPill} inline-flex w-fit items-center gap-3 whitespace-nowrap rounded-full px-4 py-3 text-sm`}>
                         <span className={`${styles.landingCtaPillIcon} flex size-8 items-center justify-center rounded-full`}>

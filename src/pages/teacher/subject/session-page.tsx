@@ -42,6 +42,7 @@ import {
 import { useSearchParams } from "@/lib/router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/loading/loading-system";
 
 function getDayIndonesian(date: Date): string {
   return ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"][date.getDay()];
@@ -303,7 +304,7 @@ export function MapelSessionPage() {
                 <p className="mb-4 text-lg font-semibold text-slate-950">Daftar Hadir Siswa</p>
 
                 {overviewQuery.isLoading ? (
-                  <EmptyState icon={Loader2} title="Memuat daftar siswa..." description="" />
+                  <TableSkeleton columns={7} rows={7} embedded />
                 ) : records.length === 0 ? (
                   <EmptyState icon={Users} title="Belum ada data siswa" description="Pastikan siswa terdaftar di kelas ini." />
                 ) : (

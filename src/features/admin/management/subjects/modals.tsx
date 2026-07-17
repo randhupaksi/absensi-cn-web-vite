@@ -2,6 +2,7 @@
 
 import { FieldError } from "@/components/ui/field-error";
 import { Button } from "@/components/ui/button";
+import { AsyncButton } from "@/components/ui/async-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -517,15 +518,16 @@ function ModalActions({ formId, isPending, onCancel, submitLabel }: { formId: st
       >
         Batal
       </Button>
-      <Button
+      <AsyncButton
         type="submit"
         form={formId}
         className="h-12 rounded-[1.1rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900"
-        disabled={isPending}
+        isPending={isPending}
+        pendingLabel="Menyimpan..."
+        icon={Save}
       >
-        <Save className="size-4" />
-        {isPending ? "Menyimpan..." : submitLabel}
-      </Button>
+        {submitLabel}
+      </AsyncButton>
     </div>
   );
 }

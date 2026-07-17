@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
+import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const statusOptions = [
   { value: "Semua", label: "Semua status" },
@@ -99,7 +100,9 @@ export function StudentHistoryPage() {
 
   return (
     <StudentShell>
-      {() => (
+      {() => historyQuery.isLoading && !history ? (
+        <HistoryPageSkeleton />
+      ) : (
         <div className="space-y-5">
           <motion.section
             initial={{ opacity: 0, y: 16 }}

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDisplayLabel } from "@/lib/utils";
 import type { StaffHomeroomStudentDetail } from "@/types/staff";
 import { BookOpenCheck, FileClock, TriangleAlert, UserRound } from "lucide-react";
+import { ModalContentSkeleton, TableSkeleton } from "@/components/loading/loading-system";
 
 export function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -42,24 +43,7 @@ export function StatusPill({ isActive }: { isActive: boolean }) {
 }
 
 export function LoadingTable({ columnCount }: { columnCount: number }) {
-  return (
-    <div className="space-y-3 px-4 py-4">
-      {Array.from({ length: 5 }).map((_, rowIndex) => (
-        <div
-          key={`walas-student-loading-${rowIndex}`}
-          className="grid gap-3"
-          style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(120px, 1fr))` }}
-        >
-          {Array.from({ length: columnCount }).map((__, cellIndex) => (
-            <div
-              key={`walas-student-loading-cell-${rowIndex}-${cellIndex}`}
-              className="h-4 animate-pulse rounded-full bg-slate-100"
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <TableSkeleton columns={columnCount} rows={6} embedded />;
 }
 
 function formatDate(value?: string) {
@@ -183,7 +167,7 @@ export function StudentDetailModal({
             compact
           />
         ) : isLoading || !studentDetail || !student ? (
-          <LoadingTable columnCount={3} />
+          <ModalContentSkeleton fields={7} />
         ) : (
           <>
             <div className="grid items-start gap-4 md:grid-cols-[1.2fr_0.8fr]">

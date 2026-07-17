@@ -3,7 +3,6 @@
 import { getAdminDashboard } from "@/services/admin.service";
 import type { AdminDashboardData } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "motion/react";
 import {
   BookOpenCheck,
   GraduationCap,
@@ -17,13 +16,14 @@ import { GreetingCard } from "@/features/admin/dashboard/widgets/greeting-card";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { AnnouncementCard } from "@/features/admin/dashboard/widgets/announcement-card";
 import { RoleDistributionTable } from "@/features/admin/dashboard/widgets/role-distribution-table";
+import { ChartSkeleton, PageSkeleton } from "@/components/loading/loading-system";
 
 const AttendanceDonutChart = dynamic(
   () =>
     import("@/features/admin/dashboard/charts/attendance-donut-chart").then(
       (m) => ({ default: m.AttendanceDonutChart }),
     ),
-  { ssr: false },
+  { ssr: false, fallback: <ChartSkeleton type="donut" /> },
 );
 
 const SemesterAttendanceChart = dynamic(
@@ -31,7 +31,7 @@ const SemesterAttendanceChart = dynamic(
     import("@/features/admin/dashboard/charts/semester-attendance-chart").then(
       (m) => ({ default: m.SemesterAttendanceChart }),
     ),
-  { ssr: false },
+  { ssr: false, fallback: <ChartSkeleton /> },
 );
 
 const ClassPerformanceChart = dynamic(
@@ -39,7 +39,7 @@ const ClassPerformanceChart = dynamic(
     import("@/features/admin/dashboard/charts/class-performance-chart").then(
       (m) => ({ default: m.ClassPerformanceChart }),
     ),
-  { ssr: false },
+  { ssr: false, fallback: <ChartSkeleton /> },
 );
 
 const fallbackDashboard: AdminDashboardData = {
@@ -119,26 +119,19 @@ export function AdminDashboardPage() {
 
   return (
     <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
-      {(session) => (
+      {(session) => dashboardQuery.isLoading && !dashboardQuery.data ? (
+        <PageSkeleton variant="dashboard" />
+      ) : (
         <>
           <section className="grid items-start gap-5 xl:grid-cols-[1.45fr_0.78fr]">
             <div className="space-y-5">
               <GreetingCard adminName={session.user.name} />
 
               <div className="grid grid-cols-2 items-start gap-3 sm:gap-4">
-                {kpiCards.map((item, index) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.24,
-                      delay: index * 0.04,
-                      ease: "easeOut",
-                    }}
-                  >
+                {kpiCards.map((item) => (
+                  <div key={item.label}>
                     <KpiCard {...item} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 

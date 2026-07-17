@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Trash2, X } from "lucide-react";
+import { AsyncButton } from "@/components/ui/async-button";
 
 type DeleteConfirmationModalProps = {
   open: boolean;
@@ -80,14 +81,16 @@ export function DeleteConfirmationModal({
           >
             {cancelLabel}
           </button>
-          <button
+          <AsyncButton
             type="button"
             className="inline-flex h-11 items-center justify-center rounded-[0.95rem] bg-red-500 px-5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(239,68,68,0.24)] transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
             onClick={onConfirm}
-            disabled={isPending}
+            isPending={isPending}
+            pendingLabel="Menghapus..."
+            icon={Trash2}
           >
-            {isPending ? "Menghapus..." : confirmLabel}
-          </button>
+            {confirmLabel}
+          </AsyncButton>
         </div>
       </DialogContent>
     </Dialog>

@@ -81,7 +81,10 @@ export async function getStudentSubmissions() {
   }
 }
 
-export async function submitStudentDailyReport(payload: StudentDailyReportPayload) {
+export async function submitStudentDailyReport(
+  payload: StudentDailyReportPayload,
+  onUploadProgress?: (progress: number) => void,
+) {
   try {
     const response = await retryTransientRequest(() => {
       const formData = new FormData();
@@ -108,6 +111,10 @@ export async function submitStudentDailyReport(payload: StudentDailyReportPayloa
         {
           headers: {
             "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (event) => {
+            if (!event.total) return;
+            onUploadProgress?.(Math.min(95, (event.loaded / event.total) * 100));
           },
         },
       );

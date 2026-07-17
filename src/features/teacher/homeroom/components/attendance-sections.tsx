@@ -33,6 +33,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
+import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loading-system";
 import type { StaffAttendanceRecord, StaffHomeroomAttendanceOverview } from "@/types/staff";
 import { id as localeID } from "date-fns/locale";
 import {
@@ -47,7 +48,6 @@ import {
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useState, type ComponentProps } from "react";
 
 const attendanceStatusOptions = [
@@ -76,12 +76,7 @@ export function AttendanceHero({
 }: AttendanceHeroProps) {
   return (
     <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] px-4 pt-4 pb-3 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:px-5 sm:pt-5 sm:pb-4 lg:px-6 lg:pt-6 lg:pb-5">
-      <motion.article
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, ease: "easeOut" }}
-        className="relative"
-      >
+      <article className="relative">
         <div className="pointer-events-none absolute right-[-70px] top-[-90px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-80px] left-[8%] h-52 w-52 rounded-full bg-amber-100/35 blur-3xl" />
 
@@ -121,15 +116,10 @@ export function AttendanceHero({
           </div>
 
           <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
-            {kpiCards.map((item, index) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.24, delay: index * 0.04, ease: "easeOut" }}
-              >
+            {kpiCards.map((item) => (
+              <div key={item.label}>
                 <KpiCard {...item} />
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -138,7 +128,7 @@ export function AttendanceHero({
             {formatFriendlyDate(overview.date)}
           </div>
         </div>
-      </motion.article>
+      </article>
     </section>
   );
 }
@@ -206,12 +196,7 @@ export function AttendanceTableSection({
           onOpenReport={onOpenReport}
         />
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-          className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/70 bg-white/88"
-        >
+        <div className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/70 bg-white/88">
           {error ? (
             <div className="p-5">
               <EmptyState icon={ShieldAlert} title="Data absensi belum bisa dimuat" description={error.message} />
@@ -345,7 +330,7 @@ export function AttendanceTableSection({
           {!error && !isLoading && records.length > 0 ? (
             <DataTablePagination {...recordsPagination} />
           ) : null}
-        </motion.div>
+        </div>
       </article>
     </section>
   );
@@ -424,12 +409,9 @@ export function AttentionMonitoringPanel({
             compact
           />
         ) : (
-          items.map((item, index) => (
-            <motion.article
+          items.map((item) => (
+            <article
               key={`${item.student_id}-${item.tone}`}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
               className="rounded-[22px] border border-slate-100 bg-slate-50/92 p-4"
             >
               <div className="flex items-start justify-between gap-4">
@@ -444,7 +426,7 @@ export function AttentionMonitoringPanel({
                   {item.tone}
                 </span>
               </div>
-            </motion.article>
+            </article>
           ))
         )}
       </div>
@@ -498,15 +480,5 @@ function ReviewStatusPill({ reviewed, reviewedByBK = false }: { reviewed: boolea
 }
 
 function AttendanceTableSkeleton() {
-  return (
-    <div className="space-y-3 p-5">
-      {Array.from({ length: 6 }).map((_, rowIndex) => (
-        <div key={`attendance-skeleton-${rowIndex}`} className="grid gap-3 rounded-[18px] border border-slate-100 bg-slate-50/75 px-4 py-4 md:grid-cols-[1.2fr_1fr_0.7fr_0.7fr_1.2fr_0.7fr]">
-          {Array.from({ length: 6 }).map((__, cellIndex) => (
-            <div key={`attendance-skeleton-cell-${rowIndex}-${cellIndex}`} className="h-4 animate-pulse rounded-full bg-slate-200" />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <DetailedTableSkeleton columns={6} rows={6} embedded />;
 }

@@ -88,6 +88,7 @@ export function BKCounselingPage() {
         student_id: studentFilter === "Semua" ? "" : studentFilter,
         query: debouncedQuery.trim(),
       }),
+    placeholderData: (previousData) => previousData,
   });
 
   const overview = overviewQuery.data;

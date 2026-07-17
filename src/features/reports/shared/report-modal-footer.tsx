@@ -2,6 +2,7 @@ import { premiumModalActionsClassName } from "@/components/modals/premium-modal"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Printer } from "lucide-react";
+import { AsyncButton } from "@/components/ui/async-button";
 
 type ReportModalFooterProps = {
   canDownload: boolean;
@@ -41,9 +42,12 @@ export function ReportModalFooter({
   return (
     <div className={premiumModalActionsClassName}>
       {cancel}
-      <button
+      <AsyncButton
         type="button"
-        disabled={!canDownload || generating}
+        disabled={!canDownload}
+        isPending={generating}
+        pendingLabel={generatingLabel}
+        icon={Printer}
         onClick={onDownload}
         className={cn(
           "inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] px-6 text-[0.88rem] font-semibold text-white transition-all duration-200",
@@ -52,18 +56,8 @@ export function ReportModalFooter({
             : "cursor-not-allowed bg-slate-300",
         )}
       >
-        {generating ? (
-          <>
-            <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            {generatingLabel}
-          </>
-        ) : (
-          <>
-            <Printer className="size-4" />
-            {downloadLabel}
-          </>
-        )}
-      </button>
+        {downloadLabel}
+      </AsyncButton>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import { ShieldEllipsis } from "lucide-react";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 
@@ -44,15 +43,12 @@ export function RoleDistributionTable({
           </div>
 
           <div className="divide-y divide-slate-100">
-            {rows.map((row, index) => {
+            {rows.map((row) => {
               const percentage = totalUsers > 0 ? Math.round((row.count / totalUsers) * 100) : 0;
 
               return (
-                <motion.div
+                <div
                   key={row.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.22, delay: index * 0.05 }}
                   className="grid grid-cols-[1.2fr_0.65fr_1fr] items-center gap-4 px-5 py-4"
                 >
                   <div className="min-w-0">
@@ -78,7 +74,7 @@ export function RoleDistributionTable({
                     </div>
                     <p className="text-xs font-medium text-slate-500">{percentage}% dari total akun</p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import { BellDot, BadgeAlert } from "lucide-react";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import type { AdminDashboardData } from "@/types/admin";
@@ -28,12 +27,9 @@ export function AnnouncementCard({ announcements }: AnnouncementCardProps) {
 
       <div className="mt-5 space-y-3">
         {hasData ? (
-          announcements.slice(0, 5).map((item, index) => (
-            <motion.article
+          announcements.slice(0, 5).map((item) => (
+            <article
               key={item.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
               className="rounded-[24px] border border-slate-100 bg-slate-50/95 p-4"
             >
               <div className="flex gap-4">
@@ -47,7 +43,7 @@ export function AnnouncementCard({ announcements }: AnnouncementCardProps) {
                   <p className="text-sm leading-6 text-slate-500">{item.description}</p>
                 </div>
               </div>
-            </motion.article>
+            </article>
           ))
         ) : (
           <EmptyState

@@ -20,6 +20,7 @@ import { id as localeID } from "date-fns/locale";
 import { motion } from "motion/react";
 import { BookOpenCheck, CalendarDays, ChartColumnBig, Printer } from "lucide-react";
 import { useState } from "react";
+import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const SubjectRecapReportModal = dynamic(
   () => import("@/features/reports/subject/subject-recap-report-modal").then((module) => module.SubjectRecapReportModal),
@@ -74,6 +75,11 @@ export function MapelRecapPage() {
   return (
     <WalasShell>
       {() => (
+        (assignmentsQuery.isLoading && !assignmentsQuery.data) ||
+        (Boolean(selectedAssignmentId) && recapQuery.isLoading && !recapQuery.data)
+      ) ? (
+        <HistoryPageSkeleton />
+      ) : (
         <>
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">

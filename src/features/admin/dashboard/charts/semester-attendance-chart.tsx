@@ -52,20 +52,6 @@ export function SemesterAttendanceChart({
         <MeasuredChart className="h-[300px] min-w-0">
           {({ width, height }) => (
             <AreaChart width={width} height={height} data={chartData}>
-            <defs>
-              <linearGradient id="hadirFill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="#63c98f" stopOpacity={0.28} />
-                <stop offset="95%" stopColor="#63c98f" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="telatFill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="#f3c560" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#f3c560" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="alfaFill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="#f28b82" stopOpacity={0.18} />
-                <stop offset="95%" stopColor="#f28b82" stopOpacity={0} />
-              </linearGradient>
-            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e7ece9" vertical={false} />
             <XAxis
               dataKey="label"
@@ -97,7 +83,7 @@ export function SemesterAttendanceChart({
               dataKey="present"
               name="Hadir"
               stroke="#63c98f"
-              fill="url(#hadirFill)"
+              fill="none"
               strokeWidth={3}
             />
             <Area
@@ -105,7 +91,7 @@ export function SemesterAttendanceChart({
               dataKey="late"
               name="Terlambat"
               stroke="#f3c560"
-              fill="url(#telatFill)"
+              fill="none"
               strokeWidth={2.5}
             />
             <Area
@@ -113,7 +99,7 @@ export function SemesterAttendanceChart({
               dataKey="alpha"
               name="Alfa"
               stroke="#f28b82"
-              fill="url(#alfaFill)"
+              fill="none"
               strokeWidth={2.5}
             />
             </AreaChart>

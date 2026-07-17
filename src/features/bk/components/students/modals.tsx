@@ -7,8 +7,8 @@ import {
   formatGender,
   getInitials,
   SubmissionStatusPill,
-  TableSkeleton,
 } from "@/features/bk/components/common";
+import { ModalContentSkeleton } from "@/components/loading/loading-system";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
   PremiumModal,
@@ -105,7 +105,7 @@ export function StudentDetailModal({
       {errorMessage ? (
         <EmptyState icon={ShieldAlert} title="Detail belum bisa dimuat" description={errorMessage} />
       ) : isLoading || !detail || !student ? (
-        <TableSkeleton columns={3} />
+        <ModalContentSkeleton fields={8} />
       ) : (
         <div className="grid gap-5">
           <div className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">

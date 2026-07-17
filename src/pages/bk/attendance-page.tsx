@@ -96,6 +96,7 @@ export function BKAttendancePage() {
       }),
     refetchInterval: 30_000,
     staleTime: 0,
+    placeholderData: (previousData) => previousData,
   });
 
   const reviewMutation = useMutation({

@@ -1,7 +1,6 @@
 "use client";
 
 import { AppImage as Image } from "@/components/media/app-image";
-import { motion } from "motion/react";
 import { Menu } from "lucide-react";
 
 type StaffTopbarProps = {
@@ -20,12 +19,7 @@ export function StaffTopbar({
   onToggleSidebar,
 }: StaffTopbarProps) {
   return (
-    <motion.header
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, ease: "easeOut" }}
-      className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/75 p-3 shadow-[0_20px_55px_rgba(153,161,179,0.12)] backdrop-blur-xl sm:top-4 sm:rounded-[30px] sm:p-4"
-    >
+    <header className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/75 p-3 shadow-[0_20px_55px_rgba(153,161,179,0.12)] backdrop-blur-xl sm:top-4 sm:rounded-[30px] sm:p-4">
       <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <button
@@ -73,6 +67,6 @@ export function StaffTopbar({
           </div>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

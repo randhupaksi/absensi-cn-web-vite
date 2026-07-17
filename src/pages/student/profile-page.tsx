@@ -15,6 +15,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { ProfilePageSkeleton } from "@/components/loading/loading-system";
 
 export function StudentProfilePage() {
   const profileQuery = useQuery({
@@ -26,7 +27,9 @@ export function StudentProfilePage() {
 
   return (
     <StudentShell>
-      {() => (
+      {() => profileQuery.isLoading && !profile ? (
+        <ProfilePageSkeleton />
+      ) : (
         <div className="space-y-5">
           <motion.section
             initial={{ opacity: 0, y: 16 }}

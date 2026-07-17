@@ -16,6 +16,7 @@ import { BookOpenCheck, CalendarDays, Eye, History, Printer } from "lucide-react
 import { AppLink as Link } from "@/components/router/app-link";
 import { useSearchParams } from "@/lib/router";
 import { useState } from "react";
+import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const SubjectSessionHistoryReportModal = dynamic(
   () =>
@@ -99,6 +100,11 @@ export function MapelHistoryPage() {
   return (
     <WalasShell>
       {() => (
+        (assignmentsQuery.isLoading && !assignmentsQuery.data) ||
+        (Boolean(selectedAssignmentId) && sessionsQuery.isLoading && !sessionsQuery.data)
+      ) ? (
+        <HistoryPageSkeleton />
+      ) : (
         <>
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">

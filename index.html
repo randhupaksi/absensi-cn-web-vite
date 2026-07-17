@@ -3,10 +3,100 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preload" as="image" href="/images/optimized/logo-sma-smk-yatkj.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Frontend web absensi sekolah untuk Sekolah Citra Negara dengan role siswa, walas, BK, dan admin." />
     <meta name="theme-color" content="#047857" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at top, rgba(167, 243, 208, 0.36), transparent 34%),
+          linear-gradient(180deg, #f8fbf8 0%, #eef7f1 100%);
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 220ms ease, visibility 220ms ease;
+      }
+
+      #initial-loader.is-ready {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .initial-loader__content {
+        display: flex;
+        width: min(100%, 280px);
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .initial-loader__logo {
+        display: grid;
+        width: 88px;
+        height: 88px;
+        place-items: center;
+        border: 1px solid rgba(167, 243, 208, 0.8);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 24px 60px rgba(15, 118, 110, 0.16);
+      }
+
+      .initial-loader__logo img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+      }
+
+      .initial-loader__title {
+        margin: 20px 0 0;
+        color: #0f172a;
+        font: 700 16px/1.4 system-ui, sans-serif;
+        letter-spacing: -0.02em;
+      }
+
+      .initial-loader__subtitle {
+        margin: 5px 0 0;
+        color: #64748b;
+        font: 400 12px/1.5 system-ui, sans-serif;
+      }
+
+      .initial-loader__track {
+        position: relative;
+        width: 100%;
+        height: 4px;
+        margin-top: 22px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(16, 185, 129, 0.12);
+      }
+
+      .initial-loader__bar {
+        position: absolute;
+        inset: 0 auto 0 -38%;
+        width: 38%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #10b981, #34d399);
+        animation: initial-loader-progress 1.15s ease-in-out infinite;
+      }
+
+      @keyframes initial-loader-progress {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(365%); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #initial-loader { transition-duration: 1ms; }
+        .initial-loader__bar { animation-duration: 2.4s; }
+      }
+    </style>
     <!-- Preconnect: browser opens TCP/TLS to Google Fonts servers before CSS requests them -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,6 +105,18 @@
     <title>Absensi CN</title>
   </head>
   <body class="min-h-full bg-background text-foreground">
+    <div id="initial-loader" role="status" aria-live="polite" aria-label="Menyiapkan Absensi CN">
+      <div class="initial-loader__content">
+        <div class="initial-loader__logo">
+          <img src="/images/optimized/logo-sma-smk-yatkj.png" alt="Logo Sekolah Citra Negara" width="60" height="60" />
+        </div>
+        <p class="initial-loader__title">Menyiapkan Absensi CN</p>
+        <p class="initial-loader__subtitle">Memuat pengalaman sekolahmu...</p>
+        <div class="initial-loader__track" aria-hidden="true">
+          <span class="initial-loader__bar"></span>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

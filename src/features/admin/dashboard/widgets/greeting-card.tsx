@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import { AppLink as Link } from "@/components/router/app-link";
 import {
   ArrowUpRight,
@@ -66,12 +65,7 @@ const quickActions = [
 
 export function GreetingCard({ adminName }: GreetingCardProps) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.34, ease: "easeOut" }}
-      className="overflow-hidden rounded-[34px] border border-white/75 bg-[linear-gradient(135deg,#fffdf9_0%,#f8f4ea_48%,#eef9f3_100%)] p-6 shadow-[0_24px_60px_rgba(150,163,184,0.14)]"
-    >
+    <article className="overflow-hidden rounded-[34px] border border-white/75 bg-[linear-gradient(135deg,#fffdf9_0%,#f8f4ea_48%,#eef9f3_100%)] p-6 shadow-[0_24px_60px_rgba(150,163,184,0.14)]">
       <div className="grid items-start gap-6 lg:grid-cols-[1.1fr_0.72fr]">
         <div className="space-y-5">
           <div className="space-y-3">
@@ -129,6 +123,6 @@ export function GreetingCard({ adminName }: GreetingCardProps) {
           </Link>
         ))}
       </div>
-    </motion.article>
+    </article>
   );
 }

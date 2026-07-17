@@ -1,6 +1,7 @@
 import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
-import { lazy, Suspense, useLayoutEffect, type ReactNode } from "react";
+import { RouteLoadingFallback } from "@/components/loading/loading-system";
+import { lazy, Suspense, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
@@ -29,7 +30,26 @@ const MapelRecapPage = lazy(() => import("@/pages/teacher/subject/recap-page").t
 const MapelSessionPage = lazy(() => import("@/pages/teacher/subject/session-page").then((module) => ({ default: module.MapelSessionPage })));
 
 function PageBoundary({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>;
+  const { pathname } = useLocation();
+  const [settledPathname, setSettledPathname] = useState(pathname);
+
+  useEffect(() => {
+    if (settledPathname === pathname) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setSettledPathname(pathname);
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [pathname, settledPathname]);
+
+  const isRouteTransitioning = settledPathname !== pathname;
+
+  return (
+    <Suspense fallback={<RouteLoadingFallback />}>
+      {isRouteTransitioning ? <RouteLoadingFallback /> : children}
+    </Suspense>
+  );
 }
 
 function ScrollToTopOnNavigate() {
@@ -38,6 +58,20 @@ function ScrollToTopOnNavigate() {
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [pathname, search]);
+
+  return null;
+}
+
+function DismissInitialLoader() {
+  useLayoutEffect(() => {
+    const loader = document.getElementById("initial-loader");
+    if (!loader) return;
+
+    loader.classList.add("is-ready");
+    const timeoutId = window.setTimeout(() => loader.remove(), 240);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   return null;
 }
@@ -69,6 +103,7 @@ function TeacherDashboard() {
 export default function App() {
   return (
     <BrowserRouter>
+      <DismissInitialLoader />
       <ScrollToTopOnNavigate />
       <PageBoundary>
         <Routes>

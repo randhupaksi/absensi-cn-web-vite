@@ -11,11 +11,12 @@ import {
 } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AsyncButton } from "@/components/ui/async-button";
+import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loading-system";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
-import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export function SearchFilterBar({
@@ -108,14 +109,15 @@ export function ModalActions({
       >
         Batal
       </Button>
-      <Button
+      <AsyncButton
         className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 sm:flex-none sm:px-5"
         onClick={onSubmit}
-        disabled={isPending}
+        isPending={isPending}
+        pendingLabel="Menyimpan..."
+        icon={Save}
       >
-        <Save className="size-4" />
-        {isPending ? "Menyimpan..." : submitLabel}
-      </Button>
+        {submitLabel}
+      </AsyncButton>
     </div>
   );
 }
@@ -160,12 +162,7 @@ export function DataTableCard({
   pagination?: PaginationControls;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-      className="overflow-hidden rounded-[24px] border border-emerald-100/80"
-    >
+    <div className="overflow-hidden rounded-[24px] border border-emerald-100/80">
       {isLoading ? (
         <div className="overflow-x-auto">
           <LoadingTable columnCount={columnCount} />
@@ -181,7 +178,7 @@ export function DataTableCard({
           {pagination ? <DataTablePagination {...pagination} /> : null}
         </>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -348,24 +345,7 @@ function RowsPerPageSelect({
 }
 
 export function LoadingTable({ columnCount }: { columnCount: number }) {
-  return (
-    <div className="space-y-3 px-4 py-4">
-      {Array.from({ length: 5 }).map((_, rowIndex) => (
-        <div
-          key={`loading-row-${rowIndex}`}
-          className="grid gap-3"
-          style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(120px, 1fr))` }}
-        >
-          {Array.from({ length: columnCount }).map((__, cellIndex) => (
-            <div
-              key={`loading-cell-${rowIndex}-${cellIndex}`}
-              className="h-4 animate-pulse rounded-full bg-slate-100"
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <DetailedTableSkeleton columns={columnCount} rows={6} embedded />;
 }
 
 export function EmptyRow({
