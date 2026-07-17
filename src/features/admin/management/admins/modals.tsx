@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import {
   type FieldErrors,
   hasFieldErrors,
-  validateMinLength,
   validateRequired,
 } from "@/lib/form-validation";
 import type { AdminUser, AdminUserPayload } from "@/types/admin";
@@ -32,9 +31,7 @@ export function validateAdminUserForm(
   const errors: FieldErrors<keyof AdminUserPayload> = {};
   validateRequired(errors, "name", form.name, "Nama administrator");
   validateRequired(errors, "username", form.username, "Username login");
-  validateMinLength(errors, "password", form.password, 6, isEdit ? "Password baru" : "Password login", {
-    allowEmpty: isEdit,
-  });
+  if (!isEdit) validateRequired(errors, "password", form.password, "Password login");
   return errors;
 }
 
@@ -82,7 +79,7 @@ export function AdminCreateModal({
         </div>
 
         <FieldGroup label="Password Login">
-          <Input value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Minimal 6 karakter" className={INPUT_CN} />
+          <Input value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Masukkan password login" className={INPUT_CN} />
           <FieldError message={errors.password} />
         </FieldGroup>
 

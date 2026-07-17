@@ -18,6 +18,8 @@ export type AttendanceLocationEvidence = {
 
 export type AttendanceLocationPolicy = {
   configured: boolean;
+  latitude?: number;
+  longitude?: number;
   radius_meters?: number;
   max_accuracy_meters?: number;
 };

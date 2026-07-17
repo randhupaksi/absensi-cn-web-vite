@@ -201,8 +201,12 @@ export function StudentSection({
 
   const createRuleMutation = useMutation({
     mutationFn: createAdminAttendanceRule,
-    onSuccess: () => {
-      toast.success("Aturan absensi berhasil ditambahkan.");
+    onSuccess: (rule) => {
+      toast.success(
+        rule.is_active
+          ? "Aturan absensi berhasil ditambahkan."
+          : "Aturan absensi disimpan sebagai Nonaktif karena tahun ajaran ini sudah memiliki rule aktif.",
+      );
       void queryClient.invalidateQueries({ queryKey: ["admin-attendance-rules"] });
       setRuleModalOpen(false);
     },

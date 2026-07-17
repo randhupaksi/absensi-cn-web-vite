@@ -13,6 +13,7 @@ import { useState } from "react";
 type ClassFormState = {
   school_unit_id: string;
   grade: string;
+  class_type: "" | "PLUS" | "REGULER";
   name: string;
   major_id: string;
   school_year_id: string;
@@ -25,6 +26,7 @@ type ClassFormField = keyof ClassFormState;
 const EMPTY_FORM: ClassFormState = {
   school_unit_id: "",
   grade: "",
+  class_type: "",
   name: "",
   major_id: "",
   school_year_id: "",
@@ -71,6 +73,7 @@ export function ClassFormModal({
       ? {
           school_unit_id: initialData.school_unit_id,
           grade: initialData.grade,
+          class_type: initialData.class_type === "PLUS" || initialData.class_type === "REGULER" ? initialData.class_type : "",
           name: initialData.name,
           major_id: initialData.major_id,
           school_year_id: initialData.school_year_id,
@@ -89,7 +92,6 @@ export function ClassFormModal({
     const nextErrors: FieldErrors<ClassFormField> = {};
     validateRequired(nextErrors, "grade", form.grade, "Tingkat kelas");
 	validateRequired(nextErrors, "school_unit_id", form.school_unit_id, "Unit sekolah");
-    validateRequired(nextErrors, "name", form.name, "Nama rombel");
     validateRequired(nextErrors, "major_id", form.major_id, "Jurusan");
     validateRequired(nextErrors, "school_year_id", form.school_year_id, "Tahun ajaran");
     setErrors(nextErrors);
@@ -101,6 +103,7 @@ export function ClassFormModal({
     onSubmit({
       school_unit_id: form.school_unit_id,
       grade: form.grade,
+      class_type: form.class_type,
       name: form.name.trim(),
       major_id: form.major_id,
       school_year_id: form.school_year_id,
@@ -131,9 +134,17 @@ export function ClassFormModal({
             <FieldError message={errors.grade} />
           </FieldGroup>
 
-          <FieldGroup label="Nama Rombel">
-            <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Contoh: 1" className={INPUT_CN} />
-            <FieldError message={errors.name} />
+          <FieldGroup label="Tipe Kelas">
+            <RadixSelectField
+              value={form.class_type || "unspecified"}
+              onValueChange={(value) => setForm((prev) => ({ ...prev, class_type: value === "unspecified" ? "" : value as "PLUS" | "REGULER" }))}
+              placeholder="Pilih tipe kelas"
+              options={[
+                { value: "unspecified", label: "Belum ditentukan" },
+                { value: "PLUS", label: "Plus" },
+                { value: "REGULER", label: "Reguler" },
+              ]}
+            />
           </FieldGroup>
         </div>
 
@@ -142,7 +153,7 @@ export function ClassFormModal({
             <RadixSelectField
               value={form.school_unit_id}
               onValueChange={(value) =>
-                setForm((prev) => ({ ...prev, school_unit_id: value, grade: "", major_id: "" }))
+                setForm((prev) => ({ ...prev, school_unit_id: value, grade: "", major_id: "", class_type: "", name: "" }))
               }
               placeholder="Pilih unit sekolah"
               options={schoolUnits
@@ -171,6 +182,11 @@ export function ClassFormModal({
               options={schoolYears.map((year) => ({ value: year.id, label: year.name }))}
             />
             <FieldError message={errors.school_year_id} />
+          </FieldGroup>
+
+          <FieldGroup label="Rombel / Nomor Kelas">
+            <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Contoh: 1 (boleh kosong)" className={INPUT_CN} />
+            <p className="mt-1 text-xs leading-5 text-slate-500">Kosongkan jika kelas cukup dibedakan oleh tingkat, jurusan, dan tipe kelas.</p>
           </FieldGroup>
         </div>
 

@@ -56,3 +56,24 @@ export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureRe
     );
   });
 }
+
+export function calculateDistanceMeters(
+  latitudeA: number,
+  longitudeA: number,
+  latitudeB: number,
+  longitudeB: number,
+): number {
+  const earthRadiusMeters = 6_371_000;
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const deltaLatitude = toRadians(latitudeB - latitudeA);
+  const deltaLongitude = toRadians(longitudeB - longitudeA);
+  const latitudeARadians = toRadians(latitudeA);
+  const latitudeBRadians = toRadians(latitudeB);
+  const a =
+    Math.sin(deltaLatitude / 2) ** 2 +
+    Math.cos(latitudeARadians) *
+      Math.cos(latitudeBRadians) *
+      Math.sin(deltaLongitude / 2) ** 2;
+
+  return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}

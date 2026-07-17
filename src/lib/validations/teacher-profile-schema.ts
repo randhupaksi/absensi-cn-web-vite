@@ -8,13 +8,11 @@ const baseTeacherProfileSchema = z.object({
 });
 
 export const createTeacherProfileSchema = baseTeacherProfileSchema.extend({
-  password: z.string().trim().min(6, "Password minimal 6 karakter."),
+  password: z.string().trim().min(1, "Password wajib diisi."),
 });
 
 export const editTeacherProfileSchema = baseTeacherProfileSchema.extend({
-  password: z.string().trim().refine((value) => value.length === 0 || value.length >= 6, {
-    message: "Password minimal 6 karakter.",
-  }),
+  password: z.string().trim(),
 });
 
 export type TeacherProfileFormValues = z.infer<typeof createTeacherProfileSchema>;

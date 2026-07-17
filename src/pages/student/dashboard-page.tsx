@@ -6,6 +6,7 @@ import { AttendanceLocationEvidence } from "@/features/attendance/components/loc
 import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import { StudentShell } from "@/features/student/components/shell";
 import { CameraCaptureModal } from "@/features/student/components/camera-capture-modal";
+import { ModalActions } from "@/features/admin/management/shared/section-ui";
 import {
   formatClock,
   formatStudentDate,
@@ -17,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   PremiumModal,
-  premiumModalActionsClassName,
   premiumModalFieldClassName,
   premiumModalHelperClassName,
   premiumModalLabelClassName,
@@ -28,7 +28,10 @@ import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
 import { compressUploadImage } from "@/lib/images/compress-upload-image";
-import { captureAttendanceLocation } from "@/lib/location/capture-attendance-location";
+import {
+  calculateDistanceMeters,
+  captureAttendanceLocation,
+} from "@/lib/location/capture-attendance-location";
 import {
   getStudentDashboard,
   submitStudentDailyReport,
@@ -40,6 +43,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
   Bell,
+  BadgeCheck,
   Camera,
   CheckCircle2,
   Clock,
@@ -47,10 +51,13 @@ import {
   FileText,
   History,
   ImageUp,
+  LogIn,
+  School,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   TimerReset,
+  UserRound,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { AppLink as Link } from "@/components/router/app-link";
@@ -258,7 +265,7 @@ export function StudentDashboardPage() {
                     type="button"
                     onClick={handleStartAttendance}
                     disabled={!canSubmit || dashboardQuery.isLoading || isPreparingPhoto}
-                    className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition hover:bg-emerald-50 hover:shadow-[0_18px_34px_rgba(2,44,34,0.22)] disabled:bg-white/35 disabled:text-white/70"
+                    className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-200 hover:-translate-y-1 hover:scale-[1.01] hover:bg-emerald-50 hover:shadow-[0_22px_42px_rgba(2,44,34,0.28)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
                   >
                     {isPreparingPhoto ? (
                       <TimerReset className="size-5" />
@@ -311,15 +318,29 @@ export function StudentDashboardPage() {
                   </div>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <InfoTile label="Nama" value={today?.profile.name ?? "-"} />
-                    <InfoTile label="Kelas" value={today?.profile.class_name ?? "-"} />
                     <InfoTile
-                      label="Check-in"
-                      value={formatStudentTime(today?.attendance?.check_in_at)}
+                      icon={UserRound}
+                      label="Nama"
+                      value={today?.profile.name ?? "-"}
+                      tone="profile"
                     />
                     <InfoTile
+                      icon={School}
+                      label="Kelas"
+                      value={today?.profile.class_name ?? "-"}
+                      tone="class"
+                    />
+                    <InfoTile
+                      icon={LogIn}
+                      label="Check-in"
+                      value={formatStudentTime(today?.attendance?.check_in_at)}
+                      tone="checkin"
+                    />
+                    <InfoTile
+                      icon={BadgeCheck}
                       label="Validasi"
                       value={today?.attendance?.verified_at ? "Sudah direview" : "Menunggu"}
+                      tone={today?.attendance?.verified_at ? "success" : "pending"}
                     />
                   </div>
                 </div>
@@ -498,55 +519,102 @@ export function StudentDashboardPage() {
             description="Periksa foto, pilih keterangan, lalu kirim agar walas dapat melakukan validasi."
             icon={ImageUp}
             className="sm:!max-w-[760px]"
+            footer={
+              <ModalActions
+                isPending={submitMutation.isPending || locationState === "loading"}
+                onCancel={() => {
+                  setModalOpen(false);
+                  resetCaptureState();
+                }}
+                onSubmit={handleSubmit}
+                submitLabel={
+                  locationState === "loading" ? "Membaca Lokasi..." : "Kirim Absensi"
+                }
+              />
+            }
           >
             <div className="space-y-5">
               <div className={premiumModalSurfaceClassName}>
-                <div className="grid gap-4 p-4 md:grid-cols-[1fr_0.82fr]">
-                  <div className="space-y-2">
-                    <div className="overflow-hidden rounded-[1.2rem] border border-emerald-200/70 bg-slate-950">
+                <div className="space-y-5 p-4 sm:p-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-emerald-700/75">
+                          Bukti kehadiran
+                        </p>
+                        <p className="mt-1 text-[0.92rem] font-semibold text-slate-800">
+                          Foto absensi siswa
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[0.68rem] font-semibold text-slate-500">
+                        Pratinjau
+                      </span>
+                    </div>
+                    <div className="overflow-hidden rounded-[1.35rem] border border-emerald-200/70 bg-slate-950 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
                       {photoPreview ? (
                         <img
                           src={photoPreview}
                           alt="Preview foto absensi siswa"
-                          className="h-[280px] w-full object-cover"
+                          className="h-[300px] w-full object-cover sm:h-[350px]"
                         />
                       ) : (
-                        <div className="flex h-[280px] items-center justify-center text-slate-300">
+                        <div className="flex h-[300px] items-center justify-center text-slate-300 sm:h-[350px]">
                           Foto belum tersedia
                         </div>
                       )}
                     </div>
                     <FieldError message={errors.photo} />
-                    <p className="text-xs font-medium text-slate-500">
+                    <p className="text-xs leading-5 text-slate-500">
                       Foto otomatis dikompres sebelum dikirim agar upload tetap ringan.
                     </p>
-                    <AttendanceLocationEvidence
+                  </div>
+
+                  <AttendanceLocationEvidence
+                    className="border-t border-slate-200/75 pt-6"
                       evidence={
                         locationResult
                           ? {
                               location_latitude: locationResult.capture.latitude,
                               location_longitude: locationResult.capture.longitude,
                               location_accuracy_meters: locationResult.capture.accuracy_meters,
-                              location_captured_at: locationResult.capture.captured_at,
-                              location_status:
-                                locationResult.outcome === "captured"
-                                  ? "captured_unverified"
-                                  : locationResult.outcome,
-                            }
-                          : {}
-                      }
-                      isLoading={locationState === "loading"}
-                      message={
-                        locationResult?.outcome === "captured" && today?.location_policy?.configured
-                          ? "Lokasi siap dihitung terhadap radius sekolah saat absensi dikirim."
-                          : locationResult?.message
-                      }
-                      onRetry={() => void refreshAttendanceLocation()}
-                    />
-                  </div>
-                  <div className="space-y-4">
+                              location_distance_meters:
+                                locationResult.capture.latitude !== undefined &&
+                                locationResult.capture.longitude !== undefined &&
+                                today?.location_policy?.configured &&
+                                today.location_policy.latitude !== undefined &&
+                                today.location_policy.longitude !== undefined
+                                  ? calculateDistanceMeters(
+                                      locationResult.capture.latitude,
+                                      locationResult.capture.longitude,
+                                      today.location_policy.latitude,
+                                      today.location_policy.longitude,
+                                    )
+                                  : undefined,
+                            location_captured_at: locationResult.capture.captured_at,
+                            location_status:
+                              locationResult.outcome === "captured"
+                                ? "captured_unverified"
+                                : locationResult.outcome,
+                          }
+                        : {}
+                    }
+                    isLoading={locationState === "loading"}
+                    message={
+                      locationResult?.outcome === "captured" && today?.location_policy?.configured
+                        ? "Lokasi siap dihitung terhadap radius sekolah saat absensi dikirim."
+                        : locationResult?.message
+                    }
+                    onRetry={() => void refreshAttendanceLocation()}
+                  />
+
+                  <div className="space-y-4 border-t border-slate-200/75 pt-5">
                     <div className={premiumModalFieldClassName}>
-                      <label className={premiumModalLabelClassName}>Keterangan</label>
+                      <div>
+                        <label className={premiumModalLabelClassName}>Keterangan</label>
+                        <p className={premiumModalHelperClassName}>
+                          Pilih status kehadiran untuk pengajuan hari ini.
+                        </p>
+                      </div>
                       <RadixSelectField
                         value={reportType}
                         onValueChange={(value) =>
@@ -584,32 +652,6 @@ export function StudentDashboardPage() {
                 </div>
               </div>
 
-              <div className={premiumModalActionsClassName}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-13 rounded-full border-slate-200 px-6 text-slate-600"
-                  onClick={() => {
-                    setModalOpen(false);
-                    resetCaptureState();
-                  }}
-                >
-                  Batal
-                </Button>
-                <Button
-                  type="button"
-                  disabled={submitMutation.isPending || locationState === "loading"}
-                  onClick={handleSubmit}
-                  className="h-13 rounded-full bg-emerald-700 px-7 text-white shadow-[0_14px_28px_rgba(16,185,129,0.22)] hover:bg-emerald-800"
-                >
-                  <ShieldCheck className="size-4.5" />
-                  {submitMutation.isPending
-                    ? "Mengirim..."
-                    : locationState === "loading"
-                      ? "Membaca Lokasi..."
-                      : "Kirim Absensi"}
-                </Button>
-              </div>
             </div>
           </PremiumModal>
 
@@ -633,13 +675,36 @@ export function StudentDashboardPage() {
   );
 }
 
-function InfoTile({ label, value }: { label: string; value: string }) {
+function InfoTile({
+  icon: Icon,
+  label,
+  value,
+  tone = "profile",
+}: {
+  icon: typeof UserRound;
+  label: string;
+  value: string;
+  tone?: "profile" | "class" | "checkin" | "success" | "pending";
+}) {
+  const toneClassName = {
+    profile: "bg-indigo-50 text-indigo-700",
+    class: "bg-violet-50 text-violet-700",
+    checkin: "bg-teal-50 text-teal-700",
+    success: "bg-emerald-50 text-emerald-700",
+    pending: "bg-amber-50 text-amber-700",
+  }[tone];
+
   return (
-    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/75 px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-        {label}
-      </p>
-      <p className="mt-1 truncate font-semibold text-slate-800">{value}</p>
+    <div className="flex min-w-0 items-center gap-3 rounded-[1.15rem] border border-slate-200/75 bg-white/72 px-3.5 py-3.5 shadow-[0_8px_20px_rgba(15,23,42,0.035)]">
+      <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${toneClassName}`}>
+        <Icon className="size-[1.1rem]" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate-400">
+          {label}
+        </p>
+        <p className="mt-1 truncate font-semibold text-slate-900">{value}</p>
+      </div>
     </div>
   );
 }

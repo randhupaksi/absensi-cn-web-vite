@@ -47,6 +47,36 @@ type ClassManagementSectionProps = {
 
 type AcademicWorkspaceTab = "classes" | AcademicStructureTab;
 
+const SCHOOL_UNIT_ORDER: Record<string, number> = { SMK: 1, SMA: 2, SMP: 3 };
+const GRADE_ORDER: Record<string, number> = {
+  X: 1,
+  XI: 2,
+  XII: 3,
+  VII: 1,
+  VIII: 2,
+  IX: 3,
+};
+const CLASS_TYPE_ORDER: Record<string, number> = { PLUS: 1, REGULER: 2 };
+
+function compareClasses(left: AdminClass, right: AdminClass) {
+  const schoolYearOrder = right.school_year_name.localeCompare(left.school_year_name, "id", { numeric: true });
+  if (schoolYearOrder !== 0) return schoolYearOrder;
+
+  const unitOrder = (SCHOOL_UNIT_ORDER[left.school_unit_code] ?? 4) - (SCHOOL_UNIT_ORDER[right.school_unit_code] ?? 4);
+  if (unitOrder !== 0) return unitOrder;
+
+  const gradeOrder = (GRADE_ORDER[left.grade] ?? 4) - (GRADE_ORDER[right.grade] ?? 4);
+  if (gradeOrder !== 0) return gradeOrder;
+
+  const majorOrder = left.major_code.localeCompare(right.major_code, "id");
+  if (majorOrder !== 0) return majorOrder;
+
+  const classTypeOrder = (CLASS_TYPE_ORDER[left.class_type] ?? 3) - (CLASS_TYPE_ORDER[right.class_type] ?? 3);
+  if (classTypeOrder !== 0) return classTypeOrder;
+
+  return left.name.localeCompare(right.name, "id", { numeric: true });
+}
+
 export function ClassManagementSection({
   classes,
   majors,
@@ -68,6 +98,7 @@ export function ClassManagementSection({
   const activeClasses = classes.filter((item) => item.is_active);
   const activeSchoolUnits = schoolUnits.filter((item) => item.is_active).length;
   const activeMajors = majors.filter((item) => item.is_active).length;
+  const orderedClasses = useMemo(() => [...classes].sort(compareClasses), [classes]);
 
   const unitFilterOptions = useMemo(
     () => [
@@ -96,7 +127,7 @@ export function ClassManagementSection({
 
   const filteredClasses = useMemo(() => {
     const normalized = deferredQuery.trim().toLowerCase();
-    return classes.filter((item) => {
+    return orderedClasses.filter((item) => {
       const matchesUnit = unitFilter === "all" || item.school_unit_id === unitFilter;
       const matchesMajor = majorFilter === "all" || item.major_id === majorFilter;
       const matchesQuery =
@@ -108,7 +139,7 @@ export function ClassManagementSection({
 
       return matchesUnit && matchesMajor && matchesQuery;
     });
-  }, [classes, deferredQuery, majorFilter, unitFilter]);
+  }, [deferredQuery, majorFilter, orderedClasses, unitFilter]);
 
   const { pageItems: pageClasses, pagination: classesPagination } = usePagination(filteredClasses);
 
@@ -304,6 +335,7 @@ export function ClassManagementSection({
                     />
                     <div className="mt-4 space-y-3">
                       <MobileDataField label="Jurusan" value={item.major_name} />
+                      <MobileDataField label="Tipe Kelas" value={item.class_type || "Belum ditentukan"} />
                       <MobileDataField
                         label="Walas"
                         value={
@@ -349,6 +381,7 @@ export function ClassManagementSection({
                         </span>
                         <div>
                           <p className="font-semibold text-slate-800">{item.display_name}</p>
+                          {item.class_type ? <p className="text-xs font-medium text-emerald-700">{item.class_type}</p> : null}
                         </div>
                       </div>
                     </DataTableCell>

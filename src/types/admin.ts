@@ -226,6 +226,7 @@ export type AdminClass = {
   school_unit_code: string;
   school_unit_name: string;
   grade: string;
+  class_type: "" | "PLUS" | "REGULER" | string;
   name: string;
   major_id: string;
   major_code: string;
@@ -246,6 +247,7 @@ export type AdminClass = {
 export type AdminClassPayload = {
   school_unit_id: string;
   grade: string;
+  class_type: "" | "PLUS" | "REGULER";
   name: string;
   major_id: string;
   school_year_id: string;

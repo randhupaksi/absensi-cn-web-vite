@@ -30,7 +30,7 @@ const formContent = {
   student: {
     identifierLabel: "NIS",
     identifierPlaceholder: "Masukkan NIS",
-    identifierHelper: "Gunakan 10 digit angka sesuai NIS sekolah.",
+    identifierHelper: "Gunakan NIS sesuai data sekolah.",
     passwordHelper: "Masukkan password dari akun siswa anda.",
     submitLabel: "Masuk sebagai Siswa",
     submittingLabel: "Memproses absensi...",

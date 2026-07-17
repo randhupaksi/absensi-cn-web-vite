@@ -85,10 +85,10 @@ export function AttendanceLocationEvidence({
     : undefined;
 
   return (
-    <section className={cn("border-t border-slate-200/75 pt-4", className)}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className={cn("border-t border-slate-200/75 pt-6", className)}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
             {isLoading ? (
               <LoaderCircle className="size-5 animate-spin" />
             ) : (
@@ -96,8 +96,8 @@ export function AttendanceLocationEvidence({
             )}
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-900">Lokasi Pengambilan</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <p className="text-[0.92rem] font-semibold text-slate-800">Lokasi Pengambilan</p>
+            <p className="mt-1 text-[0.76rem] leading-[1.55] text-slate-500">
               {message ??
                 (isLoading
                   ? "Sedang membaca lokasi perangkat dengan akurasi terbaik."
@@ -110,7 +110,7 @@ export function AttendanceLocationEvidence({
         {!isLoading && config ? (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold",
+              "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold",
               config.className,
             )}
           >
@@ -121,7 +121,7 @@ export function AttendanceLocationEvidence({
       </div>
 
       {!isLoading && (hasCoordinates || evidence.location_accuracy_meters !== undefined) ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <LocationMetric
             icon={Crosshair}
             label="Jarak"
@@ -141,12 +141,12 @@ export function AttendanceLocationEvidence({
       ) : null}
 
       {!isLoading && (mapUrl || onRetry) ? (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-nowrap gap-2 sm:gap-3">
           {mapUrl ? (
             <Button
               type="button"
               variant="outline"
-              className="h-10 rounded-[var(--radius-md)] border-emerald-200 bg-white px-4 text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700"
+              className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-emerald-200 bg-white px-3 text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 sm:flex-none sm:px-5 sm:text-sm"
               onClick={() => window.open(mapUrl, "_blank", "noopener,noreferrer")}
             >
               <ExternalLink className="size-4" />
@@ -157,7 +157,7 @@ export function AttendanceLocationEvidence({
             <Button
               type="button"
               variant="outline"
-              className="h-10 rounded-[var(--radius-md)] px-4 text-xs"
+              className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-slate-200 bg-white px-3 text-xs hover:bg-slate-50 sm:flex-none sm:px-5 sm:text-sm"
               onClick={onRetry}
             >
               <RefreshCw className="size-4" />
@@ -180,13 +180,13 @@ function LocationMetric({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-slate-50/80 px-3 py-2.5">
-      <Icon className="size-4 shrink-0 text-emerald-600" />
+    <div className="flex items-center gap-3 rounded-xl bg-slate-50/80 px-4 py-3.5">
+      <Icon className="size-4.5 shrink-0 text-emerald-600" />
       <div className="min-w-0">
-        <p className="text-[0.65rem] font-semibold uppercase tracking-normal text-slate-400">
+        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-slate-400">
           {label}
         </p>
-        <p className="truncate text-xs font-semibold text-slate-700">{value}</p>
+        <p className="truncate text-sm font-semibold text-slate-700">{value}</p>
       </div>
     </div>
   );

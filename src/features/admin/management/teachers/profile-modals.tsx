@@ -37,7 +37,7 @@ export function TeacherProfileCreateModal({ open, onOpenChange, isPending, onSub
           <FieldGroup label="Nama Guru"><Input {...form.register("name")} placeholder="Masukkan nama guru" className="h-14" /><FieldError message={form.formState.errors.name?.message} /></FieldGroup>
           <FieldGroup label="Username Login"><Input {...form.register("username")} placeholder="Masukkan username guru" className="h-14" /><FieldError message={form.formState.errors.username?.message} /></FieldGroup>
         </div>
-        <FieldGroup label="Password Login"><Input type="password" {...form.register("password")} placeholder="Minimal 6 karakter" className="h-14" /><FieldError message={form.formState.errors.password?.message} /></FieldGroup>
+        <FieldGroup label="Password Login"><Input type="password" {...form.register("password")} placeholder="Masukkan password login" className="h-14" /><FieldError message={form.formState.errors.password?.message} /></FieldGroup>
         <TeacherSelectFields control={form.control} errors={form.formState.errors} />
         <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Simpan Profil Guru" />
       </form>

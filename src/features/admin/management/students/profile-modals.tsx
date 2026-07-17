@@ -111,8 +111,8 @@ function StudentFormModal({ open, onOpenChange, title, description, icon, form, 
     <form className="grid gap-5" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="grid gap-4 md:grid-cols-2">
         <FieldGroup label="Nama Siswa"><Input {...form.register("name")} placeholder="Masukkan nama siswa" className="h-14" /><FieldError message={errors.name?.message} /></FieldGroup>
-        <FieldGroup label="Password Login"><Input type="password" {...form.register("password")} placeholder="Minimal 6 karakter; kosongkan saat edit" className="h-14" /><FieldError message={errors.password?.message} /></FieldGroup>
-        <FieldGroup label="NIS"><Input inputMode="numeric" maxLength={10} {...form.register("nis")} placeholder="10 digit NIS" className="h-14" /><FieldError message={errors.nis?.message} /></FieldGroup>
+        <FieldGroup label="Password Login"><Input type="password" {...form.register("password")} placeholder="Masukkan password; kosongkan saat edit" className="h-14" /><FieldError message={errors.password?.message} /></FieldGroup>
+        <FieldGroup label="NIS"><Input inputMode="numeric" maxLength={10} {...form.register("nis")} placeholder="Masukkan NIS" className="h-14" /><FieldError message={errors.nis?.message} /></FieldGroup>
         <FieldGroup label="NISN"><Input inputMode="numeric" maxLength={10} {...form.register("nisn")} placeholder="10 digit NISN" className="h-14" /><FieldError message={errors.nisn?.message} /></FieldGroup>
       </div>
       <div className="grid gap-4 md:grid-cols-2">

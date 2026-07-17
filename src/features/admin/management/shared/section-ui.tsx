@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -45,8 +45,23 @@ export function SearchFilterBar({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full min-w-[180px] bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:min-w-[240px]"
+        className="w-full min-w-0 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
       />
+      <button
+        type="button"
+        aria-label="Hapus pencarian"
+        title="Hapus pencarian"
+        tabIndex={value ? 0 : -1}
+        onClick={(event) => {
+          event.stopPropagation();
+          onChange("");
+          inputRef.current?.focus();
+        }}
+        className={`flex size-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-all duration-200 hover:bg-emerald-100 hover:text-emerald-700 focus-visible:bg-emerald-100 focus-visible:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 active:scale-90 ${value ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        aria-hidden={!value}
+      >
+        <X className="size-4" />
+      </button>
     </div>
   );
 }
@@ -87,14 +102,14 @@ export function ModalActions({
     <div className={premiumModalActionsClassName}>
       <Button
         variant="outline"
-        className="h-12 rounded-[1.1rem] border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300"
+        className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 sm:flex-none sm:px-5"
         onClick={onCancel}
         disabled={isPending}
       >
         Batal
       </Button>
       <Button
-        className="h-12 rounded-[1.1rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900"
+        className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 sm:flex-none sm:px-5"
         onClick={onSubmit}
         disabled={isPending}
       >

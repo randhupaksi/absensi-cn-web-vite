@@ -33,7 +33,7 @@ export const premiumModalSurfaceClassName =
   "rounded-[1.45rem] border border-emerald-200/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(240,253,244,0.88)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]";
 
 export const premiumModalActionsClassName =
-  "relative mt-6 flex flex-col-reverse gap-3 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] sm:flex-row sm:justify-end";
+  "relative mt-6 flex flex-row gap-2 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] sm:gap-3 sm:justify-end";
 
 export function PremiumModal({
   open,
@@ -50,7 +50,7 @@ export function PremiumModal({
       <DialogContent
         showCloseButton={false}
         className={cn(
-          "!fixed !left-1/2 !top-1/2 !flex !flex-col !items-stretch !w-[min(100%,980px)] !max-h-[calc(100dvh-1.5rem)] !max-w-[calc(100vw-1rem)] !-translate-x-1/2 !-translate-y-1/2 !gap-0 !overflow-hidden !rounded-[2rem] border border-white/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,251,247,0.98)_100%)] p-0 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.18),0_6px_24px_rgba(16,185,129,0.08)] ring-0 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.2),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(187,247,208,0.18),transparent_28%)] sm:!max-h-[calc(100dvh-3rem)] sm:!max-w-[880px]",
+          "!fixed !left-1/2 !top-1/2 !flex !flex-col !items-stretch !w-[min(100%,980px)] !max-h-[calc(100dvh-1.5rem)] !max-w-[calc(100vw-1.5rem)] !-translate-x-1/2 !-translate-y-1/2 !gap-0 !overflow-hidden !rounded-[2rem] border border-white/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,251,247,0.98)_100%)] p-0 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.18),0_6px_24px_rgba(16,185,129,0.08)] ring-0 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.2),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(187,247,208,0.18),transparent_28%)] sm:!max-h-[calc(100dvh-3rem)] sm:!max-w-[880px]",
           className,
         )}
       >
