@@ -332,7 +332,7 @@ export function StudentDashboardPage() {
                     />
                     <InfoTile
                       icon={LogIn}
-                      label="Check-in"
+                      label="Absen Masuk"
                       value={formatStudentTime(today?.attendance?.check_in_at)}
                       tone="checkin"
                     />
@@ -424,7 +424,7 @@ export function StudentDashboardPage() {
                           {formatStudentDate(record.attendance_date)}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          Check-in {formatStudentTime(record.check_in_at)}
+                          Absen Masuk {formatStudentTime(record.check_in_at)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">

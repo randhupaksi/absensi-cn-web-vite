@@ -231,7 +231,7 @@ export function AttendanceTableSection({
             <div className="hidden overflow-x-auto md:block">
               <DataTable>
                 <DataTableHeadRow
-                  labels={["Siswa", "Check-in", "Status", "Review", "Catatan", "Aksi"]}
+                  labels={["Siswa", "Absen Masuk", "Status", "Review", "Catatan", "Aksi"]}
                   centerLabels={["Status", "Review"]}
                 />
                 <DataTableBody>
@@ -303,7 +303,7 @@ export function AttendanceTableSection({
                   />
                   <div className="mt-4 grid gap-3">
                     <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
-                    <MobileDataField label="Check-in" value={formatCheckInTime(record.check_in_at)} />
+                    <MobileDataField label="Absen Masuk" value={formatCheckInTime(record.check_in_at)} />
                     <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} />} />
                   </div>
                   <MobileDataSection label="Catatan">

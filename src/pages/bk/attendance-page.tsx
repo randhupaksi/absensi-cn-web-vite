@@ -240,7 +240,7 @@ export function BKAttendancePage() {
                 <>
                 <div className="hidden overflow-x-auto md:block">
                   <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Kelas", "Check-in", "Status", "Review", "Catatan", "Aksi"]} />
+                    <DataTableHeadRow labels={["Siswa", "Kelas", "Absen Masuk", "Status", "Review", "Catatan", "Aksi"]} />
                     <DataTableBody>
                       {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
@@ -302,7 +302,7 @@ export function BKAttendancePage() {
                       />
                       <div className="mt-4 grid gap-3">
                         <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
-                        <MobileDataField label="Check-in" value={formatCheckInTime(record.check_in_at)} />
+                        <MobileDataField label="Absen Masuk" value={formatCheckInTime(record.check_in_at)} />
                         <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} />} />
                       </div>
                       <MobileDataSection label="Catatan">

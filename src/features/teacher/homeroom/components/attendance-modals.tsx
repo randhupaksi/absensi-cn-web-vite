@@ -40,7 +40,7 @@ export function formatFriendlyDate(value: string | Date) {
 }
 
 export function formatCheckInTime(value?: string) {
-  if (!value) return "Check-in belum tercatat";
+  if (!value) return "Absen masuk belum tercatat";
   try {
     const date = parseISO(value);
     return format(date, "HH:mm 'WIB'", { locale: localeID });

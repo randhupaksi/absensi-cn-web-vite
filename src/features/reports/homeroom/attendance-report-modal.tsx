@@ -94,7 +94,7 @@ async function generateDailyWalasAbsensiPdf(
   const head: string[][] = [["No", "Nama Siswa", "Tanggal"]];
   if (columns.nis) head[0].push("NIS");
   if (columns.status) head[0].push("Status");
-  if (columns.checkin) head[0].push("Check-in");
+  if (columns.checkin) head[0].push("Absen Masuk");
 
   const body = records.map((record, index) => {
     const tanggal = record.attendance_date
@@ -243,7 +243,7 @@ function getDailySortOptions(columns: Columns): SortOption[] {
     { value: "name", label: "Nama (A-Z)" },
     ...(columns.nis ? [{ value: "nis" as const, label: "NIS" }] : []),
     ...(columns.status ? [{ value: "status" as const, label: "Status" }] : []),
-    ...(columns.checkin ? [{ value: "checkin" as const, label: "Waktu check-in" }] : []),
+    ...(columns.checkin ? [{ value: "checkin" as const, label: "Waktu Absen Masuk" }] : []),
   ];
 }
 
@@ -262,7 +262,7 @@ function getSortLabel(sortBy: SortBy | null) {
   if (sortBy === "name") return "Nama (A-Z)";
   if (sortBy === "nis") return "NIS";
   if (sortBy === "status") return "Status";
-  if (sortBy === "checkin") return "Waktu Check-in";
+  if (sortBy === "checkin") return "Waktu Absen Masuk";
   if (sortBy === "h") return "Hadir terbanyak";
   if (sortBy === "i") return "Izin terbanyak";
   if (sortBy === "s") return "Sakit terbanyak";
@@ -579,7 +579,7 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
                       <ReportCheckbox checked disabled label="Nama & Tanggal" badge="wajib" />
                       <ReportCheckbox checked={columns.nis} onChange={(value) => setColumns((current) => ({ ...current, nis: value }))} label="NIS" />
                       <ReportCheckbox checked={columns.status} onChange={(value) => setColumns((current) => ({ ...current, status: value }))} label="Status" />
-                      <ReportCheckbox checked={columns.checkin} onChange={(value) => setColumns((current) => ({ ...current, checkin: value }))} label="Waktu Check-in" />
+                      <ReportCheckbox checked={columns.checkin} onChange={(value) => setColumns((current) => ({ ...current, checkin: value }))} label="Waktu Absen Masuk" />
                     </>
                   )}
                 </div>

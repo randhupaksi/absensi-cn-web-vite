@@ -45,7 +45,7 @@ export function formatDateTime(value?: string) {
 }
 
 export function formatCheckInTime(value?: string) {
-  if (!value) return "Belum check-in";
+  if (!value) return "Belum absen masuk";
   try {
     return format(parseISO(value), "HH:mm 'WIB'", { locale: localeID });
   } catch {

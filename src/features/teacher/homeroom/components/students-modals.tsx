@@ -248,7 +248,7 @@ export function StudentDetailModal({
                               {formatDate(record.attendance_date)}
                             </p>
                             <p className="text-xs text-slate-500">
-                              Check-in: {formatDateTime(record.check_in_at)}
+                              Absen Masuk: {formatDateTime(record.check_in_at)}
                             </p>
                           </div>
                           <AttendanceStatusPill status={record.status} />

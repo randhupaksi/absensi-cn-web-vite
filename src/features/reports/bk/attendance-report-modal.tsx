@@ -166,7 +166,7 @@ async function generateBKAbsensiPdf(
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
   if (columns.kelas) head[0].push("Kelas");
   if (columns.tanggal) head[0].push("Tanggal");
-  if (columns.checkIn) head[0].push("Check-in");
+  if (columns.checkIn) head[0].push("Absen Masuk");
   if (columns.status) head[0].push("Status");
   if (columns.diverifikasi) head[0].push("Verifikasi");
   if (columns.catatan) head[0].push("Catatan");
@@ -317,7 +317,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
         urutan:
           sortBy === "name" ? "Nama (A–Z)" :
           sortBy === "nis" ? "NIS" :
-          sortBy === "class" ? "Kelas" : "Waktu Check-in",
+          sortBy === "class" ? "Kelas" : "Waktu Absen Masuk",
       };
 
       await generateBKAbsensiPdf(sorted, meta, columns);
@@ -648,7 +648,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                   <ReportCheckbox checked disabled label="Nama & NIS" badge="wajib" />
                   <ReportCheckbox checked={columns.kelas} onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))} label="Kelas" />
                   <ReportCheckbox checked={columns.tanggal} onChange={(v) => setColumns((c) => ({ ...c, tanggal: v }))} label="Tanggal" />
-                  <ReportCheckbox checked={columns.checkIn} onChange={(v) => setColumns((c) => ({ ...c, checkIn: v }))} label="Jam Check-in" />
+                  <ReportCheckbox checked={columns.checkIn} onChange={(v) => setColumns((c) => ({ ...c, checkIn: v }))} label="Jam Absen Masuk" />
                   <ReportCheckbox checked={columns.status} onChange={(v) => setColumns((c) => ({ ...c, status: v }))} label="Status" />
                   <ReportCheckbox checked={columns.diverifikasi} onChange={(v) => setColumns((c) => ({ ...c, diverifikasi: v }))} label="Diverifikasi" />
                   <ReportCheckbox checked={columns.catatan} onChange={(v) => setColumns((c) => ({ ...c, catatan: v }))} label="Catatan" />
@@ -673,7 +673,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                   <ReportRadio selected={sortBy === "name"} label="Nama (A–Z)" onClick={() => setSortBy("name")} />
                   <ReportRadio selected={sortBy === "nis"} label="NIS" onClick={() => setSortBy("nis")} />
                   <ReportRadio selected={sortBy === "class"} label="Kelas" onClick={() => setSortBy("class")} />
-                  <ReportRadio selected={sortBy === "checkin"} label="Waktu Check-in" onClick={() => setSortBy("checkin")} />
+                  <ReportRadio selected={sortBy === "checkin"} label="Waktu Absen Masuk" onClick={() => setSortBy("checkin")} />
                 </div>
               </QuestionBlock>
             </motion.div>

@@ -125,7 +125,7 @@ const testimonials = [
   {
     name: "Fikri",
     role: "X TJKT 2",
-    body: "Proses check-in terasa cepat dan tampilannya mudah dipahami. Notifikasi status hadir juga membantu saya lebih disiplin setiap pagi.",
+    body: "Proses absen masuk terasa cepat dan tampilannya mudah dipahami. Notifikasi status hadir juga membantu saya lebih disiplin setiap pagi.",
   },
   {
     name: "Keisha",
@@ -203,7 +203,7 @@ export default function HomePage() {
                       <span className={`${styles.landingHeroTitle} block`}>Cukup foto, data langsung masuk.</span>
                     </h1>
                     <p className={`${styles.landingReveal} ${styles.landingDelayThree} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}>
-                      Siswa check-in dari kamera, wali kelas memvalidasi, BK memantau
+                      Siswa absen masuk dari kamera, wali kelas memvalidasi, BK memantau
                       prioritas, dan admin melihat rekap secara real-time.
                     </p>
                   </div>
@@ -323,7 +323,7 @@ export default function HomePage() {
                   Jurusan yang Terpantau Sistem
                 </h2>
                 <p className={`${styles.landingMutedText} mx-auto mt-3 max-w-[620px] text-sm leading-7 md:text-base`}>
-                  Setiap jurusan dipresentasikan dengan tampilan visual yang lebih
+                  Setiap jurusan dipresentasikan dengan sistem yang lebih
                   modern, kontras, dan interaktif agar terasa premium saat dilihat.
                 </p>
               </div>
