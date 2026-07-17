@@ -3,8 +3,9 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { appCreditLongStatement, appCreditSummary, appCredits } from "@/lib/config/credits";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useEffect, useState } from "react";
-import { Toaster } from "sonner";
+import { lazy, ReactNode, Suspense, useEffect, useState } from "react";
+
+const Toaster = lazy(() => import("sonner").then((module) => ({ default: module.Toaster })));
 
 type AppProvidersProps = {
   children: ReactNode;
@@ -97,7 +98,9 @@ export function AppProviders({ children }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delay={100}>
         {children}
-        <Toaster richColors position="top-right" />
+        <Suspense fallback={null}>
+          <Toaster richColors position="top-right" />
+        </Suspense>
       </TooltipProvider>
     </QueryClientProvider>
   );

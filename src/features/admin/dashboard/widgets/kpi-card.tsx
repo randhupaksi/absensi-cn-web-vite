@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import type { LucideIcon } from "lucide-react";
 
 type KpiCardProps = {
@@ -18,11 +17,7 @@ export function KpiCard({
   accentClass,
 }: KpiCardProps) {
   return (
-    <motion.article
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.18, ease: "easeOut" }}
-      className="rounded-[26px] border border-white/75 bg-white/82 p-4 shadow-[0_16px_34px_rgba(150,163,184,0.12)] backdrop-blur"
-    >
+    <article className="rounded-[26px] border border-white/75 bg-white/82 p-4 shadow-[0_16px_34px_rgba(150,163,184,0.12)] backdrop-blur transition-transform duration-200 ease-out hover:-translate-y-[3px] motion-reduce:transition-none">
       <div className="flex h-full items-center gap-3 xl:gap-4">
         <div
           className={`flex size-10 shrink-0 items-center justify-center rounded-2xl shadow-sm xl:size-12 ${accentClass}`}
@@ -38,6 +33,6 @@ export function KpiCard({
           </p>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }

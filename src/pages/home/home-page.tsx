@@ -23,7 +23,6 @@ import {
   FaWhatsapp,
   FaWifi,
 } from "react-icons/fa";
-import { TestimonialsCarousel } from "@/features/landing/components/testimonials-carousel";
 import styles from "./home-page.module.css";
 
 const highlightChips = [
@@ -116,12 +115,12 @@ const majorIcons = {
 } as const;
 
 const majorImages = {
-  PPLG: "/images/raw/pplg.jpeg",
-  DKV: "/images/raw/dkv.jpeg",
-  TJKT: "/images/raw/tjkt.jpeg",
-  Pemasaran: "/images/raw/pm.jpeg",
-  MPLB: "/images/raw/mplb.jpeg",
-  Perhotelan: "/images/raw/ph.jpeg",
+  PPLG: "/images/optimized/majors/pplg.jpg",
+  DKV: "/images/optimized/majors/dkv.jpg",
+  TJKT: "/images/optimized/majors/tjkt.jpg",
+  Pemasaran: "/images/optimized/majors/pm.jpg",
+  MPLB: "/images/optimized/majors/mplb.jpg",
+  Perhotelan: "/images/optimized/majors/ph.jpg",
 } as const;
 
 const majorImagePositions = {
@@ -138,69 +137,6 @@ const contactLinks = [
   { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/smkcitranegaradepok/" },
   { icon: FaWhatsapp, label: "WhatsApp", href: "https://wa.me/622177201052" },
 ] as const;
-
-const testimonials = [
-  {
-    name: "Randhu",
-    role: "XI DKV 1",
-    body: "Tampilan aplikasinya enak dipakai dan proses absensi jadi cepat. Saat datang ke sekolah, saya langsung tahu status kehadiran tanpa bingung atau antre lama.",
-  },
-  {
-    name: "Alya",
-    role: "XI PPLG 2",
-    body: "Bagian dashboard terasa modern dan rapi. Informasi kehadiran, keterlambatan, dan catatan sekolah bisa dilihat dengan jelas dari satu tempat.",
-  },
-  {
-    name: "Nadira",
-    role: "X MPLB 1",
-    body: "Aplikasi ini bikin komunikasi kehadiran lebih tertata. Saya suka karena tampilannya simpel, responsif di HP, dan tetap terasa premium saat dipakai.",
-  },
-  {
-    name: "Fikri",
-    role: "X TJKT 2",
-    body: "Proses absen masuk terasa cepat dan tampilannya mudah dipahami. Notifikasi status hadir juga membantu saya lebih disiplin setiap pagi.",
-  },
-  {
-    name: "Keisha",
-    role: "XII PM 1",
-    body: "Saya suka karena data kehadiran langsung terlihat jelas. Untuk tugas sekolah seperti ini, tampilannya sudah rapi dan terasa profesional.",
-  },
-  {
-    name: "Rama",
-    role: "XI MPLB 2",
-    body: "Penggunaan aplikasinya ringan di laptop maupun HP. Riwayat absensi jadi lebih mudah dicek tanpa harus tanya ulang ke guru.",
-  },
-  {
-    name: "Citra",
-    role: "X DKV 2",
-    body: "Desainnya bersih dan enak dilihat. Saya paling suka bagian review dan informasi utama karena langsung terbaca tanpa bikin bingung.",
-  },
-  {
-    name: "Bagas",
-    role: "XII PPLG 1",
-    body: "Absensi digital seperti ini lebih praktis dibanding manual. Semua data terasa lebih modern dan cocok buat kebutuhan sekolah sekarang.",
-  },
-  {
-    name: "Nabila",
-    role: "XI PM 2",
-    body: "Halaman aplikasinya nyaman dipakai dan transisinya halus. Dari sisi pengguna, semuanya terasa lebih cepat dan tertata.",
-  },
-  {
-    name: "Dimas",
-    role: "X TJKT 1",
-    body: "Saya bisa langsung paham alur aplikasinya sejak pertama buka. Ini membantu siswa supaya tidak kesulitan saat melakukan absensi harian.",
-  },
-  {
-    name: "Salma",
-    role: "XII MPLB 2",
-    body: "Warna, tata letak, dan informasi pentingnya sudah pas. Aplikasi ini terasa siap dipakai untuk presentasi maupun penggunaan sekolah.",
-  },
-  {
-    name: "Arkan",
-    role: "XI PPLG 3",
-    body: "Menurut saya ini salah satu bagian yang paling menarik dari project-nya. Review card dan section jurusan sekarang terasa lebih hidup.",
-  },
-];
 
 export default function HomePage() {
   return (
@@ -460,12 +396,6 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-
-            {false ? (
-              <div className={`${styles.landingReviewSection} ${styles.landingReveal} mt-8 px-6 py-7 md:px-8 md:py-8 xl:px-12`}>
-                <TestimonialsCarousel testimonials={testimonials} />
-              </div>
-            ) : null}
 
             <div className="mt-8 mb-10 px-2 sm:mb-0 md:px-4 xl:px-6">
               <div className={`${styles.landingCtaShell} ${styles.landingReveal} relative overflow-hidden rounded-[42px] px-6 py-8 md:px-10 md:py-10 xl:px-12 xl:py-12`}>

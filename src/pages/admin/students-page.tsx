@@ -17,10 +17,8 @@ import type {
   AdminStudentClassMembership,
 } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function AdminStudentsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
 
   const studentsQuery = useQuery({
     queryKey: ["admin-students"],
@@ -50,7 +48,7 @@ export function AdminStudentsPage() {
   const schoolYears: AdminSchoolYear[] = schoolYearsQuery.data ?? [];
 
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {() => (
         <StudentSection
           students={students}

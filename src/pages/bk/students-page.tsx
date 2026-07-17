@@ -47,8 +47,9 @@ import {
   UsersRound,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const BKSiswaReportModal = dynamic(
   () => import("@/features/reports/bk/students-report-modal").then((module) => module.BKSiswaReportModal),
@@ -67,17 +68,12 @@ const riskOptions = [
 export function BKStudentsPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const [classFilter, setClassFilter] = useState("Semua");
   const [riskFilter, setRiskFilter] = useState("Semua");
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 350);
-    return () => clearTimeout(timer);
-  }, [query]);
 
   const overviewQuery = useQuery({
     queryKey: ["bk-students-overview", classFilter, riskFilter, debouncedQuery],

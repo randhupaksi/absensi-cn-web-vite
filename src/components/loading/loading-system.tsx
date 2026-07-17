@@ -1,7 +1,6 @@
 import { AppImage as Image } from "@/components/media/app-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -20,20 +19,19 @@ export function RouteLoadingFallback() {
 }
 
 export function BrandedAppLoader({ label = "Menyiapkan Absensi CN" }: { label?: string }) {
-  const reduceMotion = useReducedMotion();
   return (
     <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,rgba(167,243,208,0.36),transparent_34%),linear-gradient(180deg,#f8fbf8_0%,#eef7f1_100%)] p-6">
-      <motion.div initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }} className="flex flex-col items-center text-center">
+      <div className="app-loader-enter flex flex-col items-center text-center">
         <div className="relative flex size-24 items-center justify-center rounded-[2rem] border border-emerald-200/80 bg-white/86 shadow-[0_24px_60px_rgba(15,118,110,0.16)] backdrop-blur-xl">
-          <motion.span aria-hidden="true" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], opacity: [0.35, 0.7, 0.35] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }} className="absolute inset-2 rounded-[1.55rem] bg-emerald-100/65" />
-          <Image src="/images/optimized/logo-sma-smk-yatkj.png" alt="Logo Sekolah Citra Negara" width={62} height={62} priority className="relative object-contain" />
+          <span aria-hidden="true" className="app-loader-pulse absolute inset-2 rounded-[1.55rem] bg-emerald-100/65" />
+          <Image src="/images/optimized/logo-sma-smk-yatkj-ui.png" alt="Logo Sekolah Citra Negara" width={62} height={62} priority className="relative object-contain" />
         </div>
         <p className="mt-6 font-heading text-lg font-semibold text-slate-900">{label}</p>
         <p className="mt-1 text-sm text-slate-500">Menghubungkan portal dan data sekolah.</p>
         <div className="mt-5 h-1.5 w-40 overflow-hidden rounded-full bg-emerald-100">
-          <motion.div className="h-full rounded-full bg-emerald-500" animate={reduceMotion ? { width: "60%" } : { x: ["-100%", "220%"] }} transition={{ duration: 1.35, repeat: Infinity, ease: "easeInOut" }} style={{ width: "42%" }} />
+          <div className="app-loader-progress h-full w-[42%] rounded-full bg-emerald-500" />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

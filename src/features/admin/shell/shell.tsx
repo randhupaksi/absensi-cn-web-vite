@@ -9,18 +9,9 @@ import { StaffShell } from "@/features/staff/components/shell";
 
 type AdminShellProps = {
   children: (session: AuthSession) => ReactNode;
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
 };
 
-export function AdminShell({
-  children,
-  searchTerm,
-  onSearchChange,
-}: AdminShellProps) {
-  void searchTerm;
-  void onSearchChange;
-
+export function AdminShell({ children }: AdminShellProps) {
   return (
     <StaffShell
       expectedRole="admin"

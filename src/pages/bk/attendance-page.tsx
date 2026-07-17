@@ -50,8 +50,9 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const BKAbsensiReportModal = dynamic(
   () => import("@/features/reports/bk/attendance-report-modal").then((module) => module.BKAbsensiReportModal),
@@ -70,18 +71,13 @@ const statusOptions = [
 export function BKAttendancePage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [classFilter, setClassFilter] = useState("Semua");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [reviewTarget, setReviewTarget] = useState<StaffAttendanceRecord | null>(null);
   const [proofTarget, setProofTarget] = useState<StaffAttendanceRecord | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 350);
-    return () => clearTimeout(timer);
-  }, [query]);
 
   const dateValue = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
 

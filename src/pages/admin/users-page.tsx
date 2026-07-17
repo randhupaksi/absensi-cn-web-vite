@@ -5,10 +5,8 @@ import { UserSection } from "@/features/admin/management/users/section";
 import { getAdminUsers } from "@/services/admin.service";
 import type { AdminUser } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function AdminUsersPage() {
-  const [searchTerm, setSearchTerm] = useState("");
 
   const usersQuery = useQuery({
     queryKey: ["admin-users"],
@@ -17,7 +15,7 @@ export function AdminUsersPage() {
 
   const users: AdminUser[] = usersQuery.data ?? [];
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {() => (
         <UserSection
           users={users}

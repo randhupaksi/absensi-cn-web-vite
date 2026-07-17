@@ -55,8 +55,9 @@ import {
   UsersRound,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const BKKonselingReportModal = dynamic(
   () => import("@/features/reports/bk/counseling-report-modal").then((module) => module.BKKonselingReportModal),
@@ -66,7 +67,7 @@ const BKKonselingReportModal = dynamic(
 export function BKCounselingPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const [classFilter, setClassFilter] = useState("Semua");
   const [studentFilter, setStudentFilter] = useState("Semua");
   const [detailTarget, setDetailTarget] = useState<StaffCounselingNote | null>(null);
@@ -74,11 +75,6 @@ export function BKCounselingPage() {
   const [deleteTarget, setDeleteTarget] = useState<StaffCounselingNote | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 350);
-    return () => clearTimeout(timer);
-  }, [query]);
 
   const overviewQuery = useQuery({
     queryKey: ["bk-counseling-overview", classFilter, studentFilter, debouncedQuery],

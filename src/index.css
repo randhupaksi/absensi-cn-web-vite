@@ -255,3 +255,58 @@ body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
     transform: translateX(200%);
   }
 }
+
+@keyframes app-loader-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-loader-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes app-loader-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+.app-loader-enter {
+  animation: app-loader-enter 280ms ease-out both;
+}
+
+.app-loader-pulse {
+  animation: app-loader-pulse 1.8s ease-in-out infinite;
+}
+
+.app-loader-progress {
+  animation: app-loader-progress 1.35s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loader-enter,
+  .app-loader-pulse,
+  .app-loader-progress {
+    animation: none;
+  }
+
+  .app-loader-progress {
+    width: 60%;
+  }
+}

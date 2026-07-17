@@ -61,7 +61,7 @@ export function StaffSidebar({
             <div className="flex items-center gap-3">
               <div className="flex size-16 items-center justify-center">
                 <Image
-                  src="/images/optimized/logo-sma-smk-yatkj.png"
+                  src="/images/optimized/logo-sma-smk-yatkj-ui.png"
                   alt="Logo Sekolah Citra Negara"
                   width={52}
                   height={52}

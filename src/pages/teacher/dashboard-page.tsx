@@ -1,7 +1,6 @@
 "use client";
 
 import { AppLink as Link } from "@/components/router/app-link";
-import { AttendanceDonutChart } from "@/features/admin/dashboard/charts/attendance-donut-chart";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StaffShell } from "@/features/staff/components/shell";
@@ -38,7 +37,16 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { AuthSession } from "@/types/auth";
-import { ListRowsSkeleton, PageSkeleton } from "@/components/loading/loading-system";
+import { ChartSkeleton, ListRowsSkeleton, PageSkeleton } from "@/components/loading/loading-system";
+import dynamic from "@/lib/dynamic";
+
+const AttendanceDonutChart = dynamic(
+  () =>
+    import("@/features/admin/dashboard/charts/attendance-donut-chart").then(
+      (module) => ({ default: module.AttendanceDonutChart }),
+    ),
+  { ssr: false, fallback: <ChartSkeleton type="donut" /> },
+);
 
 const HARI_LABEL: Record<string, string> = {
   senin: "Senin",

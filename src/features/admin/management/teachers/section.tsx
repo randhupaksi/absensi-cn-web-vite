@@ -134,7 +134,7 @@ export function TeacherSection({
     queryFn: getAdminSchoolYears,
   });
 
-  const classes = classesQuery.data ?? [];
+  const classes = useMemo(() => classesQuery.data ?? [], [classesQuery.data]);
 
   const createTeacherProfileMutation = useMutation({
     mutationFn: createAdminTeacherAccount,

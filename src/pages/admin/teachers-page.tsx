@@ -17,10 +17,8 @@ import type {
   AdminTeacherSubjectAssignment,
 } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function AdminTeachersPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const teacherProfilesQuery = useQuery({
     queryKey: ["admin-teacher-profiles"],
     queryFn: getAdminTeacherProfiles,
@@ -52,7 +50,7 @@ export function AdminTeachersPage() {
   const bkUnitScopes: AdminBKUnitScope[] = bkScopesQuery.data ?? [];
 
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {() => (
         <TeacherSection
           teacherProfiles={teacherProfiles}

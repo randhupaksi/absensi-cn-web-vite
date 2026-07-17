@@ -10,7 +10,6 @@ import {
   Users,
 } from "lucide-react";
 import dynamic from "@/lib/dynamic";
-import { useState } from "react";
 import { AdminShell } from "@/features/admin/shell/shell";
 import { GreetingCard } from "@/features/admin/dashboard/widgets/greeting-card";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
@@ -64,7 +63,6 @@ const fallbackDashboard: AdminDashboardData = {
 };
 
 export function AdminDashboardPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const dashboardQuery = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: getAdminDashboard,
@@ -118,7 +116,7 @@ export function AdminDashboardPage() {
   ];
 
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {(session) => dashboardQuery.isLoading && !dashboardQuery.data ? (
         <PageSkeleton variant="dashboard" />
       ) : (

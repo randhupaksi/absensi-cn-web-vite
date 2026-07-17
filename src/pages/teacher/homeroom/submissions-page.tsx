@@ -51,8 +51,9 @@ import {
   Upload,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const WalasPengajuanReportModal = dynamic(
   () => import("@/features/reports/homeroom/submissions-report-modal").then((module) => module.WalasPengajuanReportModal),
@@ -96,17 +97,12 @@ const emptyOverview: StaffHomeroomSubmissionOverview = {
 export function WalasSubmissionsPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [typeFilter, setTypeFilter] = useState("Semua");
   const [detailTarget, setDetailTarget] = useState<StaffSubmission | null>(null);
   const [reviewTarget, setReviewTarget] = useState<StaffSubmission | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 350);
-    return () => clearTimeout(timer);
-  }, [query]);
 
   const overviewQuery = useQuery({
     queryKey: ["teacher-homeroom-submissions-overview", statusFilter, typeFilter, debouncedQuery],

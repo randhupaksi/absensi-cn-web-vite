@@ -3,11 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="preload" as="image" href="/images/optimized/logo-sma-smk-yatkj.png" />
+    <link rel="preload" as="image" href="/images/optimized/logo-sma-smk-yatkj-ui.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Frontend web absensi sekolah untuk Sekolah Citra Negara dengan role siswa, walas, BK, dan admin." />
     <meta name="theme-color" content="#047857" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      try {
+        if (location.pathname === "/" && !localStorage.getItem("absensi-cn-auth")) {
+          const heroPreload = document.createElement("link");
+          heroPreload.rel = "preload";
+          heroPreload.as = "image";
+          heroPreload.href = "/images/optimized/cn-hero.jpg";
+          heroPreload.imageSrcset = "/images/optimized/cn-panel.jpg 960w, /images/optimized/cn-hero.jpg 1920w";
+          heroPreload.imageSizes = "100vw";
+          heroPreload.fetchPriority = "high";
+          document.head.appendChild(heroPreload);
+        }
+      } catch (_) {
+        // Storage can be unavailable in strict privacy mode; the page still loads normally.
+      }
+    </script>
     <style>
       #initial-loader {
         position: fixed;
@@ -108,7 +124,7 @@
     <div id="initial-loader" role="status" aria-live="polite" aria-label="Menyiapkan Absensi CN">
       <div class="initial-loader__content">
         <div class="initial-loader__logo">
-          <img src="/images/optimized/logo-sma-smk-yatkj.png" alt="Logo Sekolah Citra Negara" width="60" height="60" />
+          <img src="/images/optimized/logo-sma-smk-yatkj-ui.png" alt="Logo Sekolah Citra Negara" width="60" height="60" />
         </div>
         <p class="initial-loader__title">Menyiapkan Absensi CN</p>
         <p class="initial-loader__subtitle">Memuat pengalaman sekolahmu...</p>

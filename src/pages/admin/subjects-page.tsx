@@ -15,10 +15,8 @@ import {
   getAdminTeacherSubjectAssignments,
 } from "@/services/admin.service";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function AdminSubjectsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const subjectsQuery = useQuery({ queryKey: ["admin-subjects"], queryFn: () => getAdminSubjects() });
   const schedulesQuery = useQuery({ queryKey: ["admin-subject-schedules"], queryFn: () => getAdminSubjectSchedules() });
   const assignmentsQuery = useQuery({ queryKey: ["admin-teacher-subject-assignments"], queryFn: () => getAdminTeacherSubjectAssignments() });
@@ -33,7 +31,7 @@ export function AdminSubjectsPage() {
   const queries = [subjectsQuery, schedulesQuery, assignmentsQuery, teachersQuery, classesQuery, schoolYearsQuery, programsQuery, roomsQuery, unitsQuery, overridesQuery];
 
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {() => (<>
         <SubjectManagementSection
           subjects={subjectsQuery.data ?? []}

@@ -4,7 +4,6 @@ import { AdminShell } from "@/features/admin/shell/shell";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { FileText } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
 
 type AdminPlaceholderPageProps = {
   title: string;
@@ -17,10 +16,9 @@ export function AdminPlaceholderPage({
   subtitle,
   description,
 }: AdminPlaceholderPageProps) {
-  const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {() => (
         <motion.section
           initial={{ opacity: 0, y: 12 }}

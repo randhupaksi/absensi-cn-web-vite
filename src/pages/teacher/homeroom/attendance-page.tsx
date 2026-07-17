@@ -23,8 +23,9 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { BadgeCheck, CheckCheck, NotebookText, ShieldAlert } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const WalasAbsensiReportModal = dynamic(
   () => import("@/features/reports/homeroom/attendance-report-modal").then((module) => module.WalasAbsensiReportModal),
@@ -59,17 +60,12 @@ const fallbackOverview: StaffHomeroomAttendanceOverview = {
 export function WalasAttendancePage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [reviewTarget, setReviewTarget] = useState<StaffAttendanceRecord | null>(null);
   const [proofTarget, setProofTarget] = useState<StaffAttendanceRecord | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 350);
-    return () => clearTimeout(timer);
-  }, [query]);
 
   const dateValue = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
   const overviewQuery = useQuery({

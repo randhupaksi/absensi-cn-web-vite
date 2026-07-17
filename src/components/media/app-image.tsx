@@ -9,12 +9,13 @@ type AppImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
 };
 
 export const AppImage = forwardRef<HTMLImageElement, AppImageProps>(
-  ({ fill, priority, unoptimized: _unoptimized, className, loading, ...props }, ref) => (
+  ({ fill, priority, unoptimized: _unoptimized, className, loading, decoding, fetchPriority, ...props }, ref) => (
     <img
       ref={ref}
       className={cn(fill && "absolute inset-0 size-full", className)}
       loading={priority ? "eager" : loading ?? "lazy"}
-      fetchPriority={priority ? "high" : undefined}
+      decoding={decoding ?? "async"}
+      fetchPriority={priority ? "high" : fetchPriority}
       {...props}
     />
   ),

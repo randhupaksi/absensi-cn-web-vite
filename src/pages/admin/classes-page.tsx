@@ -10,10 +10,8 @@ import {
 } from "@/services/admin.service";
 import type { AdminClass, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function AdminClassesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
 
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
@@ -38,7 +36,7 @@ export function AdminClassesPage() {
   const schoolUnits: AdminSchoolUnit[] = schoolUnitsQuery.data ?? [];
 
   return (
-    <AdminShell searchTerm={searchTerm} onSearchChange={setSearchTerm}>
+    <AdminShell>
       {() => (
         <ClassManagementSection
           classes={classes}
