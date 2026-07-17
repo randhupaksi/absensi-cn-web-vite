@@ -198,6 +198,9 @@ export function BKAttendancePage() {
                     onValueChange={setClassFilter}
                     options={classFilterOptions(classes)}
                     placeholder="Pilih kelas"
+                    searchable
+                    searchPlaceholder="Cari kelas..."
+                    emptyText="Kelas tidak ditemukan."
                     triggerClassName="h-14 rounded-[22px] pl-4"
                   />
                 </div>

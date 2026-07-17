@@ -29,3 +29,9 @@ dist-ssr
 # AI Agent
 AGENTS.md
 CLAUDE.md
+
+# Guidebook deliverables
+docs/guidebook/deliverables/*.docx
+docs/guidebook/deliverables/~$*.docx
+docs/guidebook/qa/
+docs/guidebook/*.docx

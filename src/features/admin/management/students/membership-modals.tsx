@@ -242,6 +242,9 @@ function ClassPlacementFields({
             }
           }}
           placeholder="Pilih kelas"
+          searchable
+          searchPlaceholder="Cari kelas..."
+          emptyText="Kelas tidak ditemukan."
           options={classOptions}
         />
         <FieldError message={classError} />

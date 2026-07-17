@@ -130,7 +130,7 @@ function StudentFormModal({ open, onOpenChange, title, description, icon, form, 
           setSelectedUnitId(selected.school_unit_id);
           setSelectedMajorId(selected.major_id);
         }
-      }} placeholder="Pilih kelas siswa" options={classOptions} />} /><FieldError message={errors.class_id?.message} /></FieldGroup>
+      }} placeholder="Pilih kelas siswa" searchable searchPlaceholder="Cari kelas siswa..." emptyText="Kelas tidak ditemukan." options={classOptions} />} /><FieldError message={errors.class_id?.message} /></FieldGroup>
       <div className="grid gap-4 md:grid-cols-2">
         <FieldGroup label="Jenis Kelamin"><Controller control={form.control} name="gender" render={({ field }) => <RadixSelectField value={field.value} onValueChange={field.onChange} placeholder="Pilih jenis kelamin" options={GENDER_OPTIONS} />} /><FieldError message={errors.gender?.message} /></FieldGroup>
         <FieldGroup label="Status Aktif"><Controller control={form.control} name="is_active" render={({ field }) => <RadixSelectField value={String(field.value)} onValueChange={(value) => field.onChange(value === "true")} placeholder="Pilih status" options={ACTIVE_OPTIONS} />} /><FieldError message={errors.is_active?.message} /></FieldGroup>

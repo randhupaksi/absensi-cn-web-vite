@@ -171,7 +171,7 @@ export function TeacherSubjectAssignmentCreateModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Guru">
-            <RadixSelectField value={form.teacher_id} onValueChange={(v) => set("teacher_id", v)} placeholder="Pilih guru" options={teacherProfiles.map((t) => ({ value: t.id, label: t.name, description: t.username || t.id }))} />
+            <RadixSelectField value={form.teacher_id} onValueChange={(v) => set("teacher_id", v)} placeholder="Pilih guru" searchable searchPlaceholder="Cari nama atau username guru..." emptyText="Guru tidak ditemukan." options={teacherProfiles.map((t) => ({ value: t.id, label: t.name, description: t.username || t.id }))} />
             <FieldError message={errors.teacher_id} />
           </FieldGroup>
           <FieldGroup label="Mapel">
@@ -182,7 +182,7 @@ export function TeacherSubjectAssignmentCreateModal({
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
+            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
             <FieldError message={errors.class_id} />
           </FieldGroup>
           <FieldGroup label="Tahun Ajaran">
@@ -255,7 +255,7 @@ export function TeacherSubjectAssignmentEditModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Guru">
-            <RadixSelectField value={form.teacher_id} onValueChange={(v) => set("teacher_id", v)} placeholder="Pilih guru" options={teacherProfiles.map((t) => ({ value: t.id, label: t.name, description: t.username || t.id }))} />
+            <RadixSelectField value={form.teacher_id} onValueChange={(v) => set("teacher_id", v)} placeholder="Pilih guru" searchable searchPlaceholder="Cari nama atau username guru..." emptyText="Guru tidak ditemukan." options={teacherProfiles.map((t) => ({ value: t.id, label: t.name, description: t.username || t.id }))} />
             <FieldError message={errors.teacher_id} />
           </FieldGroup>
           <FieldGroup label="Mapel">
@@ -266,7 +266,7 @@ export function TeacherSubjectAssignmentEditModal({
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
+            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
             <FieldError message={errors.class_id} />
           </FieldGroup>
           <FieldGroup label="Tahun Ajaran">

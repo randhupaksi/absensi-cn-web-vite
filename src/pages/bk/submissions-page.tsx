@@ -191,7 +191,7 @@ export function BKSubmissionsPage() {
             <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <div className="w-full sm:w-[220px]">
-                  <RadixSelectField value={classFilter} onValueChange={setClassFilter} options={classFilterOptions(classes)} placeholder="Pilih kelas" triggerClassName="h-14 rounded-[22px] pl-4" />
+                  <RadixSelectField value={classFilter} onValueChange={setClassFilter} options={classFilterOptions(classes)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." triggerClassName="h-14 rounded-[22px] pl-4" />
                 </div>
                 <div className="w-full sm:w-[210px]">
                   <RadixSelectField value={statusFilter} onValueChange={setStatusFilter} options={submissionStatusOptions} placeholder="Pilih status" triggerClassName="h-14 rounded-[22px] pl-4" />

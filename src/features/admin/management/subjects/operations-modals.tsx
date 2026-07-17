@@ -65,7 +65,19 @@ export function ScheduleOverrideModal({ open, item, schedules, rooms, teachers, 
 }
 
 function SelectField({ label, value, onChange, options, error }: { label: string; value: string; onChange: (value: string) => void; options: { value: string; label: string; description?: string }[]; error?: string }) {
-  return <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>{label}</label><RadixSelectField value={value} onValueChange={onChange} placeholder={`Pilih ${label.toLowerCase()}`} options={options} /><FieldError message={error} /></div>;
+  const searchable = label.toLowerCase().includes("guru") || label.toLowerCase().includes("kelas");
+  const searchPlaceholder = label.toLowerCase().includes("guru")
+    ? "Cari nama atau username guru..."
+    : label.toLowerCase().includes("kelas")
+      ? "Cari kelas..."
+      : "Cari data...";
+  const emptyText = label.toLowerCase().includes("guru")
+    ? "Guru tidak ditemukan."
+    : label.toLowerCase().includes("kelas")
+      ? "Kelas tidak ditemukan."
+      : "Tidak ditemukan.";
+
+  return <div className={premiumModalFieldClassName}><label className={premiumModalLabelClassName}>{label}</label><RadixSelectField value={value} onValueChange={onChange} placeholder={`Pilih ${label.toLowerCase()}`} searchable={searchable} searchPlaceholder={searchPlaceholder} emptyText={emptyText} options={options} /><FieldError message={error} /></div>;
 }
 
 function BooleanField<T extends RoomFormValues>({ control, name, label, trueLabel, falseLabel }: { control: ReturnType<typeof useForm<T>>["control"]; name: "is_active"; label: string; trueLabel: string; falseLabel: string }) {

@@ -93,6 +93,9 @@ export function HomeroomAssignmentCreateModal({
               value={form.teacher_id}
               onValueChange={(v) => set("teacher_id", v)}
               placeholder="Pilih guru"
+              searchable
+              searchPlaceholder="Cari nama atau username guru..."
+              emptyText="Guru tidak ditemukan."
               options={teacherProfiles.map((t) => ({
                 value: t.id,
                 label: t.name,
@@ -106,6 +109,9 @@ export function HomeroomAssignmentCreateModal({
               value={form.class_id}
               onValueChange={(v) => set("class_id", v)}
               placeholder="Pilih kelas walas"
+              searchable
+              searchPlaceholder="Cari kelas walas..."
+              emptyText="Kelas tidak ditemukan."
               options={classes.map((c) => ({
                 value: c.id,
                 label: c.display_name,
@@ -199,6 +205,9 @@ export function HomeroomAssignmentEditModal({
               value={form.teacher_id}
               onValueChange={(v) => set("teacher_id", v)}
               placeholder="Pilih guru"
+              searchable
+              searchPlaceholder="Cari nama atau username guru..."
+              emptyText="Guru tidak ditemukan."
               options={teacherProfiles.map((t) => ({
                 value: t.id,
                 label: t.name,
@@ -212,6 +221,9 @@ export function HomeroomAssignmentEditModal({
               value={form.class_id}
               onValueChange={(v) => set("class_id", v)}
               placeholder="Pilih kelas walas"
+              searchable
+              searchPlaceholder="Cari kelas walas..."
+              emptyText="Kelas tidak ditemukan."
               options={classes.map((c) => ({
                 value: c.id,
                 label: c.display_name,

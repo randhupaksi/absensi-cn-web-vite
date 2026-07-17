@@ -437,9 +437,9 @@ export function SubjectManagementSection({
             <div className="mt-3 grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <RadixSelectField value={dayFilter} onValueChange={setDayFilter} placeholder="Semua hari" options={dayOptions} triggerClassName="h-12 rounded-[18px]" />
               <RadixSelectField value={schoolYearFilter} onValueChange={setSchoolYearFilter} placeholder="Semua tahun ajaran" options={[{ value: "all", label: "Semua tahun ajaran" }, ...schoolYears.map((y) => ({ value: y.id, label: y.name }))]} triggerClassName="h-12 rounded-[18px]" />
-              <RadixSelectField value={teacherFilter} onValueChange={setTeacherFilter} placeholder="Semua guru" options={[{ value: "all", label: "Semua guru" }, ...teachers.map((t) => ({ value: t.id, label: t.name }))]} triggerClassName="h-12 rounded-[18px]" />
+              <RadixSelectField value={teacherFilter} onValueChange={setTeacherFilter} placeholder="Semua guru" searchable searchPlaceholder="Cari nama guru..." emptyText="Guru tidak ditemukan." options={[{ value: "all", label: "Semua guru" }, ...teachers.map((t) => ({ value: t.id, label: t.name }))]} triggerClassName="h-12 rounded-[18px]" />
               <RadixSelectField value={subjectFilter} onValueChange={setSubjectFilter} placeholder="Semua mapel" options={[{ value: "all", label: "Semua mapel" }, ...subjects.map((s) => ({ value: s.id, label: s.name, description: s.code }))]} triggerClassName="h-12 rounded-[18px]" />
-              <RadixSelectField value={classFilter} onValueChange={setClassFilter} placeholder="Semua kelas" options={[{ value: "all", label: "Semua kelas" }, ...classes.map((c) => ({ value: c.id, label: c.display_name }))]} triggerClassName="h-12 rounded-[18px]" />
+              <RadixSelectField value={classFilter} onValueChange={setClassFilter} placeholder="Semua kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={[{ value: "all", label: "Semua kelas" }, ...classes.map((c) => ({ value: c.id, label: c.display_name }))]} triggerClassName="h-12 rounded-[18px]" />
             </div>
           )}
 

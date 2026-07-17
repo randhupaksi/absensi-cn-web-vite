@@ -66,6 +66,9 @@ export function BKAssignmentModal({
                 value={field.value}
                 onValueChange={field.onChange}
                 placeholder={teachers.length === 0 ? "Semua guru sudah ditempatkan sebagai BK" : "Pilih guru"}
+                searchable
+                searchPlaceholder="Cari nama atau username guru..."
+                emptyText="Guru tidak ditemukan."
                 options={teachers.map((teacher) => ({
                   value: teacher.user_id,
                   label: teacher.name,

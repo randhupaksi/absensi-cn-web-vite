@@ -445,6 +445,9 @@ function SelectController({ control, name, label, placeholder, options, error }:
             value={field.value as string}
             onValueChange={field.onChange}
             placeholder={placeholder}
+            searchable={name === "teacher_id" || name === "class_id"}
+            searchPlaceholder={name === "teacher_id" ? "Cari nama atau username guru..." : name === "class_id" ? "Cari kelas..." : undefined}
+            emptyText={name === "teacher_id" ? "Guru tidak ditemukan." : name === "class_id" ? "Kelas tidak ditemukan." : undefined}
             options={options}
           />
         )}
