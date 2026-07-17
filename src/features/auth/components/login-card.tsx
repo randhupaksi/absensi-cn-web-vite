@@ -26,7 +26,7 @@ const portalContent = {
     intro: "Akses absensi siswa.",
     introDetail: "Gunakan NIS sekolah dan password akun siswa.",
     formShell:
-      "rounded-[1.7rem] border border-white/60 bg-white/42 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-md sm:p-5",
+      "rounded-[1.7rem] border border-emerald-100/90 bg-white/58 p-4 shadow-[0_20px_52px_rgba(15,118,110,0.11),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-md sm:p-5",
     footer: "Copyright 2026 Sekolah Citra Negara. All rights reserved.",
   },
   staff: {
@@ -36,7 +36,7 @@ const portalContent = {
     intro: "Akses operasional sekolah.",
     introDetail: "Gunakan username staff yang sudah terdaftar oleh admin.",
     formShell:
-      "rounded-[1.7rem] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(236,253,245,0.38))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_18px_48px_rgba(15,118,110,0.08)] backdrop-blur-md sm:p-5",
+      "rounded-[1.7rem] border border-emerald-100/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(236,253,245,0.46))] p-4 shadow-[0_20px_52px_rgba(15,118,110,0.11),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-md sm:p-5",
     footer: "Copyright 2026 Sekolah Citra Negara. All rights reserved.",
   },
 } satisfies Record<PortalType, {

@@ -91,9 +91,9 @@ export function LoginShowcase() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.52, delay: 0.12 }}
-            className="max-w-lg font-heading text-5xl font-semibold leading-[0.98] tracking-[-0.04em] text-slate-950 xl:text-6xl"
+            className="max-w-lg font-heading text-5xl font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 xl:text-6xl xl:leading-[1.08]"
           >
-            Portal kehadiran modern untuk Sekolah Citra Negara.
+            Kehadiran digital untuk sekolah modern.
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}

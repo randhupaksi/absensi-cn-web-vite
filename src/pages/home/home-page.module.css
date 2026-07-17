@@ -128,6 +128,63 @@
   color: var(--landing-ink-soft);
 }
 
+.landingStepsSection {
+  border-top: 1px solid var(--landing-border-soft);
+  border-bottom: 1px solid var(--landing-border-soft);
+  background: linear-gradient(90deg, rgba(236, 253, 245, 0.34), rgba(255, 255, 255, 0.2) 52%, rgba(240, 253, 250, 0.32));
+}
+
+.landingStepsCounter {
+  color: var(--landing-accent-strong);
+}
+
+.landingStepsDetail {
+  border: 1px solid var(--landing-border-soft);
+  background: var(--landing-surface-soft);
+  box-shadow: var(--landing-shadow-chip);
+  border-radius: var(--landing-radius-panel);
+}
+
+.landingStepsList {
+  display: grid;
+}
+
+.landingStepItem {
+  border-bottom-color: var(--landing-border-soft);
+  color: var(--landing-ink-soft);
+}
+
+.landingStepItem:hover {
+  background: rgba(236, 253, 245, 0.5);
+  border-radius: 0.85rem;
+}
+
+.landingStepNumber {
+  border: 1px solid var(--landing-border-soft);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--landing-accent);
+}
+
+.landingStepItem:hover .landingStepNumber {
+  border-color: var(--landing-accent);
+  background: var(--landing-accent);
+  color: white;
+  box-shadow: 0 8px 18px rgba(5, 150, 105, 0.2);
+}
+
+.landingStepEyebrow,
+.landingStepIcon {
+  color: var(--landing-accent);
+}
+
+.landingStepTitle {
+  color: var(--landing-ink);
+}
+
+.landingStepDescription {
+  color: var(--landing-ink-soft);
+}
+
 .landingMajorBadge {
   border: 1px solid var(--landing-border-soft);
   background: rgba(255, 255, 255, 0.7);

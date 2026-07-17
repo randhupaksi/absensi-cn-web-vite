@@ -13,6 +13,8 @@ import {
   FaGlobe,
   FaGraduationCap,
   FaHeartbeat,
+  FaMapMarkerAlt,
+  FaUserCheck,
   FaInstagram,
   FaNetworkWired,
   FaSchool,
@@ -39,6 +41,37 @@ const excellencePoints = [
   "Siap untuk manajemen sekolah",
   "Bimbingan siswa yang baik dan terarah",
 ];
+
+const attendanceSteps = [
+  {
+    eyebrow: "01 / SIAPKAN",
+    title: "Masuk ke dalam halaman login",
+    description: "Gunakan akun siswa yang sudah terdaftar untuk membuka halaman absensi hari ini.",
+    detail: "Semua informasi kelas dan tahun ajaran sudah tersambung otomatis.",
+    icon: FaUserCheck,
+  },
+  {
+    eyebrow: "02 / BUKTI",
+    title: "Ambil foto kehadiran",
+    description: "Ambil foto dari kamera perangkat sebagai bukti kehadiran di sekolah.",
+    detail: "Foto akan dikompres otomatis agar proses pengiriman tetap ringan.",
+    icon: FaCameraRetro,
+  },
+  {
+    eyebrow: "03 / LOKASI",
+    title: "Rekam lokasi saat ini",
+    description: "Izinkan lokasi agar sistem dapat mencocokkan posisi dengan radius sekolah.",
+    detail: "Lokasi hanya digunakan untuk membantu validasi absensi saat dikirim.",
+    icon: FaMapMarkerAlt,
+  },
+  {
+    eyebrow: "04 / KIRIM",
+    title: "Kirim untuk divalidasi",
+    description: "Periksa kembali data, lalu kirim absensi.",
+    detail: "Status pengajuan dapat dipantau kembali melalui dashboard dan riwayat.",
+    icon: FaCheckCircle,
+  },
+] as const;
 
 const majors = [
   {
@@ -196,9 +229,9 @@ export default function HomePage() {
 
                   <div className="space-y-4">
                     <p className={`${styles.landingReveal} ${styles.landingDelayOne} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}>
-                      Sekolah Citra Negara Attendance System
+                      Citra Negara School Attendance System
                     </p>
-                    <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[0.96] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] xl:text-[5.6rem]`}>
+                    <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
                       Absensi pagi tanpa antre.
                       <span className={`${styles.landingHeroTitle} block`}>Cukup foto, data langsung masuk.</span>
                     </h1>
@@ -312,6 +345,54 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+
+            <section className={`${styles.landingStepsSection} ${styles.landingReveal} mt-8 px-5 py-9 md:px-10 md:py-11 xl:px-14`} aria-labelledby="attendance-steps-title">
+              <div className="mx-auto grid max-w-[1220px] gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
+                <div className="flex flex-col justify-center">
+                  <div className={`${styles.landingMajorBadge} inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em]`}>
+                    <FaCameraRetro className="size-3" />
+                    Panduan siswa
+                  </div>
+                  <h2 id="attendance-steps-title" className={`${styles.landingInkText} mt-5 max-w-[480px] font-heading text-[2.2rem] font-bold leading-[1.02] tracking-[-0.055em] md:text-[3.35rem]`}>
+                    Absen masuk
+                    <span className={`${styles.landingHeroTitle} block`}>tanpa ragu.</span>
+                  </h2>
+                  <p className={`${styles.landingMutedText} mt-5 max-w-[430px] text-sm leading-7 md:text-base`}>
+                    Ikuti alur singkat ini agar bukti, lokasi, dan status kehadiranmu tercatat dengan jelas di sistem sekolah.
+                  </p>
+                  <div className={`${styles.landingStepsDetail} mt-8 flex max-w-[440px] items-start gap-3 px-4 py-3`}>
+                    <FaMapMarkerAlt className={`${styles.landingStepIcon} mt-0.5 size-4 shrink-0`} />
+                    <p className={`${styles.landingMutedText} text-xs leading-5`}>
+                      <span className={`${styles.landingInkText} font-semibold`}>Lokasi dan bukti tercatat.</span> Pastikan izin kamera serta lokasi aktif sebelum mengirim absensi.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col justify-center">
+                  <div className={styles.landingStepsList}>
+                    {attendanceSteps.map((step, index) => {
+                      const StepIcon = step.icon;
+                      return (
+                        <div
+                          key={step.title}
+                          className={`${styles.landingStepItem} group relative flex w-full items-start gap-4 border-b py-5 text-left transition duration-300 md:gap-5 md:py-6`}
+                        >
+                          <span className={`${styles.landingStepNumber} flex size-11 shrink-0 items-center justify-center rounded-2xl transition duration-300`}>
+                            <StepIcon className="size-5" />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className={`${styles.landingStepEyebrow} block text-[10px] font-bold uppercase tracking-[0.2em]`}>0{index + 1} <span className="mx-1 opacity-40">/</span> {step.eyebrow.split(" / ")[1]}</span>
+                            <span className={`${styles.landingStepTitle} mt-2 block font-heading text-xl font-bold tracking-tight md:text-2xl`}>{step.title}</span>
+                            <span className={`${styles.landingStepDescription} mt-1 block max-w-[570px] text-xs leading-6 md:text-sm`}>{step.description}</span>
+                          </span>
+                          <FaArrowRight className={`${styles.landingStepIcon} mt-2 size-4 shrink-0 transition duration-300 group-hover:scale-110`} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </section>
 
             <div className="mt-10 px-2 py-4 md:px-4 md:py-5 xl:px-6">
               <div className={`${styles.landingReveal} text-center`}>
