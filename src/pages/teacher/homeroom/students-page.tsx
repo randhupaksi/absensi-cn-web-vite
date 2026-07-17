@@ -3,6 +3,7 @@
 import dynamic from "@/lib/dynamic";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
+  ActionIconButton,
   DataTable,
   DataTableBody,
   DataTableCell,
@@ -325,14 +326,13 @@ export function WalasStudentsPage() {
                             </DataTableCell>
                             <DataTableCell>
                               <div className="flex justify-center">
-                                <Button
-                                  variant="outline"
-                                  size="icon-sm"
-                                  className="rounded-[14px] border-emerald-200/80 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                                <ActionIconButton
+                                  tone="emerald"
                                   onClick={() => setSelectedStudentId(student.id)}
+                                  ariaLabel={`Lihat detail ${student.name}`}
                                 >
                                   <Eye className="size-4" />
-                                </Button>
+                                </ActionIconButton>
                               </div>
                             </DataTableCell>
                           </DataTableRow>
@@ -364,15 +364,13 @@ export function WalasStudentsPage() {
                         <AttendanceMetricPill label="Alfa" value={student.alpha_count} tone="danger" />
                       </div>
                       <MobileDataFooter>
-                        <Button
-                          variant="outline"
-                          size="icon-sm"
-                          className="rounded-[14px] border-emerald-200/80 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                        <ActionIconButton
+                          tone="emerald"
                           onClick={() => setSelectedStudentId(student.id)}
-                          aria-label={`Lihat detail ${student.name}`}
+                          ariaLabel={`Lihat detail ${student.name}`}
                         >
                           <Eye className="size-4" />
-                        </Button>
+                        </ActionIconButton>
                       </MobileDataFooter>
                     </MobileDataCard>
                   ))}

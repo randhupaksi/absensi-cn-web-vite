@@ -26,7 +26,8 @@ type Columns = {
   identitas: boolean;
   telat: boolean;
   alfa: boolean;
-  izinSakit: boolean;
+  izin: boolean;
+  sakit: boolean;
   status: boolean;
 };
 
@@ -70,7 +71,8 @@ async function generateWalasSiswaPdf(
   if (columns.identitas) head[0].push("Telepon");
   if (columns.telat) head[0].push("Telat");
   if (columns.alfa) head[0].push("Alfa");
-  if (columns.izinSakit) head[0].push("Izin/Sakit");
+  if (columns.izin) head[0].push("Izin");
+  if (columns.sakit) head[0].push("Sakit");
   if (columns.status) head[0].push("Status");
 
   const body = data.map((s, i) => {
@@ -83,7 +85,8 @@ async function generateWalasSiswaPdf(
     if (columns.identitas) row.push(s.nisn || "—");
     if (columns.telat) row.push(String(s.late_count));
     if (columns.alfa) row.push(String(s.alpha_count));
-    if (columns.izinSakit) row.push(String(s.permission_count + s.sick_count));
+    if (columns.izin) row.push(String(s.permission_count));
+    if (columns.sakit) row.push(String(s.sick_count));
     if (columns.status) row.push(s.is_active ? "Aktif" : "Nonaktif");
     return row;
   });
@@ -109,7 +112,7 @@ type Props = {
 
 export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
   const [conditionFilter, setConditionFilter] = useState<ConditionFilter | null>(null);
-  const [columns, setColumns] = useState<Columns>({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izinSakit: false, status: false });
+  const [columns, setColumns] = useState<Columns>({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
   const [sortBy, setSortBy] = useState<SortBy | null>(null);
   const [generating, setGenerating] = useState(false);
 
@@ -118,7 +121,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
 
   function resetState() {
     setConditionFilter(null);
-    setColumns({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izinSakit: false, status: false });
+    setColumns({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
     setSortBy(null);
   }
 
@@ -202,7 +205,8 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
                   <ReportCheckbox checked={columns.identitas} onChange={(v) => setColumns((c) => ({ ...c, identitas: v }))} label="Telepon" />
                   <ReportCheckbox checked={columns.telat} onChange={(v) => setColumns((c) => ({ ...c, telat: v }))} label="Telat" />
                   <ReportCheckbox checked={columns.alfa} onChange={(v) => setColumns((c) => ({ ...c, alfa: v }))} label="Alfa" />
-                  <ReportCheckbox checked={columns.izinSakit} onChange={(v) => setColumns((c) => ({ ...c, izinSakit: v }))} label="Izin/Sakit" />
+                  <ReportCheckbox checked={columns.izin} onChange={(v) => setColumns((c) => ({ ...c, izin: v }))} label="Izin" />
+                  <ReportCheckbox checked={columns.sakit} onChange={(v) => setColumns((c) => ({ ...c, sakit: v }))} label="Sakit" />
                   <ReportCheckbox checked={columns.status} onChange={(v) => setColumns((c) => ({ ...c, status: v }))} label="Status" />
                 </div>
               </QuestionBlock>

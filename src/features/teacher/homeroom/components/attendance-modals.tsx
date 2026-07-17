@@ -49,7 +49,7 @@ export function formatCheckInTime(value?: string) {
   }
 }
 
-export function AttendanceStatusPill({ status }: { status: string }) {
+export function AttendanceStatusPill({ status, compact = false }: { status: string; compact?: boolean }) {
   const normalized = status.toLowerCase();
   let className = "border-slate-200 bg-slate-100 text-slate-600";
 
@@ -59,13 +59,16 @@ export function AttendanceStatusPill({ status }: { status: string }) {
     className = "border-amber-200 bg-amber-50 text-amber-700";
   } else if (normalized === "alfa") {
     className = "border-rose-200 bg-rose-50 text-rose-700";
-  } else if (normalized === "izin" || normalized === "sakit") {
+  } else if (normalized === "izin") {
     className = "border-sky-200 bg-sky-50 text-sky-700";
+  } else if (normalized === "sakit") {
+    className = "border-violet-200 bg-violet-50 text-violet-700";
   }
 
+  const compactLabel: Record<string, string> = { hadir: "H", telat: "H", izin: "I", sakit: "S", alfa: "A" };
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
-      {formatDisplayLabel(status)}
+      {compact ? compactLabel[normalized] ?? formatDisplayLabel(status) : formatDisplayLabel(status)}
     </span>
   );
 }

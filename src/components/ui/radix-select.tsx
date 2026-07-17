@@ -89,6 +89,7 @@ export function RadixSelectField({
             <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
               <Search className="pointer-events-none absolute left-4.5 top-[calc(50%+1px)] size-4 -translate-y-1/2 text-slate-400" />
               <input
+                autoFocus
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 onKeyDown={(event) => event.stopPropagation()}

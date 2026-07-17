@@ -236,7 +236,7 @@ export function AttendanceTableSection({
                           <p className="text-xs text-slate-500">{formatCheckInTime(record.check_in_at)}</p>
                         </div>
                       </DataTableCell>
-                      <DataTableCell className="text-center"><AttendanceStatusPill status={record.status} /></DataTableCell>
+                      <DataTableCell className="text-center"><AttendanceStatusPill status={record.status} compact /></DataTableCell>
                       <DataTableCell className="text-center"><ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} /></DataTableCell>
                       <DataTableCell>
                         <p className="line-clamp-2 max-w-[280px] text-sm leading-6 text-slate-500">

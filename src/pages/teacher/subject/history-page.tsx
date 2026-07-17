@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { actionIconButtonClass } from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -276,7 +277,7 @@ export function MapelHistoryPage() {
                               href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
                               aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
                               title="Lihat sesi"
-                              className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
+                              className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
                             >
                               <Eye className="size-4" />
                             </Link>
@@ -330,7 +331,7 @@ export function MapelHistoryPage() {
                           href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
                           aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
                           title="Lihat sesi"
-                          className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
+                          className={`inline-flex shrink-0 items-center justify-center ${actionIconButtonClass("emerald")}`}
                         >
                           <Eye className="size-4" />
                         </Link>

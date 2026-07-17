@@ -254,7 +254,7 @@ export function BKAttendancePage() {
                             <p className="text-xs">{formatCheckInTime(record.check_in_at)}</p>
                           </DataTableCell>
                           <DataTableCell className="text-center">
-                            <AttendanceStatusPill status={record.status} />
+                            <AttendanceStatusPill status={record.status} compact />
                           </DataTableCell>
                           <DataTableCell className="text-center">
                             <ReviewStatusPill reviewed={Boolean(record.verified_at)} />

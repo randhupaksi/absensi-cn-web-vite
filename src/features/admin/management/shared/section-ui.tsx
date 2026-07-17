@@ -19,6 +19,49 @@ import type { LucideIcon } from "lucide-react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+type ActionIconTone = "emerald" | "sky" | "rose" | "slate";
+
+export function actionIconButtonClass(tone: ActionIconTone) {
+  const toneClass = {
+    emerald: "border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700",
+    sky: "border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700",
+    rose: "border-rose-100 text-rose-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600",
+    slate: "border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700",
+  }[tone];
+
+  return `size-10 rounded-full border bg-white transition-colors ${toneClass}`;
+}
+
+export function ActionIconButton({
+  tone,
+  onClick,
+  disabled,
+  ariaLabel,
+  children,
+  className,
+}: {
+  tone: ActionIconTone;
+  onClick?: () => void;
+  disabled?: boolean;
+  ariaLabel: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className={cn(actionIconButtonClass(tone), className)}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </Button>
+  );
+}
+
 export function SearchFilterBar({
   value,
   onChange,
@@ -379,25 +422,12 @@ export function ActionButtons({
 }) {
   return (
     <div className="flex items-center justify-center gap-2">
-      <Button
-        variant="outline"
-        size="icon-sm"
-        className="rounded-[14px] border-emerald-200/80 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
-        onClick={onEdit}
-        aria-label="Edit data"
-      >
+      <ActionIconButton tone="sky" onClick={onEdit} ariaLabel="Edit data">
         <PencilLine className="size-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon-sm"
-        className="rounded-[14px] border-red-200/80 bg-white text-red-500 hover:border-red-300 hover:bg-red-50 hover:text-red-500"
-        onClick={onDelete}
-        disabled={isDeletePending}
-        aria-label="Hapus data"
-      >
+      </ActionIconButton>
+      <ActionIconButton tone="rose" onClick={onDelete} disabled={isDeletePending} ariaLabel="Hapus data">
         <Trash2 className="size-4" />
-      </Button>
+      </ActionIconButton>
     </div>
   );
 }

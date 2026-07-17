@@ -4,6 +4,7 @@ import dynamic from "@/lib/dynamic";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import {
+  ActionIconButton,
   DataTable,
   DataTableBody,
   DataTableCell,
@@ -359,24 +360,20 @@ export function WalasSubmissionsPage() {
                           </DataTableCell>
                           <DataTableCell>
                             <div className="flex items-center justify-center gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                              <ActionIconButton
+                                tone="emerald"
                                 onClick={() => setDetailTarget(record)}
+                                ariaLabel={`Lihat detail pengajuan ${record.student_name}`}
                               >
                                 <Eye className="size-4.5" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="size-10 rounded-2xl border border-slate-200 text-slate-600 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                              </ActionIconButton>
+                              <ActionIconButton
+                                tone="sky"
                                 onClick={() => setReviewTarget(record)}
+                                ariaLabel={`Review pengajuan ${record.student_name}`}
                               >
                                 <PencilLine className="size-4.5" />
-                              </Button>
+                              </ActionIconButton>
                             </div>
                           </DataTableCell>
                         </DataTableRow>
@@ -414,24 +411,20 @@ export function WalasSubmissionsPage() {
                               Buka
                             </button>
                           ) : null}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                          <ActionIconButton
+                            tone="emerald"
                             onClick={() => setDetailTarget(record)}
+                            ariaLabel={`Lihat detail pengajuan ${record.student_name}`}
                           >
                             <Eye className="size-4.5" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-10 rounded-2xl border border-slate-200 text-slate-600 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                          </ActionIconButton>
+                          <ActionIconButton
+                            tone="sky"
                             onClick={() => setReviewTarget(record)}
+                            ariaLabel={`Review pengajuan ${record.student_name}`}
                           >
                             <PencilLine className="size-4.5" />
-                          </Button>
+                          </ActionIconButton>
                         </MobileDataFooter>
                       </MobileDataCard>
                     ))}

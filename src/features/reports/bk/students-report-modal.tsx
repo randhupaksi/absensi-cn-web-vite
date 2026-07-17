@@ -33,7 +33,8 @@ type Columns = {
   identitas: boolean;
   telat: boolean;
   alfa: boolean;
-  izinSakit: boolean;
+  izin: boolean;
+  sakit: boolean;
   status: boolean;
 };
 
@@ -79,7 +80,8 @@ async function generateBKSiswaPdf(
   if (columns.identitas) head[0].push("Identitas");
   if (columns.telat) head[0].push("Telat");
   if (columns.alfa) head[0].push("Alfa");
-  if (columns.izinSakit) head[0].push("Izin/Sakit");
+  if (columns.izin) head[0].push("Izin");
+  if (columns.sakit) head[0].push("Sakit");
   if (columns.status) head[0].push("Status");
 
   const body = data.map((s, i) => {
@@ -93,7 +95,8 @@ async function generateBKSiswaPdf(
     }
     if (columns.telat) row.push(String(s.late_count));
     if (columns.alfa) row.push(String(s.alpha_count));
-    if (columns.izinSakit) row.push(String(s.permission_count + s.sick_count));
+    if (columns.izin) row.push(String(s.permission_count));
+    if (columns.sakit) row.push(String(s.sick_count));
     if (columns.status) row.push(s.is_active ? "Aktif" : "Nonaktif");
     return row;
   });
@@ -128,7 +131,8 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     identitas: false,
     telat: true,
     alfa: true,
-    izinSakit: false,
+    izin: false,
+    sakit: false,
     status: false,
   });
   const [sortBy, setSortBy] = useState<SortBy | null>(null);
@@ -157,7 +161,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     setClassFilter(null);
     setSelectedClassIds([]);
     setRiskFilter(null);
-    setColumns({ kelas: true, identitas: false, telat: true, alfa: true, izinSakit: false, status: false });
+    setColumns({ kelas: true, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
     setSortBy(null);
   }
 
@@ -363,9 +367,14 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                     label="Alfa"
                   />
                   <ReportCheckbox
-                    checked={columns.izinSakit}
-                    onChange={(v) => setColumns((c) => ({ ...c, izinSakit: v }))}
-                    label="Izin/Sakit"
+                    checked={columns.izin}
+                    onChange={(v) => setColumns((c) => ({ ...c, izin: v }))}
+                    label="Izin"
+                  />
+                  <ReportCheckbox
+                    checked={columns.sakit}
+                    onChange={(v) => setColumns((c) => ({ ...c, sakit: v }))}
+                    label="Sakit"
                   />
                   <ReportCheckbox
                     checked={columns.status}

@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
 import type { StaffCounselingNote } from "@/types/staff";
 import { BookHeart, Edit3, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function CounselingDetailModal({
   note,
@@ -69,22 +69,28 @@ export function CounselingFormModal({
   onSubmit: (payload: { student_id: string; title: string; note: string }) => void;
   isPending: boolean;
 }) {
-  const [studentId, setStudentId] = useState(note?.student_id ?? "Pilih");
+  const isEditing = Boolean(note);
+  const [studentId, setStudentId] = useState(note?.student_id ?? "");
   const [title, setTitle] = useState(note?.title ?? "");
   const [body, setBody] = useState(note?.note ?? "");
   const [errors, setErrors] = useState<FieldErrors<"student_id" | "title" | "note">>({});
 
-  const studentOptions = [
-    { value: "Pilih", label: "Pilih siswa" },
-    ...students.map((student) => ({
-      value: student.id,
-      label: `${student.name} - ${student.class_name || "Kelas belum tersedia"}`,
-    })),
-  ];
+  useEffect(() => {
+    if (!open) return;
+    setStudentId(note?.student_id ?? "");
+    setTitle(note?.title ?? "");
+    setBody(note?.note ?? "");
+    setErrors({});
+  }, [note, open]);
+
+  const studentOptions = students.map((student) => ({
+    value: student.id,
+    label: `${student.name} - ${student.class_name || "Kelas belum tersedia"}`,
+  }));
 
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"student_id" | "title" | "note"> = {};
-    validateRequired(nextErrors, "student_id", studentId === "Pilih" ? "" : studentId, "Siswa");
+    validateRequired(nextErrors, "student_id", studentId, "Siswa");
     validateRequired(nextErrors, "title", title, "Judul catatan");
     validateRequired(nextErrors, "note", body, "Catatan pembinaan");
     setErrors(nextErrors);
@@ -111,6 +117,7 @@ export function CounselingFormModal({
               options={studentOptions}
               placeholder="Pilih siswa"
               searchPlaceholder="Cari nama atau kelas siswa..."
+              disabled={isEditing}
               triggerClassName="h-12 rounded-[18px]"
             />
             <FieldError message={errors.student_id} />

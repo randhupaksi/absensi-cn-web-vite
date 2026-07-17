@@ -56,8 +56,10 @@ export function StudentStatusPill({ status }: { status: string }) {
     className = "border-amber-200 bg-amber-50 text-amber-700";
   } else if (normalized === "alfa") {
     className = "border-rose-200 bg-rose-50 text-rose-700";
-  } else if (normalized === "izin" || normalized === "sakit") {
+  } else if (normalized === "izin") {
     className = "border-sky-200 bg-sky-50 text-sky-700";
+  } else if (normalized === "sakit") {
+    className = "border-violet-200 bg-violet-50 text-violet-700";
   }
 
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;

@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
+  actionIconButtonClass,
   MobileDataCard,
   MobileDataField,
   MobileDataFooter,
@@ -281,7 +282,7 @@ function AttendanceRow({ record, onOpen }: { record: StaffAttendanceRecord; onOp
           <button
             type="button"
             onClick={() => onOpen(record)}
-            className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
+            className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
             aria-label="Buka bukti absensi"
           >
             <FileImage className="size-4.5" />
@@ -357,7 +358,7 @@ function SubmissionRow({ submission, onOpen }: { submission: StudentSubmission; 
           <button
             type="button"
             onClick={() => onOpen(submission)}
-            className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
+            className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
             aria-label="Buka lampiran pengajuan"
           >
             <FileImage className="size-4.5" />

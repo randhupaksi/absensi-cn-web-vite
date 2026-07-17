@@ -209,7 +209,7 @@ export function BKStudentsPage() {
             >
               <div className="overflow-x-auto bg-white/92">
                 {overviewQuery.isLoading ? (
-                  <TableSkeleton columns={8} />
+                  <TableSkeleton columns={10} />
                 ) : overviewQuery.error ? (
                   <div className="p-5">
                     <EmptyState
@@ -230,7 +230,10 @@ export function BKStudentsPage() {
                   <>
                   <div className="hidden md:block">
                   <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Kelas", "Identitas", "Telat", "Alfa", "Izin/Sakit", "Status", "Aksi"]} />
+                    <DataTableHeadRow
+                      labels={["Siswa", "Kelas", "Identitas", "H", "I", "S", "A", "T", "Status", "Aksi"]}
+                      centerLabels={["H", "I", "S", "A", "T", "Status"]}
+                    />
                     <DataTableBody>
                       {pageStudents.map((student) => (
                         <DataTableRow key={student.id}>
@@ -256,16 +259,19 @@ export function BKStudentsPage() {
                             <p className="text-xs">{student.nisn || "-"}</p>
                           </DataTableCell>
                           <DataTableCell className="text-center">
-                            <CountBadge value={student.late_count} tone="warning" />
+                            <CountBadge value={student.present_count} tone="success" />
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
+                            <CountBadge value={student.permission_count} tone="info" />
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
+                            <CountBadge value={student.sick_count} tone="violet" />
                           </DataTableCell>
                           <DataTableCell className="text-center">
                             <CountBadge value={student.alpha_count} tone="danger" />
                           </DataTableCell>
                           <DataTableCell className="text-center">
-                            <CountBadge
-                              value={student.permission_count + student.sick_count}
-                              tone="info"
-                            />
+                            <CountBadge value={student.late_count} tone="warning" />
                           </DataTableCell>
                           <DataTableCell className="text-center">
                             <StatusBadge active={student.is_active} />
@@ -315,18 +321,26 @@ export function BKStudentsPage() {
                           <MobileDataField label="Tahun Ajaran" value={student.school_year_name || "-"} />
                           <MobileDataField label="Identitas" value={`${formatGender(student.gender)} - ${student.nisn || "-"}`} />
                         </div>
-                        <div className="mt-4 grid grid-cols-3 gap-2">
-                          <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">Telat</p>
-                            <div className="mt-1"><CountBadge value={student.late_count} tone="warning" /></div>
+                        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">Hadir</p>
+                            <div className="mt-1"><CountBadge value={student.present_count} tone="success" /></div>
+                          </div>
+                          <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">Izin</p>
+                            <div className="mt-1"><CountBadge value={student.permission_count} tone="info" /></div>
+                          </div>
+                          <div className="rounded-2xl border border-violet-100 bg-violet-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-700">Sakit</p>
+                            <div className="mt-1"><CountBadge value={student.sick_count} tone="violet" /></div>
                           </div>
                           <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-700">Alfa</p>
                             <div className="mt-1"><CountBadge value={student.alpha_count} tone="danger" /></div>
                           </div>
-                          <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">I/S</p>
-                            <div className="mt-1"><CountBadge value={student.permission_count + student.sick_count} tone="info" /></div>
+                          <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">Telat</p>
+                            <div className="mt-1"><CountBadge value={student.late_count} tone="warning" /></div>
                           </div>
                         </div>
                         <MobileDataFooter>
@@ -397,13 +411,17 @@ export function BKStudentsPage() {
   );
 }
 
-function CountBadge({ value, tone }: { value: number; tone: "warning" | "danger" | "info" }) {
+function CountBadge({ value, tone }: { value: number; tone: "success" | "warning" | "danger" | "info" | "violet" }) {
   const className =
-    tone === "warning"
+    tone === "success"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : tone === "warning"
       ? "border-amber-200 bg-amber-50 text-amber-700"
       : tone === "danger"
         ? "border-rose-200 bg-rose-50 text-rose-700"
-        : "border-sky-200 bg-sky-50 text-sky-700";
+        : tone === "violet"
+          ? "border-violet-200 bg-violet-50 text-violet-700"
+          : "border-sky-200 bg-sky-50 text-sky-700";
   return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>{value}</span>;
 }
 

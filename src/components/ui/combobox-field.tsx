@@ -77,6 +77,7 @@ export function ComboboxField({
           <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
             <Search className="pointer-events-none absolute left-4.5 top-[calc(50%+1px)] size-4 -translate-y-1/2 text-slate-400" />
             <CommandPrimitive.Input
+              autoFocus
               placeholder={searchPlaceholder}
               className="h-11 w-full rounded-[1rem] border border-transparent bg-slate-50/90 pl-10 pr-3 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] placeholder:text-slate-400 hover:border-emerald-300 hover:bg-emerald-50/60 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-200/70"
             />
