@@ -20,12 +20,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type ConditionFilter = "Semua" | "aktif" | "perlu_perhatian" | "stabil";
-type SortBy = "name" | "nis" | "alpha" | "late";
+type SortBy = "name" | "nis" | "alpha";
 type Columns = {
   nis: boolean;
   gender: boolean;
   identitas: boolean;
-  telat: boolean;
+  hadir: boolean;
   alfa: boolean;
   izin: boolean;
   sakit: boolean;
@@ -70,10 +70,10 @@ async function generateWalasSiswaPdf(
   if (columns.nis) head[0].push("NIS / NISN");
   if (columns.gender) head[0].push("Gender");
   if (columns.identitas) head[0].push("Telepon");
-  if (columns.telat) head[0].push("Telat");
-  if (columns.alfa) head[0].push("Alfa");
+  if (columns.hadir) head[0].push("Hadir");
   if (columns.izin) head[0].push("Izin");
   if (columns.sakit) head[0].push("Sakit");
+  if (columns.alfa) head[0].push("Alfa");
   if (columns.status) head[0].push("Status");
 
   const body = data.map((s, i) => {
@@ -84,13 +84,27 @@ async function generateWalasSiswaPdf(
       row.push(g === "MALE" ? "Laki-laki" : g === "FEMALE" ? "Perempuan" : "—");
     }
     if (columns.identitas) row.push(s.nisn || "—");
-    if (columns.telat) row.push(String(s.late_count));
-    if (columns.alfa) row.push(String(s.alpha_count));
+    if (columns.hadir) row.push(String(s.present_count));
     if (columns.izin) row.push(String(s.permission_count));
     if (columns.sakit) row.push(String(s.sick_count));
+    if (columns.alfa) row.push(String(s.alpha_count));
     if (columns.status) row.push(s.is_active ? "Aktif" : "Nonaktif");
     return row;
   });
+
+  const hasCountColumns = columns.hadir || columns.alfa || columns.izin || columns.sakit;
+  if (hasCountColumns) {
+    const totals = {
+      Hadir: data.reduce((sum, student) => sum + student.present_count, 0),
+      Alfa: data.reduce((sum, student) => sum + student.alpha_count, 0),
+      Izin: data.reduce((sum, student) => sum + student.permission_count, 0),
+      Sakit: data.reduce((sum, student) => sum + student.sick_count, 0),
+    };
+    body.push(head[0].map((header, index) => {
+      if (index === 1) return "Total";
+      return String(totals[header as keyof typeof totals] ?? "");
+    }));
+  }
 
   autoTable(doc, {
     head,
@@ -98,6 +112,14 @@ async function generateWalasSiswaPdf(
     startY: metaY + 8,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
+    didParseCell: (hook) => {
+      if (hasCountColumns && hook.section === "body" && hook.row.index === body.length - 1) {
+        hook.cell.styles.fillColor = [236, 253, 245];
+        hook.cell.styles.textColor = [6, 78, 59];
+        hook.cell.styles.fontStyle = "bold";
+        hook.cell.styles.halign = "center";
+      }
+    },
   });
 
   drawReportPdfFooter(doc, `Laporan Siswa Kelas — ${homeroom.class_name} — ABSENSI CN`);
@@ -134,10 +156,10 @@ async function generateWalasSiswaExcel(
       ] : []),
       ...(columns.gender ? [{ header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—", width: 18 }] : []),
       ...(columns.identitas ? [{ header: "Identitas", value: (student: StaffStudentSummary) => student.nisn, width: 18 }] : []),
+      ...(columns.hadir ? [{ header: "H", value: (student: StaffStudentSummary) => student.present_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.izin ? [{ header: "I", value: (student: StaffStudentSummary) => student.permission_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.sakit ? [{ header: "S", value: (student: StaffStudentSummary) => student.sick_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.alfa ? [{ header: "A", value: (student: StaffStudentSummary) => student.alpha_count, width: 8, kind: "attendance" as const }] : []),
-      ...(columns.telat ? [{ header: "T", value: (student: StaffStudentSummary) => student.late_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.status ? [{ header: "Status", value: (student: StaffStudentSummary) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
     ],
   });
@@ -152,7 +174,7 @@ type Props = {
 export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
   const [format, setFormat] = useState<ReportFormat | null>(null);
   const [conditionFilter, setConditionFilter] = useState<ConditionFilter | null>(null);
-  const [columns, setColumns] = useState<Columns>({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
+  const [columns, setColumns] = useState<Columns>({ nis: true, gender: false, identitas: false, hadir: true, alfa: true, izin: false, sakit: false, status: false });
   const [sortBy, setSortBy] = useState<SortBy | null>(null);
   const [generating, setGenerating] = useState(false);
 
@@ -162,7 +184,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
   function resetState() {
     setFormat(null);
     setConditionFilter(null);
-    setColumns({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
+    setColumns({ nis: true, gender: false, identitas: false, hadir: true, alfa: true, izin: false, sakit: false, status: false });
     setSortBy(null);
   }
 
@@ -181,9 +203,9 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
       if (conditionFilter === "aktif") {
         filtered = filtered.filter((s) => s.is_active);
       } else if (conditionFilter === "perlu_perhatian") {
-        filtered = filtered.filter((s) => s.late_count > 0 || s.alpha_count > 0);
+        filtered = filtered.filter((s) => s.alpha_count > 0);
       } else if (conditionFilter === "stabil") {
-        filtered = filtered.filter((s) => s.late_count === 0 && s.alpha_count === 0);
+        filtered = filtered.filter((s) => s.alpha_count === 0);
       }
 
       if (filtered.length === 0) {
@@ -195,12 +217,11 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
         if (sortBy === "name") return a.name.localeCompare(b.name, "id");
         if (sortBy === "nis") return a.nis.localeCompare(b.nis, "id");
         if (sortBy === "alpha") return b.alpha_count - a.alpha_count;
-        if (sortBy === "late") return b.late_count - a.late_count;
         return 0;
       });
 
       const conditionLabel = conditionFilter ? CONDITION_LABELS[conditionFilter] : "Semua Siswa";
-      const sortLabel = sortBy === "name" ? "Nama (A–Z)" : sortBy === "nis" ? "NIS" : sortBy === "alpha" ? "Alfa (terbanyak)" : "Telat (terbanyak)";
+      const sortLabel = sortBy === "name" ? "Nama (A–Z)" : sortBy === "nis" ? "NIS" : "Alfa (terbanyak)";
 
       if (format === "excel") {
         await generateWalasSiswaExcel(sorted, homeroom, conditionLabel, sortLabel, columns);
@@ -249,10 +270,10 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
                   <ReportCheckbox checked={columns.nis} onChange={(v) => setColumns((c) => ({ ...c, nis: v }))} label="NIS / NISN" />
                   <ReportCheckbox checked={columns.gender} onChange={(v) => setColumns((c) => ({ ...c, gender: v }))} label="Gender" />
                   <ReportCheckbox checked={columns.identitas} onChange={(v) => setColumns((c) => ({ ...c, identitas: v }))} label="Telepon" />
-                  <ReportCheckbox checked={columns.telat} onChange={(v) => setColumns((c) => ({ ...c, telat: v }))} label="Telat" />
-                  <ReportCheckbox checked={columns.alfa} onChange={(v) => setColumns((c) => ({ ...c, alfa: v }))} label="Alfa" />
+                  <ReportCheckbox checked={columns.hadir} onChange={(v) => setColumns((c) => ({ ...c, hadir: v }))} label="Hadir" />
                   <ReportCheckbox checked={columns.izin} onChange={(v) => setColumns((c) => ({ ...c, izin: v }))} label="Izin" />
                   <ReportCheckbox checked={columns.sakit} onChange={(v) => setColumns((c) => ({ ...c, sakit: v }))} label="Sakit" />
+                  <ReportCheckbox checked={columns.alfa} onChange={(v) => setColumns((c) => ({ ...c, alfa: v }))} label="Alfa" />
                   <ReportCheckbox checked={columns.status} onChange={(v) => setColumns((c) => ({ ...c, status: v }))} label="Status" />
                 </div>
               </QuestionBlock>
@@ -269,7 +290,6 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
                   <ReportRadio selected={sortBy === "name"} label="Nama (A–Z)" onClick={() => setSortBy("name")} />
                   <ReportRadio selected={sortBy === "nis"} label="NIS" onClick={() => setSortBy("nis")} />
                   <ReportRadio selected={sortBy === "alpha"} label="Alfa (terbanyak)" onClick={() => setSortBy("alpha")} />
-                  <ReportRadio selected={sortBy === "late"} label="Telat (terbanyak)" onClick={() => setSortBy("late")} />
                 </div>
               </QuestionBlock>
             </motion.div>

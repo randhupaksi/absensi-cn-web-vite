@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 type ReportTableCell = string | { content: string; colSpan?: number; styles?: Record<string, unknown> };
 type SortBy = "name" | "nis" | "h" | "a";
-type Columns = { nis: boolean; detail: boolean; dispensasi: boolean };
+type Columns = { nis: boolean };
 type HisaRow = StaffSubjectRecapStudentRow & { h: number; i: number; s: number; a: number };
 
 type Props = {
@@ -31,7 +31,7 @@ type Props = {
 
 export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabel }: Props) {
   const [format, setFormat] = useState<ReportFormat | null>(null);
-  const [columns, setColumns] = useState<Columns>({ nis: true, detail: true, dispensasi: true });
+  const [columns, setColumns] = useState<Columns>({ nis: true });
   const [sortBy, setSortBy] = useState<SortBy | null>("name");
   const [generating, setGenerating] = useState(false);
 
@@ -104,8 +104,6 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
             <ReportCheckbox checked disabled label="Nama Siswa" badge="wajib" />
             <ReportCheckbox checked={columns.nis} onChange={(value) => setColumns((current) => ({ ...current, nis: value }))} label="NIS" />
             <ReportCheckbox checked disabled label="Rekap H I S A" badge="wajib" />
-            <ReportCheckbox checked={columns.detail} onChange={(value) => setColumns((current) => ({ ...current, detail: value }))} label="Telat & Alfa Kelas" />
-            <ReportCheckbox checked={columns.dispensasi} onChange={(value) => setColumns((current) => ({ ...current, dispensasi: value }))} label="Dispensasi" />
           </div>
         </QuestionBlock>
 
@@ -160,11 +158,6 @@ async function generateSubjectRecapExcel(
       { header: "I", value: (row) => row.i, width: 8, kind: "attendance" },
       { header: "S", value: (row) => row.s, width: 8, kind: "attendance" },
       { header: "A", value: (row) => row.a, width: 8, kind: "attendance" },
-      ...(columns.detail ? [
-        { header: "T", value: (row: HisaRow) => row.telat, width: 8, kind: "attendance" as const },
-        { header: "AK", value: (row: HisaRow) => row.alfa_kelas, width: 9, kind: "attendance" as const },
-      ] : []),
-      ...(columns.dispensasi ? [{ header: "D", value: (row: HisaRow) => row.dispensasi, width: 8, kind: "attendance" as const }] : []),
       {
         header: "Persentase Hadir",
         value: (row) => recap.total_pertemuan > 0 ? row.h / recap.total_pertemuan : 0,
@@ -205,42 +198,31 @@ async function generateSubjectRecapPdf(
   const head: string[][] = [["No", "Nama Siswa"]];
   if (columns.nis) head[0].push("NIS");
   head[0].push("H", "I", "S", "A");
-  if (columns.detail) head[0].push("T", "AK");
-  if (columns.dispensasi) head[0].push("D");
 
   const totals = rows.reduce((acc, row) => ({
     h: acc.h + row.h,
     i: acc.i + row.i,
     s: acc.s + row.s,
     a: acc.a + row.a,
-    t: acc.t + row.telat,
-    ak: acc.ak + row.alfa_kelas,
-    d: acc.d + row.dispensasi,
-  }), { h: 0, i: 0, s: 0, a: 0, t: 0, ak: 0, d: 0 });
+  }), { h: 0, i: 0, s: 0, a: 0 });
 
   const body: ReportTableCell[][] = rows.map((row, index) => {
     const cells: ReportTableCell[] = [String(index + 1), row.student_name];
     if (columns.nis) cells.push(row.nis);
     cells.push(...[row.h, row.i, row.s, row.a].map(centerCell));
-    if (columns.detail) cells.push(centerCell(row.telat), centerCell(row.alfa_kelas));
-    if (columns.dispensasi) cells.push(centerCell(row.dispensasi));
     return cells;
   });
 
-  const totalValues = [totals.h, totals.i, totals.s, totals.a];
-  if (columns.detail) totalValues.push(totals.t, totals.ak);
-  if (columns.dispensasi) totalValues.push(totals.d);
-  body.push([
-    {
-      content: "Total Akumulatif",
-      colSpan: head[0].length - totalValues.length,
-      styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
-    },
-    ...totalValues.map((value) => ({
-      content: String(value),
-      styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
-    })),
-  ]);
+  const totalByHeader: Record<string, number> = {
+    H: totals.h,
+    I: totals.i,
+    S: totals.s,
+    A: totals.a,
+  };
+  body.push(head[0].map((header, index) => ({
+    content: index === 1 ? "Total" : totalByHeader[header] !== undefined ? String(totalByHeader[header]) : "",
+    styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
+  })));
 
   autoTable(doc, {
     head,
@@ -257,10 +239,10 @@ async function generateSubjectRecapPdf(
 function toHisaRow(row: StaffSubjectRecapStudentRow): HisaRow {
   return {
     ...row,
-    h: row.hadir + row.telat,
+    h: row.hadir,
     i: row.izin,
     s: row.sakit,
-    a: row.alfa + row.alfa_kelas,
+    a: row.alfa,
   };
 }
 

@@ -43,7 +43,6 @@ import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 const statusOptions = [
   { value: "Semua", label: "Semua status" },
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
   { value: "alfa", label: "Alfa" },
@@ -152,8 +151,8 @@ export function StudentHistoryPage() {
                 accentClass="bg-sky-100 text-sky-700"
               />
               <KpiCard
-                label="Telat Alfa"
-                value={String((stats?.late ?? 0) + (stats?.alpha ?? 0))}
+                label="Alfa"
+                value={String(stats?.alpha ?? 0)}
                 icon={ShieldAlert}
                 accentClass="bg-amber-100 text-amber-700"
               />

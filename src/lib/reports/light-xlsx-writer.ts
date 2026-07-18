@@ -259,9 +259,45 @@ function createDataSheet<Row>(definition: ExcelReportDefinition<Row>) {
     });
     sheet.heights.set(excelRow, 25);
   });
+  addDataTotalRow(sheet, definition, headerRow);
   const lastRow = Math.max(headerRow, headerRow + definition.rows.length);
   if (definition.showColumnFilters !== false) sheet.filter = cellAddress(headerRow, 1) + ":" + cellAddress(lastRow, columnCount);
   return sheet;
+}
+
+function addDataTotalRow<Row>(sheet: Sheet, definition: ExcelReportDefinition<Row>, headerRow: number) {
+  const attendanceColumns = definition.columns.filter((column) => column.kind === "attendance");
+  if (!attendanceColumns.length) return;
+
+  const totalRow = headerRow + definition.rows.length + 1;
+  const nameColumnIndex = Math.max(
+    definition.columns.findIndex((column) => column.header.toLowerCase().includes("nama")),
+    1,
+  );
+
+  definition.columns.forEach((column, columnIndex) => {
+    const values = definition.rows
+      .map((row, rowIndex) => column.value(row, rowIndex))
+      .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+    const tone = column.kind === "attendance" ? attendanceColor(column.header) : undefined;
+    const isPercentage = column.numberFormat?.includes("%") ?? false;
+    const value = columnIndex === nameColumnIndex
+      ? "Total"
+      : column.kind === "attendance"
+      ? values.reduce((sum, item) => sum + item, 0)
+      : isPercentage && values.length
+      ? values.reduce((sum, item) => sum + item, 0) / values.length
+      : null;
+
+    setCell(sheet, totalRow, columnIndex + 1, value, {
+      font: { size: 10, bold: true, color: tone?.text ?? COLORS.emerald700 },
+      fill: tone?.fill ?? COLORS.emerald50,
+      border: dataBorder(columnIndex === 0, columnIndex === definition.columns.length - 1, true),
+      alignment: { vertical: "center", horizontal: "center", wrapText: true },
+      numberFormat: isPercentage ? column.numberFormat : typeof value === "number" ? column.numberFormat ?? "#,##0" : undefined,
+    });
+  });
+  sheet.heights.set(totalRow, 28);
 }
 
 function createStatisticsSheet<Row>(definition: ExcelReportDefinition<Row>) {
@@ -317,19 +353,19 @@ function metricTone(tone: NonNullable<ExcelReportMetric["tone"]>): Tone {
 }
 
 function attendanceColor(header: string) {
-  const value = header.toLowerCase(); if (value === "h" || value.includes("hadir")) return metricTone("emerald"); if (value === "i" || value.includes("izin")) return metricTone("sky"); if (value === "s" || value.includes("sakit")) return metricTone("violet"); if (value === "a" || value.includes("alfa")) return metricTone("rose"); if (value === "t" || value.includes("telat")) return metricTone("amber"); return metricTone("slate");
+  const value = header.toLowerCase(); if (value === "h" || value.includes("hadir")) return metricTone("emerald"); if (value === "i" || value.includes("izin")) return metricTone("sky"); if (value === "s" || value.includes("sakit")) return metricTone("violet"); if (value === "a" || value.includes("alfa")) return metricTone("rose"); return metricTone("slate");
 }
 function statusColor(status: string) {
-  if (["hadir", "aktif", "diterima", "selesai", "sudah divalidasi"].some((item) => status.includes(item))) return metricTone("emerald"); if (status.includes("izin")) return metricTone("sky"); if (["sakit", "diedit"].some((item) => status.includes(item))) return metricTone("violet"); if (["alfa", "ditolak", "non-aktif", "nonaktif"].some((item) => status.includes(item))) return metricTone("rose"); if (["telat", "menunggu", "belum"].some((item) => status.includes(item))) return metricTone("amber"); return metricTone("slate");
+  if (["hadir", "aktif", "diterima", "selesai", "sudah divalidasi"].some((item) => status.includes(item))) return metricTone("emerald"); if (status.includes("izin")) return metricTone("sky"); if (["sakit", "diedit"].some((item) => status.includes(item))) return metricTone("violet"); if (["alfa", "ditolak", "non-aktif", "nonaktif"].some((item) => status.includes(item))) return metricTone("rose"); if (["menunggu", "belum"].some((item) => status.includes(item))) return metricTone("amber"); return metricTone("slate");
 }
 function statisticTone(label: string) {
-  const value = label.toLowerCase(); if (/total\s+h\b|hadir/.test(value)) return metricTone("emerald"); if (/total\s+i\b|izin/.test(value)) return metricTone("sky"); if (/total\s+s\b|sakit/.test(value)) return metricTone("violet"); if (/total\s+a\b|alfa/.test(value)) return metricTone("rose"); if (/total\s+t\b|telat/.test(value)) return metricTone("amber"); return metricTone("slate");
+  const value = label.toLowerCase(); if (/total\s+h\b|hadir/.test(value)) return metricTone("emerald"); if (/total\s+i\b|izin/.test(value)) return metricTone("sky"); if (/total\s+s\b|sakit/.test(value)) return metricTone("violet"); if (/total\s+a\b|alfa/.test(value)) return metricTone("rose"); return metricTone("slate");
 }
 function normalize(value: ExcelReportValue): ExcelReportValue { return value === null || value === undefined || value === "" ? "-" : value; }
 function side(style: string, color: string): Side { return { style, color }; }
 function cardBorder(row: number, lastRow: number, column: number, lastColumn: number, border: string, accent: string): Borders { return { top: side("thin", border), bottom: row === lastRow ? side("thin", border) : undefined, left: column === column ? side("medium", accent) : undefined, right: column === lastColumn ? side("thin", border) : undefined }; }
 function dataBorder(first: boolean, last: boolean, lastRow: boolean): Borders { return { bottom: side(lastRow ? "medium" : "thin", lastRow ? COLORS.emerald200 : COLORS.slate200), left: first ? side("thin", COLORS.slate200) : undefined, right: last ? side("thin", COLORS.slate200) : undefined }; }
-function inferColumnWidth(header: string) { const value = header.toLowerCase(); if (value === "no") return 7; if (["h", "i", "s", "a", "t", "d", "ak"].includes(value)) return 8; if (value.includes("nama")) return 27; if (value.includes("kelas")) return 24; if (value.includes("alasan") || value.includes("catatan") || value.includes("topik")) return 38; if (value.includes("tanggal") || value.includes("waktu")) return 22; return 18; }
+function inferColumnWidth(header: string) { const value = header.toLowerCase(); if (value === "no") return 7; if (["h", "i", "s", "a"].includes(value)) return 8; if (value.includes("nama")) return 27; if (value.includes("kelas")) return 24; if (value.includes("alasan") || value.includes("catatan") || value.includes("topik")) return 38; if (value.includes("tanggal") || value.includes("waktu")) return 22; return 18; }
 function safeSheetName(value: string) { return value.replace(/[\\/*?:[\]]/g, " ").trim().slice(0, 31) || "Data Laporan"; }
 
 function renderSheet(sheet: Sheet, styles: Styles, strings: SharedStrings) {

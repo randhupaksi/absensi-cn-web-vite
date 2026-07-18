@@ -749,7 +749,7 @@ export function StudentSection({
               columnCount={6}
               isEmpty={filteredRules.length === 0}
               emptyTitle="Belum ada aturan absensi"
-              emptyDescription="Rule jam hadir, telat, dan cutoff alfa akan muncul di tabel ini."
+              emptyDescription="Aturan waktu hadir dan cutoff absensi akan muncul di tabel ini."
               icon={TimerReset}
               pagination={rulesPagination}
               mobileView={
@@ -776,7 +776,7 @@ export function StudentSection({
                           <p className="mt-1 text-sm font-semibold text-emerald-700">{rule.on_time_until}</p>
                         </div>
                         <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Telat</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Cutoff</p>
                           <p className="mt-1 text-sm font-semibold text-amber-700">{rule.late_until}</p>
                         </div>
                       </div>
@@ -793,7 +793,7 @@ export function StudentSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Telat", "Status", "Aksi"]} />
+                <DataTableHeadRow labels={["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Akhir Absen", "Status", "Aksi"]} />
                 <DataTableBody>
                   {pageRules.map((rule) => (
                     <DataTableRow key={rule.id}>

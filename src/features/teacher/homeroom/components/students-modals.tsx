@@ -75,7 +75,6 @@ function AttendanceStatusPill({ status }: { status: string }) {
   let className = "border-slate-200 bg-slate-100 text-slate-600";
 
   if (normalizedStatus === "HADIR") className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  else if (normalizedStatus === "TELAT") className = "border-amber-200 bg-amber-50 text-amber-700";
   else if (normalizedStatus === "ALFA") className = "border-rose-200 bg-rose-50 text-rose-700";
   else if (normalizedStatus === "SAKIT" || normalizedStatus === "IZIN") className = "border-sky-200 bg-sky-50 text-sky-700";
 
@@ -107,7 +106,7 @@ function AttendanceSummaryCard({
   period?: StaffHomeroomStudentDetail["attendance_period"];
 }) {
   const metrics = [
-    { label: "H", value: summary.present + summary.late, className: "text-emerald-700" },
+    { label: "H", value: summary.present, className: "text-emerald-700" },
     { label: "I", value: summary.permission, className: "text-sky-700" },
     { label: "S", value: summary.sick, className: "text-violet-700" },
     { label: "A", value: summary.alpha, className: "text-rose-700" },

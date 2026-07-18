@@ -82,7 +82,6 @@ const submissionTypeOptions = [
   { value: "Semua", label: "Semua tipe" },
   { value: "IZIN", label: "Izin" },
   { value: "SAKIT", label: "Sakit" },
-  { value: "DISPENSASI", label: "Dispensasi" },
 ];
 
 const reviewStatusOptions = [
@@ -183,7 +182,7 @@ export function BKSubmissionsPage() {
             <BkPageHero
               badge="BK Submissions Workspace"
               title="Monitoring Pengajuan"
-              description={<>Tinjau izin, sakit, dan dispensasi lintas kelas beserta bukti pendukungnya dari meja kerja BK.</>}
+              description={<>Tinjau izin dan sakit lintas kelas beserta bukti pendukungnya dari meja kerja BK.</>}
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
             />

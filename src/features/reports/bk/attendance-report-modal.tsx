@@ -103,7 +103,6 @@ function formatTime(isoStr?: string) {
 
 const STATUS_LABEL: Record<string, string> = {
   hadir: "Hadir",
-  telat: "Telat",
   izin: "Izin",
   sakit: "Sakit",
   alfa: "Alfa",
@@ -113,7 +112,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 type DateMode = "today" | "specific" | "range";
 type ClassFilter = "all" | "specific";
-type StatusFilter = "Semua" | "hadir" | "telat" | "izin" | "sakit" | "alfa";
+type StatusFilter = "Semua" | "hadir" | "izin" | "sakit" | "alfa";
 type SortBy = "name" | "nis" | "class" | "checkin";
 
 type Columns = {
@@ -128,10 +127,9 @@ type Columns = {
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "Semua", label: "Semua Status" },
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
-  { value: "alfa", label: "Alfa" },
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
+  { value: "alfa", label: "Alfa" },
 ];
 
 // ─── PDF generator ────────────────────────────────────────────────────────────

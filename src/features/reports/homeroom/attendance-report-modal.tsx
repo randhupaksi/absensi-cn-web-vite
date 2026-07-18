@@ -47,7 +47,7 @@ const todayDisplay = () => formatDisplayDate(todayStr());
 
 type DateMode = "today" | "specific" | "range";
 type ReportType = "daily" | "cumulative";
-type StatusFilter = "Semua" | "hadir" | "telat" | "alfa" | "izin" | "sakit";
+type StatusFilter = "Semua" | "hadir" | "izin" | "sakit" | "alfa";
 type SortBy = "name" | "nis" | "status" | "checkin" | "h" | "i" | "s" | "a";
 type Columns = { nis: boolean; status: boolean; checkin: boolean };
 type CumulativeColumns = { nis: boolean };
@@ -58,7 +58,6 @@ type SortOption = { value: SortBy; label: string };
 const STATUS_LABELS: Record<StatusFilter, string> = {
   Semua: "Semua Status",
   hadir: "Hadir",
-  telat: "Telat",
   alfa: "Alfa",
   izin: "Izin",
   sakit: "Sakit",
@@ -175,22 +174,11 @@ async function generateCumulativeWalasAbsensiPdf(
     );
     return cells;
   });
-  body.push([
-    {
-      content: "Total Akumulatif",
-      colSpan: columns.nis ? 3 : 2,
-      styles: {
-        fillColor: [236, 253, 245],
-        fontStyle: "bold",
-        halign: "center",
-        textColor: [6, 78, 59],
-      },
-    },
-    { content: String(totals.h), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
-    { content: String(totals.i), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
-    { content: String(totals.s), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
-    { content: String(totals.a), styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] } },
-  ]);
+  const totalByHeader: Record<string, number> = { H: totals.h, I: totals.i, S: totals.s, A: totals.a };
+  body.push(head[0].map((header, index) => ({
+    content: index === 1 ? "Total" : totalByHeader[header] !== undefined ? String(totalByHeader[header]) : "",
+    styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
+  })));
 
   autoTable(doc, {
     head,
@@ -294,7 +282,6 @@ function buildCumulativeRows(records: StaffAttendanceRecord[]) {
 
     switch (record.status?.toLowerCase()) {
       case "hadir":
-      case "telat":
         row.h += 1;
         break;
       case "izin":
@@ -640,7 +627,7 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
             <motion.div key="q2" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
               <QuestionBlock icon={Activity} label="Filter berdasarkan status kehadiran" answered={statusFilter !== null}>
                 <div className="grid gap-2 sm:grid-cols-3">
-                  {(["Semua", "hadir", "telat", "alfa", "izin", "sakit"] as StatusFilter[]).map((status) => (
+                  {(["Semua", "hadir", "izin", "sakit", "alfa"] as StatusFilter[]).map((status) => (
                     <ReportRadio key={status} selected={statusFilter === status} label={STATUS_LABELS[status]} onClick={() => { setStatusFilter(status); setSortBy(null); }} />
                   ))}
                 </div>

@@ -29,12 +29,12 @@ import { toast } from "sonner";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ClassFilter = "all" | "specific";
-type RiskFilter = "Semua" | "need_attention" | "late" | "alpha" | "counseling" | "stable";
-type SortBy = "name" | "nis" | "alpha" | "late";
+type RiskFilter = "Semua" | "need_attention" | "alpha" | "counseling" | "stable";
+type SortBy = "name" | "nis" | "alpha";
 type Columns = {
   kelas: boolean;
   identitas: boolean;
-  telat: boolean;
+  hadir: boolean;
   alfa: boolean;
   izin: boolean;
   sakit: boolean;
@@ -44,7 +44,6 @@ type Columns = {
 const RISK_LABELS: Record<RiskFilter, string> = {
   Semua: "Semua Siswa",
   need_attention: "Perlu Perhatian",
-  late: "Ada Telat",
   alpha: "Ada Alfa",
   counseling: "Punya Catatan BK",
   stable: "Stabil",
@@ -81,10 +80,10 @@ async function generateBKSiswaPdf(
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
   if (columns.kelas) head[0].push("Kelas");
   if (columns.identitas) head[0].push("Identitas");
-  if (columns.telat) head[0].push("Telat");
-  if (columns.alfa) head[0].push("Alfa");
+  if (columns.hadir) head[0].push("Hadir");
   if (columns.izin) head[0].push("Izin");
   if (columns.sakit) head[0].push("Sakit");
+  if (columns.alfa) head[0].push("Alfa");
   if (columns.status) head[0].push("Status");
 
   const body = data.map((s, i) => {
@@ -96,13 +95,27 @@ async function generateBKSiswaPdf(
       const gender = s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "—";
       row.push(`${gender}\nNISN: ${s.nisn || "—"}`);
     }
-    if (columns.telat) row.push(String(s.late_count));
-    if (columns.alfa) row.push(String(s.alpha_count));
+    if (columns.hadir) row.push(String(s.present_count));
     if (columns.izin) row.push(String(s.permission_count));
     if (columns.sakit) row.push(String(s.sick_count));
+    if (columns.alfa) row.push(String(s.alpha_count));
     if (columns.status) row.push(s.is_active ? "Aktif" : "Nonaktif");
     return row;
   });
+
+  const hasCountColumns = columns.hadir || columns.alfa || columns.izin || columns.sakit;
+  if (hasCountColumns) {
+    const totals = {
+      Hadir: data.reduce((sum, student) => sum + student.present_count, 0),
+      Alfa: data.reduce((sum, student) => sum + student.alpha_count, 0),
+      Izin: data.reduce((sum, student) => sum + student.permission_count, 0),
+      Sakit: data.reduce((sum, student) => sum + student.sick_count, 0),
+    };
+    body.push(head[0].map((header, index) => {
+      if (index === 1) return "Total";
+      return String(totals[header as keyof typeof totals] ?? "");
+    }));
+  }
 
   autoTable(doc, {
     head,
@@ -110,6 +123,14 @@ async function generateBKSiswaPdf(
     startY: metaY + 8,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
+    didParseCell: (hook) => {
+      if (hasCountColumns && hook.section === "body" && hook.row.index === body.length - 1) {
+        hook.cell.styles.fillColor = [236, 253, 245];
+        hook.cell.styles.textColor = [6, 78, 59];
+        hook.cell.styles.fontStyle = "bold";
+        hook.cell.styles.halign = "center";
+      }
+    },
   });
 
   drawReportPdfFooter(doc, "Laporan Monitoring Siswa — BK ABSENSI CN");
@@ -144,10 +165,10 @@ async function generateBKSiswaExcel(
         { header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—", width: 18 },
         { header: "NISN", value: (student: StaffStudentSummary) => student.nisn, width: 17 },
       ] : []),
+      ...(columns.hadir ? [{ header: "H", value: (student: StaffStudentSummary) => student.present_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.izin ? [{ header: "I", value: (student: StaffStudentSummary) => student.permission_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.sakit ? [{ header: "S", value: (student: StaffStudentSummary) => student.sick_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.alfa ? [{ header: "A", value: (student: StaffStudentSummary) => student.alpha_count, width: 8, kind: "attendance" as const }] : []),
-      ...(columns.telat ? [{ header: "T", value: (student: StaffStudentSummary) => student.late_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.status ? [{ header: "Status", value: (student: StaffStudentSummary) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
     ],
   });
@@ -169,7 +190,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
   const [columns, setColumns] = useState<Columns>({
     kelas: true,
     identitas: false,
-    telat: true,
+    hadir: true,
     alfa: true,
     izin: false,
     sakit: false,
@@ -202,7 +223,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     setClassFilter(null);
     setSelectedClassIds([]);
     setRiskFilter(null);
-    setColumns({ kelas: true, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
+    setColumns({ kelas: true, identitas: false, hadir: true, alfa: true, izin: false, sakit: false, status: false });
     setSortBy(null);
   }
 
@@ -235,7 +256,6 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
         if (sortBy === "name") return a.name.localeCompare(b.name, "id");
         if (sortBy === "nis") return a.nis.localeCompare(b.nis, "id");
         if (sortBy === "alpha") return b.alpha_count - a.alpha_count;
-        if (sortBy === "late") return b.late_count - a.late_count;
         return 0;
       });
 
@@ -247,7 +267,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
       const sortLabel =
         sortBy === "name" ? "Nama (A–Z)" :
         sortBy === "nis" ? "NIS" :
-        sortBy === "alpha" ? "Alfa (terbanyak)" : "Telat (terbanyak)";
+        "Alfa (terbanyak)";
 
       if (format === "excel") {
         await generateBKSiswaExcel(sorted, filterKelasLabel, filterRisikoLabel, sortLabel, columns);
@@ -403,14 +423,9 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                     label="Identitas"
                   />
                   <ReportCheckbox
-                    checked={columns.telat}
-                    onChange={(v) => setColumns((c) => ({ ...c, telat: v }))}
-                    label="Telat"
-                  />
-                  <ReportCheckbox
-                    checked={columns.alfa}
-                    onChange={(v) => setColumns((c) => ({ ...c, alfa: v }))}
-                    label="Alfa"
+                    checked={columns.hadir}
+                    onChange={(v) => setColumns((c) => ({ ...c, hadir: v }))}
+                    label="Hadir"
                   />
                   <ReportCheckbox
                     checked={columns.izin}
@@ -421,6 +436,11 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                     checked={columns.sakit}
                     onChange={(v) => setColumns((c) => ({ ...c, sakit: v }))}
                     label="Sakit"
+                  />
+                  <ReportCheckbox
+                    checked={columns.alfa}
+                    onChange={(v) => setColumns((c) => ({ ...c, alfa: v }))}
+                    label="Alfa"
                   />
                   <ReportCheckbox
                     checked={columns.status}
@@ -463,11 +483,6 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                     selected={sortBy === "alpha"}
                     label="Alfa (terbanyak)"
                     onClick={() => setSortBy("alpha")}
-                  />
-                  <ReportRadio
-                    selected={sortBy === "late"}
-                    label="Telat (terbanyak)"
-                    onClick={() => setSortBy("late")}
                   />
                 </div>
               </QuestionBlock>

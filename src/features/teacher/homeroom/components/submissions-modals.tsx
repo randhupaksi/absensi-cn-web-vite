@@ -81,7 +81,6 @@ export function SubmissionTypePill({ type }: { type: string }) {
   let className = "border-slate-200 bg-slate-100 text-slate-600";
   if (normalized === "IZIN") className = "border-sky-200 bg-sky-50 text-sky-700";
   else if (normalized === "SAKIT") className = "border-rose-200 bg-rose-50 text-rose-700";
-  else if (normalized === "DISPENSASI") className = "border-amber-200 bg-amber-50 text-amber-700";
 
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
@@ -287,7 +286,7 @@ export function SubmissionReviewModal({
       open={Boolean(submission)}
       onOpenChange={onOpenChange}
       title={submission ? `Review ${submission.student_name}` : "Review Pengajuan"}
-      description="Berikan keputusan dan tanggapan wali kelas untuk pengajuan izin, sakit, atau dispensasi."
+      description="Berikan keputusan dan tanggapan wali kelas untuk pengajuan izin atau sakit."
       icon={PencilLine}
       className="sm:!max-w-[760px]"
     >

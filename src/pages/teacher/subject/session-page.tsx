@@ -53,13 +53,11 @@ function getTimeString(date: Date): string {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  hadir: "Hadir", telat: "Telat", alfa_kelas: "Alfa Kelas",
-  dispensasi: "Dispensasi", alfa: "Alfa", sakit: "Sakit", izin: "Izin",
+  hadir: "Hadir", izin: "Izin", sakit: "Sakit", alfa: "Alfa",
 };
 
 const STATUS_PAGI_CLS: Record<string, string> = {
   hadir: "bg-emerald-100 text-emerald-700",
-  telat: "bg-amber-100 text-amber-700",
   alfa: "bg-rose-100 text-rose-700",
   sakit: "bg-sky-100 text-sky-700",
   izin: "bg-slate-100 text-slate-600",
@@ -67,9 +65,6 @@ const STATUS_PAGI_CLS: Record<string, string> = {
 
 const STATUS_MAPEL_CLS: Record<string, string> = {
   hadir: "bg-emerald-100 text-emerald-700",
-  telat: "bg-amber-100 text-amber-700",
-  alfa_kelas: "bg-orange-100 text-orange-700",
-  dispensasi: "bg-violet-100 text-violet-700",
   alfa: "bg-rose-100 text-rose-700",
   sakit: "bg-sky-100 text-sky-700",
   izin: "bg-slate-100 text-slate-600",
@@ -168,9 +163,9 @@ export function MapelSessionPage() {
     const statuses = records.map((r) => pendingOverrides[r.student_id] ?? r.status_mapel);
     return {
       hadir: statuses.filter((s) => s === "hadir").length,
-      telat: statuses.filter((s) => s === "telat").length,
-      alfaKelas: statuses.filter((s) => s === "alfa_kelas").length,
-      dispensasi: statuses.filter((s) => s === "dispensasi").length,
+      izin: statuses.filter((s) => s === "izin").length,
+      sakit: statuses.filter((s) => s === "sakit").length,
+      alfa: statuses.filter((s) => s === "alfa").length,
     };
   }, [records, pendingOverrides]);
 
@@ -277,9 +272,9 @@ export function MapelSessionPage() {
               <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
                 {[
                   { label: "Hadir", value: stats.hadir, icon: CheckCircle2, cls: "bg-emerald-50 text-emerald-700" },
-                  { label: "Telat", value: stats.telat, icon: Clock3, cls: "bg-amber-50 text-amber-700" },
-                  { label: "Alfa Kelas", value: stats.alfaKelas, icon: AlertCircle, cls: "bg-rose-50 text-rose-600" },
-                  { label: "Dispensasi", value: stats.dispensasi, icon: FilePenLine, cls: "bg-violet-50 text-violet-700" },
+                  { label: "Izin", value: stats.izin, icon: FilePenLine, cls: "bg-sky-50 text-sky-700" },
+                  { label: "Sakit", value: stats.sakit, icon: AlertCircle, cls: "bg-violet-50 text-violet-700" },
+                  { label: "Alfa", value: stats.alfa, icon: Clock3, cls: "bg-rose-50 text-rose-600" },
                 ].map((item, i) => (
                   <motion.article
                     key={item.label}
@@ -393,9 +388,9 @@ export function MapelSessionPage() {
                                     className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 focus:border-emerald-400 focus:outline-none"
                                   >
                                     <option value="hadir">Hadir</option>
-                                    <option value="telat">Telat</option>
-                                    <option value="alfa_kelas">Alfa Kelas</option>
-                                    <option value="dispensasi">Dispensasi</option>
+                                    <option value="izin">Izin</option>
+                                    <option value="sakit">Sakit</option>
+                                    <option value="alfa">Alfa</option>
                                   </select>
                                 ) : (
                                   <span className="text-xs text-slate-400">Terkunci</span>
@@ -490,9 +485,9 @@ export function MapelSessionPage() {
                                 className="h-10 rounded-2xl border border-slate-200 bg-white px-3 text-xs text-slate-800 focus:border-emerald-400 focus:outline-none"
                               >
                                 <option value="hadir">Hadir</option>
-                                <option value="telat">Telat</option>
-                                <option value="alfa_kelas">Alfa Kelas</option>
-                                <option value="dispensasi">Dispensasi</option>
+                                <option value="izin">Izin</option>
+                                <option value="sakit">Sakit</option>
+                                <option value="alfa">Alfa</option>
                               </select>
                             ) : (
                               <span className="text-xs text-slate-400">Terkunci</span>

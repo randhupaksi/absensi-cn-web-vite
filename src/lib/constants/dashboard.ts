@@ -87,7 +87,7 @@ export const roleDashboardConfig: Record<
   walas: {
     title: "Dashboard wali kelas untuk memantau kehadiran per kelas.",
     subtitle:
-      "Wali kelas melihat siswa telat, izin, dan rekap kelas yang perlu segera ditindaklanjuti.",
+      "Wali kelas melihat status H I S A dan rekap kelas yang perlu segera ditindaklanjuti.",
     badge: "Portal Wali Kelas",
     primaryAction: "Pantau Kelas Hari Ini",
     secondaryAction: "Validasi Izin Siswa",
@@ -100,7 +100,7 @@ export const roleDashboardConfig: Record<
         colorClass: "bg-emerald-100 text-emerald-700",
       },
       {
-        label: "Siswa Telat",
+        label: "Siswa Alfa",
         value: "4",
         description: "Perlu pengecekan lanjutan.",
         icon: Clock3,
@@ -124,7 +124,7 @@ export const roleDashboardConfig: Record<
     highlights: [
       "Monitoring absensi per kelas",
       "Validasi izin dan sakit",
-      "Deteksi siswa telat atau alfa",
+      "Deteksi alfa berulang",
     ],
     navigation: [
       { label: "Dashboard Walas", href: "/dashboard/teacher/homeroom", icon: LayoutDashboard },
@@ -133,9 +133,9 @@ export const roleDashboardConfig: Record<
     ],
   },
   bk: {
-    title: "Dashboard BK untuk membaca pola keterlambatan dan pembinaan.",
+    title: "Dashboard BK untuk membaca pola alfa dan pembinaan.",
     subtitle:
-      "BK diarahkan ke monitoring siswa berulang telat, alfa, dan catatan tindak lanjut sederhana.",
+      "BK diarahkan ke monitoring siswa dengan alfa berulang dan catatan tindak lanjut sederhana.",
     badge: "Portal BK",
     primaryAction: "Lihat Siswa Prioritas",
     secondaryAction: "Tambah Catatan BK",
@@ -148,9 +148,9 @@ export const roleDashboardConfig: Record<
         colorClass: "bg-rose-100 text-rose-700",
       },
       {
-        label: "Telat Berulang",
+        label: "Alfa Berulang",
         value: "5",
-        description: "Siswa dengan pola telat konsisten.",
+        description: "Siswa dengan pola alfa berulang.",
         icon: Clock3,
         colorClass: "bg-amber-100 text-amber-700",
       },
@@ -171,7 +171,7 @@ export const roleDashboardConfig: Record<
     ],
     highlights: [
       "Monitoring siswa bermasalah",
-      "Pola telat dan alfa berulang",
+      "Pola alfa berulang",
       "Catatan pembinaan singkat",
     ],
     navigation: [

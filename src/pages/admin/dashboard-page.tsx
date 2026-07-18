@@ -52,7 +52,6 @@ const fallbackDashboard: AdminDashboardData = {
   },
   today_status: {
     present: 0,
-    late: 0,
     permission: 0,
     sick: 0,
     alpha: 0,
@@ -72,17 +71,11 @@ export function AdminDashboardPage() {
   const todayStatus = dashboard.today_status;
   const todayTotal =
     (todayStatus.present ?? 0) +
-    (todayStatus.late ?? 0) +
     (todayStatus.permission ?? 0) +
     (todayStatus.sick ?? 0) +
     (todayStatus.alpha ?? 0);
-  const todayPositive =
-    (todayStatus.present ?? 0) +
-    (todayStatus.late ?? 0) +
-    (todayStatus.permission ?? 0) +
-    (todayStatus.sick ?? 0);
   const todayAttendancePercentage =
-    todayTotal > 0 ? Math.round((todayPositive / todayTotal) * 100) : 0;
+    todayTotal > 0 ? Math.round(((todayStatus.present ?? 0) / todayTotal) * 100) : 0;
 
   const kpiCards = [
     {
@@ -171,7 +164,6 @@ export function AdminDashboardPage() {
             <div className="space-y-5 self-start">
               <AttendanceDonutChart
                 present={dashboard.today_status.present ?? 0}
-                late={dashboard.today_status.late ?? 0}
                 permission={dashboard.today_status.permission ?? 0}
                 sick={dashboard.today_status.sick ?? 0}
                 alpha={dashboard.today_status.alpha ?? 0}

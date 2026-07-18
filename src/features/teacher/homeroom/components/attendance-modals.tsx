@@ -24,7 +24,6 @@ import { useState } from "react";
 
 export const reviewStatusOptions = [
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
   { value: "alfa", label: "Alfa" },
@@ -55,8 +54,6 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
 
   if (normalized === "hadir") {
     className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  } else if (normalized === "telat") {
-    className = "border-amber-200 bg-amber-50 text-amber-700";
   } else if (normalized === "alfa") {
     className = "border-rose-200 bg-rose-50 text-rose-700";
   } else if (normalized === "izin") {
@@ -65,7 +62,7 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
     className = "border-violet-200 bg-violet-50 text-violet-700";
   }
 
-  const compactLabel: Record<string, string> = { hadir: "H", telat: "H", izin: "I", sakit: "S", alfa: "A" };
+  const compactLabel: Record<string, string> = { hadir: "H", izin: "I", sakit: "S", alfa: "A" };
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
       {compact ? compactLabel[normalized] ?? formatDisplayLabel(status) : formatDisplayLabel(status)}
@@ -84,7 +81,7 @@ export function AttendanceReviewModal({
   onSubmit: (payload: StaffAttendanceReviewPayload) => void;
   isPending: boolean;
 }) {
-  const [status, setStatus] = useState(record?.status.toLowerCase() ?? "telat");
+  const [status, setStatus] = useState(record?.status.toLowerCase() ?? "alfa");
   const [verificationNote, setVerificationNote] = useState(
     record?.verification_note || record?.notes || "",
   );

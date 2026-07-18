@@ -62,7 +62,6 @@ const BKAbsensiReportModal = dynamic(
 const statusOptions = [
   { value: "Semua", label: "Semua status" },
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
   { value: "alfa", label: "Alfa" },
@@ -112,11 +111,9 @@ export function BKAttendancePage() {
   const overview = overviewQuery.data;
   const summary = overview?.summary ?? {
     present: 0,
-    late: 0,
     permission: 0,
     sick: 0,
     alpha: 0,
-    repeated_late: [],
     repeated_alpha: [],
   };
   const records = overview?.records ?? [];
@@ -124,7 +121,7 @@ export function BKAttendancePage() {
   const reviewedCount = records.filter((record) => Boolean(record.verified_at)).length;
   const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
   const pendingReviewCount = records.filter(
-    (record) => ["telat", "alfa"].includes(record.status.toLowerCase()) && !record.verified_at,
+    (record) => record.status.toLowerCase() === "alfa" && !record.verified_at,
   ).length;
 
   const kpiCards = [
@@ -136,9 +133,9 @@ export function BKAttendancePage() {
       accentClass: "bg-emerald-100 text-emerald-700",
     },
     {
-      label: "Terlambat",
-      value: String(summary.late),
-      subtitle: "Perlu perhatian BK",
+      label: "Hadir",
+      value: String(summary.present),
+      subtitle: "Tercatat hadir",
       icon: CalendarClock,
       accentClass: "bg-amber-100 text-amber-700",
     },
@@ -160,7 +157,6 @@ export function BKAttendancePage() {
 
   const focusItems = [
     ...(summary.repeated_alpha ?? []).map((item) => ({ ...item, tone: "ALFA" as const })),
-    ...(summary.repeated_late ?? []).map((item) => ({ ...item, tone: "TELAT" as const })),
   ].slice(0, 8);
 
   return (
@@ -176,7 +172,7 @@ export function BKAttendancePage() {
             <BkPageHero
               badge="BK Attendance Workspace"
               title="Absensi Lintas Kelas"
-              description={<>Pantau telat dan alfa lintas kelas, buka bukti foto, dan review record yang perlu tindak lanjut BK.</>}
+              description={<>Pantau status H/I/S/A lintas kelas, buka bukti foto, dan review record yang perlu tindak lanjut BK.</>}
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
               topClassName="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between"
@@ -346,13 +342,13 @@ export function BKAttendancePage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-xl font-semibold text-slate-950">Fokus Monitoring BK</h3>
-                <p className="mt-1 text-sm text-slate-500">Siswa dengan pola telat atau alfa berulang.</p>
+                <p className="mt-1 text-sm text-slate-500">Siswa dengan pola alfa berulang.</p>
               </div>
               <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Prioritas</span>
             </div>
             <div className="mt-5 grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
               {focusItems.length === 0 ? (
-                <EmptyState icon={BadgeCheck} title="Belum ada fokus monitoring" description="Pola telat atau alfa berulang akan tampil di sini." compact />
+                <EmptyState icon={BadgeCheck} title="Belum ada fokus monitoring" description="Pola alfa berulang akan tampil di sini." compact />
               ) : (
                 focusItems.map((item, index) => (
                   <motion.article

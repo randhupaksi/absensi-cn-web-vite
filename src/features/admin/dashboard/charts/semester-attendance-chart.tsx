@@ -16,7 +16,8 @@ import { MeasuredChart } from "@/features/admin/dashboard/charts/measured-chart"
 type SemesterPoint = {
   label: string;
   present: number;
-  late: number;
+  permission: number;
+  sick: number;
   alpha: number;
 };
 
@@ -29,7 +30,7 @@ export function SemesterAttendanceChart({
 }: SemesterAttendanceChartProps) {
   const chartData = data;
   const isEmpty = chartData.every(
-    (item) => item.present === 0 && item.late === 0 && item.alpha === 0,
+    (item) => item.present === 0 && item.permission === 0 && item.sick === 0 && item.alpha === 0,
   );
 
   return (
@@ -88,9 +89,17 @@ export function SemesterAttendanceChart({
             />
             <Area
               type="monotone"
-              dataKey="late"
-              name="Terlambat"
-              stroke="#f3c560"
+              dataKey="permission"
+              name="Izin"
+              stroke="#38bdf8"
+              fill="none"
+              strokeWidth={2.5}
+            />
+            <Area
+              type="monotone"
+              dataKey="sick"
+              name="Sakit"
+              stroke="#a78bfa"
               fill="none"
               strokeWidth={2.5}
             />

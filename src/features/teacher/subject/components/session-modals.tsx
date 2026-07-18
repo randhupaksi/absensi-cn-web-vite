@@ -13,9 +13,9 @@ import { AlertCircle, Loader2, Save } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
-  { value: "alfa_kelas", label: "Alfa Kelas" },
-  { value: "dispensasi", label: "Dispensasi" },
+  { value: "izin", label: "Izin" },
+  { value: "sakit", label: "Sakit" },
+  { value: "alfa", label: "Alfa" },
 ];
 
 type KoreksiModalProps = {

@@ -19,7 +19,7 @@ import { ArrowUpDown, ClipboardCheck, FileText, ListChecks, Printer } from "luci
 import { useState } from "react";
 import { toast } from "sonner";
 
-type TypeFilter = "Semua" | "IZIN" | "SAKIT" | "DISPENSASI";
+type TypeFilter = "Semua" | "IZIN" | "SAKIT";
 type StatusFilter = "Semua" | "menunggu" | "diterima" | "ditolak";
 type SortBy = "name" | "nis" | "type" | "status" | "newest";
 type Columns = { nis: boolean; type: boolean; reason: boolean; status: boolean; catatan: boolean; waktu: boolean };
@@ -28,7 +28,6 @@ const TYPE_LABELS: Record<TypeFilter, string> = {
   Semua: "Semua Tipe",
   IZIN: "Izin",
   SAKIT: "Sakit",
-  DISPENSASI: "Dispensasi",
 };
 
 const STATUS_LABELS: Record<StatusFilter, string> = {
@@ -234,7 +233,7 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
         {/* Q1 — Tipe */}
         <QuestionBlock icon={FileText} label="Filter berdasarkan tipe pengajuan" answered={typeFilter !== null}>
           <div className="grid gap-2 sm:grid-cols-2">
-            {(["Semua", "IZIN", "SAKIT", "DISPENSASI"] as TypeFilter[]).map((t) => (
+            {(["Semua", "IZIN", "SAKIT"] as TypeFilter[]).map((t) => (
               <ReportRadio key={t} selected={typeFilter === t} label={TYPE_LABELS[t]} onClick={() => { setTypeFilter(t); setStatusFilter(null); setSortBy(null); }} />
             ))}
           </div>

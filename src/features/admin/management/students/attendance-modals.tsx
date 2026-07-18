@@ -38,7 +38,7 @@ export function validateAttendanceRuleForm(
   validateRequired(errors, "school_year_id", form.school_year_id, "Tahun ajaran");
   validateTime(errors, "check_in_start", form.check_in_start, "Mulai absen");
   validateTime(errors, "on_time_until", form.on_time_until, "Batas tepat waktu");
-  validateTime(errors, "late_until", form.late_until, "Batas telat");
+  validateTime(errors, "late_until", form.late_until, "Batas akhir absen");
   return errors;
 }
 
@@ -104,7 +104,7 @@ export function AttendanceRuleCreateModal({
   };
 
   return (
-    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Aturan Absensi" description="Atur window hadir, telat, dan cutoff absensi per tahun ajaran." icon={TimerReset}>
+    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Aturan Absensi" description="Atur waktu hadir dan cutoff absensi per tahun ajaran." icon={TimerReset}>
       <div className="grid gap-5">
         <FieldGroup label="Tahun Ajaran">
           <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
@@ -120,7 +120,7 @@ export function AttendanceRuleCreateModal({
             <TimeInput value={form.on_time_until} onChange={(v) => setForm((prev) => ({ ...prev, on_time_until: v }))} placeholder="07:00:00" />
             <FieldError message={errors.on_time_until} />
           </FieldGroup>
-          <FieldGroup label="Batas Telat">
+          <FieldGroup label="Batas Akhir Absen">
             <TimeInput value={form.late_until} onChange={(v) => setForm((prev) => ({ ...prev, late_until: v }))} placeholder="07:30:00" />
             <FieldError message={errors.late_until} />
           </FieldGroup>
@@ -175,7 +175,7 @@ export function AttendanceRuleEditModal({
   if (!rule) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Aturan Absensi" description="Perbarui window hadir, telat, dan cutoff absensi untuk tahun ajaran yang dipilih." icon={TimerReset}>
+    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Aturan Absensi" description="Perbarui waktu hadir dan cutoff absensi untuk tahun ajaran yang dipilih." icon={TimerReset}>
       <div className="grid gap-5">
         <FieldGroup label="Tahun Ajaran">
           <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
@@ -191,7 +191,7 @@ export function AttendanceRuleEditModal({
             <TimeInput value={form.on_time_until} onChange={(v) => setForm((prev) => ({ ...prev, on_time_until: v }))} placeholder="07:00:00" />
             <FieldError message={errors.on_time_until} />
           </FieldGroup>
-          <FieldGroup label="Batas Telat">
+          <FieldGroup label="Batas Akhir Absen">
             <TimeInput value={form.late_until} onChange={(v) => setForm((prev) => ({ ...prev, late_until: v }))} placeholder="07:30:00" />
             <FieldError message={errors.late_until} />
           </FieldGroup>

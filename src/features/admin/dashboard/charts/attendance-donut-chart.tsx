@@ -12,7 +12,6 @@ type AttendanceSegment = {
 
 type AttendanceDonutChartProps = {
   present: number;
-  late: number;
   permission: number;
   sick: number;
   alpha: number;
@@ -24,7 +23,6 @@ type AttendanceDonutChartProps = {
 
 export function AttendanceDonutChart({
   present,
-  late,
   permission,
   sick,
   alpha,
@@ -39,12 +37,6 @@ export function AttendanceDonutChart({
       value: present || 0,
       color: "var(--color-emerald-500)",
       dotClassName: "bg-emerald-500",
-    },
-    {
-      name: "Telat",
-      value: late || 0,
-      color: "var(--color-amber-400)",
-      dotClassName: "bg-amber-400",
     },
     {
       name: "Izin",

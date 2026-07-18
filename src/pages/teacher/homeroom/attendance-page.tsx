@@ -47,11 +47,9 @@ const fallbackOverview: StaffHomeroomAttendanceOverview = {
   query: "",
   summary: {
     present: 0,
-    late: 0,
     permission: 0,
     sick: 0,
     alpha: 0,
-    repeated_late: [],
     repeated_alpha: [],
   },
   records: [],
@@ -100,10 +98,10 @@ export function WalasAttendancePage() {
 
   const overview = normalizeOverview(overviewQuery.data ?? fallbackOverview);
   const { summary, records } = overview;
-  const totalAttendance = summary.present + summary.late + summary.permission + summary.sick + summary.alpha;
+  const totalAttendance = summary.present + summary.permission + summary.sick + summary.alpha;
   const reviewedCount = records.filter((record) => Boolean(record.verified_at)).length;
   const pendingReviewCount = records.filter(
-    (record) => ["telat", "alfa"].includes(record.status.toLowerCase()) && !record.verified_at,
+    (record) => record.status.toLowerCase() === "alfa" && !record.verified_at,
   ).length;
 
   const kpiCards: AttendanceKpi[] = [
@@ -182,7 +180,6 @@ function normalizeOverview(overview: StaffHomeroomAttendanceOverview): StaffHome
     ...overview,
     summary: {
       ...overview.summary,
-      repeated_late: overview.summary?.repeated_late ?? [],
       repeated_alpha: overview.summary?.repeated_alpha ?? [],
     },
     records: overview.records ?? [],

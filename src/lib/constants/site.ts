@@ -28,7 +28,7 @@ export const roleSummaries = [
   {
     title: "BK",
     description:
-      "Fokus pada siswa bermasalah, pola telat atau alfa berulang, dan catatan pembinaan sederhana.",
+      "Fokus pada siswa bermasalah, pola alfa berulang, dan catatan pembinaan sederhana.",
   },
   {
     title: "Admin",
@@ -51,10 +51,6 @@ export const attendanceStatusMap: Record<
   hadir: {
     label: "Hadir",
     className: "rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 hover:bg-emerald-100",
-  },
-  telat: {
-    label: "Telat",
-    className: "rounded-full bg-amber-100 px-3 py-1 text-amber-800 hover:bg-amber-100",
   },
   izin: {
     label: "Izin",
@@ -79,7 +75,7 @@ export const dashboardStats = [
     colorClass: "bg-emerald-100 text-emerald-700",
   },
   {
-    label: "Siswa Telat",
+    label: "Siswa Alfa",
     value: "17",
     description: "Perlu dipantau wali kelas dan BK.",
     icon: Clock3,

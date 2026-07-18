@@ -72,7 +72,6 @@ const submissionTypeOptions = [
   { value: "Semua", label: "Semua tipe" },
   { value: "IZIN", label: "Izin" },
   { value: "SAKIT", label: "Sakit" },
-  { value: "DISPENSASI", label: "Dispensasi" },
 ];
 
 const emptyOverview: StaffHomeroomSubmissionOverview = {
@@ -195,7 +194,7 @@ export function WalasSubmissionsPage() {
                       Pengajuan
                     </h2>
                     <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                      Review izin, sakit, dan dispensasi dari siswa kelas walas,
+                      Review pengajuan izin dan sakit dari siswa kelas walas,
                       baca alasan serta lampiran, lalu beri tanggapan langsung
                       dari satu meja kerja yang fokus.
                     </p>

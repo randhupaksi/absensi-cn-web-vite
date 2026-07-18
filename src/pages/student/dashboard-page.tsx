@@ -341,7 +341,7 @@ export function StudentDashboardPage() {
                           : "Cooldown Sampai Besok"}
                   </Button>
                   <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
-                    Batas hadir {formatClock(today?.window.on_time_until)} WIB, terlambat sampai{" "}
+                    Batas hadir {formatClock(today?.window.on_time_until)} WIB. Absensi ditutup pukul{" "}
                     {formatClock(today?.window.late_until)} WIB.
                   </div>
                 </div>
@@ -432,10 +432,10 @@ export function StudentDashboardPage() {
               accentClass="bg-sky-100 text-sky-700"
             />
             <KpiCard
-              label="Terlambat"
-              value={String(stats?.late ?? 0)}
-              icon={Clock}
-              accentClass="bg-amber-100 text-amber-700"
+              label="Alfa"
+              value={String(stats?.alpha ?? 0)}
+              icon={ShieldAlert}
+              accentClass="bg-rose-100 text-rose-700"
             />
             <KpiCard
               label="Pengajuan"

@@ -8,11 +8,9 @@ export type StaffRiskStudentRecord = {
 
 export type StaffAttendanceSummary = {
   present: number;
-  late: number;
   permission: number;
   sick: number;
   alpha: number;
-  repeated_late: StaffRiskStudentRecord[];
   repeated_alpha: StaffRiskStudentRecord[];
 };
 
@@ -80,7 +78,6 @@ export type StaffStudentSummary = {
   membership_status?: string;
   is_active: boolean;
   present_count: number;
-  late_count: number;
   permission_count: number;
   sick_count: number;
   alpha_count: number;
@@ -158,7 +155,6 @@ export type StaffStudentOverviewCounts = {
   total: number;
   active: number;
   need_attention: number;
-  total_late: number;
   total_alpha: number;
   with_counseling_notes: number;
 };
@@ -348,12 +344,9 @@ export type StaffSubjectRecapStudentRow = {
   student_name: string;
   nis: string;
   hadir: number;
-  telat: number;
-  alfa_kelas: number;
-  dispensasi: number;
-  alfa: number;
-  sakit: number;
   izin: number;
+  sakit: number;
+  alfa: number;
 };
 
 export type StaffSubjectRecap = {
@@ -382,7 +375,6 @@ export type StaffSubjectSessionListItem = {
   izin: number;
   sakit: number;
   alfa: number;
-  dispensasi: number;
 };
 
 export type StaffSubjectSessionList = {

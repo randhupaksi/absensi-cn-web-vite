@@ -232,7 +232,6 @@ export function MapelHistoryPage() {
                       <th className="pb-3 pr-4 text-center text-slate-600">I</th>
                       <th className="pb-3 pr-4 text-center text-sky-600">S</th>
                       <th className="pb-3 pr-4 text-center text-rose-600">A</th>
-                      <th className="pb-3 pr-4 text-center text-violet-600">D</th>
                       <th className="pb-3 pr-4 text-center">Status</th>
                       <th className="pb-3 text-center">Aksi</th>
                     </tr>
@@ -266,7 +265,6 @@ export function MapelHistoryPage() {
                           <HistoryMetric value={sess.izin} cls="text-slate-600 bg-slate-50" />
                           <HistoryMetric value={sess.sakit} cls="text-sky-700 bg-sky-50" />
                           <HistoryMetric value={sess.alfa} cls="text-rose-700 bg-rose-50" />
-                          <HistoryMetric value={sess.dispensasi} cls="text-violet-700 bg-violet-50" />
                           <td className="py-3 pr-4 text-center">
                             <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.cls}`}>
                               {statusInfo.label}
@@ -317,12 +315,11 @@ export function MapelHistoryPage() {
                         <p className="mt-2 text-sm text-slate-600">{sess.topic || "Belum ada topik"}</p>
                       </div>
                       <div className="mt-4 flex items-center justify-between gap-3">
-                        <div className="grid flex-1 grid-cols-5 gap-1 text-center text-xs">
+                        <div className="grid flex-1 grid-cols-4 gap-1 text-center text-xs">
                           <HistoryMiniMetric label="H" value={sess.hadir} cls="text-emerald-700 bg-emerald-50" />
                           <HistoryMiniMetric label="I" value={sess.izin} cls="text-slate-600 bg-slate-50" />
                           <HistoryMiniMetric label="S" value={sess.sakit} cls="text-sky-700 bg-sky-50" />
                           <HistoryMiniMetric label="A" value={sess.alfa} cls="text-rose-700 bg-rose-50" />
-                          <HistoryMiniMetric label="D" value={sess.dispensasi} cls="text-violet-700 bg-violet-50" />
                         </div>
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.cls}`}>
                           {statusInfo.label}

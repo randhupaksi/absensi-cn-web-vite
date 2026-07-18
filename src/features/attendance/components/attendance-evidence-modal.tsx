@@ -72,9 +72,7 @@ function EvidenceStatus({ status }: { status: string }) {
   const className =
     normalized === "hadir"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-      : normalized === "telat"
-        ? "border-amber-200 bg-amber-50 text-amber-700"
-        : normalized === "alfa"
+      : normalized === "alfa"
           ? "border-rose-200 bg-rose-50 text-rose-700"
           : normalized === "sakit"
             ? "border-violet-200 bg-violet-50 text-violet-700"

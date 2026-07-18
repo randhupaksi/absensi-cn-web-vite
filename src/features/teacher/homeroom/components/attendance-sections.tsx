@@ -53,7 +53,6 @@ import { useState, type ComponentProps } from "react";
 const attendanceStatusOptions = [
   { value: "Semua", label: "Semua status" },
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
   { value: "alfa", label: "Alfa" },
@@ -388,14 +387,14 @@ export function AttendanceFilterToolbar({
 export function AttentionMonitoringPanel({
   items,
 }: {
-  items: Array<StaffHomeroomAttendanceOverview["summary"]["repeated_alpha"][number] & { tone: "ALFA" | "TELAT" }>;
+  items: Array<StaffHomeroomAttendanceOverview["summary"]["repeated_alpha"][number] & { tone: "ALFA" }>;
 }) {
   return (
     <article className="rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,252,250,0.94)_100%)] p-5 shadow-[0_20px_48px_rgba(28,77,61,0.08)]">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-slate-950">Fokus Monitoring</h3>
-          <p className="mt-1 text-sm text-slate-500">Sorotan siswa berulang telat atau alfa pada tanggal terpilih.</p>
+          <p className="mt-1 text-sm text-slate-500">Sorotan siswa dengan alfa berulang pada tanggal terpilih.</p>
         </div>
         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Prioritas</span>
       </div>
@@ -405,7 +404,7 @@ export function AttentionMonitoringPanel({
           <EmptyState
             icon={ShieldCheck}
             title="Belum ada fokus monitoring"
-            description="Siswa dengan telat berulang atau alfa berulang akan muncul di panel ini."
+            description="Siswa dengan alfa berulang akan muncul di panel ini."
             compact
           />
         ) : (

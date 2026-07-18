@@ -137,9 +137,8 @@ export function StudentDetailModal({
                 </div>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <MiniStatCard label="Hadir" value={detail.attendance_summary.present} tone="success" />
-              <MiniStatCard label="Telat" value={detail.attendance_summary.late} tone="warning" />
               <MiniStatCard label="Alfa" value={detail.attendance_summary.alpha} tone="danger" />
             </div>
           </div>
@@ -243,7 +242,7 @@ export function CounselingNoteCreateModal({
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Contoh: Follow up keterlambatan"
+            placeholder="Contoh: Tindak lanjut alfa berulang"
             className="h-12 rounded-[18px] border border-slate-300/80 bg-white/90 px-4 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:bg-emerald-50/25 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16)] focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/80"
           />
           <FieldError message={errors.title} />

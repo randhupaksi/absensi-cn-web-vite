@@ -125,7 +125,7 @@ export function SubjectSessionHistoryReportModal({
             <ReportCheckbox checked disabled label="Tanggal & Jam" badge="wajib" />
             <ReportCheckbox checked={columns.status} onChange={(value) => setColumns((current) => ({ ...current, status: value }))} label="Status Sesi" />
             <ReportCheckbox checked={columns.topic} onChange={(value) => setColumns((current) => ({ ...current, topic: value }))} label="Topik" />
-            <ReportCheckbox checked={columns.hisa} onChange={(value) => setColumns((current) => ({ ...current, hisa: value }))} label="Rekap H I S A D" />
+            <ReportCheckbox checked={columns.hisa} onChange={(value) => setColumns((current) => ({ ...current, hisa: value }))} label="Rekap H I S A" />
           </div>
         </QuestionBlock>
 
@@ -184,7 +184,6 @@ async function generateSubjectSessionHistoryExcel(
         { header: "I", value: (session: StaffSubjectSessionListItem) => session.izin, width: 8, kind: "attendance" as const },
         { header: "S", value: (session: StaffSubjectSessionListItem) => session.sakit, width: 8, kind: "attendance" as const },
         { header: "A", value: (session: StaffSubjectSessionListItem) => session.alfa, width: 8, kind: "attendance" as const },
-        { header: "D", value: (session: StaffSubjectSessionListItem) => session.dispensasi, width: 8, kind: "attendance" as const },
       ] : []),
     ],
   });
@@ -220,15 +219,14 @@ async function generateSubjectSessionHistoryPdf(
   const head: string[][] = [["No", "Tanggal", "Hari / Jam"]];
   if (columns.status) head[0].push("Status");
   if (columns.topic) head[0].push("Topik");
-  if (columns.hisa) head[0].push("H", "I", "S", "A", "D");
+  if (columns.hisa) head[0].push("H", "I", "S", "A");
 
   const totals = sessions.reduce((acc, session) => ({
     h: acc.h + session.hadir,
     i: acc.i + session.izin,
     s: acc.s + session.sakit,
     a: acc.a + session.alfa,
-    d: acc.d + session.dispensasi,
-  }), { h: 0, i: 0, s: 0, a: 0, d: 0 });
+  }), { h: 0, i: 0, s: 0, a: 0 });
 
   const body: ReportTableCell[][] = sessions.map((session, index) => {
     const row: ReportTableCell[] = [
@@ -239,7 +237,7 @@ async function generateSubjectSessionHistoryPdf(
     if (columns.status) row.push(STATUS_LABELS[session.status] ?? session.status);
     if (columns.topic) row.push(session.topic || "-");
     if (columns.hisa) {
-      row.push(...[session.hadir, session.izin, session.sakit, session.alfa, session.dispensasi].map((value) => ({
+      row.push(...[session.hadir, session.izin, session.sakit, session.alfa].map((value) => ({
         content: String(value),
         styles: { halign: "center" },
       })));
@@ -250,11 +248,11 @@ async function generateSubjectSessionHistoryPdf(
   if (columns.hisa) {
     body.push([
       {
-        content: "Total Akumulatif",
-        colSpan: head[0].length - 5,
+        content: "Total",
+        colSpan: head[0].length - 4,
         styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
       },
-      ...[totals.h, totals.i, totals.s, totals.a, totals.d].map((value) => ({
+      ...[totals.h, totals.i, totals.s, totals.a].map((value) => ({
         content: String(value),
         styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
       })),

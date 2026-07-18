@@ -184,12 +184,9 @@ export function MapelRecapPage() {
                         <th className="pb-3 pr-4">Siswa</th>
                         <th className="pb-3 pr-4">NIS</th>
                         <th className="pb-3 pr-4 text-center text-emerald-600">Hadir</th>
-                        <th className="pb-3 pr-4 text-center text-amber-600">Telat</th>
-                        <th className="pb-3 pr-4 text-center text-orange-600">Alfa Kelas</th>
-                        <th className="pb-3 pr-4 text-center text-violet-600">Dispensasi</th>
-                        <th className="pb-3 pr-4 text-center text-rose-600">Alfa</th>
-                        <th className="pb-3 pr-4 text-center text-sky-600">Sakit</th>
-                        <th className="pb-3 text-center text-slate-500">Izin</th>
+                        <th className="pb-3 pr-4 text-center text-sky-600">Izin</th>
+                        <th className="pb-3 pr-4 text-center text-violet-600">Sakit</th>
+                        <th className="pb-3 text-center text-rose-600">Alfa</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -203,12 +200,9 @@ export function MapelRecapPage() {
                           <td className="py-3 pr-4 font-medium text-slate-900">{s.student_name}</td>
                           <td className="py-3 pr-4 text-slate-500">{s.nis}</td>
                           <RecapCell value={s.hadir} cls="text-emerald-700 bg-emerald-50" />
-                          <RecapCell value={s.telat} cls="text-amber-700 bg-amber-50" />
-                          <RecapCell value={s.alfa_kelas} cls="text-orange-700 bg-orange-50" />
-                          <RecapCell value={s.dispensasi} cls="text-violet-700 bg-violet-50" />
+                          <RecapCell value={s.izin} cls="text-sky-700 bg-sky-50" />
+                          <RecapCell value={s.sakit} cls="text-violet-700 bg-violet-50" />
                           <RecapCell value={s.alfa} cls="text-rose-700 bg-rose-50" />
-                          <RecapCell value={s.sakit} cls="text-sky-700 bg-sky-50" />
-                          <RecapCell value={s.izin} cls="text-slate-600 bg-slate-50" />
                         </motion.tr>
                       ))}
                     </tbody>
@@ -218,12 +212,9 @@ export function MapelRecapPage() {
                           Total ({recap.students.length} siswa)
                         </td>
                         <SumCell rows={recap.students} field="hadir" cls="text-emerald-700" />
-                        <SumCell rows={recap.students} field="telat" cls="text-amber-700" />
-                        <SumCell rows={recap.students} field="alfa_kelas" cls="text-orange-700" />
-                        <SumCell rows={recap.students} field="dispensasi" cls="text-violet-700" />
+                        <SumCell rows={recap.students} field="izin" cls="text-sky-700" />
+                        <SumCell rows={recap.students} field="sakit" cls="text-violet-700" />
                         <SumCell rows={recap.students} field="alfa" cls="text-rose-700" />
-                        <SumCell rows={recap.students} field="sakit" cls="text-sky-700" />
-                        <SumCell rows={recap.students} field="izin" cls="text-slate-600" />
                       </tr>
                     </tfoot>
                   </table>
@@ -232,14 +223,11 @@ export function MapelRecapPage() {
                   {recap.students.map((s) => (
                     <MobileDataCard key={s.student_id}>
                       <MobileDataHeader title={s.student_name} subtitle={s.nis} />
-                      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                      <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
                         <RecapMetric label="Hadir" value={s.hadir} cls="text-emerald-700 bg-emerald-50" />
-                        <RecapMetric label="Telat" value={s.telat} cls="text-amber-700 bg-amber-50" />
-                        <RecapMetric label="Alfa Kelas" value={s.alfa_kelas} cls="text-orange-700 bg-orange-50" />
-                        <RecapMetric label="Dispensasi" value={s.dispensasi} cls="text-violet-700 bg-violet-50" />
+                        <RecapMetric label="Izin" value={s.izin} cls="text-sky-700 bg-sky-50" />
+                        <RecapMetric label="Sakit" value={s.sakit} cls="text-violet-700 bg-violet-50" />
                         <RecapMetric label="Alfa" value={s.alfa} cls="text-rose-700 bg-rose-50" />
-                        <RecapMetric label="Sakit" value={s.sakit} cls="text-sky-700 bg-sky-50" />
-                        <RecapMetric label="Izin" value={s.izin} cls="text-slate-600 bg-slate-50" />
                       </div>
                     </MobileDataCard>
                   ))}

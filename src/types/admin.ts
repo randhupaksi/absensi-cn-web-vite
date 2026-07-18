@@ -9,7 +9,6 @@ export type AdminDashboardData = {
   };
   today_status: {
     present: number;
-    late: number;
     permission: number;
     sick: number;
     alpha: number;
@@ -17,7 +16,8 @@ export type AdminDashboardData = {
   semester_trend: Array<{
     label: string;
     present: number;
-    late: number;
+    permission: number;
+    sick: number;
     alpha: number;
   }>;
   class_performance: Array<{

@@ -69,7 +69,7 @@ const fallbackHomeroom: StaffHomeroomDashboard = {
     is_active: false,
   },
   total_students: 0,
-  today: { present: 0, late: 0, permission: 0, sick: 0, alpha: 0, repeated_late: [], repeated_alpha: [] },
+  today: { present: 0, permission: 0, sick: 0, alpha: 0, repeated_alpha: [] },
   students_needing_attention: [],
   recent_submissions: [],
 };
@@ -79,7 +79,7 @@ const fallbackBK: StaffBKDashboard = {
   students_need_attention: 0,
   total_counseling_notes: 0,
   pending_submissions: 0,
-  today: { present: 0, late: 0, permission: 0, sick: 0, alpha: 0, repeated_late: [], repeated_alpha: [] },
+  today: { present: 0, permission: 0, sick: 0, alpha: 0, repeated_alpha: [] },
   top_risk_students: [],
   recent_submissions: [],
   recent_counseling_notes: [],
@@ -154,12 +154,12 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
   const assignments = assignmentsQuery.data ?? [];
   const activeSession = activeSessionQuery.data ?? null;
   const attendance = hasBKScope ? bk.today : homeroom.today;
-  const attendanceTotal = attendance.present + attendance.late + attendance.permission + attendance.sick + attendance.alpha;
+  const attendanceTotal = attendance.present + attendance.permission + attendance.sick + attendance.alpha;
   const attendancePercentage = attendanceTotal > 0 ? Math.round((attendance.present / attendanceTotal) * 100) : 0;
   const roleCount = Number(isHomeroomTeacher) + Number(hasSubjectAssignments) + Number(hasBKScope);
   const attentionCount = hasBKScope
     ? bk.students_need_attention
-    : homeroom.today.repeated_alpha.length + homeroom.today.repeated_late.length;
+    : homeroom.today.repeated_alpha.length;
   const pendingCount = hasBKScope
     ? bk.pending_submissions
     : homeroom.recent_submissions.filter((item) => item.status.toLowerCase() === "pending").length;
@@ -176,7 +176,6 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
         />
         <AttendanceDonutChart
           present={attendance.present}
-          late={attendance.late}
           permission={attendance.permission}
           sick={attendance.sick}
           alpha={attendance.alpha}
@@ -190,7 +189,7 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
       <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
         <KpiCard label="Peran Aktif" value={String(roleCount)} subtitle="Walas, mapel, atau BK" icon={LayoutPanelTop} accentClass="bg-violet-100 text-violet-700" />
         <KpiCard label="Siswa Terpantau" value={String(hasBKScope ? bk.total_students : homeroom.total_students)} subtitle={hasBKScope ? "Lintas kelas dalam scope BK" : "Siswa kelas walas aktif"} icon={UsersRound} accentClass="bg-amber-100 text-amber-700" />
-        <KpiCard label="Perlu Tindak Lanjut" value={String(attentionCount)} subtitle="Telat, alfa, atau prioritas" icon={ShieldAlert} accentClass="bg-rose-100 text-rose-700" />
+        <KpiCard label="Perlu Tindak Lanjut" value={String(attentionCount)} subtitle="Alfa atau prioritas pembinaan" icon={ShieldAlert} accentClass="bg-rose-100 text-rose-700" />
         <KpiCard label="Menunggu Review" value={String(pendingCount)} subtitle="Pengajuan izin dan sakit" icon={ClipboardPenLine} accentClass="bg-sky-100 text-sky-700" />
       </section>
 
@@ -211,8 +210,8 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
           {isHomeroomTeacher && (
             <AttentionCard
               title="Prioritas Kelas Walas"
-              subtitle="Telat dan alfa yang perlu dicek lebih dulu"
-              students={mergeRiskStudents(homeroom.today.repeated_alpha, homeroom.today.repeated_late)}
+              subtitle="Alfa yang perlu dicek lebih dulu"
+              students={homeroom.today.repeated_alpha}
               isLoading={homeroomQuery.isLoading}
               errorMessage={homeroomQuery.error?.message}
               href="/dashboard/teacher/homeroom/attendance"
@@ -404,7 +403,7 @@ function SubjectAssignmentsCard({
 }
 
 function AttentionCard({ title, subtitle, students, isLoading, errorMessage, href, badge }: { title: string; subtitle: string; students: StaffRiskStudentRecord[]; isLoading: boolean; errorMessage?: string; href: string; badge: string }) {
-  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{badge}</span></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={ShieldAlert} title="Data prioritas belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : students.length === 0 ? <EmptyState icon={ShieldAlert} title="Belum ada prioritas" description="Siswa dengan pola telat atau alfa akan muncul di panel ini." compact /> : students.slice(0, 4).map((item) => <div key={item.student_id} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><p className="mt-1 text-xs text-slate-500">{item.nis} · {item.class_name}</p></div><span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">{item.occurrences}x</span></div>)}</div><MoreLink href={href} label="Buka monitoring" /></article>;
+  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{badge}</span></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={ShieldAlert} title="Data prioritas belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : students.length === 0 ? <EmptyState icon={ShieldAlert} title="Belum ada prioritas" description="Siswa dengan pola alfa berulang akan muncul di panel ini." compact /> : students.slice(0, 4).map((item) => <div key={item.student_id} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><p className="mt-1 text-xs text-slate-500">{item.nis} · {item.class_name}</p></div><span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">{item.occurrences}x</span></div>)}</div><MoreLink href={href} label="Buka monitoring" /></article>;
 }
 
 function SubmissionCard({ submissions, isLoading, errorMessage, href, title, subtitle }: { submissions: StaffHomeroomDashboard["recent_submissions"]; isLoading: boolean; errorMessage?: string; href: string; title: string; subtitle: string }) {
@@ -417,6 +416,5 @@ function CounselingCard({ dashboard, isLoading, errorMessage }: { dashboard: Sta
 
 function MoreLink({ href, label }: { href: string; label: string }) { return <Link href={href} className="group mx-auto mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/60 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:border-emerald-400 hover:bg-emerald-100/80 hover:text-emerald-900"><span>{label}</span><ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></Link>; }
 
-function mergeRiskStudents(alpha: StaffRiskStudentRecord[], late: StaffRiskStudentRecord[]) { return [...alpha, ...late].sort((a, b) => b.occurrences - a.occurrences); }
-function normalizeHomeroom(dashboard: StaffHomeroomDashboard): StaffHomeroomDashboard { return { ...dashboard, today: { ...dashboard.today, repeated_late: dashboard.today?.repeated_late ?? [], repeated_alpha: dashboard.today?.repeated_alpha ?? [] }, recent_submissions: dashboard.recent_submissions ?? [] }; }
-function normalizeBK(dashboard: StaffBKDashboard): StaffBKDashboard { return { ...dashboard, today: { ...dashboard.today, repeated_late: dashboard.today?.repeated_late ?? [], repeated_alpha: dashboard.today?.repeated_alpha ?? [] }, top_risk_students: dashboard.top_risk_students ?? [], recent_counseling_notes: dashboard.recent_counseling_notes ?? [] }; }
+function normalizeHomeroom(dashboard: StaffHomeroomDashboard): StaffHomeroomDashboard { return { ...dashboard, today: { ...dashboard.today, repeated_alpha: dashboard.today?.repeated_alpha ?? [] }, recent_submissions: dashboard.recent_submissions ?? [] }; }
+function normalizeBK(dashboard: StaffBKDashboard): StaffBKDashboard { return { ...dashboard, today: { ...dashboard.today, repeated_alpha: dashboard.today?.repeated_alpha ?? [] }, top_risk_students: dashboard.top_risk_students ?? [], recent_counseling_notes: dashboard.recent_counseling_notes ?? [] }; }

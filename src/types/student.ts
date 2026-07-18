@@ -47,7 +47,6 @@ export type StudentSubmission = AttendanceLocationEvidence & {
 export type StudentStats = {
   total_attendance: number;
   present: number;
-  late: number;
   permission: number;
   sick: number;
   alpha: number;

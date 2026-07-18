@@ -59,7 +59,6 @@ const BKSiswaReportModal = dynamic(
 const riskOptions = [
   { value: "Semua", label: "Semua risiko" },
   { value: "need_attention", label: "Perlu Perhatian" },
-  { value: "late", label: "Ada Telat" },
   { value: "alpha", label: "Ada Alfa" },
   { value: "counseling", label: "Punya Catatan BK" },
   { value: "stable", label: "Stabil" },
@@ -113,7 +112,6 @@ export function BKStudentsPage() {
     total: 0,
     active: 0,
     need_attention: 0,
-    total_late: 0,
     total_alpha: 0,
     with_counseling_notes: 0,
   };
@@ -165,7 +163,7 @@ export function BKStudentsPage() {
             <BkPageHero
               badge="BK Students Workspace"
               title="Monitoring Siswa"
-              description={<>Pantau siswa lintas kelas, lihat pola telat atau alfa, dan buka catatan pembinaan dari satu tabel kerja BK.</>}
+              description={<>Pantau siswa lintas kelas, lihat pola alfa, dan buka catatan pembinaan dari satu tabel kerja BK.</>}
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
               kpiGridClassName="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-4"
@@ -209,7 +207,7 @@ export function BKStudentsPage() {
             >
               <div className="overflow-x-auto bg-white/92">
                 {overviewQuery.isLoading ? (
-                  <TableSkeleton columns={10} />
+                  <TableSkeleton columns={9} />
                 ) : overviewQuery.error ? (
                   <div className="p-5">
                     <EmptyState
@@ -231,8 +229,8 @@ export function BKStudentsPage() {
                   <div className="hidden md:block">
                   <DataTable>
                     <DataTableHeadRow
-                      labels={["Siswa", "Kelas", "Identitas", "H", "I", "S", "A", "T", "Status", "Aksi"]}
-                      centerLabels={["H", "I", "S", "A", "T", "Status"]}
+                      labels={["Siswa", "Kelas", "Identitas", "H", "I", "S", "A", "Status", "Aksi"]}
+                      centerLabels={["H", "I", "S", "A", "Status"]}
                     />
                     <DataTableBody>
                       {pageStudents.map((student) => (
@@ -269,9 +267,6 @@ export function BKStudentsPage() {
                           </DataTableCell>
                           <DataTableCell className="text-center">
                             <CountBadge value={student.alpha_count} tone="danger" />
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <CountBadge value={student.late_count} tone="warning" />
                           </DataTableCell>
                           <DataTableCell className="text-center">
                             <StatusBadge active={student.is_active} />
@@ -321,7 +316,7 @@ export function BKStudentsPage() {
                           <MobileDataField label="Tahun Ajaran" value={student.school_year_name || "-"} />
                           <MobileDataField label="Identitas" value={`${formatGender(student.gender)} - ${student.nisn || "-"}`} />
                         </div>
-                        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                           <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">Hadir</p>
                             <div className="mt-1"><CountBadge value={student.present_count} tone="success" /></div>
@@ -337,10 +332,6 @@ export function BKStudentsPage() {
                           <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-700">Alfa</p>
                             <div className="mt-1"><CountBadge value={student.alpha_count} tone="danger" /></div>
-                          </div>
-                          <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">Telat</p>
-                            <div className="mt-1"><CountBadge value={student.late_count} tone="warning" /></div>
                           </div>
                         </div>
                         <MobileDataFooter>

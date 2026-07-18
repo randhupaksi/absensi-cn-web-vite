@@ -73,8 +73,6 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
 
   if (normalized === "hadir") {
     className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  } else if (normalized === "telat") {
-    className = "border-amber-200 bg-amber-50 text-amber-700";
   } else if (normalized === "alfa") {
     className = "border-rose-200 bg-rose-50 text-rose-700";
   } else if (normalized === "izin") {
@@ -83,7 +81,7 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
     className = "border-violet-200 bg-violet-50 text-violet-700";
   }
 
-  const compactLabel: Record<string, string> = { hadir: "H", telat: "H", izin: "I", sakit: "S", alfa: "A" };
+  const compactLabel: Record<string, string> = { hadir: "H", izin: "I", sakit: "S", alfa: "A" };
   return (
     <Badge className={className} title={formatDisplayLabel(status)}>
       {compact ? compactLabel[normalized] ?? formatDisplayLabel(status) : formatDisplayLabel(status)}
@@ -92,18 +90,16 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
 }
 
 export function SubmissionTypePill({ type }: { type: string }) {
-  const normalized = type.toUpperCase();
+  const normalized = type.toUpperCase() === "SAKIT" ? "SAKIT" : "IZIN";
   let className = "border-slate-200 bg-slate-100 text-slate-600";
 
   if (normalized === "IZIN") {
     className = "border-sky-200 bg-sky-50 text-sky-700";
   } else if (normalized === "SAKIT") {
     className = "border-rose-200 bg-rose-50 text-rose-700";
-  } else if (normalized === "DISPENSASI") {
-    className = "border-amber-200 bg-amber-50 text-amber-700";
   }
 
-  return <Badge className={className}>{formatDisplayLabel(type)}</Badge>;
+  return <Badge className={className}>{formatDisplayLabel(normalized)}</Badge>;
 }
 
 export function SubmissionStatusPill({ status }: { status: string }) {

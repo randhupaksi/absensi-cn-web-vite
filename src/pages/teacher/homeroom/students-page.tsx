@@ -101,7 +101,7 @@ export function WalasStudentsPage() {
 
   const filteredStudents = useMemo(() => {
     return (studentsData ?? []).filter((student) => {
-      const needsAttention = student.late_count > 0 || student.alpha_count > 0;
+      const needsAttention = student.alpha_count > 0;
 
       const matchesStatus =
         statusFilter === "Semua" ||
@@ -123,9 +123,8 @@ export function WalasStudentsPage() {
 
   const activeStudents = students.filter((student) => student.is_active).length;
   const studentsNeedingAttention = students.filter(
-    (student) => student.late_count > 0 || student.alpha_count > 0,
+    (student) => student.alpha_count > 0,
   ).length;
-  const totalLateCount = students.reduce((sum, student) => sum + student.late_count, 0);
   const totalAlphaCount = students.reduce((sum, student) => sum + student.alpha_count, 0);
 
   const tableErrorMessage = homeroomQuery.error?.message ?? studentsQuery.error?.message;
@@ -204,7 +203,7 @@ export function WalasStudentsPage() {
 
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <div className="text-xs font-medium text-slate-400">
-                  {totalLateCount} catatan telat dan {totalAlphaCount} catatan alfa tercatat untuk siswa kelas ini
+                  {totalAlphaCount} catatan alfa tercatat untuk siswa kelas ini
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
@@ -297,7 +296,7 @@ export function WalasStudentsPage() {
                             <DataTableCell>
                               <div className="flex flex-wrap justify-center gap-2">
                                 <StatusPill isActive={student.is_active} />
-                                {student.late_count > 0 || student.alpha_count > 0 ? (
+                                {student.alpha_count > 0 ? (
                                   <Badge className="border-amber-200 bg-amber-50 text-amber-700">
                                     Perlu perhatian
                                   </Badge>
@@ -306,7 +305,7 @@ export function WalasStudentsPage() {
                             </DataTableCell>
                             <DataTableCell className="text-center">
                               <span className="font-semibold tabular-nums text-emerald-700">
-                                {student.present_count + student.late_count}
+                                {student.present_count}
                               </span>
                             </DataTableCell>
                             <DataTableCell className="text-center">
@@ -358,7 +357,7 @@ export function WalasStudentsPage() {
                         <MobileDataField label="Gender" value={formatGender(student.gender)} />
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <AttendanceMetricPill label="Hadir" value={student.present_count + student.late_count} tone="success" />
+                        <AttendanceMetricPill label="Hadir" value={student.present_count} tone="success" />
                         <AttendanceMetricPill label="Izin" value={student.permission_count} tone="info" />
                         <AttendanceMetricPill label="Sakit" value={student.sick_count} tone="violet" />
                         <AttendanceMetricPill label="Alfa" value={student.alpha_count} tone="danger" />

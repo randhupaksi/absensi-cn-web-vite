@@ -36,7 +36,7 @@ import { toast } from "sonner";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ClassFilter = "all" | "specific";
-type TypeFilter = "Semua" | "IZIN" | "SAKIT" | "DISPENSASI";
+type TypeFilter = "Semua" | "IZIN" | "SAKIT";
 type StatusFilter = "Semua" | "menunggu" | "diterima" | "ditolak";
 type SortBy = "name" | "nis" | "type" | "status" | "date_desc";
 
@@ -54,7 +54,6 @@ type Columns = {
 const TYPE_LABEL: Record<string, string> = {
   IZIN: "Izin",
   SAKIT: "Sakit",
-  DISPENSASI: "Dispensasi",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -244,7 +243,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
         return;
       }
 
-      const TYPE_SORT_ORDER: Record<string, number> = { IZIN: 0, SAKIT: 1, DISPENSASI: 2 };
+      const TYPE_SORT_ORDER: Record<string, number> = { IZIN: 0, SAKIT: 1 };
       const STATUS_SORT_ORDER: Record<string, number> = { menunggu: 0, diterima: 1, ditolak: 2 };
 
       const sorted = [...records].sort((a, b) => {
@@ -294,7 +293,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
       open={open}
       onOpenChange={handleClose}
       title="Export Laporan Pengajuan BK"
-      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap izin, sakit, dan dispensasi."
+      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap izin dan sakit."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
@@ -365,7 +364,6 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
                   <ReportRadio selected={typeFilter === "Semua"} label="Semua Tipe" onClick={() => { setTypeFilter("Semua"); setStatusFilter(null); setSortBy(null); }} />
                   <ReportRadio selected={typeFilter === "IZIN"} label="Izin" onClick={() => { setTypeFilter("IZIN"); setStatusFilter(null); setSortBy(null); }} />
                   <ReportRadio selected={typeFilter === "SAKIT"} label="Sakit" onClick={() => { setTypeFilter("SAKIT"); setStatusFilter(null); setSortBy(null); }} />
-                  <ReportRadio selected={typeFilter === "DISPENSASI"} label="Dispensasi" onClick={() => { setTypeFilter("DISPENSASI"); setStatusFilter(null); setSortBy(null); }} />
                 </div>
               </QuestionBlock>
             </motion.div>

@@ -36,7 +36,6 @@ import { useState } from "react";
 
 export const reviewStatusOptions = [
   { value: "hadir", label: "Hadir" },
-  { value: "telat", label: "Telat" },
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
   { value: "alfa", label: "Alfa" },
