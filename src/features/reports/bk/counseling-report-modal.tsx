@@ -15,8 +15,11 @@ import { cn } from "@/lib/utils";
 import {
   QuestionBlock,
   ReportCheckbox,
+  ReportFormatQuestion,
   ReportRadio,
+  type ReportFormat,
 } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getBKCounselingOverview } from "@/services/staff.service";
 import type { StaffBKClassSummary, StaffCounselingNote, StaffStudentSummary } from "@/types/staff";
 import {
@@ -123,6 +126,35 @@ async function generateBKKonselingPdf(
   doc.save(`Laporan-Konseling-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateBKKonselingExcel(
+  records: StaffCounselingNote[],
+  meta: { kelas: string; siswa: string; urutan: string },
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Konseling-BK-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN CATATAN KONSELING BK",
+    subtitle: "Sekolah Citra Negara - Laporan Guru Bimbingan Konseling",
+    metadata: [
+      { label: "Kelas", value: meta.kelas },
+      { label: "Siswa", value: meta.siswa },
+      { label: "Urutan", value: meta.urutan },
+    ],
+    rows: records,
+    dataSheetName: "Catatan Konseling",
+    columns: [
+      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      ...(columns.nis ? [{ header: "NIS", value: (record: StaffCounselingNote) => record.nis, width: 17 }] : []),
+      ...(columns.kelas ? [{ header: "Kelas", value: (record: StaffCounselingNote) => record.class_name, width: 24 }] : []),
+      ...(columns.judul ? [{ header: "Judul Catatan", value: (record: StaffCounselingNote) => record.title, width: 30 }] : []),
+      ...(columns.isiCatatan ? [{ header: "Isi Catatan", value: (record: StaffCounselingNote) => record.note, width: 52 }] : []),
+      ...(columns.dibuatOleh ? [{ header: "Dibuat Oleh", value: (record: StaffCounselingNote) => record.created_by_name, width: 25 }] : []),
+      ...(columns.waktu ? [{ header: "Waktu", value: (record: StaffCounselingNote) => record.created_at ? new Date(record.created_at) : null, width: 22, kind: "date" as const, numberFormat: "dd mmm yyyy hh:mm" }] : []),
+    ],
+  });
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -133,6 +165,7 @@ type Props = {
 };
 
 export function BKKonselingReportModal({ open, onOpenChange, classes, students }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [classFilter, setClassFilter] = useState<ClassFilter | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [studentFilter, setStudentFilter] = useState<StudentFilter | null>(null);
@@ -154,7 +187,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
     q1FullyAnswered && (studentFilter === "all" || (studentFilter === "specific" && selectedStudentId !== null));
   const showQ2 = q1FullyAnswered;
   const showQ3 = q2FullyAnswered;
-  const canDownload = showQ3 && sortBy !== null;
+  const canDownload = format !== null && showQ3 && sortBy !== null;
 
   const selectedClass = useMemo(
     () => classes.find((c) => c.class_id === selectedClassId) ?? null,
@@ -175,6 +208,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
   }, [students, classFilter, selectedClassId]);
 
   function reset() {
+    setFormat(null);
     setClassFilter(null);
     setSelectedClassId(null);
     setStudentFilter(null);
@@ -224,9 +258,13 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           sortBy === "date_asc" ? "Waktu (Terlama)" : "Kelas",
       };
 
-      await generateBKKonselingPdf(sorted, meta, columns);
+      if (format === "excel") {
+        await generateBKKonselingExcel(sorted, meta, columns);
+      } else {
+        await generateBKKonselingPdf(sorted, meta, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -236,12 +274,13 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Konseling BK"
-      description="Filter kelas dan siswa, lalu unduh PDF rekap catatan konseling siap cetak."
+      title="Export Laporan Konseling BK"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap dan tindak lanjut konseling."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Kelas */}
         <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q1FullyAnswered}>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -414,6 +453,9 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
           cancelVariant="native"
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

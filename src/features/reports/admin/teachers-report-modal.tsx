@@ -3,7 +3,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ReportModalFooter } from "@/features/reports/shared/report-modal-footer";
-import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/shared/report-question-ui";
+import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
 import {
   drawReportPdfFooter,
@@ -97,6 +98,41 @@ async function generateGuruPdf(
   doc.save(`Laporan-Guru-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateGuruExcel(
+  data: AdminTeacherProfile[],
+  filterLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Guru-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN DATA GURU",
+    subtitle: "Sekolah Citra Negara - Sistem Informasi Absensi Sekolah",
+    metadata: [
+      { label: "Filter", value: filterLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows: data,
+    dataSheetName: "Data Guru",
+    metrics: [
+      { label: "Total Guru", value: data.length, tone: "emerald" },
+      { label: "Guru Aktif", value: data.filter((teacher) => teacher.is_active).length, tone: "sky" },
+      { label: "Guru Nonaktif", value: data.filter((teacher) => !teacher.is_active).length, tone: "rose" },
+    ],
+    columns: [
+      { header: "No", value: (_teacher, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Guru", value: (teacher) => teacher.name, width: 32 },
+      { header: "Username", value: (teacher) => teacher.username, width: 20 },
+      ...(columns.gender ? [{
+        header: "Jenis Kelamin",
+        value: (teacher: AdminTeacherProfile) => teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "—",
+        width: 18,
+      }] : []),
+      ...(columns.status ? [{ header: "Status", value: (teacher: AdminTeacherProfile) => teacher.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
+    ],
+  });
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -106,6 +142,7 @@ type Props = {
 };
 
 export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus | null>(null);
   const [columns, setColumns] = useState<Columns>({
     gender: false,
@@ -125,9 +162,10 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
 
   const filteredCount = filterStatus ? counts[filterStatus] : 0;
   const showQ2 = filterStatus !== null;
-  const canDownload = filterStatus !== null && sortBy !== null;
+  const canDownload = format !== null && filterStatus !== null && sortBy !== null;
 
   function resetState() {
+    setFormat(null);
     setFilterStatus(null);
     setColumns({ gender: false, status: true });
     setSortBy(null);
@@ -159,9 +197,13 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
     const sortLabel = sortBy === "name" ? "Nama (A–Z)" : "Username";
     setGenerating(true);
     try {
-      await generateGuruPdf(sorted, filterLabel, sortLabel, columns);
+      if (format === "excel") {
+        await generateGuruExcel(sorted, filterLabel, sortLabel, columns);
+      } else {
+        await generateGuruPdf(sorted, filterLabel, sortLabel, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -171,12 +213,13 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Guru"
-      description="Sesuaikan preferensi laporan, lalu unduh PDF siap cetak dalam hitungan detik."
+      title="Export Laporan Guru"
+      description="Pilih PDF siap cetak atau Excel bergaya yang siap diolah dan direkap."
       icon={Printer}
       className="sm:!max-w-[600px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Filter status */}
         <QuestionBlock
           icon={ListFilter}
@@ -275,8 +318,9 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
           generating={generating}
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
-          generatingLabel="Membuat PDF..."
-          downloadLabel={canDownload ? `Download PDF (${filteredCount} guru)` : "Download PDF"}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={canDownload ? `Download ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} guru)` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

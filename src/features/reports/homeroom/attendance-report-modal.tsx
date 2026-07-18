@@ -14,7 +14,8 @@ import {
   REPORT_PDF_MARGIN_X,
   REPORT_TABLE_STYLE,
 } from "@/lib/reports/pdf-report-kit";
-import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/shared/report-question-ui";
+import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getTeacherHomeroomAttendanceOverview } from "@/services/staff.service";
 import type { StaffAttendanceRecord, StaffHomeroomContext } from "@/types/staff";
 import { Activity, ArrowUpDown, CalendarClock, ListChecks, Printer } from "lucide-react";
@@ -203,6 +204,80 @@ async function generateCumulativeWalasAbsensiPdf(
   doc.save(`Laporan-Walas-Rekap-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateDailyWalasAbsensiExcel(
+  records: StaffAttendanceRecord[],
+  homeroom: StaffHomeroomContext,
+  periodeLabel: string,
+  statusLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Walas-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN ABSENSI KELAS",
+    subtitle: "Sekolah Citra Negara - Laporan Periodik Wali Kelas",
+    metadata: [
+      { label: "Kelas", value: homeroom.class_name },
+      { label: "Tahun ajaran", value: homeroom.school_year_name },
+      { label: "Periode", value: periodeLabel },
+      { label: "Status", value: statusLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows: records,
+    dataSheetName: "Detail Harian",
+    columns: [
+      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      { header: "Tanggal", value: (record) => record.attendance_date ? new Date(`${record.attendance_date}T00:00:00`) : null, width: 16, kind: "date" },
+      ...(columns.nis ? [{ header: "NIS", value: (record: StaffAttendanceRecord) => record.nis, width: 17 }] : []),
+      ...(columns.status ? [{ header: "Status", value: (record: StaffAttendanceRecord) => record.status, width: 15, kind: "status" as const }] : []),
+      ...(columns.checkin ? [{ header: "Absen Masuk", value: (record: StaffAttendanceRecord) => record.check_in_at ? new Date(record.check_in_at) : null, width: 20, kind: "date" as const, numberFormat: "hh:mm" }] : []),
+    ],
+  });
+}
+
+async function generateCumulativeWalasAbsensiExcel(
+  rows: CumulativeRow[],
+  homeroom: StaffHomeroomContext,
+  periodeLabel: string,
+  sortLabel: string,
+  columns: CumulativeColumns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Walas-Rekap-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
+    title: "REKAP ABSENSI KELAS",
+    subtitle: "Sekolah Citra Negara - Laporan Akumulatif Wali Kelas",
+    metadata: [
+      { label: "Kelas", value: homeroom.class_name },
+      { label: "Tahun ajaran", value: homeroom.school_year_name },
+      { label: "Periode", value: periodeLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows,
+    dataSheetName: "Rekap Siswa",
+    showColumnFilters: false,
+    columns: [
+      { header: "No", value: (_row, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (row) => row.student_name, width: 28 },
+      ...(columns.nis ? [{ header: "NIS", value: (row: CumulativeRow) => row.nis, width: 17 }] : []),
+      { header: "H", value: (row) => row.h, width: 9, kind: "attendance" },
+      { header: "I", value: (row) => row.i, width: 9, kind: "attendance" },
+      { header: "S", value: (row) => row.s, width: 9, kind: "attendance" },
+      { header: "A", value: (row) => row.a, width: 9, kind: "attendance" },
+      {
+        header: "Persentase Kehadiran",
+        value: (row) => {
+          const total = row.h + row.i + row.s + row.a;
+          return total > 0 ? row.h / total : 0;
+        },
+        width: 22,
+        kind: "number",
+        numberFormat: "0%",
+      },
+    ],
+  });
+}
+
 function buildCumulativeRows(records: StaffAttendanceRecord[]) {
   const rowsByStudent = new Map<string, CumulativeRow>();
 
@@ -277,6 +352,7 @@ type Props = {
 };
 
 export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [reportType, setReportType] = useState<ReportType | null>(null);
   const [dateMode, setDateMode] = useState<DateMode | null>(null);
   const [specificDate, setSpecificDate] = useState("");
@@ -302,7 +378,7 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
   const showPeriod = typeAnswered;
   const showStatus = periodAnswered && reportType === "daily";
   const showColumns = periodAnswered && (reportType === "cumulative" || statusFilter !== null);
-  const canDownload = showColumns && sortBy !== null;
+  const canDownload = format !== null && showColumns && sortBy !== null;
   const sortOptions = useMemo(
     () => (reportType === "cumulative" ? getCumulativeSortOptions(cumulativeColumns) : getDailySortOptions(columns)),
     [columns, cumulativeColumns, reportType],
@@ -315,6 +391,7 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
   }, [sortBy, sortOptions]);
 
   function resetState() {
+    setFormat(null);
     setReportType(null);
     setDateMode(null);
     setSpecificDate("");
@@ -367,7 +444,11 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
           return 0;
         });
 
-        await generateCumulativeWalasAbsensiPdf(sortedRows, homeroom, periodeLabel, getSortLabel(sortBy), cumulativeColumns);
+        if (format === "excel") {
+          await generateCumulativeWalasAbsensiExcel(sortedRows, homeroom, periodeLabel, getSortLabel(sortBy), cumulativeColumns);
+        } else {
+          await generateCumulativeWalasAbsensiPdf(sortedRows, homeroom, periodeLabel, getSortLabel(sortBy), cumulativeColumns);
+        }
         return;
       }
 
@@ -390,9 +471,13 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
       });
 
       const statusLabel = statusFilter ? STATUS_LABELS[statusFilter] : "Semua Status";
-      await generateDailyWalasAbsensiPdf(sorted, homeroom, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
+      if (format === "excel") {
+        await generateDailyWalasAbsensiExcel(sorted, homeroom, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
+      } else {
+        await generateDailyWalasAbsensiPdf(sorted, homeroom, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -402,12 +487,13 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Absensi Kelas"
-      description="Pilih tipe laporan, periode, dan kolom yang dibutuhkan sebelum mengunduh PDF."
+      title="Export Laporan Absensi Kelas"
+      description="Pilih PDF siap cetak atau Excel bergaya, lalu tentukan tipe dan periode laporan."
       icon={Printer}
       className="sm:!max-w-[660px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         <QuestionBlock icon={Printer} label="Pilih tipe laporan" answered={typeAnswered}>
           <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio
@@ -612,6 +698,9 @@ export function WalasAbsensiReportModal({ open, onOpenChange, homeroom }: Props)
           generating={generating}
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

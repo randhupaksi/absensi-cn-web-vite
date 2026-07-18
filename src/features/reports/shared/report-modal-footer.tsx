@@ -1,8 +1,9 @@
 import { premiumModalActionsClassName } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Printer } from "lucide-react";
+import { FileSpreadsheet, Printer } from "lucide-react";
 import { AsyncButton } from "@/components/ui/async-button";
+import type { ReportFormat } from "@/features/reports/shared/report-question-ui";
 
 type ReportModalFooterProps = {
   canDownload: boolean;
@@ -12,6 +13,7 @@ type ReportModalFooterProps = {
   downloadLabel?: string;
   generatingLabel?: string;
   cancelVariant?: "button" | "native";
+  format?: ReportFormat | null;
 };
 
 const cancelClassName = "h-10 rounded-[0.8rem] border-slate-200 px-5 text-[0.88rem] text-slate-600";
@@ -24,7 +26,9 @@ export function ReportModalFooter({
   downloadLabel = "Download PDF",
   generatingLabel = "Memuat data & membuat PDF...",
   cancelVariant = "button",
+  format = "pdf",
 }: ReportModalFooterProps) {
+  const DownloadIcon = format === "excel" ? FileSpreadsheet : Printer;
   const cancel = cancelVariant === "native" ? (
     <button
       type="button"
@@ -47,7 +51,7 @@ export function ReportModalFooter({
         disabled={!canDownload}
         isPending={generating}
         pendingLabel={generatingLabel}
-        icon={Printer}
+        icon={DownloadIcon}
         onClick={onDownload}
         className={cn(
           "inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] px-6 text-[0.88rem] font-semibold text-white transition-all duration-200",

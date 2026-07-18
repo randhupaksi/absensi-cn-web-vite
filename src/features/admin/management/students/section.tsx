@@ -510,7 +510,7 @@ export function StudentSection({
                   <span className="flex size-8 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_20px_rgba(124,58,237,0.2)]">
                     <Printer className="size-4" />
                   </span>
-                  Cetak Laporan
+                  Export Laporan
                 </Button>
               )}
             </div>

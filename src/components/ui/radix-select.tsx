@@ -3,7 +3,9 @@
 import * as Select from "@radix-ui/react-select";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+
+const MAX_RENDERED_OPTIONS = 100;
 
 type RadixSelectOption = {
   value: string;
@@ -42,13 +44,25 @@ export function RadixSelectField({
 }: RadixSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [visibleOptionCount, setVisibleOptionCount] = useState(MAX_RENDERED_OPTIONS);
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredOptions = useMemo(() => {
-    if (!searchable || normalizedQuery.length === 0) return options;
-    return options.filter((option) =>
-      `${option.label} ${option.description ?? ""}`.toLowerCase().includes(normalizedQuery),
-    );
-  }, [normalizedQuery, options, searchable]);
+  const indexedOptions = useMemo(
+    () => options.map((option) => ({ option, searchText: `${option.label} ${option.description ?? ""}`.toLowerCase() })),
+    [options],
+  );
+  const filteredOptions = useMemo(
+    () => (!searchable || normalizedQuery.length === 0
+      ? indexedOptions
+      : indexedOptions.filter((item) => item.searchText.includes(normalizedQuery))),
+    [indexedOptions, normalizedQuery, searchable],
+  );
+  useEffect(() => {
+    setVisibleOptionCount(MAX_RENDERED_OPTIONS);
+  }, [normalizedQuery, options.length, open]);
+  const renderedOptions = useMemo(
+    () => filteredOptions.slice(0, visibleOptionCount),
+    [filteredOptions, visibleOptionCount],
+  );
 
   return (
     <Select.Root
@@ -99,13 +113,21 @@ export function RadixSelectField({
             </div>
           ) : null}
 
-          <Select.Viewport className="max-h-[280px] space-y-1">
+          <Select.Viewport
+            className="max-h-[280px] space-y-1 overscroll-contain"
+            onScroll={(event) => {
+              const viewport = event.currentTarget;
+              if (viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 80) {
+                setVisibleOptionCount((count) => Math.min(count + MAX_RENDERED_OPTIONS, filteredOptions.length));
+              }
+            }}
+          >
             {filteredOptions.length === 0 ? (
               <div className="px-3 py-6 text-center text-sm text-slate-400">
                 {emptyText}
               </div>
             ) : null}
-            {filteredOptions.map((option) => (
+            {renderedOptions.map(({ option }) => (
               <SelectItem key={option.value} value={option.value} hideIndicator={hideIndicator} className={itemClassName}>
                 <div className="min-w-0">
                   <p className="truncate font-medium text-slate-700">{option.label}</p>
@@ -117,6 +139,11 @@ export function RadixSelectField({
                 </div>
               </SelectItem>
             ))}
+            {filteredOptions.length > renderedOptions.length ? (
+              <p className="px-3 py-2 text-center text-xs text-slate-400">
+                Menampilkan {renderedOptions.length} dari {filteredOptions.length}. Gulir untuk memuat lebih banyak.
+              </p>
+            ) : null}
           </Select.Viewport>
         </Select.Content>
       </Select.Portal>

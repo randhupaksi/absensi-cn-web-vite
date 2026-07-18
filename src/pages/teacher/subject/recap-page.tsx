@@ -92,7 +92,7 @@ export function MapelRecapPage() {
                 className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800"
               >
                 <Printer className="size-4" />
-                Cetak Laporan
+                Export Laporan
               </Button>
             </div>
             <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">

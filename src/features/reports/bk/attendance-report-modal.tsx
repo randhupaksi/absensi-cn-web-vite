@@ -24,8 +24,11 @@ import { cn } from "@/lib/utils";
 import {
   QuestionBlock,
   ReportCheckbox,
+  ReportFormatQuestion,
   ReportRadio,
+  type ReportFormat,
 } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getBKAttendanceOverview } from "@/services/staff.service";
 import type { StaffAttendanceRecord, StaffBKClassSummary } from "@/types/staff";
 import {
@@ -195,6 +198,37 @@ async function generateBKAbsensiPdf(
   doc.save(`Laporan-Absensi-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateBKAbsensiExcel(
+  records: StaffAttendanceRecord[],
+  meta: { tanggal: string; kelas: string; status: string; urutan: string },
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Absensi-BK-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN ABSENSI LINTAS KELAS",
+    subtitle: "Sekolah Citra Negara - Laporan Guru Bimbingan Konseling",
+    metadata: [
+      { label: "Periode", value: meta.tanggal },
+      { label: "Kelas", value: meta.kelas },
+      { label: "Status", value: meta.status },
+      { label: "Urutan", value: meta.urutan },
+    ],
+    rows: records,
+    dataSheetName: "Detail Absensi",
+    columns: [
+      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      { header: "NIS", value: (record) => record.nis, width: 17 },
+      ...(columns.kelas ? [{ header: "Kelas", value: (record: StaffAttendanceRecord) => record.class_name, width: 24 }] : []),
+      ...(columns.tanggal ? [{ header: "Tanggal", value: (record: StaffAttendanceRecord) => record.attendance_date ? new Date(`${record.attendance_date}T00:00:00`) : null, width: 17, kind: "date" as const }] : []),
+      ...(columns.checkIn ? [{ header: "Absen Masuk", value: (record: StaffAttendanceRecord) => record.check_in_at ? new Date(record.check_in_at) : null, width: 20, kind: "date" as const, numberFormat: "hh:mm" }] : []),
+      ...(columns.status ? [{ header: "Status", value: (record: StaffAttendanceRecord) => STATUS_LABEL[record.status.toLowerCase()] ?? record.status, width: 15, kind: "status" as const }] : []),
+      ...(columns.diverifikasi ? [{ header: "Verifikasi", value: (record: StaffAttendanceRecord) => record.verified_at ? "Sudah" : "Belum", width: 16, kind: "status" as const }] : []),
+      ...(columns.catatan ? [{ header: "Catatan", value: (record: StaffAttendanceRecord) => record.verification_note || record.notes, width: 42 }] : []),
+    ],
+  });
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -204,6 +238,7 @@ type Props = {
 };
 
 export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [dateMode, setDateMode] = useState<DateMode | null>(null);
   const [specificDate, setSpecificDate] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
@@ -242,7 +277,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
   const showQ2 = q1Answered;
   const showQ3 = q1Answered && q2FullyAnswered;
   const showQ4 = showQ3 && statusFilter !== null;
-  const canDownload = showQ4 && sortBy !== null;
+  const canDownload = format !== null && showQ4 && sortBy !== null;
 
   const selectedClass = useMemo(
     () => classes.find((c) => c.class_id === selectedClassId) ?? null,
@@ -250,6 +285,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
   );
 
   function reset() {
+    setFormat(null);
     setDateMode(null);
     setSpecificDate("");
     setDateRange({ from: undefined, to: undefined });
@@ -320,9 +356,13 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           sortBy === "class" ? "Kelas" : "Waktu Absen Masuk",
       };
 
-      await generateBKAbsensiPdf(sorted, meta, columns);
+      if (format === "excel") {
+        await generateBKAbsensiExcel(sorted, meta, columns);
+      } else {
+        await generateBKAbsensiPdf(sorted, meta, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -332,12 +372,13 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Absensi BK"
-      description="Filter tanggal, kelas, dan status — unduh PDF absensi lintas kelas siap cetak."
+      title="Export Laporan Absensi BK"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap absensi lintas kelas."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Tanggal */}
         <QuestionBlock icon={CalendarClock} label="Pilih tanggal absensi" answered={q1Answered}>
           <div className="grid gap-2 sm:grid-cols-3">
@@ -686,6 +727,9 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
           cancelVariant="native"
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

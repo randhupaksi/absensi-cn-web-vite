@@ -15,8 +15,11 @@ import { cn } from "@/lib/utils";
 import {
   QuestionBlock,
   ReportCheckbox,
+  ReportFormatQuestion,
   ReportRadio,
+  type ReportFormat,
 } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getBKSubmissionsOverview } from "@/services/staff.service";
 import type { StaffBKClassSummary, StaffSubmission } from "@/types/staff";
 import {
@@ -142,6 +145,37 @@ async function generateBKPengajuanPdf(
   doc.save(`Laporan-Pengajuan-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateBKPengajuanExcel(
+  records: StaffSubmission[],
+  meta: { kelas: string; tipe: string; status: string; urutan: string },
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Pengajuan-BK-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN PENGAJUAN SISWA - BK",
+    subtitle: "Sekolah Citra Negara - Laporan Guru Bimbingan Konseling",
+    metadata: [
+      { label: "Kelas", value: meta.kelas },
+      { label: "Tipe", value: meta.tipe },
+      { label: "Status", value: meta.status },
+      { label: "Urutan", value: meta.urutan },
+    ],
+    rows: records,
+    dataSheetName: "Data Pengajuan",
+    columns: [
+      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      { header: "NIS", value: (record) => record.nis, width: 17 },
+      ...(columns.kelas ? [{ header: "Kelas", value: (record: StaffSubmission) => record.class_name, width: 24 }] : []),
+      ...(columns.tipe ? [{ header: "Tipe", value: (record: StaffSubmission) => TYPE_LABEL[record.type] ?? record.type, width: 16, kind: "status" as const }] : []),
+      ...(columns.alasan ? [{ header: "Alasan", value: (record: StaffSubmission) => record.reason, width: 42 }] : []),
+      ...(columns.status ? [{ header: "Status", value: (record: StaffSubmission) => STATUS_LABEL[normalizeStatus(record.status)] ?? record.status, width: 16, kind: "status" as const }] : []),
+      ...(columns.catatanReview ? [{ header: "Catatan Review", value: (record: StaffSubmission) => record.review_note, width: 38 }] : []),
+      ...(columns.waktu ? [{ header: "Waktu Pengajuan", value: (record: StaffSubmission) => record.created_at ? new Date(record.created_at) : null, width: 22, kind: "date" as const, numberFormat: "dd mmm yyyy hh:mm" }] : []),
+    ],
+  });
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -151,6 +185,7 @@ type Props = {
 };
 
 export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [classFilter, setClassFilter] = useState<ClassFilter | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<TypeFilter | null>(null);
@@ -171,7 +206,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
   const showQ2 = q1FullyAnswered;
   const showQ3 = q1FullyAnswered && typeFilter !== null;
   const showQ4 = showQ3 && statusFilter !== null;
-  const canDownload = showQ4 && sortBy !== null;
+  const canDownload = format !== null && showQ4 && sortBy !== null;
 
   const selectedClass = useMemo(
     () => classes.find((c) => c.class_id === selectedClassId) ?? null,
@@ -179,6 +214,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
   );
 
   function reset() {
+    setFormat(null);
     setClassFilter(null);
     setSelectedClassId(null);
     setTypeFilter(null);
@@ -241,9 +277,13 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           sortBy === "status" ? "Status" : "Waktu (Terbaru)",
       };
 
-      await generateBKPengajuanPdf(sorted, meta, columns);
+      if (format === "excel") {
+        await generateBKPengajuanExcel(sorted, meta, columns);
+      } else {
+        await generateBKPengajuanPdf(sorted, meta, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -253,12 +293,13 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Pengajuan BK"
-      description="Filter kelas, tipe, dan status pengajuan — unduh PDF rekap izin & dispensasi siap cetak."
+      title="Export Laporan Pengajuan BK"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap izin, sakit, dan dispensasi."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Kelas */}
         <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q1FullyAnswered}>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -407,6 +448,9 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
           cancelVariant="native"
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

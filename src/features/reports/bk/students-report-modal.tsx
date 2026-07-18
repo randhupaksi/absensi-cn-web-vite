@@ -15,8 +15,11 @@ import { cn } from "@/lib/utils";
 import {
   QuestionBlock,
   ReportCheckbox,
+  ReportFormatQuestion,
   ReportRadio,
+  type ReportFormat,
 } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getBKStudentsOverview } from "@/services/staff.service";
 import type { StaffBKClassSummary, StaffStudentSummary } from "@/types/staff";
 import { ArrowUpDown, GraduationCap, ListChecks, Printer, TriangleAlert } from "lucide-react";
@@ -114,6 +117,42 @@ async function generateBKSiswaPdf(
   doc.save(`Laporan-BK-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateBKSiswaExcel(
+  data: StaffStudentSummary[],
+  filterKelasLabel: string,
+  filterRisikoLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-BK-Siswa-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN MONITORING SISWA",
+    subtitle: "Sekolah Citra Negara - Laporan Guru Bimbingan Konseling",
+    metadata: [
+      { label: "Kelas", value: filterKelasLabel },
+      { label: "Kondisi", value: filterRisikoLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows: data,
+    dataSheetName: "Monitoring Siswa",
+    columns: [
+      { header: "No", value: (_student, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (student) => student.name, width: 28 },
+      { header: "NIS", value: (student) => student.nis, width: 17 },
+      ...(columns.kelas ? [{ header: "Kelas", value: (student: StaffStudentSummary) => student.class_name, width: 24 }] : []),
+      ...(columns.identitas ? [
+        { header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—", width: 18 },
+        { header: "NISN", value: (student: StaffStudentSummary) => student.nisn, width: 17 },
+      ] : []),
+      ...(columns.izin ? [{ header: "I", value: (student: StaffStudentSummary) => student.permission_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.sakit ? [{ header: "S", value: (student: StaffStudentSummary) => student.sick_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.alfa ? [{ header: "A", value: (student: StaffStudentSummary) => student.alpha_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.telat ? [{ header: "T", value: (student: StaffStudentSummary) => student.late_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.status ? [{ header: "Status", value: (student: StaffStudentSummary) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
+    ],
+  });
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -123,6 +162,7 @@ type Props = {
 };
 
 export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [classFilter, setClassFilter] = useState<ClassFilter | null>(null);
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [riskFilter, setRiskFilter] = useState<RiskFilter | null>(null);
@@ -142,7 +182,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     classFilter === "all" || (classFilter === "specific" && selectedClassIds.length > 0);
   const showQ2 = q1FullyAnswered;
   const showQ3 = q1FullyAnswered && riskFilter !== null;
-  const canDownload = showQ3 && sortBy !== null;
+  const canDownload = format !== null && showQ3 && sortBy !== null;
 
   const selectedClasses = useMemo(
     () => classes.filter((c) => selectedClassIds.includes(c.class_id)),
@@ -158,6 +198,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
   }
 
   function resetState() {
+    setFormat(null);
     setClassFilter(null);
     setSelectedClassIds([]);
     setRiskFilter(null);
@@ -208,9 +249,13 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
         sortBy === "nis" ? "NIS" :
         sortBy === "alpha" ? "Alfa (terbanyak)" : "Telat (terbanyak)";
 
-      await generateBKSiswaPdf(sorted, filterKelasLabel, filterRisikoLabel, sortLabel, columns);
+      if (format === "excel") {
+        await generateBKSiswaExcel(sorted, filterKelasLabel, filterRisikoLabel, sortLabel, columns);
+      } else {
+        await generateBKSiswaPdf(sorted, filterKelasLabel, filterRisikoLabel, sortLabel, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -220,12 +265,13 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Siswa BK"
-      description="Sesuaikan filter dan kolom, lalu unduh PDF monitoring siswa siap cetak."
+      title="Export Laporan Siswa BK"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk monitoring dan tindak lanjut BK."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Filter kelas */}
         <QuestionBlock
           icon={GraduationCap}
@@ -434,6 +480,9 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
           generating={generating}
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

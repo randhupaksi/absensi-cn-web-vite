@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Check, type LucideIcon } from "lucide-react";
+import { Check, FileSpreadsheet, FileText, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function QuestionBlock({
@@ -127,5 +127,32 @@ export function ReportCheckbox({
         </span>
       )}
     </button>
+  );
+}
+
+export type ReportFormat = "pdf" | "excel";
+
+export function ReportFormatQuestion({
+  value,
+  onChange,
+}: {
+  value: ReportFormat | null;
+  onChange: (value: ReportFormat) => void;
+}) {
+  return (
+    <QuestionBlock icon={value === "excel" ? FileSpreadsheet : FileText} label="Pilih format laporan" answered={value !== null}>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <ReportRadio
+          selected={value === "pdf"}
+          label="PDF - siap baca & cetak"
+          onClick={() => onChange("pdf")}
+        />
+        <ReportRadio
+          selected={value === "excel"}
+          label="Excel - siap olah & rekap"
+          onClick={() => onChange("excel")}
+        />
+      </div>
+    </QuestionBlock>
   );
 }

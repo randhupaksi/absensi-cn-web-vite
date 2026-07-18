@@ -11,7 +11,8 @@ import {
   REPORT_PDF_MARGIN_X,
   REPORT_TABLE_STYLE,
 } from "@/lib/reports/pdf-report-kit";
-import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/shared/report-question-ui";
+import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getTeacherHomeroomStudents } from "@/services/staff.service";
 import type { StaffHomeroomContext, StaffStudentSummary } from "@/types/staff";
 import { ArrowUpDown, ListChecks, Printer, TriangleAlert } from "lucide-react";
@@ -104,6 +105,44 @@ async function generateWalasSiswaPdf(
   doc.save(`Laporan-Walas-Siswa-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateWalasSiswaExcel(
+  data: StaffStudentSummary[],
+  homeroom: StaffHomeroomContext,
+  conditionLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Walas-Siswa-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN SISWA KELAS",
+    subtitle: "Sekolah Citra Negara - Laporan Wali Kelas",
+    metadata: [
+      { label: "Kelas", value: homeroom.class_name },
+      { label: "Tahun ajaran", value: homeroom.school_year_name },
+      { label: "Filter", value: conditionLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows: data,
+    dataSheetName: "Rekap Siswa",
+    showColumnFilters: false,
+    columns: [
+      { header: "No", value: (_student, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (student) => student.name, width: 28 },
+      ...(columns.nis ? [
+        { header: "NIS", value: (student: StaffStudentSummary) => student.nis, width: 17 },
+        { header: "NISN", value: (student: StaffStudentSummary) => student.nisn, width: 17 },
+      ] : []),
+      ...(columns.gender ? [{ header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—", width: 18 }] : []),
+      ...(columns.identitas ? [{ header: "Identitas", value: (student: StaffStudentSummary) => student.nisn, width: 18 }] : []),
+      ...(columns.izin ? [{ header: "I", value: (student: StaffStudentSummary) => student.permission_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.sakit ? [{ header: "S", value: (student: StaffStudentSummary) => student.sick_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.alfa ? [{ header: "A", value: (student: StaffStudentSummary) => student.alpha_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.telat ? [{ header: "T", value: (student: StaffStudentSummary) => student.late_count, width: 8, kind: "attendance" as const }] : []),
+      ...(columns.status ? [{ header: "Status", value: (student: StaffStudentSummary) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
+    ],
+  });
+}
+
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -111,15 +150,17 @@ type Props = {
 };
 
 export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [conditionFilter, setConditionFilter] = useState<ConditionFilter | null>(null);
   const [columns, setColumns] = useState<Columns>({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
   const [sortBy, setSortBy] = useState<SortBy | null>(null);
   const [generating, setGenerating] = useState(false);
 
   const showQ2 = conditionFilter !== null;
-  const canDownload = conditionFilter !== null && sortBy !== null;
+  const canDownload = format !== null && conditionFilter !== null && sortBy !== null;
 
   function resetState() {
+    setFormat(null);
     setConditionFilter(null);
     setColumns({ nis: true, gender: false, identitas: false, telat: true, alfa: true, izin: false, sakit: false, status: false });
     setSortBy(null);
@@ -161,9 +202,13 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
       const conditionLabel = conditionFilter ? CONDITION_LABELS[conditionFilter] : "Semua Siswa";
       const sortLabel = sortBy === "name" ? "Nama (A–Z)" : sortBy === "nis" ? "NIS" : sortBy === "alpha" ? "Alfa (terbanyak)" : "Telat (terbanyak)";
 
-      await generateWalasSiswaPdf(sorted, homeroom, conditionLabel, sortLabel, columns);
+      if (format === "excel") {
+        await generateWalasSiswaExcel(sorted, homeroom, conditionLabel, sortLabel, columns);
+      } else {
+        await generateWalasSiswaPdf(sorted, homeroom, conditionLabel, sortLabel, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -173,12 +218,13 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Siswa Kelas"
-      description="Filter kondisi dan kolom, lalu unduh PDF daftar siswa wali kelas siap cetak."
+      title="Export Laporan Siswa Kelas"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap wali kelas."
       icon={Printer}
       className="sm:!max-w-[620px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Filter kondisi */}
         <QuestionBlock icon={TriangleAlert} label="Filter berdasarkan kondisi siswa" answered={conditionFilter !== null}>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -235,6 +281,9 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
           generating={generating}
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

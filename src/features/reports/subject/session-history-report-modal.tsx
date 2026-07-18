@@ -2,7 +2,8 @@
 
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ReportModalFooter } from "@/features/reports/shared/report-modal-footer";
-import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/shared/report-question-ui";
+import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
 import {
   drawReportPdfFooter,
@@ -53,6 +54,7 @@ export function SubjectSessionHistoryReportModal({
   periodeLabel,
   statusLabel,
 }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [columns, setColumns] = useState<Columns>({ status: true, topic: true, hisa: true });
   const [sortBy, setSortBy] = useState<SortBy | null>("date_desc");
   const [generating, setGenerating] = useState(false);
@@ -72,6 +74,11 @@ export function SubjectSessionHistoryReportModal({
     }
   }, [sortBy, sortOptions]);
 
+  function handleClose(isOpen: boolean) {
+    if (!isOpen) setFormat(null);
+    onOpenChange(isOpen);
+  }
+
   async function handleDownload() {
     if (!assignment || sessions.length === 0 || !sortBy) return;
     setGenerating(true);
@@ -82,9 +89,13 @@ export function SubjectSessionHistoryReportModal({
         return second.tanggal.localeCompare(first.tanggal, "id");
       });
 
-      await generateSubjectSessionHistoryPdf(sorted, assignment, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
+      if (format === "excel") {
+        await generateSubjectSessionHistoryExcel(sorted, assignment, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
+      } else {
+        await generateSubjectSessionHistoryPdf(sorted, assignment, periodeLabel, statusLabel, getSortLabel(sortBy), columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF sesi mapel. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"} sesi mapel. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -93,13 +104,14 @@ export function SubjectSessionHistoryReportModal({
   return (
     <PremiumModal
       open={open}
-      onOpenChange={onOpenChange}
-      title="Cetak Laporan Sesi Mapel"
-      description="Pilih kolom dan urutan data sebelum mengunduh PDF sesi mapel."
+      onOpenChange={handleClose}
+      title="Export Laporan Sesi Mapel"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk rekap sesi mata pelajaran."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         <QuestionBlock icon={Database} label="Data laporan" answered={Boolean(assignment && sessions.length > 0)}>
           <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
             <p className="font-semibold text-slate-900">{assignment ? `${assignment.subject_name} - ${assignment.class_name}` : "Belum ada mapel dipilih"}</p>
@@ -126,14 +138,56 @@ export function SubjectSessionHistoryReportModal({
         </QuestionBlock>
 
         <ReportModalFooter
-          canDownload={Boolean(assignment && sessions.length > 0 && sortBy)}
+          canDownload={Boolean(format && assignment && sessions.length > 0 && sortBy)}
           generating={generating}
-          onCancel={() => onOpenChange(false)}
+          onCancel={() => handleClose(false)}
           onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>
   );
+}
+
+async function generateSubjectSessionHistoryExcel(
+  sessions: StaffSubjectSessionListItem[],
+  assignment: StaffSubjectAssignment,
+  periodeLabel: string,
+  statusLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Riwayat-Sesi-${assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN RIWAYAT SESI MAPEL",
+    subtitle: "Sekolah Citra Negara - Sesi Guru Mata Pelajaran",
+    metadata: [
+      { label: "Mata pelajaran", value: assignment.subject_name },
+      { label: "Kelas", value: assignment.class_name },
+      { label: "Periode", value: periodeLabel },
+      { label: "Status", value: statusLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows: sessions,
+    dataSheetName: "Riwayat Sesi",
+    columns: [
+      { header: "No", value: (_session, index) => index + 1, width: 7, kind: "number" },
+      { header: "Tanggal", value: (session) => new Date(`${session.tanggal}T00:00:00`), width: 17, kind: "date" },
+      { header: "Hari", value: (session) => HARI_LABELS[session.hari] ?? session.hari, width: 13 },
+      { header: "Jam", value: (session) => `${session.jam_mulai}-${session.jam_selesai}`, width: 17 },
+      ...(columns.status ? [{ header: "Status", value: (session: StaffSubjectSessionListItem) => STATUS_LABELS[session.status] ?? session.status, width: 20, kind: "status" as const }] : []),
+      ...(columns.topic ? [{ header: "Topik", value: (session: StaffSubjectSessionListItem) => session.topic, width: 38 }] : []),
+      ...(columns.hisa ? [
+        { header: "H", value: (session: StaffSubjectSessionListItem) => session.hadir, width: 8, kind: "attendance" as const },
+        { header: "I", value: (session: StaffSubjectSessionListItem) => session.izin, width: 8, kind: "attendance" as const },
+        { header: "S", value: (session: StaffSubjectSessionListItem) => session.sakit, width: 8, kind: "attendance" as const },
+        { header: "A", value: (session: StaffSubjectSessionListItem) => session.alfa, width: 8, kind: "attendance" as const },
+        { header: "D", value: (session: StaffSubjectSessionListItem) => session.dispensasi, width: 8, kind: "attendance" as const },
+      ] : []),
+    ],
+  });
 }
 
 async function generateSubjectSessionHistoryPdf(

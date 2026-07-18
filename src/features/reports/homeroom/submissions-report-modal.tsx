@@ -11,7 +11,8 @@ import {
   REPORT_PDF_MARGIN_X,
   REPORT_TABLE_STYLE,
 } from "@/lib/reports/pdf-report-kit";
-import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/shared/report-question-ui";
+import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getTeacherHomeroomSubmissionsOverview } from "@/services/staff.service";
 import type { StaffHomeroomContext, StaffSubmission } from "@/types/staff";
 import { ArrowUpDown, ClipboardCheck, FileText, ListChecks, Printer } from "lucide-react";
@@ -102,6 +103,44 @@ async function generateWalasPengajuanPdf(
   doc.save(`Laporan-Walas-Pengajuan-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+async function generateWalasPengajuanExcel(
+  records: StaffSubmission[],
+  homeroom: StaffHomeroomContext,
+  typeLabel: string,
+  statusLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  const dateValue = (record: StaffSubmission) => {
+    const raw = record as unknown as Record<string, string>;
+    const value = raw.created_at ?? raw.submitted_at;
+    return value ? new Date(value) : null;
+  };
+  await exportStyledExcelReport({
+    filename: `Laporan-Walas-Pengajuan-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN PENGAJUAN KELAS",
+    subtitle: "Sekolah Citra Negara - Laporan Wali Kelas",
+    metadata: [
+      { label: "Kelas", value: homeroom.class_name },
+      { label: "Tipe", value: typeLabel },
+      { label: "Status", value: statusLabel },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows: records,
+    dataSheetName: "Data Pengajuan",
+    columns: [
+      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      ...(columns.nis ? [{ header: "NIS", value: (record: StaffSubmission) => record.nis, width: 17 }] : []),
+      ...(columns.type ? [{ header: "Tipe", value: (record: StaffSubmission) => TYPE_LABELS[record.type as TypeFilter] ?? record.type, width: 16, kind: "status" as const }] : []),
+      ...(columns.reason ? [{ header: "Alasan", value: (record: StaffSubmission) => record.reason, width: 42 }] : []),
+      ...(columns.status ? [{ header: "Status", value: (record: StaffSubmission) => STATUS_LABELS[(record.status ?? "") as StatusFilter] ?? record.status, width: 16, kind: "status" as const }] : []),
+      ...(columns.catatan ? [{ header: "Catatan Review", value: (record: StaffSubmission) => (record as unknown as Record<string, string>).review_note, width: 38 }] : []),
+      ...(columns.waktu ? [{ header: "Waktu Pengajuan", value: dateValue, width: 22, kind: "date" as const, numberFormat: "dd mmm yyyy hh:mm" }] : []),
+    ],
+  });
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -111,6 +150,7 @@ type Props = {
 };
 
 export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [typeFilter, setTypeFilter] = useState<TypeFilter | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
   const [columns, setColumns] = useState<Columns>({ nis: true, type: true, reason: true, status: true, catatan: false, waktu: false });
@@ -119,9 +159,10 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
 
   const showQ2 = typeFilter !== null;
   const showQ3 = typeFilter !== null && statusFilter !== null;
-  const canDownload = showQ3 && sortBy !== null;
+  const canDownload = format !== null && showQ3 && sortBy !== null;
 
   function resetState() {
+    setFormat(null);
     setTypeFilter(null);
     setStatusFilter(null);
     setColumns({ nis: true, type: true, reason: true, status: true, catatan: false, waktu: false });
@@ -167,9 +208,13 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
         sortBy === "type" ? "Tipe" :
         sortBy === "status" ? "Status" : "Waktu terbaru";
 
-      await generateWalasPengajuanPdf(sorted, homeroom, typeLabel, statusLabel, sortLabel, columns);
+      if (format === "excel") {
+        await generateWalasPengajuanExcel(sorted, homeroom, typeLabel, statusLabel, sortLabel, columns);
+      } else {
+        await generateWalasPengajuanPdf(sorted, homeroom, typeLabel, statusLabel, sortLabel, columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -179,12 +224,13 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
     <PremiumModal
       open={open}
       onOpenChange={handleClose}
-      title="Cetak Laporan Pengajuan Kelas"
-      description="Filter tipe dan status, lalu unduh PDF rekap pengajuan kelas siap cetak."
+      title="Export Laporan Pengajuan Kelas"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk mengolah rekap pengajuan."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 — Tipe */}
         <QuestionBlock icon={FileText} label="Filter berdasarkan tipe pengajuan" answered={typeFilter !== null}>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -250,6 +296,9 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
           generating={generating}
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

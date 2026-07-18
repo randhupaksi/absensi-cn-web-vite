@@ -2,7 +2,8 @@
 
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ReportModalFooter } from "@/features/reports/shared/report-modal-footer";
-import { QuestionBlock, ReportCheckbox, ReportRadio } from "@/features/reports/shared/report-question-ui";
+import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
 import {
   drawReportPdfFooter,
@@ -29,6 +30,7 @@ type Props = {
 };
 
 export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabel }: Props) {
+  const [format, setFormat] = useState<ReportFormat | null>(null);
   const [columns, setColumns] = useState<Columns>({ nis: true, detail: true, dispensasi: true });
   const [sortBy, setSortBy] = useState<SortBy | null>("name");
   const [generating, setGenerating] = useState(false);
@@ -49,6 +51,11 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
     }
   }, [sortBy, sortOptions]);
 
+  function handleClose(isOpen: boolean) {
+    if (!isOpen) setFormat(null);
+    onOpenChange(isOpen);
+  }
+
   async function handleDownload() {
     if (!recap || recap.students.length === 0 || !sortBy) return;
     setGenerating(true);
@@ -61,9 +68,13 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
         return first.student_name.localeCompare(second.student_name, "id");
       });
 
-      await generateSubjectRecapPdf(sorted, recap, periodeLabel, getSortLabel(sortBy), columns);
+      if (format === "excel") {
+        await generateSubjectRecapExcel(sorted, recap, periodeLabel, getSortLabel(sortBy), columns);
+      } else {
+        await generateSubjectRecapPdf(sorted, recap, periodeLabel, getSortLabel(sortBy), columns);
+      }
     } catch {
-      toast.error("Gagal membuat PDF rekap mapel. Silakan coba lagi.");
+      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"} rekap mapel. Silakan coba lagi.`);
     } finally {
       setGenerating(false);
     }
@@ -72,13 +83,14 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
   return (
     <PremiumModal
       open={open}
-      onOpenChange={onOpenChange}
-      title="Cetak Laporan Rekap Mapel"
-      description="Pilih kolom dan urutan data sebelum mengunduh PDF rekap kehadiran mapel."
+      onOpenChange={handleClose}
+      title="Export Laporan Rekap Mapel"
+      description="Pilih PDF siap cetak atau Excel bergaya untuk pengolahan rekap mata pelajaran."
       icon={Printer}
       className="sm:!max-w-[640px]"
     >
       <div className="space-y-4">
+        <ReportFormatQuestion value={format} onChange={setFormat} />
         <QuestionBlock icon={Database} label="Data laporan" answered={Boolean(recap && recap.students.length > 0)}>
           <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
             <p className="font-semibold text-slate-900">{recap ? `${recap.assignment.subject_name} - ${recap.assignment.class_name}` : "Belum ada mapel dipilih"}</p>
@@ -106,14 +118,62 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
         </QuestionBlock>
 
         <ReportModalFooter
-          canDownload={Boolean(recap && recap.students.length > 0 && sortBy)}
+          canDownload={Boolean(format && recap && recap.students.length > 0 && sortBy)}
           generating={generating}
-          onCancel={() => onOpenChange(false)}
+          onCancel={() => handleClose(false)}
           onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>
   );
+}
+
+async function generateSubjectRecapExcel(
+  rows: HisaRow[],
+  recap: StaffSubjectRecap,
+  periodeLabel: string,
+  sortLabel: string,
+  columns: Columns,
+) {
+  await exportStyledExcelReport({
+    filename: `Laporan-Rekap-Mapel-${recap.assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
+    title: "LAPORAN REKAP MAPEL",
+    subtitle: "Sekolah Citra Negara - Rekap Kehadiran Guru Mata Pelajaran",
+    metadata: [
+      { label: "Mata pelajaran", value: recap.assignment.subject_name },
+      { label: "Kelas", value: recap.assignment.class_name },
+      { label: "Periode", value: periodeLabel },
+      { label: "Pertemuan", value: recap.total_pertemuan },
+      { label: "Urutan", value: sortLabel },
+    ],
+    rows,
+    dataSheetName: "Rekap Siswa",
+    showColumnFilters: false,
+    columns: [
+      { header: "No", value: (_row, index) => index + 1, width: 7, kind: "number" },
+      { header: "Nama Siswa", value: (row) => row.student_name, width: 28 },
+      ...(columns.nis ? [{ header: "NIS", value: (row: HisaRow) => row.nis, width: 17 }] : []),
+      { header: "H", value: (row) => row.h, width: 8, kind: "attendance" },
+      { header: "I", value: (row) => row.i, width: 8, kind: "attendance" },
+      { header: "S", value: (row) => row.s, width: 8, kind: "attendance" },
+      { header: "A", value: (row) => row.a, width: 8, kind: "attendance" },
+      ...(columns.detail ? [
+        { header: "T", value: (row: HisaRow) => row.telat, width: 8, kind: "attendance" as const },
+        { header: "AK", value: (row: HisaRow) => row.alfa_kelas, width: 9, kind: "attendance" as const },
+      ] : []),
+      ...(columns.dispensasi ? [{ header: "D", value: (row: HisaRow) => row.dispensasi, width: 8, kind: "attendance" as const }] : []),
+      {
+        header: "Persentase Hadir",
+        value: (row) => recap.total_pertemuan > 0 ? row.h / recap.total_pertemuan : 0,
+        width: 19,
+        kind: "number",
+        numberFormat: "0%",
+      },
+    ],
+  });
 }
 
 async function generateSubjectRecapPdf(
