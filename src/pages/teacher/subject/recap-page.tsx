@@ -2,16 +2,21 @@
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
+  DataTablePagination,
   MobileDataCard,
   MobileDataHeader,
   MobileDataList,
+  usePagination,
 } from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { getTeacherSubjectAssignments, getTeacherSubjectRecap } from "@/services/staff.service";
+import {
+  getTeacherSubjectAssignments,
+  getTeacherSubjectRecap,
+} from "@/services/staff.service";
 import dynamic from "@/lib/dynamic";
 import type { StaffSubjectRecapStudentRow } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
@@ -50,6 +55,8 @@ export function MapelRecapPage() {
     staleTime: 60_000,
   });
 
+  const assignments = assignmentsQuery.data ?? [];
+
   const recapQuery = useQuery({
     queryKey: ["subject-recap", selectedAssignmentId, dateFromStr, dateToStr],
     queryFn: () =>
@@ -63,8 +70,8 @@ export function MapelRecapPage() {
     staleTime: 0,
   });
 
-  const assignments = assignmentsQuery.data ?? [];
   const recap = recapQuery.data;
+  const { pageItems: pagedStudents, pagination: studentsPagination } = usePagination(recap?.students ?? [], 10);
   const periodeLabel = buildPeriodLabel(dateFromStr, dateToStr, recap?.period_start, recap?.period_end);
 
   const assignmentOptions = assignments.map((a) => ({
@@ -150,7 +157,7 @@ export function MapelRecapPage() {
           {/* Recap table */}
           {!selectedAssignmentId ? (
             <section>
-              <EmptyState icon={ChartColumnBig} title="Pilih mata pelajaran" description="Pilih mata pelajaran untuk melihat rekap kehadiran siswa." />
+              <EmptyState icon={ChartColumnBig} title="Pilih mata pelajaran" description="Pilih mata pelajaran di atas untuk membuka rekap kehadiran siswa." />
             </section>
           ) : recapQuery.error ? (
             <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
@@ -190,7 +197,7 @@ export function MapelRecapPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {recap.students.map((s, i) => (
+                      {pagedStudents.map((s, i) => (
                         <motion.tr
                           key={s.student_id}
                           initial={{ opacity: 0, y: 4 }}
@@ -220,7 +227,7 @@ export function MapelRecapPage() {
                   </table>
                 </div>
                 <MobileDataList>
-                  {recap.students.map((s) => (
+                  {pagedStudents.map((s) => (
                     <MobileDataCard key={s.student_id}>
                       <MobileDataHeader title={s.student_name} subtitle={s.nis} />
                       <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
@@ -232,6 +239,7 @@ export function MapelRecapPage() {
                     </MobileDataCard>
                   ))}
                 </MobileDataList>
+                <DataTablePagination {...studentsPagination} />
                 </>
               )}
             </section>

@@ -15,7 +15,9 @@ import {
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { KoreksiModal } from "@/features/teacher/subject/components/session-modals";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Input } from "@/components/ui/input";
+import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
@@ -55,6 +57,13 @@ function getTimeString(date: Date): string {
 const STATUS_LABELS: Record<string, string> = {
   hadir: "Hadir", izin: "Izin", sakit: "Sakit", alfa: "Alfa",
 };
+
+const CORRECTION_STATUS_OPTIONS = [
+  { value: "hadir", label: "Hadir" },
+  { value: "izin", label: "Izin" },
+  { value: "sakit", label: "Sakit" },
+  { value: "alfa", label: "Alfa" },
+];
 
 const STATUS_PAGI_CLS: Record<string, string> = {
   hadir: "bg-emerald-100 text-emerald-700",
@@ -175,6 +184,7 @@ export function MapelSessionPage() {
     <WalasShell>
       {() => (
         <>
+          <BackButton href="/dashboard/teacher/subject/history" label="Kembali ke Sesi Mapel" />
           {/* Session header */}
           {isAutoLoading ? (
             <section className="flex items-center gap-3 rounded-[28px] border border-white/70 bg-white/88 p-5">
@@ -313,8 +323,8 @@ export function MapelSessionPage() {
                           <th className="pb-3 pr-4">Konteks Sesi</th>
                           <th className="pb-3 pr-4 text-center">Status Pagi</th>
                           <th className="pb-3 pr-4 text-center">Status Mapel</th>
-                          <th className="pb-3 pr-4">Keterangan / Koreksi</th>
-                          <th className="pb-3 text-center">{isValidated ? "Koreksi" : "Override"}</th>
+                          <th className="pb-3 pr-4">Keterangan</th>
+                          <th className="pb-3 text-center">Koreksi</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
@@ -377,21 +387,21 @@ export function MapelSessionPage() {
                                     </span>
                                   )
                                 ) : r.is_editable ? (
-                                  <select
-                                    value={pendingOverrides[r.student_id] ?? r.status_mapel}
-                                    onChange={(e) =>
-                                      setPendingOverrides((prev) => ({
-                                        ...prev,
-                                        [r.student_id]: e.target.value,
-                                      }))
-                                    }
-                                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 focus:border-emerald-400 focus:outline-none"
-                                  >
-                                    <option value="hadir">Hadir</option>
-                                    <option value="izin">Izin</option>
-                                    <option value="sakit">Sakit</option>
-                                    <option value="alfa">Alfa</option>
-                                  </select>
+                                  <div className="flex justify-center">
+                                    <RadixSelectField
+                                      value={pendingOverrides[r.student_id] ?? r.status_mapel}
+                                      onValueChange={(value) =>
+                                        setPendingOverrides((prev) => ({
+                                          ...prev,
+                                          [r.student_id]: value,
+                                        }))
+                                      }
+                                      placeholder="Pilih status"
+                                      options={CORRECTION_STATUS_OPTIONS}
+                                      triggerClassName="h-10 w-[7.5rem] min-w-0 rounded-2xl px-3 text-xs"
+                                      contentClassName="w-[7.5rem] min-w-0"
+                                    />
+                                  </div>
                                 ) : (
                                   <span className="text-xs text-slate-400">Terkunci</span>
                                 )}
@@ -447,7 +457,7 @@ export function MapelSessionPage() {
                               }
                             />
                             <MobileDataField
-                              label="Keterangan / Koreksi"
+                              label="Keterangan"
                               value={r.is_edited ? (r.alasan_edit || "Sudah dikoreksi oleh guru mapel.") : (r.keterangan || "Tidak ada catatan")}
                             />
                           </div>
@@ -474,21 +484,19 @@ export function MapelSessionPage() {
                                 </span>
                               )
                             ) : r.is_editable ? (
-                              <select
+                              <RadixSelectField
                                 value={pendingOverrides[r.student_id] ?? r.status_mapel}
-                                onChange={(e) =>
+                                onValueChange={(value) =>
                                   setPendingOverrides((prev) => ({
                                     ...prev,
-                                    [r.student_id]: e.target.value,
+                                    [r.student_id]: value,
                                   }))
                                 }
-                                className="h-10 rounded-2xl border border-slate-200 bg-white px-3 text-xs text-slate-800 focus:border-emerald-400 focus:outline-none"
-                              >
-                                <option value="hadir">Hadir</option>
-                                <option value="izin">Izin</option>
-                                <option value="sakit">Sakit</option>
-                                <option value="alfa">Alfa</option>
-                              </select>
+                                placeholder="Pilih status"
+                                options={CORRECTION_STATUS_OPTIONS}
+                                triggerClassName="h-10 w-[7.5rem] min-w-0 rounded-2xl px-3 text-xs"
+                                contentClassName="w-[7.5rem] min-w-0"
+                              />
                             ) : (
                               <span className="text-xs text-slate-400">Terkunci</span>
                             )}

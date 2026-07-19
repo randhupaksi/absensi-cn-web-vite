@@ -45,6 +45,14 @@ export function RadixSelectField({
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleOptionCount, setVisibleOptionCount] = useState(MAX_RENDERED_OPTIONS);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!open || !searchable) return;
+    const frame = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, searchable]);
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const indexedOptions = useMemo(
     () => options.map((option) => ({ option, searchText: `${option.label} ${option.description ?? ""}`.toLowerCase() })),
@@ -103,6 +111,7 @@ export function RadixSelectField({
             <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
               <Search className="pointer-events-none absolute left-4.5 top-[calc(50%+1px)] size-4 -translate-y-1/2 text-slate-400" />
               <input
+                ref={searchInputRef}
                 autoFocus
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}

@@ -50,6 +50,14 @@ export function ComboboxField({
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [visibleOptionCount, setVisibleOptionCount] = React.useState(MAX_RENDERED_OPTIONS);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
   const selected = React.useMemo(() => options.find((option) => option.value === value), [options, value]);
   const indexedOptions = React.useMemo(
     () => options.map((option) => ({ option, searchText: `${option.label} ${option.description ?? ""}`.toLowerCase() })),
@@ -105,6 +113,7 @@ export function ComboboxField({
           <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
             <Search className="pointer-events-none absolute left-4.5 top-[calc(50%+1px)] size-4 -translate-y-1/2 text-slate-400" />
             <CommandPrimitive.Input
+              ref={searchInputRef}
               autoFocus
               value={searchQuery}
               onValueChange={setSearchQuery}

@@ -1,22 +1,26 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
-import { actionIconButtonClass } from "@/features/admin/management/shared/section-ui";
+import { actionIconButtonClass, DataTablePagination, usePagination } from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { getTeacherSubjectAssignments, getTeacherSubjectSessions } from "@/services/staff.service";
+import {
+  getTeacherSubjectAssignments,
+  getTeacherSubjectCurrentSession,
+  getTeacherSubjectSessions,
+} from "@/services/staff.service";
 import dynamic from "@/lib/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { motion } from "motion/react";
-import { BookOpenCheck, CalendarDays, Eye, History, Printer } from "lucide-react";
+import { ArrowUpRight, BookOpenCheck, CalendarClock, CalendarDays, Eye, History, Printer } from "lucide-react";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useSearchParams } from "@/lib/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const SubjectSessionHistoryReportModal = dynamic(
@@ -52,6 +56,7 @@ export function MapelHistoryPage() {
   const defaultAssignment = searchParams.get("assignment_id") ?? "";
 
   const [selectedAssignmentId, setSelectedAssignmentId] = useState(defaultAssignment);
+  const [currentClock, setCurrentClock] = useState(getCurrentClock);
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilterMode, setDateFilterMode] = useState<DateFilterMode>("range");
   const [singleDate, setSingleDate] = useState<Date | undefined>(undefined);
@@ -72,6 +77,39 @@ export function MapelHistoryPage() {
     staleTime: 60_000,
   });
 
+  useEffect(() => {
+    const interval = window.setInterval(() => setCurrentClock(getCurrentClock()), 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const currentSessionQuery = useQuery({
+    queryKey: ["teacher-subject-current-session-selection", currentClock.day, currentClock.time],
+    queryFn: () => getTeacherSubjectCurrentSession(currentClock.day, currentClock.time),
+    enabled: assignmentsQuery.isSuccess,
+    refetchInterval: 30_000,
+    staleTime: 30_000,
+  });
+
+  const assignments = assignmentsQuery.data ?? [];
+
+  useEffect(() => {
+    if (selectedAssignmentId || assignments.length === 0) return;
+
+    const activeSessionAssignmentId = currentSessionQuery.data?.assignment.id;
+    const scheduledAssignment = assignments.find((assignment) =>
+      assignment.schedules.some((schedule) =>
+        schedule.hari.toLowerCase() === currentClock.day &&
+        isTimeWithinSchedule(currentClock.time, schedule.jam_mulai, schedule.jam_selesai),
+      ),
+    );
+    const preferredAssignment =
+      assignments.find((assignment) => assignment.id === activeSessionAssignmentId) ??
+      scheduledAssignment ??
+      (assignments.length === 1 ? assignments[0] : assignments.find((assignment) => assignment.is_primary && assignment.is_active));
+
+    if (preferredAssignment) setSelectedAssignmentId(preferredAssignment.id);
+  }, [assignments, currentClock.day, currentClock.time, currentSessionQuery.data?.assignment.id, selectedAssignmentId]);
+
   const sessionsQuery = useQuery({
     queryKey: ["subject-sessions", selectedAssignmentId, statusFilter, dateFromStr, dateToStr],
     queryFn: () =>
@@ -86,12 +124,20 @@ export function MapelHistoryPage() {
     staleTime: 30_000,
   });
 
-  const assignments = assignmentsQuery.data ?? [];
   const sessionList = sessionsQuery.data;
   const sessions = sessionsQuery.data?.sessions ?? [];
+  const { pageItems: pagedSessions, pagination: sessionsPagination } = usePagination(sessions, 10);
   const selectedAssignment = sessionList?.assignment ?? assignments.find((a) => a.id === selectedAssignmentId);
   const periodeLabel = buildPeriodLabel(dateFromStr, dateToStr, sessions.map((session) => session.tanggal));
   const statusLabel = STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label ?? "Semua status";
+  const todayFocus = buildTodaySessionFocus({
+    assignments,
+    sessions,
+    activeSession: currentSessionQuery.data ?? null,
+    selectedAssignmentId,
+    currentClock,
+  });
+  const nextSchedule = buildNextScheduleFocus(assignments, currentClock, todayFocus);
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
@@ -102,11 +148,14 @@ export function MapelHistoryPage() {
     <WalasShell>
       {() => (
         (assignmentsQuery.isLoading && !assignmentsQuery.data) ||
+        (currentSessionQuery.isLoading && !selectedAssignmentId) ||
         (Boolean(selectedAssignmentId) && sessionsQuery.isLoading && !sessionsQuery.data)
       ) ? (
         <HistoryPageSkeleton />
       ) : (
         <>
+          <TodaySessionCard focus={todayFocus} nextSchedule={nextSchedule} />
+
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -191,11 +240,11 @@ export function MapelHistoryPage() {
               <EmptyState
                 icon={History}
                 title="Pilih mata pelajaran"
-                description="Pilih mata pelajaran di atas untuk melihat sesi mapel."
+                description="Pilih mata pelajaran di atas untuk membuka riwayat sesi mapel."
               />
             </section>
           ) : sessionsQuery.error ? (
-            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+            <section id="riwayat-sesi" className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
               <EmptyState icon={History} title="Riwayat belum bisa dimuat" description={sessionsQuery.error.message} />
             </section>
           ) : sessions.length === 0 ? (
@@ -237,7 +286,7 @@ export function MapelHistoryPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {sessions.map((sess, i) => {
+                    {pagedSessions.map((sess, i) => {
                       const statusInfo = STATUS_MAP[sess.status] ?? {
                         label: sess.status,
                         cls: "bg-slate-100 text-slate-600",
@@ -288,7 +337,7 @@ export function MapelHistoryPage() {
               </div>
 
               <div className="space-y-3 md:hidden">
-                {sessions.map((sess, i) => {
+                {pagedSessions.map((sess, i) => {
                   const statusInfo = STATUS_MAP[sess.status] ?? {
                     label: sess.status,
                     cls: "bg-slate-100 text-slate-600",
@@ -301,29 +350,33 @@ export function MapelHistoryPage() {
                       transition={{ duration: 0.18, delay: i * 0.03 }}
                       className="rounded-[1.35rem] border border-emerald-100/70 bg-white/80 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.06)]"
                     >
-                      <div>
-                        <p className="font-semibold text-slate-900">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                        <p className="font-semibold leading-6 text-slate-900">
                           {formatDisplayDate(sess.tanggal)}
                         </p>
-                        <p className="mt-0.5 text-xs text-slate-500">
+                        <div className="mt-3">
+                          <p className="text-sm font-medium leading-6 text-slate-900">{selectedAssignment?.subject_name ?? "Mapel"}</p>
+                          <p className="text-xs leading-5 text-slate-500">{selectedAssignment?.class_name ?? "Kelas belum dipilih"}</p>
+                        </div>
+                        <p className="mt-0.5 text-xs leading-5 text-slate-500">
                           {HARI_LABEL[sess.hari] ?? sess.hari} · {sess.jam_mulai}–{sess.jam_selesai}
                         </p>
-                      </div>
-                      <div className="mt-3">
-                        <p className="text-sm font-medium text-slate-900">{selectedAssignment?.subject_name ?? "Mapel"}</p>
-                        <p className="text-xs text-slate-500">{selectedAssignment?.class_name ?? "Kelas belum dipilih"}</p>
-                        <p className="mt-2 text-sm text-slate-600">{sess.topic || "Belum ada topik"}</p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <div className="grid grid-cols-4 gap-1 text-center text-[10px]">
+                            <HistoryMiniMetric label="H" value={sess.hadir} cls="text-emerald-700 bg-emerald-50" />
+                            <HistoryMiniMetric label="I" value={sess.izin} cls="text-slate-600 bg-slate-50" />
+                            <HistoryMiniMetric label="S" value={sess.sakit} cls="text-sky-700 bg-sky-50" />
+                            <HistoryMiniMetric label="A" value={sess.alfa} cls="text-rose-700 bg-rose-50" />
+                          </div>
+                          <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${statusInfo.cls}`}>
+                            {statusInfo.label}
+                          </span>
+                        </div>
                       </div>
                       <div className="mt-4 flex items-center justify-between gap-3">
-                        <div className="grid flex-1 grid-cols-4 gap-1 text-center text-xs">
-                          <HistoryMiniMetric label="H" value={sess.hadir} cls="text-emerald-700 bg-emerald-50" />
-                          <HistoryMiniMetric label="I" value={sess.izin} cls="text-slate-600 bg-slate-50" />
-                          <HistoryMiniMetric label="S" value={sess.sakit} cls="text-sky-700 bg-sky-50" />
-                          <HistoryMiniMetric label="A" value={sess.alfa} cls="text-rose-700 bg-rose-50" />
-                        </div>
-                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.cls}`}>
-                          {statusInfo.label}
-                        </span>
+                        <p className="min-w-0 text-sm leading-6 text-slate-600">{sess.topic || "Belum ada topik"}</p>
                         <Link
                           href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
                           aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
@@ -337,6 +390,7 @@ export function MapelHistoryPage() {
                   );
                 })}
               </div>
+              <DataTablePagination {...sessionsPagination} />
             </section>
           )}
 
@@ -353,6 +407,246 @@ export function MapelHistoryPage() {
         </>
       )}
     </WalasShell>
+  );
+}
+
+type TodaySessionFocus = {
+  assignmentId: string;
+  subjectName: string;
+  className: string;
+  hari: string;
+  jamMulai: string;
+  jamSelesai: string;
+  scheduledFor: string;
+  scheduledAt: number;
+  sessionId?: string;
+  state: "active" | "recorded" | "scheduled";
+  status?: string;
+};
+
+type SubjectAssignmentScheduleSource = Array<{
+  id: string;
+  subject_name: string;
+  class_name: string;
+  schedules: Array<{ hari: string; jam_mulai: string; jam_selesai: string; is_active: boolean }>;
+}>;
+
+type SubjectSessionClock = { day: string; time: string; date: Date };
+
+function buildTodaySessionFocus({
+  assignments,
+  sessions,
+  activeSession,
+  selectedAssignmentId,
+  currentClock,
+}: {
+  assignments: SubjectAssignmentScheduleSource;
+  sessions: Array<{
+    session_id: string;
+    tanggal: string;
+    hari: string;
+    jam_mulai: string;
+    jam_selesai: string;
+    status: string;
+  }>;
+  activeSession: {
+    session_id: string;
+    assignment: { id: string; subject_name: string; class_name: string };
+    hari: string;
+    jam_mulai: string;
+    jam_selesai: string;
+    status: string;
+  } | null;
+  selectedAssignmentId: string;
+  currentClock: SubjectSessionClock;
+}): TodaySessionFocus | null {
+  const today = format(currentClock.date, "yyyy-MM-dd");
+
+  if (activeSession) {
+    return {
+      assignmentId: activeSession.assignment.id,
+      subjectName: activeSession.assignment.subject_name,
+      className: activeSession.assignment.class_name,
+      hari: activeSession.hari,
+      jamMulai: activeSession.jam_mulai,
+      jamSelesai: activeSession.jam_selesai,
+      scheduledFor: today,
+      scheduledAt: buildScheduleTimestamp(currentClock.date, activeSession.jam_mulai),
+      sessionId: activeSession.session_id,
+      state: "active",
+      status: activeSession.status,
+    };
+  }
+
+  const recordedToday = sessions.find((session) => session.tanggal === today);
+  const selectedAssignment = assignments.find((assignment) => assignment.id === selectedAssignmentId);
+
+  if (recordedToday && selectedAssignment) {
+    return {
+      assignmentId: selectedAssignment.id,
+      subjectName: selectedAssignment.subject_name,
+      className: selectedAssignment.class_name,
+      hari: recordedToday.hari,
+      jamMulai: recordedToday.jam_mulai,
+      jamSelesai: recordedToday.jam_selesai,
+      scheduledFor: today,
+      scheduledAt: buildScheduleTimestamp(currentClock.date, recordedToday.jam_mulai),
+      sessionId: recordedToday.session_id,
+      state: "recorded",
+      status: recordedToday.status,
+    };
+  }
+
+  return buildUpcomingScheduleFocuses(assignments, currentClock)[0] ?? null;
+}
+
+function buildNextScheduleFocus(
+  assignments: SubjectAssignmentScheduleSource,
+  currentClock: SubjectSessionClock,
+  focus: TodaySessionFocus | null,
+): TodaySessionFocus | null {
+  const threshold = focus?.state === "scheduled"
+    ? focus.scheduledAt
+    : currentClock.date.getTime();
+
+  return buildUpcomingScheduleFocuses(assignments, currentClock).find((schedule) => schedule.scheduledAt > threshold) ?? null;
+}
+
+function buildUpcomingScheduleFocuses(
+  assignments: SubjectAssignmentScheduleSource,
+  currentClock: SubjectSessionClock,
+): TodaySessionFocus[] {
+  const currentDayIndex = getDayIndex(currentClock.day);
+
+  return assignments
+    .flatMap((assignment) =>
+      assignment.schedules.flatMap((schedule) => {
+        if (!schedule.is_active) return [];
+
+        const scheduleDayIndex = getDayIndex(schedule.hari);
+        if (scheduleDayIndex < 0 || currentDayIndex < 0) return [];
+
+        let daysAhead = (scheduleDayIndex - currentDayIndex + 7) % 7;
+        if (daysAhead === 0 && normalizeTime(schedule.jam_selesai) < normalizeTime(currentClock.time)) {
+          daysAhead = 7;
+        }
+
+        const scheduledDate = new Date(currentClock.date);
+        scheduledDate.setDate(scheduledDate.getDate() + daysAhead);
+
+        return [{
+          assignmentId: assignment.id,
+          subjectName: assignment.subject_name,
+          className: assignment.class_name,
+          hari: schedule.hari,
+          jamMulai: schedule.jam_mulai,
+          jamSelesai: schedule.jam_selesai,
+          scheduledFor: format(scheduledDate, "yyyy-MM-dd"),
+          scheduledAt: buildScheduleTimestamp(scheduledDate, schedule.jam_mulai),
+          state: "scheduled" as const,
+        }];
+      }),
+    )
+    .sort((a, b) => a.scheduledAt - b.scheduledAt);
+}
+
+function TodaySessionCard({
+  focus,
+  nextSchedule,
+}: {
+  focus: TodaySessionFocus | null;
+  nextSchedule: TodaySessionFocus | null;
+}) {
+  const focusHref = focus?.sessionId
+    ? `/dashboard/teacher/subject/session?session_id=${focus.sessionId}`
+    : focus
+      ? `/dashboard/teacher/subject/history?assignment_id=${focus.assignmentId}`
+      : "#riwayat-sesi";
+  const stateCopy = focus?.state === "active"
+    ? { eyebrow: "SEDANG BERLANGSUNG", title: "Sesi mapel aktif", badge: "Buka sekarang" }
+    : focus?.state === "recorded"
+      ? { eyebrow: "SUDAH TERCATAT HARI INI", title: "Tinjau hasil sesi", badge: "Lihat sesi" }
+      : focus?.state === "scheduled"
+        ? {
+            eyebrow: focus.scheduledFor === format(new Date(), "yyyy-MM-dd") ? "JADWAL BERIKUTNYA HARI INI" : "JADWAL TERDEKAT",
+            title: focus.scheduledFor === format(new Date(), "yyyy-MM-dd") ? "Sesi mapel hari ini" : "Siapkan sesi berikutnya",
+            badge: "Lihat jadwal",
+          }
+        : { eyebrow: "AGENDA HARI INI", title: "Tidak ada sesi mapel hari ini", badge: "Lihat riwayat" };
+  const focusDate = focus?.scheduledFor
+    ? format(new Date(`${focus.scheduledFor}T00:00:00`), "EEEE, d MMMM yyyy", { locale: localeID })
+    : format(new Date(), "EEEE, d MMMM yyyy", { locale: localeID });
+
+  return (
+    <section className="relative overflow-hidden rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-5 shadow-[0_24px_52px_rgba(15,118,110,0.11)] sm:p-6">
+      <div className="pointer-events-none absolute -right-14 -top-20 size-52 rounded-full bg-emerald-200/25 blur-3xl" />
+      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.24)]">
+            <BookOpenCheck className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">{stateCopy.eyebrow}</p>
+              <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
+                {focusDate}
+              </span>
+            </div>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-slate-950">{stateCopy.title}</h2>
+            {focus ? (
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
+                <span className="font-semibold text-slate-900">{focus.subjectName}</span>
+                <span className="text-slate-300">•</span>
+                <span>{focus.className}</span>
+                <span className="text-slate-300">•</span>
+                <span>{HARI_LABEL[focus.hari] ?? focus.hari}, {focus.jamMulai}–{focus.jamSelesai}</span>
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">Tidak ada jadwal yang perlu dibuka pada hari ini.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="relative flex shrink-0 flex-wrap items-center gap-3 lg:justify-end">
+          {focus?.status ? (
+            <span className={`rounded-full px-3 py-2 text-xs font-semibold ${STATUS_MAP[focus.status]?.cls ?? "bg-slate-100 text-slate-600"}`}>
+              {STATUS_MAP[focus.status]?.label ?? focus.status}
+            </span>
+          ) : null}
+          <Link
+            href={focusHref}
+            className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800"
+          >
+            {stateCopy.badge}
+            <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
+      </div>
+
+      <div className="relative mt-5 border-t border-emerald-100/90 pt-4">
+        <div className="flex flex-wrap items-center gap-3 rounded-[18px] border border-emerald-100 bg-white/70 px-3.5 py-3 sm:px-4">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[13px] bg-emerald-100 text-emerald-700">
+            <CalendarClock className="size-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700">Jadwal selanjutnya</p>
+            {nextSchedule ? (
+              <p className="mt-0.5 text-sm text-slate-600">
+                <span className="font-semibold text-slate-900">{nextSchedule.subjectName}</span>
+                <span className="mx-2 text-slate-300">•</span>
+                <span>{nextSchedule.className}</span>
+                <span className="mx-2 text-slate-300">•</span>
+                <span className="font-medium text-slate-700">
+                  {format(new Date(`${nextSchedule.scheduledFor}T00:00:00`), "EEEE, d MMM", { locale: localeID })}, {nextSchedule.jamMulai}–{nextSchedule.jamSelesai}
+                </span>
+              </p>
+            ) : (
+              <p className="mt-0.5 text-sm text-slate-500">Belum ada jadwal lanjutan yang aktif.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -380,6 +674,39 @@ function formatDisplayDate(value: string) {
   const date = new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function getCurrentClock() {
+  const now = new Date();
+  return {
+    day: ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"][now.getDay()],
+    time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:00`,
+    date: now,
+  };
+}
+
+function isTimeWithinSchedule(currentTime: string, startTime: string, endTime: string) {
+  const current = normalizeTime(currentTime);
+  const start = normalizeTime(startTime);
+  const end = normalizeTime(endTime);
+  return Boolean(current && start && end && current >= start && current <= end);
+}
+
+function normalizeTime(value: string) {
+  const match = value.match(/^(\d{1,2}):(\d{2})/);
+  return match ? `${match[1].padStart(2, "0")}:${match[2]}` : "";
+}
+
+function getDayIndex(day: string) {
+  return ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"].indexOf(day.toLowerCase());
+}
+
+function buildScheduleTimestamp(date: Date, time: string) {
+  const normalizedTime = normalizeTime(time);
+  const [hours, minutes] = normalizedTime.split(":").map(Number);
+  const scheduledAt = new Date(date);
+  scheduledAt.setHours(hours || 0, minutes || 0, 0, 0);
+  return scheduledAt.getTime();
 }
 
 function HistoryMetric({ value, cls }: { value: number; cls: string }) {
