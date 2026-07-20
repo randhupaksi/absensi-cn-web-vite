@@ -349,7 +349,9 @@ export function StudentDashboardPage() {
                   </Button>
                   <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
                     {isHoliday
-                      ? "Sabtu dan Minggu adalah hari libur. Tidak ada absensi dan tidak ada status alfa."
+                      ? today?.holiday_type === "WEEKEND"
+                        ? "Sabtu dan Minggu adalah hari libur. Tidak ada absensi dan tidak ada status alfa."
+                        : `${today?.holiday_name ?? "Tanggal ini"} tercatat sebagai hari libur sekolah. Tidak ada absensi dan tidak ada status alfa.`
                       : <>Batas hadir {formatClock(today?.window.on_time_until)} WIB. Absensi ditutup pukul {formatClock(today?.window.late_until)} WIB.</>}
                   </div>
                 </div>

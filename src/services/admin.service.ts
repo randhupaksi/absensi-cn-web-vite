@@ -11,6 +11,8 @@ import type {
   AdminMajorPayload,
   AdminSchoolUnit,
   AdminSchoolUnitPayload,
+  AdminSchoolHoliday,
+  AdminSchoolHolidayPayload,
   AdminRoom,
   AdminRoomPayload,
   AdminScheduleOverride,
@@ -42,6 +44,41 @@ type ApiEnvelope<T> = {
   data: T;
   errors?: Record<string, string>;
 };
+
+export async function getAdminSchoolHolidays() {
+  try {
+    const response = await apiClient.get<ApiEnvelope<AdminSchoolHoliday[]>>("/admin/school-holidays");
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function createAdminSchoolHoliday(payload: AdminSchoolHolidayPayload) {
+  try {
+    const response = await apiClient.post<ApiEnvelope<AdminSchoolHoliday>>("/admin/school-holidays", payload);
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function updateAdminSchoolHoliday(id: string, payload: AdminSchoolHolidayPayload) {
+  try {
+    const response = await apiClient.patch<ApiEnvelope<AdminSchoolHoliday>>(`/admin/school-holidays/${id}`, payload);
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function deleteAdminSchoolHoliday(id: string) {
+  try {
+    await apiClient.delete(`/admin/school-holidays/${id}`);
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
 
 // MySQL/GORM sometimes bubble raw driver errors (e.g. "Error 1062 (23000):
 // Duplicate entry '...' for key '...'") straight into the API envelope

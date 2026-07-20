@@ -38,6 +38,9 @@ function getAdminSectionTitle(pathname: string) {
   if (pathname.startsWith("/dashboard/admin/classes")) {
     return "Class Management Dashboard";
   }
+  if (pathname.startsWith("/dashboard/admin/holidays")) {
+    return "Kalender Hari Libur";
+  }
   if (pathname.startsWith("/dashboard/admin/users")) {
     return "Role Management Dashboard";
   }

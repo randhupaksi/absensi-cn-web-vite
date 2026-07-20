@@ -33,6 +33,29 @@ export type AdminDashboardData = {
   }>;
 };
 
+export type AdminSchoolHolidayType = "NATIONAL" | "COLLECTIVE_LEAVE" | "SCHOOL";
+
+export type AdminSchoolHoliday = {
+  id: string;
+  name: string;
+  holiday_type: AdminSchoolHolidayType;
+  start_date: string;
+  end_date: string;
+  description?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type AdminSchoolHolidayPayload = {
+  name: string;
+  holiday_type: AdminSchoolHolidayType;
+  start_date: string;
+  end_date: string;
+  description: string;
+  is_active: boolean;
+};
+
 export type AdminUser = {
   id: string;
   name: string;

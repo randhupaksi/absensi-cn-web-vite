@@ -9,6 +9,7 @@ const LoginPage = lazy(() => import("@/pages/auth/login-page"));
 const AdminDashboardPage = lazy(() => import("@/pages/admin/dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
 const AdminAdminsPage = lazy(() => import("@/pages/admin/admins-page").then((module) => ({ default: module.AdminAdminsPage })));
 const AdminClassesPage = lazy(() => import("@/pages/admin/classes-page").then((module) => ({ default: module.AdminClassesPage })));
+const AdminHolidaysPage = lazy(() => import("@/pages/admin/holidays-page").then((module) => ({ default: module.AdminHolidaysPage })));
 const AdminStudentsPage = lazy(() => import("@/pages/admin/students-page").then((module) => ({ default: module.AdminStudentsPage })));
 const AdminSubjectsPage = lazy(() => import("@/pages/admin/subjects-page").then((module) => ({ default: module.AdminSubjectsPage })));
 const AdminTeachersPage = lazy(() => import("@/pages/admin/teachers-page").then((module) => ({ default: module.AdminTeachersPage })));
@@ -125,6 +126,7 @@ export default function App() {
           <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
           <Route path="/dashboard/admin/admins" element={<AdminAdminsPage />} />
           <Route path="/dashboard/admin/classes" element={<AdminClassesPage />} />
+          <Route path="/dashboard/admin/holidays" element={<AdminHolidaysPage />} />
           <Route path="/dashboard/admin/students" element={<AdminStudentsPage />} />
           <Route path="/dashboard/admin/subjects" element={<AdminSubjectsPage />} />
           <Route path="/dashboard/admin/teachers" element={<AdminTeachersPage />} />
