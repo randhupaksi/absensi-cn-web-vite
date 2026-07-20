@@ -62,6 +62,7 @@ export type StudentToday = {
     late_until: string;
   };
   attendance?: StaffAttendanceRecord;
+  is_school_day?: boolean;
   can_submit: boolean;
   cooldown_until?: string;
   current_status: string;

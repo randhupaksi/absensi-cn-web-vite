@@ -134,8 +134,9 @@ export function StudentDashboardPage() {
   const today = dashboard?.today;
   const stats = dashboard?.stats;
   const canSubmit = Boolean(today?.can_submit);
+  const isHoliday = today?.is_school_day === false;
   const alreadySubmitted = Boolean(today?.attendance && !today.can_submit);
-  const isWindowClosed = !canSubmit && !alreadySubmitted && (() => {
+  const isWindowClosed = !isHoliday && !canSubmit && !alreadySubmitted && (() => {
     if (!today?.current_time || !today?.window.late_until) return false;
     const serverNow = new Date(today.current_time);
     const [h, m, s] = today.window.late_until.split(":").map(Number);
@@ -305,7 +306,9 @@ export function StudentDashboardPage() {
                     <h1 className="text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[3.2rem]">
                       {alreadySubmitted
                         ? "Absensi hari ini sudah terkirim."
-                        : isWindowClosed
+                        : isHoliday
+                          ? "Hari ini libur."
+                          : isWindowClosed
                           ? "Kamu tidak hadir hari ini."
                           : "Ambil foto dan kirim absensi hari ini."}
                     </h1>
@@ -327,6 +330,8 @@ export function StudentDashboardPage() {
                       <TimerReset className="size-5" />
                     ) : canSubmit ? (
                       <Camera className="size-5" />
+                    ) : isHoliday ? (
+                      <TimerReset className="size-5" />
                     ) : isWindowClosed ? (
                       <ShieldAlert className="size-5" />
                     ) : (
@@ -336,13 +341,16 @@ export function StudentDashboardPage() {
                       ? "Menyiapkan Foto..."
                       : canSubmit
                         ? "Absen Hari Ini"
+                        : isHoliday
+                          ? "Hari Libur"
                         : isWindowClosed
                           ? "Waktu Absensi Sudah Habis"
                           : "Cooldown Sampai Besok"}
                   </Button>
                   <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
-                    Batas hadir {formatClock(today?.window.on_time_until)} WIB. Absensi ditutup pukul{" "}
-                    {formatClock(today?.window.late_until)} WIB.
+                    {isHoliday
+                      ? "Sabtu dan Minggu adalah hari libur. Tidak ada absensi dan tidak ada status alfa."
+                      : <>Batas hadir {formatClock(today?.window.on_time_until)} WIB. Absensi ditutup pukul {formatClock(today?.window.late_until)} WIB.</>}
                   </div>
                 </div>
               </div>
@@ -357,6 +365,8 @@ export function StudentDashboardPage() {
                       <h2 className="mt-3 text-2xl font-semibold text-slate-950">
                         {today?.attendance
                           ? "Sudah Terekam"
+                          : isHoliday
+                            ? "Hari Libur"
                           : isWindowClosed
                             ? "Tidak Hadir"
                             : "Belum Ada Record"}
@@ -364,6 +374,10 @@ export function StudentDashboardPage() {
                     </div>
                     {today?.attendance ? (
                       <StudentStatusPill status={today.attendance.status} />
+                    ) : isHoliday ? (
+                      <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+                        Libur
+                      </span>
                     ) : isWindowClosed ? (
                       <StudentStatusPill status="alfa" />
                     ) : (
@@ -395,8 +409,8 @@ export function StudentDashboardPage() {
                     <InfoTile
                       icon={BadgeCheck}
                       label="Validasi"
-                      value={today?.attendance?.verified_at ? "Sudah direview" : "Menunggu"}
-                      tone={today?.attendance?.verified_at ? "success" : "pending"}
+                      value={isHoliday ? "Tidak diperlukan" : today?.attendance?.verified_at ? "Sudah direview" : "Menunggu"}
+                      tone={isHoliday ? "pending" : today?.attendance?.verified_at ? "success" : "pending"}
                     />
                   </div>
                 </div>
