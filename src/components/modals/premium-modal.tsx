@@ -33,7 +33,7 @@ export const premiumModalSurfaceClassName =
   "rounded-[1.45rem] border border-emerald-200/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(240,253,244,0.88)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]";
 
 export const premiumModalActionsClassName =
-  "relative mt-6 flex flex-row gap-2 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] sm:gap-3 sm:justify-end";
+  "relative mt-6 flex flex-row justify-end gap-2 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] sm:gap-3";
 
 export function PremiumModal({
   open,

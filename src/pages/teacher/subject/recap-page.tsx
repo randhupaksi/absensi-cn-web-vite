@@ -193,7 +193,8 @@ export function MapelRecapPage() {
                         <th className="pb-3 pr-4 text-center text-emerald-600">Hadir</th>
                         <th className="pb-3 pr-4 text-center text-sky-600">Izin</th>
                         <th className="pb-3 pr-4 text-center text-violet-600">Sakit</th>
-                        <th className="pb-3 text-center text-rose-600">Alfa</th>
+                        <th className="pb-3 pr-4 text-center text-rose-600">Alfa</th>
+                        <th className="pb-3 text-center text-emerald-700">Persentase Hadir</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -210,6 +211,7 @@ export function MapelRecapPage() {
                           <RecapCell value={s.izin} cls="text-sky-700 bg-sky-50" />
                           <RecapCell value={s.sakit} cls="text-violet-700 bg-violet-50" />
                           <RecapCell value={s.alfa} cls="text-rose-700 bg-rose-50" />
+                          <AttendancePercentageCell hadir={s.hadir} totalPertemuan={recap.total_pertemuan} />
                         </motion.tr>
                       ))}
                     </tbody>
@@ -222,6 +224,7 @@ export function MapelRecapPage() {
                         <SumCell rows={recap.students} field="izin" cls="text-sky-700" />
                         <SumCell rows={recap.students} field="sakit" cls="text-violet-700" />
                         <SumCell rows={recap.students} field="alfa" cls="text-rose-700" />
+                        <TotalAttendancePercentageCell rows={recap.students} totalPertemuan={recap.total_pertemuan} />
                       </tr>
                     </tfoot>
                   </table>
@@ -230,11 +233,12 @@ export function MapelRecapPage() {
                   {pagedStudents.map((s) => (
                     <MobileDataCard key={s.student_id}>
                       <MobileDataHeader title={s.student_name} subtitle={s.nis} />
-                      <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
+                      <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
                         <RecapMetric label="Hadir" value={s.hadir} cls="text-emerald-700 bg-emerald-50" />
                         <RecapMetric label="Izin" value={s.izin} cls="text-sky-700 bg-sky-50" />
                         <RecapMetric label="Sakit" value={s.sakit} cls="text-violet-700 bg-violet-50" />
                         <RecapMetric label="Alfa" value={s.alfa} cls="text-rose-700 bg-rose-50" />
+                        <RecapPercentageMetric hadir={s.hadir} totalPertemuan={recap.total_pertemuan} />
                       </div>
                     </MobileDataCard>
                   ))}
@@ -375,7 +379,30 @@ function RecapMetric({ label, value, cls }: { label: string; value: number; cls:
   );
 }
 
+function RecapPercentageMetric({ hadir, totalPertemuan }: { hadir: number; totalPertemuan: number }) {
+  return (
+    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">% Hadir</p>
+      <p className="mt-2 text-sm font-bold text-emerald-700">{formatAttendancePercentage(hadir, totalPertemuan)}</p>
+    </div>
+  );
+}
+
 function SumCell({ rows, field, cls }: { rows: StaffSubjectRecapStudentRow[]; field: keyof StaffSubjectRecapStudentRow; cls: string }) {
   const total = rows.reduce((sum, r) => sum + (r[field] as number), 0);
   return <td className={`py-3 pr-4 text-center text-xs font-bold ${cls}`}>{total}</td>;
+}
+
+function AttendancePercentageCell({ hadir, totalPertemuan }: { hadir: number; totalPertemuan: number }) {
+  return <td className="py-3 text-center text-xs font-bold text-emerald-700">{formatAttendancePercentage(hadir, totalPertemuan)}</td>;
+}
+
+function TotalAttendancePercentageCell({ rows, totalPertemuan }: { rows: StaffSubjectRecapStudentRow[]; totalPertemuan: number }) {
+  const totalHadir = rows.reduce((sum, row) => sum + row.hadir, 0);
+  return <td className="py-3 text-center text-xs font-bold text-emerald-700">{formatAttendancePercentage(totalHadir, totalPertemuan * rows.length)}</td>;
+}
+
+function formatAttendancePercentage(hadir: number, total: number) {
+  if (total <= 0) return "0%";
+  return `${Math.round((hadir / total) * 100)}%`;
 }

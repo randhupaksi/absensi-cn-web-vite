@@ -72,7 +72,7 @@ export function DeleteConfirmationModal({
           </button>
         </div>
 
-        <div className="flex flex-col-reverse gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+        <div className="flex flex-col-reverse justify-end gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:flex-row sm:px-6">
           <button
             type="button"
             className="inline-flex h-11 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"

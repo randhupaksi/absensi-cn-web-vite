@@ -100,7 +100,7 @@ export function BKAttendancePage() {
       return reviewBKAttendance(reviewTarget.id, payload);
     },
     onSuccess: () => {
-      toast.success("Review absensi berhasil disimpan.");
+      toast.success("Koreksi absensi berhasil disimpan.");
       void queryClient.invalidateQueries({ queryKey: ["bk-attendance-overview"] });
       void queryClient.invalidateQueries({ queryKey: ["bk-dashboard"] });
       setReviewTarget(null);
@@ -147,9 +147,9 @@ export function BKAttendancePage() {
       accentClass: "bg-rose-100 text-rose-700",
     },
     {
-      label: "Diverifikasi",
+      label: "Sudah Dikoreksi",
       value: String(reviewedCount),
-      subtitle: "Sudah direview",
+      subtitle: "Status pernah diperbarui",
       icon: CheckCheck,
       accentClass: "bg-sky-100 text-sky-700",
     },
@@ -172,7 +172,7 @@ export function BKAttendancePage() {
             <BkPageHero
               badge="BK Attendance Workspace"
               title="Absensi Lintas Kelas"
-              description={<>Pantau status H/I/S/A lintas kelas, buka bukti foto, dan review record yang perlu tindak lanjut BK.</>}
+              description={<>Pantau status H/I/S/A lintas kelas, buka bukti foto, dan koreksi record bila hasil pengecekan guru berbeda dengan status otomatis.</>}
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
               topClassName="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between"
@@ -180,7 +180,7 @@ export function BKAttendancePage() {
               actionClassName="flex justify-start xl:justify-end"
               footer={(
                 <div className="text-xs font-medium text-slate-400">
-                  {records.length} record tercatat dengan {pendingReviewCount} item menunggu review BK.
+                  {records.length} record tercatat dengan {pendingReviewCount} alfa yang belum dikonfirmasi.
                 </div>
               )}
             />
@@ -236,7 +236,7 @@ export function BKAttendancePage() {
                 <>
                 <div className="hidden overflow-x-auto md:block">
                   <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Kelas", "Absen Masuk", "Status", "Review", "Catatan", "Aksi"]} />
+                    <DataTableHeadRow labels={["Siswa", "Kelas", "Absen Masuk", "Status", "Koreksi", "Catatan", "Aksi"]} centerLabels={["Status", "Koreksi", "Aksi"]} />
                     <DataTableBody>
                       {pageRecords.map((record) => (
                         <DataTableRow key={record.id}>
@@ -299,7 +299,7 @@ export function BKAttendancePage() {
                       <div className="mt-4 grid gap-3">
                         <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
                         <MobileDataField label="Absen Masuk" value={formatCheckInTime(record.check_in_at)} />
-                        <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} />} />
+                          <MobileDataField label="Koreksi" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} />} />
                       </div>
                       <MobileDataSection label="Catatan">
                         <p className="text-sm leading-6 text-slate-600">

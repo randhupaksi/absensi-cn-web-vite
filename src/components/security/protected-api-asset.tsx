@@ -57,24 +57,3 @@ export function ProtectedApiImage({ src, alt, ...props }: ProtectedApiImageProps
   // The blob URL is created only after the API accepts the bearer token.
   return <img src={displaySrc} alt={alt} {...props} />;
 }
-
-export async function openProtectedApiAsset(value: string) {
-  const popup = window.open("about:blank", "_blank");
-  if (popup) popup.opener = null;
-
-  try {
-    const asset = await createAssetObjectUrl(value);
-    if (popup) {
-      popup.location.replace(asset.url);
-    } else {
-      const link = document.createElement("a");
-      link.href = asset.url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.click();
-    }
-    if (asset.revoke) window.setTimeout(() => URL.revokeObjectURL(asset.url), 60_000);
-  } catch {
-    popup?.close();
-  }
-}

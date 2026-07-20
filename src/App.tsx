@@ -1,7 +1,7 @@
 import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
 import { RouteLoadingFallback } from "@/components/loading/loading-system";
-import { lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
@@ -33,12 +33,39 @@ function PageBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
 }
 
-function ScrollToTopOnNavigate() {
+function PreserveScrollOnNavigate() {
   const { pathname, search } = useLocation();
+  const routeKey = `${pathname}${search}`;
+  const activeRouteKeyRef = useRef(routeKey);
+  const currentScrollYRef = useRef(0);
+  const savedPositionsRef = useRef(new Map<string, number>());
+
+  useEffect(() => {
+    const handleScroll = () => {
+      currentScrollYRef.current = window.scrollY;
+      savedPositionsRef.current.set(activeRouteKeyRef.current, window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [pathname, search]);
+    const targetScrollY = savedPositionsRef.current.get(routeKey) ?? currentScrollYRef.current;
+    activeRouteKeyRef.current = routeKey;
+
+    // Route content can be lazy-loaded, so restore after the new section has
+    // had a chance to mount instead of restoring against the old DOM height.
+    const firstFrame = window.requestAnimationFrame(() => {
+      const secondFrame = window.requestAnimationFrame(() => {
+        window.scrollTo({ top: targetScrollY, left: 0, behavior: "auto" });
+      });
+
+      return () => window.cancelAnimationFrame(secondFrame);
+    });
+
+    return () => window.cancelAnimationFrame(firstFrame);
+  }, [routeKey]);
 
   return null;
 }
@@ -85,7 +112,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <DismissInitialLoader />
-      <ScrollToTopOnNavigate />
+      <PreserveScrollOnNavigate />
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />

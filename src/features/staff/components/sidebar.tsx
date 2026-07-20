@@ -2,6 +2,7 @@
 
 import { AppImage as Image } from "@/components/media/app-image";
 import { AppLink as Link } from "@/components/router/app-link";
+import { useLayoutEffect, useRef } from "react";
 import {
   BookOpenCheck,
   ClipboardList,
@@ -33,6 +34,8 @@ type StaffSidebarProps = {
   onLogout: () => void;
 };
 
+let staffSidebarScrollTop = 0;
+
 export function StaffSidebar({
   items,
   activePath,
@@ -40,6 +43,14 @@ export function StaffSidebar({
   onClose,
   onLogout,
 }: StaffSidebarProps) {
+  const navigationRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    if (navigationRef.current) {
+      navigationRef.current.scrollTop = staffSidebarScrollTop;
+    }
+  }, []);
+
   return (
     <>
       <div
@@ -82,7 +93,13 @@ export function StaffSidebar({
             <div className="mt-5 h-px w-full bg-white/14" />
           </div>
 
-          <nav className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70">
+          <nav
+            ref={navigationRef}
+            onScroll={(event) => {
+              staffSidebarScrollTop = event.currentTarget.scrollTop;
+            }}
+            className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70"
+          >
             {items.map((item) => {
               const Icon = item.icon;
               const isActive = resolveStaffSidebarActivePath(activePath) === item.href;

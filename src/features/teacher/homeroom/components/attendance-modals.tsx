@@ -103,8 +103,8 @@ export function AttendanceReviewModal({
     <PremiumModal
       open={Boolean(record)}
       onOpenChange={onOpenChange}
-      title={record ? `Review ${record.student_name}` : "Review Absensi"}
-      description="Perbarui status dan catatan verifikasi untuk record absensi siswa di kelas walas."
+      title={record ? `Koreksi ${record.student_name}` : "Koreksi Absensi"}
+      description="Perbarui status absensi bila hasil panggil nama atau pengecekan guru berbeda dengan status otomatis."
       icon={BadgeCheck}
       className="sm:!max-w-[760px]"
     >
@@ -127,7 +127,7 @@ export function AttendanceReviewModal({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className={premiumModalFieldClassName}>
-              <label className={premiumModalLabelClassName}>Status final</label>
+              <label className={premiumModalLabelClassName}>Status setelah koreksi</label>
               <RadixSelectField
                 value={status}
                 onValueChange={setStatus}
@@ -138,23 +138,23 @@ export function AttendanceReviewModal({
               <FieldError message={errors.status} />
             </div>
             <div className={premiumModalFieldClassName}>
-              <label className={premiumModalLabelClassName}>Verifikasi</label>
+              <label className={premiumModalLabelClassName}>Riwayat koreksi</label>
               <div className="flex h-12 items-center rounded-[18px] border border-emerald-100/80 bg-white/90 px-4 text-sm text-slate-600">
-                {record.verified_at ? "Sudah pernah direview" : "Belum pernah direview"}
+                {record.verified_at ? "Sudah pernah dikoreksi" : "Belum ada koreksi guru"}
               </div>
             </div>
           </div>
 
           {!isFinalPresent ? (
             <div className={premiumModalFieldClassName}>
-              <label className={premiumModalLabelClassName}>Catatan review</label>
+              <label className={premiumModalLabelClassName}>Catatan koreksi</label>
               <p className={premiumModalHelperClassName}>
-                Catatan ini akan membantu walas dan BK membaca alasan perubahan status.
+                Catatan ini membantu walas dan BK memahami alasan perubahan status.
               </p>
               <Textarea
                 value={verificationNote}
                 onChange={(event) => setVerificationNote(event.target.value)}
-                placeholder="Tulis catatan review singkat"
+                placeholder="Tulis alasan koreksi singkat"
                 className="min-h-[140px] rounded-[20px]"
               />
               <FieldError message={errors.verification_note} />
@@ -176,7 +176,7 @@ export function AttendanceReviewModal({
               disabled={isPending}
               onClick={handleSubmit}
             >
-              {isPending ? "Menyimpan..." : "Simpan Review"}
+              {isPending ? "Menyimpan..." : "Simpan Koreksi"}
             </Button>
           </div>
         </div>

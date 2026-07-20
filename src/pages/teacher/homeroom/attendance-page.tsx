@@ -107,8 +107,8 @@ export function WalasAttendancePage() {
   const kpiCards: AttendanceKpi[] = [
     { label: "Total Record", value: String(records.length), subtitle: "Absensi tanggal ini", icon: NotebookText, accentClass: "bg-emerald-100 text-emerald-700" },
     { label: "Hadir Tepat Waktu", value: String(summary.present), subtitle: "Masuk tepat waktu", icon: BadgeCheck, accentClass: "bg-teal-100 text-teal-700" },
-    { label: "Butuh Review", value: String(pendingReviewCount), subtitle: "Menunggu review walas", icon: ShieldAlert, accentClass: "bg-amber-100 text-amber-700" },
-    { label: "Sudah Diverifikasi", value: String(reviewedCount), subtitle: "Sudah direview walas", icon: CheckCheck, accentClass: "bg-sky-100 text-sky-700" },
+    { label: "Alfa Belum Dikonfirmasi", value: String(pendingReviewCount), subtitle: "Perlu dicek saat absensi kelas", icon: ShieldAlert, accentClass: "bg-amber-100 text-amber-700" },
+    { label: "Sudah Dikoreksi", value: String(reviewedCount), subtitle: "Status pernah diperbarui walas", icon: CheckCheck, accentClass: "bg-sky-100 text-sky-700" },
   ];
 
   const sortedRecords = useMemo(() => {

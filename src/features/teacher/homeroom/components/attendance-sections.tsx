@@ -215,8 +215,8 @@ export function AttendanceTableSection({
             <div className="hidden overflow-x-auto md:block">
               <DataTable>
                 <DataTableHeadRow
-                  labels={["Siswa", "Absen Masuk", "Status", "Review", "Catatan", "Aksi"]}
-                  centerLabels={["Status", "Review"]}
+                  labels={["Siswa", "Absen Masuk", "Status", "Koreksi", "Catatan", "Aksi"]}
+                  centerLabels={["Status", "Koreksi"]}
                 />
                 <DataTableBody>
                   {pageRecords.map((record) => {
@@ -262,8 +262,8 @@ export function AttendanceTableSection({
                             className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
                             onClick={() => onOpenReview(record)}
                             disabled={reviewedByBK}
-                            aria-label="Verifikasi absensi"
-                            title={reviewedByBK ? "Sudah direview BK" : "Verifikasi absensi"}
+                            aria-label="Koreksi status absensi"
+                            title={reviewedByBK ? "Sudah dikoreksi BK" : "Koreksi status absensi"}
                           >
                             <BadgeCheck className="size-4.5" />
                           </Button>
@@ -288,7 +288,7 @@ export function AttendanceTableSection({
                   <div className="mt-4 grid gap-3">
                     <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
                     <MobileDataField label="Absen Masuk" value={formatCheckInTime(record.check_in_at)} />
-                    <MobileDataField label="Review" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} />} />
+                    <MobileDataField label="Koreksi" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} />} />
                   </div>
                   <MobileDataSection label="Catatan">
                     <p className="text-sm leading-6 text-slate-600">
@@ -314,8 +314,8 @@ export function AttendanceTableSection({
                       className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
                       onClick={() => onOpenReview(record)}
                       disabled={reviewedByBK}
-                      aria-label="Verifikasi absensi"
-                      title={reviewedByBK ? "Sudah direview BK" : "Verifikasi absensi"}
+                      aria-label="Koreksi status absensi"
+                      title={reviewedByBK ? "Sudah dikoreksi BK" : "Koreksi status absensi"}
                     >
                       <BadgeCheck className="size-4.5" />
                     </Button>
@@ -473,7 +473,7 @@ function isReviewedByBK(record: StaffAttendanceRecord) {
 function ReviewStatusPill({ reviewed, reviewedByBK = false }: { reviewed: boolean; reviewedByBK?: boolean }) {
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${reviewedByBK ? "border-sky-200 bg-sky-50 text-sky-700" : reviewed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
-      {reviewedByBK ? "Direview BK" : reviewed ? "Direview" : "Belum"}
+      {reviewedByBK ? "Dikoreksi BK" : reviewed ? "Dikoreksi" : "Status otomatis"}
     </span>
   );
 }

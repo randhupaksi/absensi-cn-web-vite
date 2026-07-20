@@ -39,14 +39,16 @@ function MiniStatCard({
 }: {
   label: string;
   value: number;
-  tone: "success" | "warning" | "danger";
+  tone: "success" | "permission" | "sick" | "danger";
 }) {
   const className =
     tone === "success"
       ? "border-emerald-200 bg-emerald-100/90"
-      : tone === "warning"
-        ? "border-amber-200 bg-amber-100/90"
-        : "border-rose-200 bg-rose-100/90";
+      : tone === "permission"
+        ? "border-sky-200 bg-sky-100/90"
+        : tone === "sick"
+          ? "border-violet-200 bg-violet-100/90"
+          : "border-rose-200 bg-rose-100/90";
 
   return (
     <div className={`rounded-[20px] border px-4 py-4 shadow-[0_14px_28px_rgba(15,23,42,0.08)] ${className}`}>
@@ -137,8 +139,10 @@ export function StudentDetailModal({
                 </div>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid grid-cols-2 gap-3">
               <MiniStatCard label="Hadir" value={detail.attendance_summary.present} tone="success" />
+              <MiniStatCard label="Izin" value={detail.attendance_summary.permission} tone="permission" />
+              <MiniStatCard label="Sakit" value={detail.attendance_summary.sick} tone="sick" />
               <MiniStatCard label="Alfa" value={detail.attendance_summary.alpha} tone="danger" />
             </div>
           </div>

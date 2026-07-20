@@ -7,7 +7,6 @@ import {
   formatDateTime,
   isImageAttachment,
   normalizeAttachmentUrl,
-  openAttachment,
   SubmissionStatusPill,
   SubmissionTypePill,
   TableSkeleton,
@@ -50,7 +49,6 @@ import { getBKSubmissionsOverview, reviewBKSubmission } from "@/services/staff.s
 import type { StaffSubmission } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowUpRight,
   BadgeCheck,
   ClipboardCheck,
   Eye,
@@ -244,10 +242,7 @@ export function BKSubmissionsPage() {
                           <DataTableCell className="text-center"><SubmissionStatusPill status={record.status} /></DataTableCell>
                           <DataTableCell className="text-center">
                             {record.attachment ? (
-                              <Button type="button" variant="outline" className="h-9 rounded-full px-3 text-xs" onClick={() => openAttachment(record.attachment)}>
-                                <FileImage className="size-3.5" />
-                                Buka
-                              </Button>
+                              <span className="text-xs font-medium text-emerald-700">Tersedia</span>
                             ) : (
                               <span className="text-xs text-slate-400">Tidak ada</span>
                             )}
@@ -279,12 +274,7 @@ export function BKSubmissionsPage() {
                         <p className="text-sm leading-6 text-slate-600">{record.reason}</p>
                       </MobileDataSection>
                       <MobileDataFooter>
-                        {record.attachment ? (
-                          <Button type="button" variant="outline" className="h-10 rounded-2xl px-3 text-xs" onClick={() => openAttachment(record.attachment)}>
-                            <FileImage className="size-3.5" />
-                            Buka
-                          </Button>
-                        ) : null}
+                        {record.attachment ? <span className="px-2 text-xs font-medium text-emerald-700">Lampiran tersedia</span> : null}
                         <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
                         <IconAction icon={PencilLine} onClick={() => setReviewTarget(record)} tone="sky" />
                       </MobileDataFooter>
@@ -352,6 +342,17 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
               </div>
               <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{submission.reason}</p>
             </div>
+            <div className={`${premiumModalSurfaceClassName} p-5`}>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-base font-semibold text-slate-900">Catatan Review</p>
+                <ShieldCheck className="size-4.5 text-emerald-600" />
+              </div>
+              {submission.review_note ? (
+                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{submission.review_note}</p>
+              ) : (
+                <EmptyState icon={ClipboardCheck} title="Belum ada catatan review" description="Catatan BK akan tampil setelah pengajuan ditinjau." compact />
+              )}
+            </div>
           </div>
 
           <div className="grid gap-4">
@@ -370,32 +371,14 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
                         className="h-[260px] w-full object-cover"
                       />
                     </div>
-                    <Button type="button" variant="outline" className="w-full rounded-[16px]" onClick={() => openAttachment(submission.attachment)}>
-                      <ArrowUpRight className="size-4" />
-                      Lihat ukuran penuh
-                    </Button>
                   </div>
                 ) : (
-                  <Button type="button" variant="outline" className="w-full rounded-[16px]" onClick={() => openAttachment(submission.attachment)}>
-                    <ArrowUpRight className="size-4" />
-                    Buka Lampiran
-                  </Button>
+                  <p className="mt-3 text-center text-sm text-slate-500">Preview inline hanya tersedia untuk gambar.</p>
                 )
               ) : (
                 <EmptyState icon={FileImage} title="Tidak ada lampiran" description="Siswa belum mengunggah bukti pendukung." compact />
               )}
               <AttendanceLocationEvidence evidence={submission} className="mt-4" />
-            </div>
-            <div className={`${premiumModalSurfaceClassName} p-5`}>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-base font-semibold text-slate-900">Catatan Review</p>
-                <ShieldCheck className="size-4.5 text-emerald-600" />
-              </div>
-              {submission.review_note ? (
-                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{submission.review_note}</p>
-              ) : (
-                <EmptyState icon={ClipboardCheck} title="Belum ada catatan review" description="Catatan BK akan tampil setelah pengajuan ditinjau." compact />
-              )}
             </div>
           </div>
         </div>

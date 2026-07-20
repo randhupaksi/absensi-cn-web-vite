@@ -20,7 +20,6 @@ import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-v
 import { formatDisplayLabel } from "@/lib/utils";
 import type { StaffSubmission } from "@/types/staff";
 import {
-  ArrowUpRight,
   ClipboardCheck,
   Eye,
   FileImage,
@@ -69,11 +68,6 @@ export function isImageAttachment(attachment: string) {
 
 export function normalizeSubmissionAttachment(attachment: string) {
   return resolveApiAssetUrl(attachment);
-}
-
-export function openSubmissionAttachment(attachment?: string) {
-  if (!attachment || typeof window === "undefined") return;
-  window.open(normalizeSubmissionAttachment(attachment), "_blank", "noopener,noreferrer");
 }
 
 export function SubmissionTypePill({ type }: { type: string }) {
@@ -136,17 +130,7 @@ export function SubmissionDetailModal({
                     {submission.nis} • {submission.class_name || "Kelas belum tersambung"}
                   </p>
                 </div>
-                {submission.attachment ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-[16px]"
-                    onClick={() => openSubmissionAttachment(submission.attachment)}
-                  >
-                    <ArrowUpRight className="size-4" />
-                    Buka Lampiran
-                  </Button>
-                ) : null}
+                {submission.attachment ? <span className="text-xs font-medium text-emerald-700">Lampiran tersedia</span> : null}
               </div>
 
               <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -168,62 +152,6 @@ export function SubmissionDetailModal({
               <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">
                 {submission.reason}
               </p>
-            </div>
-          </div>
-
-          <div className="grid gap-4">
-            <div className={`${premiumModalSurfaceClassName} p-5`}>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-base font-semibold text-slate-900">Lampiran</p>
-                  <p className="text-sm text-slate-500">Preview bukti jika tersedia</p>
-                </div>
-                <FileImage className="size-4.5 text-emerald-600" />
-              </div>
-
-              {submission.attachment ? (
-                isImageAttachment(submission.attachment) ? (
-                  <div className="space-y-3">
-                    <div className="overflow-hidden rounded-[20px] border border-emerald-100 bg-slate-50/80">
-                      <ProtectedApiImage
-                        src={normalizeSubmissionAttachment(submission.attachment)}
-                        alt={`Lampiran ${submission.student_name}`}
-                        className="h-[240px] w-full object-cover"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full rounded-[16px]"
-                      onClick={() => openSubmissionAttachment(submission.attachment)}
-                    >
-                      Lihat ukuran penuh
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="rounded-[20px] border border-slate-200 bg-slate-50/80 p-5 text-center">
-                    <FileImage className="mx-auto size-8 text-slate-400" />
-                    <p className="mt-3 text-sm font-medium text-slate-700">Lampiran tersedia</p>
-                    <p className="mt-1 text-sm text-slate-500">Buka lampiran untuk melihat file asli.</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="mt-4 rounded-[16px]"
-                      onClick={() => openSubmissionAttachment(submission.attachment)}
-                    >
-                      Buka file
-                    </Button>
-                  </div>
-                )
-              ) : (
-                <EmptyState
-                  icon={FileImage}
-                  title="Tidak ada lampiran"
-                  description="Siswa belum menyertakan foto atau file pendukung."
-                  compact
-                />
-              )}
-              <AttendanceLocationEvidence evidence={submission} className="mt-4" />
             </div>
 
             <div className={`${premiumModalSurfaceClassName} p-5`}>
@@ -248,6 +176,47 @@ export function SubmissionDetailModal({
                 />
               )}
             </div>
+          </div>
+
+          <div className="grid gap-4">
+            <div className={`${premiumModalSurfaceClassName} p-5`}>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-base font-semibold text-slate-900">Lampiran</p>
+                  <p className="text-sm text-slate-500">Preview bukti jika tersedia</p>
+                </div>
+                <FileImage className="size-4.5 text-emerald-600" />
+              </div>
+
+              {submission.attachment ? (
+                isImageAttachment(submission.attachment) ? (
+                  <div className="space-y-3">
+                    <div className="overflow-hidden rounded-[20px] border border-emerald-100 bg-slate-50/80">
+                      <ProtectedApiImage
+                        src={normalizeSubmissionAttachment(submission.attachment)}
+                        alt={`Lampiran ${submission.student_name}`}
+                        className="h-[240px] w-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-[20px] border border-slate-200 bg-slate-50/80 p-5 text-center">
+                    <FileImage className="mx-auto size-8 text-slate-400" />
+                    <p className="mt-3 text-sm font-medium text-slate-700">Lampiran tersedia</p>
+                    <p className="mt-1 text-sm text-slate-500">Preview inline hanya tersedia untuk gambar.</p>
+                  </div>
+                )
+              ) : (
+                <EmptyState
+                  icon={FileImage}
+                  title="Tidak ada lampiran"
+                  description="Siswa belum menyertakan foto atau file pendukung."
+                  compact
+                />
+              )}
+              <AttendanceLocationEvidence evidence={submission} className="mt-4" />
+            </div>
+
           </div>
         </div>
       ) : null}

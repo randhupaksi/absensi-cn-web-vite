@@ -126,7 +126,7 @@ export function ReviewStatusPill({ reviewed }: { reviewed: boolean }) {
           : "border-slate-200 bg-slate-100 text-slate-500"
       }
     >
-      {reviewed ? "Direview" : "Belum"}
+      {reviewed ? "Dikoreksi" : "Status otomatis"}
     </Badge>
   );
 }
@@ -137,11 +137,6 @@ export function normalizeAttachmentUrl(attachment: string) {
 
 export function isImageAttachment(attachment: string) {
   return /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(attachment);
-}
-
-export function openAttachment(attachment?: string) {
-  if (!attachment || typeof window === "undefined") return;
-  window.open(normalizeAttachmentUrl(attachment), "_blank", "noopener,noreferrer");
 }
 
 export function TableSkeleton({ columns, rows = 6 }: { columns: number; rows?: number }) {

@@ -24,7 +24,6 @@ import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import {
   formatDate,
   formatDateTime,
-  openSubmissionAttachment,
   SubmissionDetailModal,
   SubmissionReviewModal,
   SubmissionStatusPill,
@@ -42,7 +41,6 @@ import {
   BadgeCheck,
   Eye,
   FileClock,
-  FileImage,
   FileSearch,
   GraduationCap,
   LayoutPanelTop,
@@ -340,14 +338,7 @@ export function WalasSubmissionsPage() {
                           </DataTableCell>
                           <DataTableCell className="text-center">
                             {record.attachment ? (
-                              <button
-                                type="button"
-                                onClick={() => openSubmissionAttachment(record.attachment)}
-                                className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-100"
-                              >
-                                <FileImage className="size-3.5" />
-                                Buka
-                              </button>
+                              <span className="text-xs font-medium text-emerald-700">Tersedia</span>
                             ) : (
                               <span className="text-xs text-slate-400">Tidak ada</span>
                             )}
@@ -400,16 +391,7 @@ export function WalasSubmissionsPage() {
                           <p className="text-sm leading-6 text-slate-600">{record.review_note || "Belum ada tanggapan walas"}</p>
                         </MobileDataSection>
                         <MobileDataFooter>
-                          {record.attachment ? (
-                            <button
-                              type="button"
-                              onClick={() => openSubmissionAttachment(record.attachment)}
-                              className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-100"
-                            >
-                              <FileImage className="size-3.5" />
-                              Buka
-                            </button>
-                          ) : null}
+                          {record.attachment ? <span className="px-2 text-xs font-medium text-emerald-700">Lampiran tersedia</span> : null}
                           <ActionIconButton
                             tone="emerald"
                             onClick={() => setDetailTarget(record)}

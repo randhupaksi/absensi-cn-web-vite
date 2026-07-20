@@ -117,8 +117,8 @@ export function AttendanceReviewModal({
     <PremiumModal
       open
       onOpenChange={onOpenChange}
-      title={`Review ${record.student_name}`}
-      description="Perbarui status dan catatan verifikasi dari perspektif BK."
+      title={`Koreksi ${record.student_name}`}
+      description="Perbarui status absensi bila hasil pengecekan guru berbeda dengan status otomatis."
       icon={BadgeCheck}
       className="sm:!max-w-[760px]"
     >
@@ -133,7 +133,7 @@ export function AttendanceReviewModal({
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Status final</label>
+            <label className={premiumModalLabelClassName}>Status setelah koreksi</label>
             <RadixSelectField
               value={status}
               onValueChange={setStatus}
@@ -144,20 +144,20 @@ export function AttendanceReviewModal({
             <FieldError message={errors.status} />
           </div>
           <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Verifikasi</label>
+            <label className={premiumModalLabelClassName}>Riwayat koreksi</label>
             <div className="flex h-12 items-center rounded-[18px] border border-emerald-100/80 bg-white/90 px-4 text-sm text-slate-600">
-              {record.verified_at ? "Sudah pernah direview" : "Belum pernah direview"}
+              {record.verified_at ? "Sudah pernah dikoreksi" : "Belum ada koreksi guru"}
             </div>
           </div>
         </div>
 
         <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Catatan review BK</label>
+          <label className={premiumModalLabelClassName}>Catatan koreksi BK</label>
           <p className={premiumModalHelperClassName}>Catatan ini membantu membaca alasan perubahan status.</p>
           <Textarea
             value={verificationNote}
             onChange={(event) => setVerificationNote(event.target.value)}
-            placeholder="Tulis catatan review BK"
+            placeholder="Tulis alasan koreksi BK"
             className="min-h-[140px] rounded-[20px]"
           />
           <FieldError message={errors.verification_note} />
@@ -178,7 +178,7 @@ export function AttendanceReviewModal({
             disabled={isPending}
             onClick={handleSubmit}
           >
-            {isPending ? "Menyimpan..." : "Simpan Review"}
+            {isPending ? "Menyimpan..." : "Simpan Koreksi"}
           </Button>
         </div>
       </div>

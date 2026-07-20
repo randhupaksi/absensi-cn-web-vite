@@ -511,7 +511,7 @@ function DatePickerField({
 
 function ModalActions({ formId, isPending, onCancel, submitLabel }: { formId: string; isPending: boolean; onCancel: () => void; submitLabel: string }) {
   return (
-    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
       <Button
         type="button"
         variant="outline"
