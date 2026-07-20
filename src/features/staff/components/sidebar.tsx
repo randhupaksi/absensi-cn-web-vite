@@ -9,7 +9,6 @@ import {
   Building2,
   ChartColumnBig,
   CalendarDays,
-  FileBarChart2,
   FileClock,
   GraduationCap,
   History,
@@ -164,7 +163,6 @@ export const adminSidebarItems = [
   { label: "Kalender Libur", href: "/dashboard/admin/holidays", icon: CalendarDays },
   { label: "Admin", href: "/dashboard/admin/admins", icon: ShieldCheck },
   { label: "Manajemen Role", href: "/dashboard/admin/users", icon: UserCog },
-  { label: "Report", href: "/dashboard/admin/reports", icon: FileBarChart2 },
 ] satisfies StaffSidebarItem[];
 
 export const walasSidebarItems = [
