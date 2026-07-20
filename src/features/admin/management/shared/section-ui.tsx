@@ -29,7 +29,7 @@ export function actionIconButtonClass(tone: ActionIconTone) {
     slate: "border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700",
   }[tone];
 
-  return `size-10 rounded-full border bg-white transition-colors ${toneClass}`;
+  return `size-10 rounded-full border bg-white transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-px hover:shadow-[0_10px_20px_rgba(15,23,42,0.08)] active:translate-y-0 active:scale-[0.94] active:duration-75 ${toneClass}`;
 }
 
 export function ActionIconButton({
@@ -120,7 +120,7 @@ export function AddButton({
   return (
     <Button
       variant="outline"
-      className="h-14 rounded-[22px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-5 text-sm font-semibold text-emerald-900 shadow-[0_16px_30px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(228,250,239,1)_100%)] hover:text-emerald-950"
+      className="h-14 rounded-[22px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-5 text-sm font-semibold text-emerald-900 shadow-[0_16px_30px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.96)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-px hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(228,250,239,1)_100%)] hover:text-emerald-950 hover:shadow-[0_20px_34px_rgba(16,185,129,0.12)] active:translate-y-0 active:scale-[0.96] active:bg-emerald-100"
       onClick={onClick}
     >
       <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.18)]">

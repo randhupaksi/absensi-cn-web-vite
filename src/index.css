@@ -234,6 +234,35 @@ input[type="submit"]:not(:disabled):not([aria-disabled="true"]),
 }
 
 /*
+ * Tap feedback is intentionally split by interaction type. Shared Button,
+ * select, tab, and choice primitives define their own visual state; this
+ * firm fallback covers the remaining native action buttons and links.
+ * It never changes their color or selected state, so each feature keeps its
+ * existing hierarchy while still feeling responsive on touch screens.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  button:not([data-slot="button"]):not([data-press-managed]):not(:disabled):not([aria-disabled="true"]),
+  a[href]:not([data-slot="button"]):not([data-press-managed]):not([aria-disabled="true"]),
+  [role="button"]:not([data-press-managed]):not([aria-disabled="true"]):not([data-disabled]),
+  [role="link"]:not([data-press-managed]):not([aria-disabled="true"]):not([data-disabled]) {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform, scale, translate;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+
+  button:not([data-slot="button"]):not([data-press-managed]):not(:disabled):not([aria-disabled="true"]):active,
+  a[href]:not([data-slot="button"]):not([data-press-managed]):not([aria-disabled="true"]):active,
+  [role="button"]:not([data-press-managed]):not([aria-disabled="true"]):not([data-disabled]):active,
+  [role="link"]:not([data-press-managed]):not([aria-disabled="true"]):not([data-disabled]):active {
+    scale: var(--press-scale, 0.955);
+    translate: 0 var(--press-translate-y, 1px);
+    transition-duration: 80ms;
+  }
+}
+
+/*
  * Intentionally outside any @layer: unlayered rules always win over
  * Tailwind's utility layer, so this reliably overrides focus-visible:ring-*
  * without needing !important.

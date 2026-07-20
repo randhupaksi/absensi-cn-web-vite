@@ -25,7 +25,7 @@ export function StaffTopbar({
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 transition hover:bg-slate-200 sm:size-11 lg:hidden"
+            className="flex size-10 shrink-0 touch-manipulation items-center justify-center rounded-2xl bg-slate-100 text-slate-700 transition-[background-color,color,box-shadow,transform] duration-150 ease-out hover:-translate-y-px hover:bg-slate-200 hover:shadow-sm active:translate-y-0 active:scale-[0.94] active:bg-slate-300 active:duration-75 sm:size-11 lg:hidden"
           >
             <Menu className="size-4" />
           </button>

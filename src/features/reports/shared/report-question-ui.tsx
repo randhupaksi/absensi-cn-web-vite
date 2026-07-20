@@ -56,7 +56,7 @@ export function ReportRadio({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
+        "flex touch-manipulation items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:duration-75 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
         selected
           ? "border-emerald-300 bg-white text-emerald-900 shadow-[0_0_0_2px_rgba(5,150,105,0.12)]"
           : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/40",
@@ -104,7 +104,7 @@ export function ReportCheckbox({
       disabled={disabled}
       onClick={() => onChange?.(!checked)}
       className={cn(
-        "flex items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
+        "flex touch-manipulation items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:duration-75 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
         disabled
           ? "cursor-default border-emerald-200 bg-emerald-50/60 text-emerald-800"
           : checked

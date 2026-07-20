@@ -64,7 +64,7 @@ export function DeleteConfirmationModal({
           <button
             type="button"
             aria-label="Tutup modal"
-            className="shrink-0 inline-flex size-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+            className="shrink-0 inline-flex size-8 items-center justify-center rounded-lg text-slate-500 [--press-scale:0.9] transition-[color,background-color,box-shadow,transform] duration-150 hover:bg-slate-100 hover:text-slate-700 active:bg-slate-200 active:shadow-inner"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
@@ -75,7 +75,7 @@ export function DeleteConfirmationModal({
         <div className="flex flex-col-reverse justify-end gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:flex-row sm:px-6">
           <button
             type="button"
-            className="inline-flex h-11 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-colors hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 active:shadow-inner disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >

@@ -71,7 +71,7 @@ export function PremiumModal({
             type="button"
             aria-label="Tutup modal"
             onClick={() => onOpenChange(false)}
-            className="mt-0.5 inline-flex h-[2.35rem] w-[2.35rem] shrink-0 items-center justify-center rounded-[0.85rem] border border-rose-300/22 bg-white/78 text-rose-500 transition-[transform,box-shadow,border-color,background-color] duration-180 hover:-translate-y-px hover:border-rose-300/42 hover:bg-rose-50/96 hover:shadow-[0_12px_24px_rgba(239,68,68,0.12)]"
+            className="mt-0.5 inline-flex h-[2.35rem] w-[2.35rem] shrink-0 items-center justify-center rounded-[0.85rem] border border-rose-300/22 bg-white/78 text-rose-500 [--press-scale:0.9] transition-[transform,box-shadow,border-color,background-color] duration-180 hover:-translate-y-px hover:border-rose-300/42 hover:bg-rose-50/96 hover:shadow-[0_12px_24px_rgba(239,68,68,0.12)] active:border-rose-300/60 active:bg-rose-100 active:shadow-[inset_0_1px_4px_rgba(239,68,68,0.16)]"
           >
             <X className="size-4.5" />
           </button>

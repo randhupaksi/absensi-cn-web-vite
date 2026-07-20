@@ -99,7 +99,7 @@ export function StaffSidebar({
             onScroll={(event) => {
               staffSidebarScrollTop = event.currentTarget.scrollTop;
             }}
-            className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70"
+            className="mt-3 flex-1 space-y-2 overflow-y-auto pr-3 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-gutter:stable] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70"
           >
             {items.map((item) => {
               const Icon = item.icon;
@@ -110,7 +110,7 @@ export function StaffSidebar({
                   key={item.label}
                   href={item.href}
                   onClick={onClose}
-                  className={`group flex items-center gap-3 rounded-[22px] px-3 py-3.5 transition duration-200 ${
+                  className={`group flex items-center gap-3 rounded-[22px] px-3 py-3.5 transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:bg-white/20 active:duration-75 ${
                     isActive
                       ? "bg-white/16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                       : "text-white/78 hover:bg-white/10 hover:text-white"

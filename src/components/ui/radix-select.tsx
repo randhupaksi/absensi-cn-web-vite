@@ -87,7 +87,7 @@ export function RadixSelectField({
     >
       <Select.Trigger
         className={cn(
-          "group flex h-14 w-full items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[state=open]:border-emerald-500 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/80 data-[placeholder]:text-slate-400",
+          "group flex h-14 w-full touch-manipulation items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color,color] duration-150 ease-out hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] active:border-emerald-400 active:bg-emerald-50/70 active:shadow-[0_0_0_2px_rgba(16,185,129,0.12),0_10px_22px_rgba(15,23,42,0.04)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[state=open]:border-emerald-500 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/80 data-[placeholder]:text-slate-400",
           triggerClassName,
           className,
         )}
@@ -193,7 +193,7 @@ function SelectItem({
         pointerStartedOnItem.current = false;
       }}
       className={cn(
-        "group/item relative flex cursor-pointer select-none items-start gap-3 rounded-[1rem] border border-transparent px-3 py-3 text-sm outline-none transition-[background-color,border-color,box-shadow,color] hover:!border-emerald-200 hover:!bg-emerald-100 hover:!text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-[highlighted]:border-transparent data-[highlighted]:bg-transparent data-[highlighted]:text-slate-700 data-[state=checked]:border-emerald-200 data-[state=checked]:bg-emerald-100 data-[state=checked]:text-emerald-950 data-[state=checked]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]",
+        "group/item relative flex cursor-pointer touch-manipulation select-none items-start gap-3 rounded-[1rem] border border-transparent px-3 py-3 text-sm outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-150 ease-out hover:!border-emerald-200 hover:!bg-emerald-100 hover:!text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] active:scale-[0.985] active:bg-emerald-100/80 active:duration-75 data-[highlighted]:border-transparent data-[highlighted]:bg-transparent data-[highlighted]:text-slate-700 data-[state=checked]:border-emerald-200 data-[state=checked]:bg-emerald-100 data-[state=checked]:text-emerald-950 data-[state=checked]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]",
         className,
       )}
     >

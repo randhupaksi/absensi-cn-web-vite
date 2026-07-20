@@ -42,6 +42,7 @@ export function PortalToggle({ value, onChange }: PortalToggleProps) {
           <motion.button
             key={item.value}
             type="button"
+            data-press-managed
             onClick={() => onChange(item.value)}
             whileHover={{ scale: active ? 1 : 1.01, y: active ? 0 : -0.5 }}
             whileTap={{ scale: 0.985 }}

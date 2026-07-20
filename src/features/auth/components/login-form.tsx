@@ -187,6 +187,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           trailing={
             <motion.button
               type="button"
+              data-press-managed
               whileHover={{ scale: 1.08, rotate: showPassword ? -5 : 5 }}
               whileTap={{ scale: 0.94 }}
               onClick={() => setShowPassword((value) => !value)}
