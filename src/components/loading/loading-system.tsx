@@ -13,7 +13,9 @@ type PageSkeletonVariant =
 
 export function RouteLoadingFallback() {
   const { pathname } = useLocation();
-  if (pathname.startsWith("/login")) return <LoginRouteSkeleton />;
+  if (pathname.startsWith("/login")) {
+    return <LoginRouteSkeleton portal={pathname.startsWith("/login/staff") ? "staff" : "student"} />;
+  }
   if (!pathname.startsWith("/dashboard")) return <BrandedAppLoader />;
   return <DashboardRouteSkeleton variant={getRouteVariant(pathname)} />;
 }
@@ -137,8 +139,52 @@ function ContentListSkeleton() {
   return <SkeletonPanel><div className="flex justify-between"><div className="space-y-2"><Skeleton className="h-6 w-44" /><Skeleton className="h-3 w-64 max-w-full" /></div><Skeleton className="size-9 rounded-full" /></div><div className="mt-5 space-y-3">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="flex items-center gap-3 rounded-[1.2rem] border border-slate-100 p-3"><Skeleton className="size-10 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-[62%]" /><Skeleton className="h-3 w-[42%]" /></div><Skeleton className="h-7 w-16 rounded-full" /></div>)}</div></SkeletonPanel>;
 }
 
-function LoginRouteSkeleton() {
+function LoginRouteSkeleton({ portal }: { portal: "student" | "staff" }) {
+  if (portal === "staff") return <StaffLoginRouteSkeleton />;
+
   return <div role="status" aria-label="Memuat portal login" className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(167,243,208,0.3),transparent_32%),linear-gradient(135deg,#f8fbf8_0%,#edf8f1_100%)] p-5"><div className="mx-auto grid min-h-[calc(100vh-2.5rem)] max-w-[1480px] items-center gap-10 lg:grid-cols-[1fr_0.95fr]"><div className="hidden space-y-6 lg:block"><Skeleton className="h-8 w-52 rounded-full" /><Skeleton className="h-16 w-[78%]" /><Skeleton className="h-16 w-[64%]" /><Skeleton className="h-5 w-[58%]" /><Skeleton className="h-5 w-[50%]" /></div><div className="mx-auto w-full max-w-[680px] rounded-[2.2rem] border border-white/80 bg-white/72 p-6 shadow-[0_28px_90px_rgba(22,85,58,0.12)] sm:p-8"><div className="flex items-center gap-4"><Skeleton className="size-20 rounded-[1.5rem]" /><div className="flex-1 space-y-3"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-[72%]" /></div></div><div className="mt-7 space-y-3"><Skeleton className="h-4 w-44" /><Skeleton className="h-4 w-64" /></div><div className="mt-7 rounded-[1.7rem] border border-emerald-100 bg-white/72 p-5"><Skeleton className="h-4 w-20" /><Skeleton className="mt-3 h-14 rounded-[1.25rem]" /><Skeleton className="mt-5 h-4 w-24" /><Skeleton className="mt-3 h-14 rounded-[1.25rem]" /><Skeleton className="mt-6 h-14 rounded-[1.25rem] bg-emerald-200/70" /></div></div></div></div>;
+}
+
+function StaffLoginRouteSkeleton() {
+  return (
+    <div role="status" aria-label="Memuat portal staff" className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(167,243,208,0.3),transparent_32%),linear-gradient(135deg,#f8fbf8_0%,#edf8f1_100%)] p-5">
+      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] w-full max-w-[640px] items-center">
+        <div className="w-full rounded-[2.2rem] border border-white/80 bg-white/72 p-6 shadow-[0_28px_90px_rgba(22,85,58,0.12)] sm:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-4">
+              <Skeleton className="h-7 w-28 rounded-full" />
+              <div className="flex items-center gap-5">
+                <Skeleton className="size-[5.5rem] rounded-full" />
+                <div className="space-y-3">
+                  <Skeleton className="h-9 w-52" />
+                  <Skeleton className="h-4 w-72 max-w-[42vw]" />
+                  <Skeleton className="h-4 w-56" />
+                </div>
+              </div>
+            </div>
+            <Skeleton className="hidden size-12 rounded-[1.45rem] md:block" />
+          </div>
+
+          <div className="mt-8 space-y-2">
+            <Skeleton className="h-4 w-44" />
+            <Skeleton className="h-4 w-72 max-w-full" />
+          </div>
+
+          <div className="mt-8 rounded-[1.7rem] border border-emerald-100 bg-white/72 p-5">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="mt-3 h-14 rounded-[1.25rem]" />
+            <Skeleton className="mt-4 h-3 w-52" />
+            <Skeleton className="mt-6 h-4 w-20" />
+            <Skeleton className="mt-3 h-14 rounded-[1.25rem]" />
+            <Skeleton className="mt-4 h-3 w-60" />
+            <Skeleton className="mt-7 h-14 rounded-[1.25rem] bg-emerald-200/70" />
+          </div>
+
+          <Skeleton className="mx-auto mt-8 h-3 w-72 max-w-full" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function getRouteVariant(pathname: string): PageSkeletonVariant {

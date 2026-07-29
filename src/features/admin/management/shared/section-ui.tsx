@@ -78,7 +78,7 @@ export function SearchFilterBar({
   return (
     <div
       onClick={() => inputRef.current?.focus()}
-      className={`flex h-14 cursor-text items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)] ${className}`}
+      className={`flex h-14 cursor-text items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow] duration-200 hover:border-emerald-400 focus-within:border-emerald-500 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] active:border-emerald-500 active:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] ${className}`}
     >
       <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">
         <SlidersHorizontal className="size-4" />
@@ -136,14 +136,16 @@ export function ModalActions({
   onCancel,
   onSubmit,
   submitLabel,
+  className,
 }: {
   isPending: boolean;
   onCancel: () => void;
   onSubmit: () => void;
   submitLabel: string;
+  className?: string;
 }) {
   return (
-    <div className={premiumModalActionsClassName}>
+    <div className={cn(premiumModalActionsClassName, className)}>
       <Button
         variant="outline"
         className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 sm:flex-none sm:px-5"
@@ -153,6 +155,7 @@ export function ModalActions({
         Batal
       </Button>
       <AsyncButton
+        data-modal-submit
         className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 sm:flex-none sm:px-5"
         onClick={onSubmit}
         isPending={isPending}

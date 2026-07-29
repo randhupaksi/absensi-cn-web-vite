@@ -1,6 +1,7 @@
 import { AnimatedBackground } from "@/features/auth/components/animated-background";
 import { LoginCard } from "@/features/auth/components/login-card";
 import { LoginShowcase } from "@/features/auth/components/login-showcase";
+import { BackButton } from "@/components/ui/back-button";
 import type { PortalType } from "@/lib/validations/login-schema";
 
 type LoginPageProps = {
@@ -19,6 +20,11 @@ export default function LoginPage({ portal }: LoginPageProps) {
       }
     >
       <AnimatedBackground />
+      <BackButton
+        href="/"
+        label="Kembali ke beranda"
+        className="absolute left-5 top-4 z-20 lg:hidden sm:left-6 sm:top-5"
+      />
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 py-6 sm:px-6 lg:px-10">
         <div
           className={

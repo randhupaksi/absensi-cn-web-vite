@@ -28,8 +28,8 @@ export function formatStudentDateTime(value?: string) {
   });
 }
 
-export function formatStudentTime(value?: string) {
-  if (!value) return "-";
+export function formatStudentTime(value?: string, fallback = "-") {
+  if (!value) return fallback;
   try {
     return format(parseISO(value), "HH:mm 'WIB'", { locale: localeID });
   } catch {

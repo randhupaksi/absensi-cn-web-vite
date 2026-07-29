@@ -3,7 +3,7 @@ import type { AttendanceLocationCaptureResult } from "@/types/location";
 const locationOptions: PositionOptions = {
   enableHighAccuracy: true,
   timeout: 12_000,
-  maximumAge: 30_000,
+  maximumAge: 0,
 };
 
 export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureResult> {
@@ -19,7 +19,7 @@ export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureRe
     return Promise.resolve({
       capture: { client_status: "unavailable" },
       outcome: "unavailable",
-      message: "Lokasi hanya dapat dibaca melalui koneksi HTTPS yang aman.",
+      message: "Lokasi membutuhkan HTTPS. Buka aplikasi melalui alamat HTTPS atau localhost, lalu tekan Ambil Ulang Lokasi.",
     });
   }
 
@@ -46,7 +46,7 @@ export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureRe
           },
           outcome: permissionDenied ? "permission_denied" : "unavailable",
           message: permissionDenied
-            ? "Izin lokasi ditolak. Absensi tetap dapat dikirim untuk direview."
+            ? "Izin lokasi sudah ditolak atau diblokir. Buka pengaturan izin situs di browser, pilih Lokasi, lalu izinkan dan tekan Ambil Ulang Lokasi."
             : error.code === error.TIMEOUT
               ? "Pembacaan lokasi melewati batas waktu. Kamu dapat mencoba lagi."
               : "Lokasi belum dapat dibaca. Absensi tetap dapat dikirim untuk direview.",

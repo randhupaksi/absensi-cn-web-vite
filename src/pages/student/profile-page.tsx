@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { ProfilePageSkeleton } from "@/components/loading/loading-system";
 
 export function StudentProfilePage() {
@@ -32,12 +31,7 @@ export function StudentProfilePage() {
         <ProfilePageSkeleton />
       ) : (
         <div className="space-y-5">
-          <motion.section
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.38, ease: "easeOut" }}
-            className="relative overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-4 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-5"
-          >
+          <section className="relative overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-4 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-5">
             <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-200/25 blur-3xl" />
             <div className="relative grid items-stretch gap-5 lg:grid-cols-[0.86fr_1.14fr]">
               <div className="relative overflow-hidden rounded-[1.7rem] border border-emerald-200/70 bg-[linear-gradient(145deg,#075e4d_0%,#0b8669_55%,#22b879_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.23)] sm:p-7">
@@ -139,7 +133,7 @@ export function StudentProfilePage() {
                 )}
               </div>
             </div>
-          </motion.section>
+          </section>
 
         </div>
       )}

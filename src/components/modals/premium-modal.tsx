@@ -19,6 +19,7 @@ type PremiumModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
+  disablePointerDismissal?: boolean;
 };
 
 export const premiumModalFieldClassName = "grid gap-2";
@@ -44,15 +45,36 @@ export function PremiumModal({
   children,
   footer,
   className,
+  disablePointerDismissal = false,
 }: PremiumModalProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      disablePointerDismissal={disablePointerDismissal}
+    >
       <DialogContent
         showCloseButton={false}
         className={cn(
           "!fixed !left-1/2 !top-1/2 !flex !flex-col !items-stretch !w-[min(100%,980px)] !max-h-[calc(100dvh-1.5rem)] !max-w-[calc(100vw-1.5rem)] !-translate-x-1/2 !-translate-y-1/2 !gap-0 !overflow-hidden !rounded-[2rem] border border-white/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,251,247,0.98)_100%)] p-0 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.18),0_6px_24px_rgba(16,185,129,0.08)] ring-0 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.2),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(187,247,208,0.18),transparent_28%)] sm:!max-h-[calc(100dvh-3rem)] sm:!max-w-[880px]",
           className,
         )}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+
+          const target = event.target as HTMLElement;
+          if (target.closest("textarea,button,a,[role='combobox'],[data-slot='select-trigger']")) {
+            return;
+          }
+
+          const submitButton = event.currentTarget.querySelector<HTMLElement>(
+            "[data-modal-submit]:not(:disabled):not([aria-disabled='true'])",
+          );
+          if (!submitButton) return;
+
+          event.preventDefault();
+          submitButton.click();
+        }}
       >
         <div className="relative flex shrink-0 items-start gap-4 border-b border-slate-300/22 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(244,250,246,0.82)_100%)] px-[1.3rem] pt-[1.25rem] pb-[1.1rem] after:absolute after:inset-x-[1.3rem] after:bottom-0 after:h-px after:bg-[linear-gradient(90deg,rgba(16,185,129,0.08)_0%,rgba(16,185,129,0.18)_22%,rgba(148,163,184,0.16)_52%,rgba(16,185,129,0.18)_78%,rgba(16,185,129,0.08)_100%)]">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#8df0c1_0%,#34d399_38%,#0f766e_100%)] text-white shadow-[0_14px_24px_rgba(16,185,129,0.2)]">
@@ -82,7 +104,7 @@ export function PremiumModal({
         </div>
 
         {footer ? (
-          <div className="relative shrink-0 bg-[linear-gradient(180deg,rgba(244,250,246,0.9)_0%,rgba(255,255,255,0.96)_100%)] px-[1.3rem] py-[1.1rem] after:absolute after:inset-x-[1.3rem] after:top-0 after:h-px after:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)]">
+          <div className="relative shrink-0 bg-[linear-gradient(180deg,rgba(244,250,246,0.9)_0%,rgba(255,255,255,0.96)_100%)] px-[1.3rem] py-[1.1rem]">
             {footer}
           </div>
         ) : null}

@@ -59,7 +59,6 @@ import {
   TimerReset,
   UserRound,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -173,6 +172,11 @@ export function StudentDashboardPage() {
 
   async function handlePhotoPicked(file?: File) {
     if (!file) return;
+    // Start location capture immediately from the file-picker interaction.
+    // Waiting for image compression first can lose the browser's user-action
+    // context, especially on mobile, so the native permission prompt may not
+    // appear when the confirmation modal is shown.
+    const locationPromise = refreshAttendanceLocation();
     setIsPreparingPhoto(true);
     setErrors({});
 
@@ -184,9 +188,7 @@ export function StudentDashboardPage() {
       setPhotoFile(uploadFile);
       setPhotoPreview(previewUrl);
       setModalOpen(true);
-      // A new capture here keeps the submitted location fresh and gives a
-      // first-time user another browser-prompt opportunity after taking a photo.
-      void refreshAttendanceLocation();
+      void locationPromise;
     } catch (error) {
       const message =
         error instanceof Error
@@ -290,17 +292,12 @@ export function StudentDashboardPage() {
             onChange={(event) => void handlePhotoPicked(event.target.files?.[0])}
           />
 
-          <motion.section
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.42, ease: "easeOut" }}
-            className="overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]"
-          >
+          <section className="overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]">
             <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
                 <div className="space-y-4">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-50">
-                    <Sparkles className="size-4" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-50">
+                    <Sparkles className="size-3.5" />
                     Portal Absensi Siswa
                   </span>
                   <div className="max-w-2xl space-y-3">
@@ -325,7 +322,7 @@ export function StudentDashboardPage() {
                     type="button"
                     onClick={handleStartAttendance}
                     disabled={!canSubmit || dashboardQuery.isLoading || isPreparingPhoto}
-                    className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-200 hover:-translate-y-1 hover:scale-[1.01] hover:bg-emerald-50 hover:shadow-[0_22px_42px_rgba(2,44,34,0.28)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
+                    className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:bg-emerald-50 hover:shadow-[0_20px_38px_rgba(2,44,34,0.24)] active:translate-y-0 active:scale-[0.98] active:!border-emerald-300 active:!bg-emerald-50 active:!text-emerald-800 active:!shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_14px_28px_rgba(16,185,129,0.18)] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
                   >
                     {isPreparingPhoto ? (
                       <TimerReset className="size-5" />
@@ -360,31 +357,35 @@ export function StudentDashboardPage() {
 
               <div className="grid items-start gap-4">
                 <div className="rounded-[1.5rem] border border-slate-200/80 bg-white/86 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
+                  <div className="relative">
+                    <div className="min-w-0 w-full">
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
                         Status Hari Ini
                       </p>
-                      <h2 className="mt-3 text-2xl font-semibold text-slate-950">
+                      <h2 className="mt-3 text-xl font-semibold leading-tight text-slate-950 sm:text-2xl">
                         {today?.attendance
                           ? "Sudah Terekam"
                           : isHoliday
                             ? "Hari Libur"
                           : isWindowClosed
                             ? "Tidak Hadir"
-                            : "Belum Ada Record"}
+                            : "Belum Ada Data"}
                       </h2>
                     </div>
                     {today?.attendance ? (
-                      <StudentStatusPill status={today.attendance.status} />
+                      <span className="absolute right-0 top-0">
+                        <StudentStatusPill status={today.attendance.status} />
+                      </span>
                     ) : isHoliday ? (
-                      <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+                      <span className="absolute right-0 top-0 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
                         Libur
                       </span>
                     ) : isWindowClosed ? (
-                      <StudentStatusPill status="alfa" />
+                      <span className="absolute right-0 top-0">
+                        <StudentStatusPill status="alfa" />
+                      </span>
                     ) : (
-                      <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+                      <span className="absolute right-0 top-0 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
                         Menunggu
                       </span>
                     )}
@@ -433,7 +434,7 @@ export function StudentDashboardPage() {
                 </div>
               </div>
             </div>
-          </motion.section>
+          </section>
 
           <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
             <KpiCard
@@ -463,12 +464,7 @@ export function StudentDashboardPage() {
           </section>
 
           <section className="grid items-start gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08, duration: 0.34 }}
-              className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]"
-            >
+            <div className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-semibold text-slate-950">Histori Terbaru</h2>
@@ -480,14 +476,14 @@ export function StudentDashboardPage() {
                   href="/dashboard/siswa/history"
                   className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:shadow-[0_10px_22px_rgba(16,185,129,0.12)]"
                 >
-                  Lihat Semua
+                  Lihat
                   <ArrowUpRight className="size-4" />
                 </Link>
               </div>
 
               <div className="mt-5 space-y-3">
                 {(dashboard?.recent_attendance ?? []).length > 0 ? (
-                  dashboard?.recent_attendance.map((record) => (
+                  (dashboard?.recent_attendance ?? []).slice(0, 5).map((record) => (
                     <div
                       key={record.id}
                       className="flex flex-col gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
@@ -523,14 +519,9 @@ export function StudentDashboardPage() {
                   />
                 )}
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.13, duration: 0.34 }}
-              className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]"
-            >
+            <div className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-semibold text-slate-950">Notification Center</h2>
@@ -579,7 +570,7 @@ export function StudentDashboardPage() {
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </section>
 
           <PremiumModal
@@ -588,6 +579,7 @@ export function StudentDashboardPage() {
               setModalOpen(open);
               if (!open) resetCaptureState();
             }}
+            disablePointerDismissal
             title="Foto Absensi Siswa"
             description="Periksa foto, pilih keterangan, lalu kirim agar walas dapat melakukan validasi."
             icon={ImageUp}
@@ -595,6 +587,7 @@ export function StudentDashboardPage() {
             footer={
               <ModalActions
                 isPending={submitMutation.isPending || locationState === "loading"}
+                className="!mt-0 !pt-0 before:hidden"
                 onCancel={() => {
                   setModalOpen(false);
                   resetCaptureState();
@@ -623,8 +616,9 @@ export function StudentDashboardPage() {
                           Foto absensi siswa
                         </p>
                       </div>
-                      <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[0.68rem] font-semibold text-slate-500">
-                        Pratinjau
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[0.68rem] font-semibold text-emerald-700">
+                        <BadgeCheck className="size-3.5" />
+                        Privasi foto terjaga
                       </span>
                     </div>
                     <div className="overflow-hidden rounded-[1.35rem] border border-emerald-200/70 bg-slate-950 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
@@ -721,7 +715,7 @@ export function StudentDashboardPage() {
                       </div>
                     ) : (
                       <div className="rounded-[1.1rem] border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800">
-                        Untuk status hadir, foto akan langsung masuk sebagai record absensi
+                        Untuk status hadir, foto akan langsung masuk sebagai data absensi
                         dan menunggu validasi walas.
                       </div>
                     )}

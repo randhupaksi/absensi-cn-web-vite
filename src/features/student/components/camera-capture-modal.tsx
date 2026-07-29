@@ -121,7 +121,7 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
           <Button
             type="button"
             variant="outline"
-            className="h-13 rounded-full border-slate-200 px-6 text-slate-600"
+            className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 sm:flex-none sm:px-5"
             onClick={handleClose}
           >
             Batal
@@ -129,11 +129,12 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
           {!cameraError && (
             <AsyncButton
               type="button"
+              data-modal-submit
               isPending={!videoReady}
               pendingLabel="Menyiapkan kamera..."
               icon={Camera}
               onClick={handleCapture}
-              className="h-13 rounded-full bg-emerald-700 px-7 text-white shadow-[0_14px_28px_rgba(16,185,129,0.22)] hover:bg-emerald-800 disabled:bg-slate-300"
+              className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 disabled:bg-slate-300 sm:flex-none sm:px-5"
             >
               Ambil Foto
             </AsyncButton>

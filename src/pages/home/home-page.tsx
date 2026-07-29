@@ -231,7 +231,7 @@ export default function HomePage() {
                   <div
                     key={label}
                     className={`${styles.landingChip} ${styles.landingReveal} flex items-center gap-2 px-4 py-3 text-sm font-medium`}
-                    style={{ animationDelay: `${980 + index * 70}ms` }}
+                    style={{ animationDelay: `${40 + index * 45}ms` }}
                   >
                     <span className={`${styles.landingChipIcon} flex size-7 shrink-0 items-center justify-center rounded-full`}>
                       <Icon className="size-3.5" />
@@ -281,7 +281,7 @@ export default function HomePage() {
                       <div
                         key={point}
                         className={`${styles.landingReveal} flex items-start gap-3`}
-                        style={{ animationDelay: `${1240 + index * 90}ms` }}
+                        style={{ animationDelay: `${60 + index * 55}ms` }}
                       >
                         <span className={`${styles.landingAccentText} mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-50`}>
                           {index === 0 ? (

@@ -9,6 +9,7 @@ import {
   MobileDataHeader,
   MobileDataList,
   MobileDataSection,
+  SearchFilterBar,
 } from "@/features/admin/management/shared/section-ui";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StudentShell } from "@/features/student/components/shell";
@@ -32,11 +33,8 @@ import {
   FileImage,
   FileText,
   History,
-  Search,
   ShieldAlert,
-  SlidersHorizontal,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
@@ -69,7 +67,7 @@ export function StudentHistoryPage() {
       date: item.attendance_date,
       status: item.status,
       title: formatStudentDate(item.attendance_date),
-      description: item.notes || item.verification_note || "Absensi harian siswa",
+      description: item.notes || item.verification_note || "Data absensi siswa",
       record: item,
     }));
 
@@ -104,12 +102,7 @@ export function StudentHistoryPage() {
         <HistoryPageSkeleton />
       ) : (
         <div className="space-y-5">
-          <motion.section
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.38, ease: "easeOut" }}
-            className="rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]"
-          >
+          <section className="rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-3xl">
                 <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/78 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
@@ -139,7 +132,7 @@ export function StudentHistoryPage() {
 
             <div className="mt-7 grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
               <KpiCard
-                label="Total Record"
+                label="Total Absensi"
                 value={String(stats?.total_attendance ?? 0)}
                 icon={CalendarCheck}
                 accentClass="bg-emerald-100 text-emerald-700"
@@ -163,32 +156,30 @@ export function StudentHistoryPage() {
                 accentClass="bg-rose-100 text-rose-700"
               />
             </div>
-          </motion.section>
+          </section>
 
-          <motion.section
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08, duration: 0.34 }}
-            className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
-          >
-            <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <RadixSelectField
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                  placeholder="Semua status"
-                  options={statusOptions}
-                  triggerClassName="min-w-[220px]"
-                />
+          <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Daftar Aktivitas</p>
+                <p className="mt-1 text-xs text-slate-500">Cari dan filter riwayat absensi kamu.</p>
               </div>
-              <div className="flex h-14 w-full items-center gap-3 rounded-[1.4rem] border border-slate-300/80 bg-white px-4 shadow-[0_14px_30px_rgba(15,23,42,0.05)] transition hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] lg:max-w-[430px]">
-                <SlidersHorizontal className="size-4 text-slate-400" />
-                <Search className="size-4 text-slate-400" />
-                <input
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <div className="w-full shrink-0 sm:w-[220px]">
+                  <RadixSelectField
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
+                    placeholder="Semua status"
+                    options={statusOptions}
+                    triggerClassName="min-w-0"
+                  />
+                </div>
+                <SearchFilterBar
                   value={query}
-                  onChange={(event) => setQuery(event.target.value)}
+                  onChange={setQuery}
                   placeholder="Cari status, catatan, tanggal"
-                  className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
+                  className="sm:min-w-[360px] xl:min-w-[430px]"
                 />
               </div>
             </div>
@@ -234,7 +225,7 @@ export function StudentHistoryPage() {
                 />
               </div>
             )}
-          </motion.section>
+          </section>
 
           <AttendanceEvidenceModal
             record={attendanceEvidence}
@@ -256,21 +247,25 @@ function AttendanceRow({ record, onOpen }: { record: StaffAttendanceRecord; onOp
       <div>
         <p className="font-semibold text-slate-950">Absensi Harian</p>
         <p className="mt-1 line-clamp-2 text-slate-500">
-          {record.notes || record.verification_note || "Record absensi siswa"}
+          {record.notes || record.verification_note || "Data absensi siswa"}
         </p>
       </div>
       <div>
         <p className="font-medium text-slate-800">
           {formatStudentDate(record.attendance_date)}
         </p>
-        <p className="mt-1 text-slate-500">{formatStudentTime(record.check_in_at)}</p>
+        <p className="mt-1 text-slate-500">{formatStudentTime(record.check_in_at, "Tidak ada waktu")}</p>
       </div>
-      <div>
+      <div className="flex items-center">
         <StudentStatusPill status={record.status} />
       </div>
       <div>
         <p className="font-medium text-slate-800">
-          {record.verified_at ? "Sudah direview" : "Menunggu"}
+          {record.verified_at
+            ? "Sudah direview"
+            : record.status.toLowerCase() === "hadir"
+              ? "Terkirim"
+              : "Menunggu"}
         </p>
         <p className="mt-1 line-clamp-1 text-slate-500">
           {record.verification_note || record.verified_by || "-"}
@@ -303,12 +298,21 @@ function MobileAttendanceCard({ record, onOpen }: { record: StaffAttendanceRecor
         badge={<StudentStatusPill status={record.status} />}
       />
       <div className="mt-4 grid gap-3">
-        <MobileDataField label="Waktu" value={formatStudentTime(record.check_in_at)} />
-        <MobileDataField label="Validasi" value={record.verified_at ? "Sudah direview" : "Menunggu"} />
+        <MobileDataField label="Waktu" value={formatStudentTime(record.check_in_at, "Tidak ada waktu")} />
+        <MobileDataField
+          label="Validasi"
+          value={
+            record.verified_at
+              ? "Sudah direview"
+              : record.status.toLowerCase() === "hadir"
+                ? "Terkirim"
+                : "Menunggu"
+          }
+        />
       </div>
       <MobileDataSection label="Catatan">
         <p className="text-sm leading-6 text-slate-600">
-          {record.notes || record.verification_note || "Record absensi siswa"}
+          {record.notes || record.verification_note || "Data absensi siswa"}
         </p>
       </MobileDataSection>
       {record.photo_url ? (
