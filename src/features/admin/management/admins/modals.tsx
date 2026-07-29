@@ -143,7 +143,7 @@ export function AdminEditModal({
           <FieldError message={errors.password} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Admin" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Admin" />
       </div>
     </PremiumModal>
   );

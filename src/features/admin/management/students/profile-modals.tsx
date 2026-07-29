@@ -23,14 +23,14 @@ type CommonProps = { open: boolean; onOpenChange: (open: boolean) => void; class
 export function StudentProfileCreateModal({ open, onOpenChange, classes, isPending, onSubmit }: CommonProps) {
   const form = useForm<StudentProfileFormValues>({ resolver: zodResolver(createStudentProfileSchema), defaultValues: EMPTY_FORM });
   const handleOpenChange = (nextOpen: boolean) => { onOpenChange(nextOpen); if (!nextOpen) form.reset(EMPTY_FORM); };
-  return <StudentFormModal open={open} onOpenChange={handleOpenChange} title="Tambah Profil Siswa" description="Buat akun, profil, dan penempatan kelas siswa dalam satu proses." icon={UsersRound} form={form} classes={classes} isPending={isPending} onSubmit={onSubmit} submitLabel="Simpan Profil Siswa" />;
+  return <StudentFormModal open={open} onOpenChange={handleOpenChange} title="Tambah Profil Siswa" description="Buat akun, profil, dan penempatan kelas siswa dalam satu proses." icon={UsersRound} form={form} classes={classes} isPending={isPending} onSubmit={onSubmit} submitLabel="Simpan Siswa" />;
 }
 
 export function StudentProfileEditModal({ student, currentClassId, open, onOpenChange, classes, isPending, onSubmit }: CommonProps & { student: AdminStudent | null; currentClassId?: string }) {
   const defaults: StudentProfileFormValues = student ? { name: student.name, nis: student.nis, nisn: student.nisn ?? "", password: "", gender: student.gender === "FEMALE" ? "FEMALE" : "MALE", class_id: currentClassId ?? "", is_active: student.is_active } : EMPTY_FORM;
   const form = useForm<StudentProfileFormValues>({ resolver: zodResolver(editStudentProfileSchema), defaultValues: defaults });
   if (!student) return null;
-  return <StudentFormModal open={open} onOpenChange={onOpenChange} title="Edit Profil Siswa" description="Perbarui akun, profil, dan kelas siswa tanpa menghapus histori." icon={FilePenLine} form={form} classes={classes} isPending={isPending} onSubmit={onSubmit} submitLabel="Update Profil Siswa" />;
+  return <StudentFormModal open={open} onOpenChange={onOpenChange} title="Edit Profil Siswa" description="Perbarui akun, profil, dan kelas siswa tanpa menghapus histori." icon={FilePenLine} form={form} classes={classes} isPending={isPending} onSubmit={onSubmit} submitLabel="Update Siswa" />;
 }
 
 function StudentFormModal({ open, onOpenChange, title, description, icon, form, classes, isPending, onSubmit, submitLabel }: CommonProps & { title: string; description: string; icon: typeof UsersRound; form: ReturnType<typeof useForm<StudentProfileFormValues>>; submitLabel: string }) {

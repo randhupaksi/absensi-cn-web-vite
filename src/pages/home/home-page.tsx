@@ -1,5 +1,7 @@
 import { AppImage as Image } from "@/components/media/app-image";
 import { AppLink as Link } from "@/components/router/app-link";
+import { motion, useReducedMotion } from "motion/react";
+import { useEffect } from "react";
 import type { IconType } from "react-icons";
 import {
   FaArrowRight,
@@ -138,6 +140,37 @@ const contactLinks = [
 ] as const;
 
 export default function HomePage() {
+  const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion || typeof window === "undefined") {
+      return;
+    }
+
+    const revealSelector = [
+      styles.landingReveal,
+      styles.landingRevealLeft,
+      styles.landingRevealRight,
+      styles.landingFloatReveal,
+    ]
+      .map((className) => `.${className}`)
+      .join(", ");
+    const revealTargets = Array.from(document.querySelectorAll<HTMLElement>(revealSelector));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.setAttribute("data-scroll-revealed", "true");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.14 },
+    );
+
+    revealTargets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, [prefersReducedMotion]);
+
   return (
     <main className={`${styles.landingPage} min-h-screen`}>
       <section className="w-full">
@@ -271,9 +304,22 @@ export default function HomePage() {
               </div>
             </div>
 
-            <section className={`${styles.landingStepsSection} ${styles.landingReveal} mt-8 px-5 py-9 md:px-10 md:py-11 xl:px-14`} aria-labelledby="attendance-steps-title">
+            <motion.section
+              className={`${styles.landingStepsSection} mt-8 px-5 py-9 md:px-10 md:py-11 xl:px-14`}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+              whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.18 }}
+              transition={{ duration: 0.46, ease: "easeOut" }}
+              aria-labelledby="attendance-steps-title"
+            >
               <div className="mx-auto grid max-w-[1220px] gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
-                <div className="flex w-full flex-col justify-center">
+                <motion.div
+                  className="flex w-full flex-col justify-center"
+                  initial={prefersReducedMotion ? false : { opacity: 0, x: -24, y: 10 }}
+                  whileInView={prefersReducedMotion ? undefined : { opacity: 1, x: 0, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.44, delay: 0.08, ease: "easeOut" }}
+                >
                   <div className={`${styles.landingMajorBadge} inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em]`}>
                     <FaCameraRetro className="size-3" />
                     Panduan siswa
@@ -291,16 +337,29 @@ export default function HomePage() {
                       <span className={`${styles.landingInkText} font-semibold`}>Lokasi dan bukti tercatat.</span> Pastikan izin kamera serta lokasi aktif sebelum mengirim absensi.
                     </p>
                   </div>
-                </div>
+                </motion.div>
 
                 <div className="flex flex-col justify-center">
                   <div className={styles.landingStepsList}>
+                    <motion.div
+                      aria-hidden="true"
+                      className={styles.landingStepsTimeline}
+                      style={{ transformOrigin: "top" }}
+                      initial={prefersReducedMotion ? false : { opacity: 0, scaleY: 0 }}
+                      whileInView={prefersReducedMotion ? undefined : { opacity: 1, scaleY: 1 }}
+                      viewport={{ once: true, amount: 0.25 }}
+                      transition={{ duration: 0.68, delay: 0.14, ease: "easeOut" }}
+                    />
                     {attendanceSteps.map((step, index) => {
                       const StepIcon = step.icon;
                       return (
-                        <div
+                        <motion.div
                           key={step.title}
                           className={`${styles.landingStepItem} group relative flex w-full items-start gap-4 border-b py-5 text-left transition duration-300 md:gap-5 md:py-6`}
+                          initial={prefersReducedMotion ? false : { opacity: 0, x: 28 }}
+                          whileInView={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
+                          viewport={{ once: true, amount: 0.25 }}
+                          transition={{ duration: 0.38, delay: 0.14 + index * 0.09, ease: "easeOut" }}
                         >
                           <span className={`${styles.landingStepNumber} flex size-11 shrink-0 items-center justify-center rounded-2xl transition duration-300`}>
                             <StepIcon className="size-5" />
@@ -310,14 +369,13 @@ export default function HomePage() {
                             <span className={`${styles.landingStepTitle} mt-2 block font-heading text-xl font-bold tracking-tight md:text-2xl`}>{step.title}</span>
                             <span className={`${styles.landingStepDescription} mt-1 block max-w-[570px] text-xs leading-6 md:text-sm`}>{step.description}</span>
                           </span>
-                          <FaArrowRight className={`${styles.landingStepIcon} mt-2 size-4 shrink-0 transition duration-300 group-hover:scale-110`} />
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>
                 </div>
               </div>
-            </section>
+            </motion.section>
 
             <div className="mt-10 px-2 py-4 md:px-4 md:py-5 xl:px-6">
               <div className={`${styles.landingReveal} text-center`}>
@@ -346,7 +404,7 @@ export default function HomePage() {
                   <article
                     key={major.name}
                     className={`${styles.landingMajorCard} ${styles.landingReveal} group relative mx-auto w-full max-w-[310px] overflow-hidden transition duration-500 hover:-translate-y-2`}
-                    style={{ animationDelay: `${1420 + index * 85}ms` }}
+                    style={{ animationDelay: `${90 + index * 55}ms` }}
                   >
                     <div className="relative h-[340px]">
                       <Image

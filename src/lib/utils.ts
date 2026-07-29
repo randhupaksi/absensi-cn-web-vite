@@ -6,10 +6,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDisplayLabel(value: string) {
-  return value
+  const normalized = value
     .trim()
     .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .toLowerCase()
     .replace(/\b\p{L}/gu, (match) => match.toUpperCase())
+
+  const localizedLabels: Record<string, string> = {
+    Active: "Aktif",
+    Inactive: "Nonaktif",
+  }
+
+  return localizedLabels[normalized] ?? normalized
 }

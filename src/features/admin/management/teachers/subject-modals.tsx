@@ -204,7 +204,7 @@ export function TeacherSubjectAssignmentCreateModal({
           onChange={(rows) => set("schedules", rows)}
         />
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Penugasan Mapel" />
+        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Penugasan" />
       </div>
     </PremiumModal>
   );
@@ -292,7 +292,7 @@ export function TeacherSubjectAssignmentEditModal({
           onChange={(rows) => set("schedules", rows)}
         />
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Penugasan Mapel" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Penugasan" />
       </div>
     </PremiumModal>
   );

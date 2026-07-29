@@ -3,6 +3,7 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { StudentShell } from "@/features/student/components/shell";
 import { getStudentProfile } from "@/services/student.service";
+import { formatDisplayLabel } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   BadgeCheck,
@@ -123,7 +124,7 @@ export function StudentProfilePage() {
                     <InfoRow icon={CircleUserRound} label="Jenis kelamin" value={formatGender(profile.gender)} />
                     <InfoRow icon={IdCard} label="NIS" value={profile.nis} />
                     <InfoRow icon={BadgeCheck} label="NISN" value={profile.nisn || "-"} />
-                    <InfoRow icon={ShieldCheck} label="Status kelas" value={profile.membership_status || "-"} />
+                    <InfoRow icon={ShieldCheck} label="Status kelas" value={profile.membership_status ? formatDisplayLabel(profile.membership_status) : "-"} />
                     <InfoRow icon={GraduationCap} label="Kelas aktif" value={profile.class_name || "-"} />
                     <InfoRow icon={CalendarDays} label="Tahun ajaran" value={profile.school_year_name || "-"} />
                   </div>

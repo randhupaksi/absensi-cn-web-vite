@@ -293,7 +293,7 @@ export function DataTablePagination({
 }: PaginationControls) {
   return (
     <div className="flex flex-col gap-3 border-t border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-4 py-3.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center justify-center gap-2 sm:justify-start sm:gap-4">
         <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Baris</span>
           <RowsPerPageSelect value={pageSize} onChange={setPageSize} />

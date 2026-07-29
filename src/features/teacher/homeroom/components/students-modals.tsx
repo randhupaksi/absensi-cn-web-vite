@@ -190,7 +190,7 @@ export function StudentDetailModal({
                       <p>NISN: {student.nisn || "-"}</p>
                       <p>Gender: {formatGender(student.gender)}</p>
                       <p>Tahun ajaran: {student.school_year_name || "-"}</p>
-                      <p>Status kelas: {student.membership_status || "-"}</p>
+                      <p>Status kelas: {student.membership_status ? formatDisplayLabel(student.membership_status) : "-"}</p>
                     </div>
                   </div>
                 </div>

@@ -125,7 +125,7 @@ export function UserCreateModal({
           </FieldGroup>
         </div>
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Peran Staf" />
+        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Peran" />
       </div>
     </PremiumModal>
   );
@@ -191,7 +191,7 @@ export function UserEditModal({
           </FieldGroup>
         </div>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Peran Staf" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Peran" />
       </div>
     </PremiumModal>
   );

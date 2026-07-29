@@ -159,7 +159,7 @@ export function CounselingFormModal({
             disabled={isPending}
             onClick={handleSubmit}
           >
-            {isPending ? "Menyimpan..." : note ? "Perbarui Catatan" : "Simpan Catatan"}
+            {isPending ? "Menyimpan..." : note ? "Update Catatan" : "Simpan Catatan"}
           </Button>
         </div>
       </div>

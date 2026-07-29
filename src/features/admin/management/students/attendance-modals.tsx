@@ -131,7 +131,7 @@ export function AttendanceRuleCreateModal({
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Aturan Absensi" />
+        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Aturan" />
       </div>
     </PremiumModal>
   );
@@ -202,7 +202,7 @@ export function AttendanceRuleEditModal({
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Aturan Absensi" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Aturan" />
       </div>
     </PremiumModal>
   );

@@ -147,7 +147,7 @@ export function HomeroomAssignmentCreateModal({
           isPending={isPending}
           onCancel={() => handleOpenChange(false)}
           onSubmit={handleSubmit}
-          submitLabel="Simpan Penugasan Walas"
+          submitLabel="Simpan Walas"
         />
       </div>
     </PremiumModal>
@@ -259,7 +259,7 @@ export function HomeroomAssignmentEditModal({
           isPending={isPending}
           onCancel={() => onOpenChange(false)}
           onSubmit={handleSubmit}
-          submitLabel="Perbarui Penugasan Walas"
+          submitLabel="Update Walas"
         />
       </div>
     </PremiumModal>

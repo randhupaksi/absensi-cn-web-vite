@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { getDashboardPathForUser, saveAuthSession } from "@/lib/auth";
 import { loginSchema, type LoginSchema, type PortalType } from "@/lib/validations/login-schema";
 import { login, type AuthLoginResponse } from "@/services/auth.service";
+import { captureAttendanceLocation } from "@/lib/location/capture-attendance-location";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   Eye,
   EyeOff,
@@ -60,7 +60,6 @@ const formContent = {
 export function LoginForm({ portal }: LoginFormProps) {
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
   const content = formContent[portal];
 
   const form = useForm<LoginSchema>({
@@ -86,6 +85,14 @@ export function LoginForm({ portal }: LoginFormProps) {
       toast.success("Berhasil masuk", {
         description: `Selamat datang, ${response.user.name}.`,
       });
+
+      // Request location while the successful login interaction is still active.
+      // This lets the browser show its native permission prompt before students
+      // reach the attendance dashboard. The result is captured again when a
+      // photo is ready, so only that fresh location is submitted as evidence.
+      if (response.user.role === "STUDENT") {
+        await captureAttendanceLocation();
+      }
 
       if (typeof window !== "undefined") {
         window.location.replace(getDashboardPathForUser(response.user));
@@ -169,11 +176,9 @@ export function LoginForm({ portal }: LoginFormProps) {
           type={showPassword ? "text" : "password"}
           placeholder="Masukkan Password"
           trailing={
-            <motion.button
+            <button
               type="button"
               data-press-managed
-              whileHover={{ scale: 1.08, rotate: showPassword ? -5 : 5 }}
-              whileTap={{ scale: 0.94 }}
               onClick={() => setShowPassword((value) => !value)}
               className="flex size-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-700"
               aria-label={
@@ -185,7 +190,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               ) : (
                 <Eye className="size-4" />
               )}
-            </motion.button>
+            </button>
           }
           {...form.register("password")}
         />
@@ -207,51 +212,9 @@ export function LoginForm({ portal }: LoginFormProps) {
         aria-busy={isSubmitting}
         className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold text-white transition-[transform,box-shadow,filter] duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-wait disabled:!opacity-100 ${content.buttonClass}`}
       >
-        {!isSubmitting ? (
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-[-45%] w-[42%] bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.28),transparent)]"
-            animate={{ x: ["0%", "360%"] }}
-            transition={{
-              duration: 3.6,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-          />
-        ) : null}
         <span className="relative flex items-center justify-center gap-2">
-          <span className="relative inline-flex size-4 shrink-0 items-center justify-center">
-            <AnimatePresence initial={false} mode="sync">
-              {isSubmitting ? (
-                <motion.span
-                  key="loading-icon"
-                  initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, rotate: -36 }}
-                  animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 0 }}
-                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, rotate: 36 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute inset-0"
-                >
-                  <LoaderCircle className="size-4 animate-spin" />
-                </motion.span>
-              ) : (
-                <motion.span
-                  key="login-icon"
-                  initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, y: 3 }}
-                  animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
-                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.72, y: -3 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute inset-0"
-                >
-                  <motion.span
-                    animate={prefersReducedMotion ? undefined : { x: [0, 3, 0] }}
-                    transition={prefersReducedMotion ? undefined : { repeat: Number.POSITIVE_INFINITY, duration: 1.8 }}
-                    className="inline-flex"
-                  >
-                    <LogIn className="size-4" />
-                  </motion.span>
-                </motion.span>
-              )}
-            </AnimatePresence>
+          <span className="inline-flex size-4 shrink-0 items-center justify-center">
+            {isSubmitting ? <LoaderCircle className="size-4 animate-spin" /> : <LogIn className="size-4" />}
           </span>
           <span>{isSubmitting ? content.submittingLabel : content.submitLabel}</span>
         </span>

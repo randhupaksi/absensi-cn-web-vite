@@ -98,7 +98,7 @@ export function SubjectFormModal({
           formId="subject-form"
           isPending={isPending}
           onCancel={() => onOpenChange(false)}
-          submitLabel={subject ? "Simpan Perubahan" : "Tambah Mapel"}
+          submitLabel={subject ? "Update Mapel" : "Simpan Mapel"}
         />
       }
     >
@@ -238,7 +238,7 @@ export function TeachingAssignmentFormModal({
           formId="teaching-assignment-form"
           isPending={isPending}
           onCancel={() => onOpenChange(false)}
-          submitLabel={assignment ? "Simpan Jadwal" : "Tambah Jadwal"}
+          submitLabel={assignment ? "Update Jadwal" : "Simpan Jadwal"}
         />
       }
     >

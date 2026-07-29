@@ -164,7 +164,6 @@ export function StudentDashboardPage() {
 
   function handleStartAttendance() {
     if (!canSubmit) return;
-    void refreshAttendanceLocation();
     if (isMobileDevice()) {
       inputRef.current?.click();
     } else {
@@ -174,7 +173,6 @@ export function StudentDashboardPage() {
 
   async function handlePhotoPicked(file?: File) {
     if (!file) return;
-    if (locationState === "idle") void refreshAttendanceLocation();
     setIsPreparingPhoto(true);
     setErrors({});
 
@@ -186,6 +184,9 @@ export function StudentDashboardPage() {
       setPhotoFile(uploadFile);
       setPhotoPreview(previewUrl);
       setModalOpen(true);
+      // A new capture here keeps the submitted location fresh and gives a
+      // first-time user another browser-prompt opportunity after taking a photo.
+      void refreshAttendanceLocation();
     } catch (error) {
       const message =
         error instanceof Error

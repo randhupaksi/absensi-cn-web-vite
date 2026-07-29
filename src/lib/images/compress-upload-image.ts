@@ -1,7 +1,10 @@
-const TARGET_IMAGE_BYTES = 650 * 1024;
-const MAX_UPLOAD_IMAGE_BYTES = 2 * 1024 * 1024;
-const MAX_DIMENSION_STEPS = [1280, 1080, 960, 800, 720] as const;
-const JPEG_QUALITY_STEPS = [0.78, 0.72, 0.66, 0.6] as const;
+// Most attendance photos should land around 150–200 KB. The backend accepts a
+// small tolerance up to 300 KB so a usable photo is never discarded merely
+// because a device produces a more detailed image.
+const TARGET_IMAGE_BYTES = 200 * 1024;
+const MAX_UPLOAD_IMAGE_BYTES = 300 * 1024;
+const MAX_DIMENSION_STEPS = [960, 800, 720, 640, 560, 480, 400, 360, 320, 256] as const;
+const JPEG_QUALITY_STEPS = [0.76, 0.7, 0.64, 0.58, 0.52, 0.46, 0.4, 0.34] as const;
 const SUPPORTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const SUPPORTED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
 
@@ -32,7 +35,7 @@ export async function compressUploadImage(file: File): Promise<File> {
       }
     }
 
-    if (bestBlob && bestBlob.size < file.size && bestBlob.size <= MAX_UPLOAD_IMAGE_BYTES) {
+    if (bestBlob && bestBlob.size <= MAX_UPLOAD_IMAGE_BYTES) {
       return createCompressedFile(file, bestBlob);
     }
 
@@ -40,7 +43,7 @@ export async function compressUploadImage(file: File): Promise<File> {
       return file;
     }
 
-    throw new Error("Foto terlalu besar. Ambil ulang foto dengan jarak lebih dekat atau cahaya lebih terang.");
+    throw new Error("Foto tidak dapat dikompres hingga batas 300 KB. Silakan ambil ulang foto dengan pencahayaan yang lebih baik.");
   } finally {
     image.cleanup();
   }

@@ -399,7 +399,7 @@ function SchoolUnitModal({
           isPending={pending}
           onCancel={() => onOpenChange(false)}
           onSubmit={form.handleSubmit(onSubmit)}
-          submitLabel={item ? "Simpan Perubahan" : "Simpan Unit"}
+          submitLabel={item ? "Update Unit" : "Simpan Unit"}
         />
       }
     >
@@ -468,7 +468,7 @@ function MajorModal({
           isPending={pending}
           onCancel={() => onOpenChange(false)}
           onSubmit={form.handleSubmit(onSubmit)}
-          submitLabel={item ? "Simpan Perubahan" : "Simpan Program"}
+          submitLabel={item ? "Update Program" : "Simpan Program"}
         />
       }
     >

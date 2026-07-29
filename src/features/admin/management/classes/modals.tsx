@@ -212,7 +212,7 @@ export function ClassFormModal({
           isPending={isSubmitting ?? false}
           onCancel={() => handleOpenChange(false)}
           onSubmit={handleSubmit}
-          submitLabel={initialData ? "Perbarui Kelas" : "Simpan Kelas"}
+          submitLabel={initialData ? "Update Kelas" : "Simpan Kelas"}
         />
       </div>
     </PremiumModal>

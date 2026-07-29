@@ -117,7 +117,7 @@ export function BKAssignmentModal({
           isPending={isPending}
           onCancel={() => handleOpenChange(false)}
           onSubmit={form.handleSubmit(onSubmit)}
-          submitLabel={isEditing ? "Simpan Cakupan" : "Tambahkan BK"}
+          submitLabel={isEditing ? "Update Cakupan" : "Simpan BK"}
         />
       </form>
     </PremiumModal>

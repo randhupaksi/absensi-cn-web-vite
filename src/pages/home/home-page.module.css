@@ -15,17 +15,15 @@
 .landingReveal,
 .landingRevealLeft,
 .landingRevealRight {
-  animation: landingRevealUp 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
+  opacity: 0;
 }
 
 .landingRevealLeft {
-  animation-name: landingRevealLeft;
-  animation-delay: 620ms;
+  transform: translate3d(-34px, 22px, 0) scale(0.985);
 }
 
 .landingRevealRight {
-  animation-name: landingRevealRight;
-  animation-delay: 720ms;
+  transform: translate3d(34px, 22px, 0) scale(0.985);
 }
 
 .landingDelayOne {
@@ -45,7 +43,24 @@
 }
 
 .landingFloatReveal {
-  animation: landingFloatCardIn 820ms cubic-bezier(0.19, 1, 0.22, 1) 1150ms both;
+  opacity: 0;
+  transform: translate3d(18px, 22px, 0) rotate(1deg) scale(0.95);
+}
+
+.landingReveal[data-scroll-revealed="true"] {
+  animation: landingRevealUp 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.landingRevealLeft[data-scroll-revealed="true"] {
+  animation: landingRevealLeft 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.landingRevealRight[data-scroll-revealed="true"] {
+  animation: landingRevealRight 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.landingFloatReveal[data-scroll-revealed="true"] {
+  animation: landingFloatCardIn 820ms cubic-bezier(0.19, 1, 0.22, 1) both;
 }
 
 .landingPageShell {
@@ -147,11 +162,30 @@
 
 .landingStepsList {
   display: grid;
+  position: relative;
+}
+
+.landingStepsTimeline {
+  position: absolute;
+  top: 2.7rem;
+  left: 1.3rem;
+  height: calc(100% - 5.4rem);
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.32),
+    rgba(16, 185, 129, 0.7) 50%,
+    rgba(16, 185, 129, 0.32)
+  );
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.16);
+  transform-origin: top;
 }
 
 .landingStepItem {
   border-bottom-color: var(--landing-border-soft);
   color: var(--landing-ink-soft);
+  z-index: 1;
 }
 
 .landingStepItem:hover {
@@ -170,6 +204,24 @@
   background: var(--landing-accent);
   color: white;
   box-shadow: 0 8px 18px rgba(5, 150, 105, 0.2);
+}
+
+@media (max-width: 767px) {
+  .landingStepItem {
+    pointer-events: none;
+  }
+
+  .landingStepItem:hover {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .landingStepItem:hover .landingStepNumber {
+    border-color: var(--landing-border-soft);
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow: none;
+    color: var(--landing-accent);
+  }
 }
 
 .landingStepEyebrow,

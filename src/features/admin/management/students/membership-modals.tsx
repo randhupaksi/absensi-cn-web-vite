@@ -394,7 +394,7 @@ export function StudentMembershipEditModal({
           <FieldError message={errors.status} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Penempatan" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Penempatan" />
       </div>
     </PremiumModal>
   );

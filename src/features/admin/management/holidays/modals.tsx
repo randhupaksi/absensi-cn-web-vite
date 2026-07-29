@@ -58,7 +58,7 @@ export function SchoolHolidayFormModal({ item, open, onOpenChange, isPending, on
           isPending={isPending}
           onCancel={() => onOpenChange(false)}
           onSubmit={() => void form.handleSubmit(onSubmit)()}
-          submitLabel={item ? "Simpan Perubahan" : "Tambah Libur"}
+          submitLabel={item ? "Update Libur" : "Simpan Libur"}
         />
       }
     >

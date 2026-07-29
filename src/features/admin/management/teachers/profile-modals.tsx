@@ -39,7 +39,7 @@ export function TeacherProfileCreateModal({ open, onOpenChange, isPending, onSub
         </div>
         <FieldGroup label="Password Login"><Input type="password" {...form.register("password")} placeholder="Masukkan password login" className="h-14" /><FieldError message={form.formState.errors.password?.message} /></FieldGroup>
         <TeacherSelectFields control={form.control} errors={form.formState.errors} />
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Simpan Profil Guru" />
+        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Simpan Guru" />
       </form>
     </PremiumModal>
   );
@@ -58,7 +58,7 @@ export function TeacherProfileEditModal({ teacher, open, onOpenChange, isPending
         </div>
         <FieldGroup label="Password Baru"><Input type="password" {...form.register("password")} placeholder="Kosongkan jika tidak diubah" className="h-14" /><FieldError message={form.formState.errors.password?.message} /></FieldGroup>
         <TeacherSelectFields control={form.control} errors={form.formState.errors} />
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Perbarui Profil Guru" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Update Guru" />
       </form>
     </PremiumModal>
   );
