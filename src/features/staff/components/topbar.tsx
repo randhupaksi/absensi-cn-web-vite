@@ -15,7 +15,7 @@ export function StaffTopbar({
   userName,
   userLabel,
   title,
-  eyebrow = "Role Dashboard",
+  eyebrow = "Dashboard Peran",
   onToggleSidebar,
 }: StaffTopbarProps) {
   return (

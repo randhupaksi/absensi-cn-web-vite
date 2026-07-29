@@ -320,7 +320,7 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={canDownload ? `Download ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} guru)` : "Pilih format laporan"}
+          downloadLabel={canDownload ? `Unduh ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} guru)` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

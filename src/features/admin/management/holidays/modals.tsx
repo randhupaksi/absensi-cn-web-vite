@@ -49,7 +49,7 @@ export function SchoolHolidayFormModal({ item, open, onOpenChange, isPending, on
     <PremiumModal
       open={open}
       onOpenChange={onOpenChange}
-      title={item ? "Edit Periode Libur" : "Tambah Periode Libur"}
+      title={item ? "Ubah Periode Libur" : "Tambah Periode Libur"}
       description="Tanggal aktif otomatis dikecualikan dari absensi, alfa, statistik, rekap, dan sesi mapel."
       icon={CalendarDays}
       className="sm:!max-w-2xl"

@@ -149,7 +149,7 @@ export function WalasSubmissionsPage() {
       accentClass: "bg-emerald-100 text-emerald-700",
     },
     {
-      label: "Menunggu Review",
+      label: "Menunggu Tinjauan",
       value: String(counts.pending),
       subtitle: "Butuh tanggapan walas",
       icon: ShieldAlert,
@@ -184,7 +184,7 @@ export function WalasSubmissionsPage() {
                 <div className="space-y-4">
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                     <LayoutPanelTop className="size-3.5" />
-                    Homeroom Submissions Workspace
+                    Halaman Pengajuan Walas
                   </div>
 
                   <div className="space-y-2">
@@ -192,7 +192,7 @@ export function WalasSubmissionsPage() {
                       Pengajuan
                     </h2>
                     <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                      Review pengajuan izin dan sakit dari siswa kelas walas,
+                      Tinjau pengajuan izin dan sakit dari siswa kelas walas,
                       baca alasan serta lampiran, lalu beri tanggapan langsung
                       dari satu meja kerja yang fokus.
                     </p>
@@ -360,7 +360,7 @@ export function WalasSubmissionsPage() {
                               <ActionIconButton
                                 tone="sky"
                                 onClick={() => setReviewTarget(record)}
-                                ariaLabel={`Review pengajuan ${record.student_name}`}
+                                ariaLabel={`Tinjau pengajuan ${record.student_name}`}
                               >
                                 <PencilLine className="size-4.5" />
                               </ActionIconButton>
@@ -382,7 +382,7 @@ export function WalasSubmissionsPage() {
                         <div className="mt-4 grid gap-3">
                           <MobileDataField label="Tipe" value={<SubmissionTypePill type={record.type} />} />
                           <MobileDataField label="Tanggal" value={formatDate(record.created_at)} />
-                          <MobileDataField label="Update" value={formatDateTime(record.updated_at)} />
+                          <MobileDataField label="Diperbarui" value={formatDateTime(record.updated_at)} />
                         </div>
                         <MobileDataSection label="Alasan">
                           <p className="text-sm leading-6 text-slate-600">{record.reason}</p>
@@ -402,7 +402,7 @@ export function WalasSubmissionsPage() {
                           <ActionIconButton
                             tone="sky"
                             onClick={() => setReviewTarget(record)}
-                            ariaLabel={`Review pengajuan ${record.student_name}`}
+                            ariaLabel={`Tinjau pengajuan ${record.student_name}`}
                           >
                             <PencilLine className="size-4.5" />
                           </ActionIconButton>

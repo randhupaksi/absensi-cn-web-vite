@@ -367,7 +367,7 @@ export function StudentMembershipEditModal({
   if (!membership) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Penempatan Kelas" description="Perbarui rombel siswa per tahun ajaran tanpa menghilangkan struktur riwayatnya." icon={GraduationCap}>
+    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Penempatan Kelas" description="Perbarui rombel siswa per tahun ajaran tanpa menghilangkan struktur riwayatnya." icon={GraduationCap}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Tahun Ajaran">
@@ -394,7 +394,7 @@ export function StudentMembershipEditModal({
           <FieldError message={errors.status} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Penempatan" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Penempatan" />
       </div>
     </PremiumModal>
   );

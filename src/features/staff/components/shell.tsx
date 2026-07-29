@@ -124,13 +124,13 @@ function StaffShellFallback() {
 function getDashboardEyebrow(role: DashboardRole) {
   switch (role) {
     case "admin":
-      return "Admin Dashboard";
+      return "Dashboard Admin";
     case "walas":
-      return "Walas Dashboard";
+      return "Dashboard Walas";
     case "bk":
-      return "BK Dashboard";
+      return "Dashboard BK";
     case "siswa":
-      return "Siswa Dashboard";
+      return "Dashboard Siswa";
     default:
       return "Dashboard";
   }

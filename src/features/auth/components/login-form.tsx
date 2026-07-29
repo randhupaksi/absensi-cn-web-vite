@@ -39,7 +39,7 @@ const formContent = {
   },
   staff: {
     identifierLabel: "Username Staff",
-    identifierPlaceholder: "Masukkan Username Staff",
+    identifierPlaceholder: "Masukkan username staff",
     identifierHelper: "Untuk wali kelas, BK, dan admin.",
     passwordHelper: "Gunakan password staff yang sudah terdaftar.",
     submitLabel: "Masuk ke Portal Staff",
@@ -83,7 +83,7 @@ export function LoginForm({ portal }: LoginFormProps) {
       queryClient.clear();
       saveAuthSession(response);
 
-      toast.success("Login berhasil", {
+      toast.success("Berhasil masuk", {
         description: `Selamat datang, ${response.user.name}.`,
       });
 
@@ -91,7 +91,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         window.location.replace(getDashboardPathForUser(response.user));
       }
     } catch (error) {
-      toast.error("Login gagal", {
+      toast.error("Gagal masuk", {
         description:
           error instanceof Error
             ? error.message

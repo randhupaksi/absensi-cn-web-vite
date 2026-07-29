@@ -422,7 +422,7 @@ export function ActionButtons({
 }) {
   return (
     <div className="flex items-center justify-center gap-2">
-      <ActionIconButton tone="sky" onClick={onEdit} ariaLabel="Edit data">
+      <ActionIconButton tone="sky" onClick={onEdit} ariaLabel="Ubah data">
         <PencilLine className="size-4" />
       </ActionIconButton>
       <ActionIconButton tone="rose" onClick={onDelete} disabled={isDeletePending} ariaLabel="Hapus data">

@@ -23,7 +23,7 @@ export function ReportModalFooter({
   generating,
   onCancel,
   onDownload,
-  downloadLabel = "Download PDF",
+  downloadLabel = "Unduh PDF",
   generatingLabel = "Memuat data & membuat PDF...",
   cancelVariant = "button",
   format = "pdf",

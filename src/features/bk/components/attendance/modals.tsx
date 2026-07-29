@@ -107,7 +107,7 @@ export function AttendanceReviewModal({
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "verification_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
-    validateRequired(nextErrors, "verification_note", verificationNote, "Catatan review BK");
+    validateRequired(nextErrors, "verification_note", verificationNote, "Catatan tinjauan BK");
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
     onSubmit({ status, verification_note: verificationNote });
@@ -200,7 +200,7 @@ export function AttendanceProofModal({
       open={Boolean(record)}
       onOpenChange={onOpenChange}
       title={record ? `Bukti ${record.student_name}` : "Bukti Absensi"}
-      description="Preview foto absensi siswa tanpa membuka tab baru."
+      description="Pratinjau foto absensi siswa tanpa membuka tab baru."
       icon={ImageIcon}
       className="sm:!max-w-[760px]"
     >
@@ -232,7 +232,7 @@ export function AttendanceProofModal({
               <EmptyState
                 icon={ImageIcon}
                 title="Bukti foto belum tersedia"
-                description="Record ini belum memiliki foto absensi yang bisa ditampilkan."
+                description="Data ini belum memiliki foto absensi yang bisa ditampilkan."
                 compact
               />
             )}

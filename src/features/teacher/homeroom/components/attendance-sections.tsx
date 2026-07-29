@@ -84,14 +84,14 @@ export function AttendanceHero({
             <div className="max-w-3xl space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                 <LayoutPanelTop className="size-3.5" />
-                Homeroom Attendance Workspace
+                Halaman Kehadiran Walas
               </div>
               <div className="space-y-2">
                 <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
                   Absensi Kelas
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Rekap absensi harian kelas walas, filter tanggal dan status, lalu review record
+                  Rekap absensi harian kelas walas, filter tanggal dan status, lalu tinjau data
                   yang butuh tindak lanjut langsung dari satu tabel operasional yang lebih fokus.
                 </p>
               </div>
@@ -123,7 +123,7 @@ export function AttendanceHero({
           </div>
 
           <div className="text-xs font-medium text-slate-400">
-            {totalAttendance} record tercatat dengan {pendingReviewCount} item perlu review pada{" "}
+            {totalAttendance} data tercatat dengan {pendingReviewCount} item perlu ditinjau pada{" "}
             {formatFriendlyDate(overview.date)}
           </div>
         </div>
@@ -206,7 +206,7 @@ export function AttendanceTableSection({
             <div className="p-5">
               <EmptyState
                 icon={FileSearch}
-                title="Belum ada record untuk filter ini"
+                title="Belum ada data untuk filter ini"
                 description="Coba ganti tanggal atau filter status untuk melihat daftar absensi kelas walas."
               />
             </div>
@@ -263,7 +263,7 @@ export function AttendanceTableSection({
                             onClick={() => onOpenReview(record)}
                             disabled={reviewedByBK}
                             aria-label="Koreksi status absensi"
-                            title={reviewedByBK ? "Sudah dikoreksi BK" : "Koreksi status absensi"}
+            title={reviewedByBK ? "Sudah dikoreksi BK" : "Koreksi status absensi"}
                           >
                             <BadgeCheck className="size-4.5" />
                           </Button>
@@ -393,7 +393,7 @@ export function AttentionMonitoringPanel({
     <article className="rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,252,250,0.94)_100%)] p-5 shadow-[0_20px_48px_rgba(28,77,61,0.08)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-slate-950">Fokus Monitoring</h3>
+          <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-slate-950">Fokus Pemantauan</h3>
           <p className="mt-1 text-sm text-slate-500">Sorotan siswa dengan alfa berulang pada tanggal terpilih.</p>
         </div>
         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Prioritas</span>
@@ -403,7 +403,7 @@ export function AttentionMonitoringPanel({
         {items.length === 0 ? (
           <EmptyState
             icon={ShieldCheck}
-            title="Belum ada fokus monitoring"
+            title="Belum ada fokus pemantauan"
             description="Siswa dengan alfa berulang akan muncul di panel ini."
             compact
           />

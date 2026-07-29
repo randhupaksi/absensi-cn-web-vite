@@ -38,7 +38,7 @@ export function BrandedAppLoader({ label = "Menyiapkan Absensi CN" }: { label?: 
 
 export function DashboardRouteSkeleton({ variant = "dashboard" }: { variant?: PageSkeletonVariant }) {
   return (
-    <div role="status" aria-label="Memuat halaman dashboard" className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)]">
+    <div role="status" aria-label="Memuat halaman dasbor" className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)]">
       <aside className="fixed inset-y-0 left-0 hidden w-[272px] border-r border-white/70 bg-emerald-950/96 p-5 lg:block">
         <div className="flex items-center gap-3 border-b border-white/10 pb-5"><Skeleton className="size-12 rounded-2xl bg-white/16" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-32 bg-white/18" /><Skeleton className="h-3 w-20 bg-white/10" /></div></div>
         <div className="mt-7 space-y-3">{Array.from({ length: 7 }).map((_, index) => <div key={index} className={cn("flex items-center gap-3 rounded-2xl px-3 py-3", index === 0 && "bg-white/10")}><Skeleton className="size-8 rounded-xl bg-white/12" /><Skeleton className={cn("h-3 bg-white/12", index % 3 === 0 ? "w-28" : "w-36")} /></div>)}</div>

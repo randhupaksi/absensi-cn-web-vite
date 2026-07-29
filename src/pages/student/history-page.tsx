@@ -114,7 +114,7 @@ export function StudentHistoryPage() {
               <div className="max-w-3xl">
                 <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/78 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
                   <History className="size-4" />
-                  Student History Workspace
+                  Riwayat Absensi Siswa
                 </span>
                 <h1 className="mt-7 text-[2.45rem] font-semibold leading-tight tracking-[-0.04em] text-slate-950">
                   Histori Absen

@@ -92,7 +92,7 @@ export function AttendanceReviewModal({
     const nextErrors: FieldErrors<"status" | "verification_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
     if (!isFinalPresent) {
-      validateRequired(nextErrors, "verification_note", verificationNote, "Catatan review");
+      validateRequired(nextErrors, "verification_note", verificationNote, "Catatan tinjauan");
     }
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
@@ -199,7 +199,7 @@ export function AttendanceProofModal({
       open={Boolean(record)}
       onOpenChange={onOpenChange}
       title={record ? `Bukti ${record.student_name}` : "Bukti Absensi"}
-      description="Preview foto absensi siswa tanpa membuka tab baru."
+      description="Pratinjau foto absensi siswa tanpa membuka tab baru."
       icon={ImageIcon}
       className="sm:!max-w-[760px]"
     >

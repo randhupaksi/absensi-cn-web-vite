@@ -175,7 +175,7 @@ export function AttendanceRuleEditModal({
   if (!rule) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Aturan Absensi" description="Perbarui waktu hadir dan cutoff absensi untuk tahun ajaran yang dipilih." icon={TimerReset}>
+    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Aturan Absensi" description="Perbarui waktu hadir dan batas akhir absensi untuk tahun ajaran yang dipilih." icon={TimerReset}>
       <div className="grid gap-5">
         <FieldGroup label="Tahun Ajaran">
           <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
@@ -202,7 +202,7 @@ export function AttendanceRuleEditModal({
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Aturan Absensi" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Aturan Absensi" />
       </div>
     </PremiumModal>
   );

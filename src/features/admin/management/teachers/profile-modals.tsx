@@ -50,7 +50,7 @@ export function TeacherProfileEditModal({ teacher, open, onOpenChange, isPending
   const form = useForm<TeacherProfileFormValues>({ resolver: zodResolver(editTeacherProfileSchema), defaultValues: defaults });
   if (!teacher) return null;
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Profil Guru" description="Perbarui akun dan profil guru dalam satu proses." icon={FilePenLine}>
+    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Profil Guru" description="Perbarui akun dan profil guru dalam satu proses." icon={FilePenLine}>
       <form className="grid gap-5" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Guru"><Input {...form.register("name")} placeholder="Masukkan nama guru" className="h-14" /><FieldError message={form.formState.errors.name?.message} /></FieldGroup>
@@ -58,7 +58,7 @@ export function TeacherProfileEditModal({ teacher, open, onOpenChange, isPending
         </div>
         <FieldGroup label="Password Baru"><Input type="password" {...form.register("password")} placeholder="Kosongkan jika tidak diubah" className="h-14" /><FieldError message={form.formState.errors.password?.message} /></FieldGroup>
         <TeacherSelectFields control={form.control} errors={form.formState.errors} />
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Update Profil Guru" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={form.handleSubmit(onSubmit)} submitLabel="Perbarui Profil Guru" />
       </form>
     </PremiumModal>
   );

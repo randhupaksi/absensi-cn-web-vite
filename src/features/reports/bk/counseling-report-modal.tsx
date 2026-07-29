@@ -455,7 +455,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           cancelVariant="native"
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

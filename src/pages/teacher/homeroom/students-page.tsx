@@ -142,7 +142,7 @@ export function WalasStudentsPage() {
                 <div className="space-y-4">
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                     <LayoutPanelTop className="size-3.5" />
-                    Homeroom Students Workspace
+                    Halaman Siswa Walas
                   </div>
 
                   <div className="space-y-2">
@@ -268,7 +268,7 @@ export function WalasStudentsPage() {
                 <div className="hidden overflow-x-auto md:block">
                   <DataTable>
                     <DataTableHeadRow
-                      labels={["Siswa", "NIS/NISN", "Gender", "Status", "H", "I", "S", "A", "Aksi"]}
+                      labels={["Siswa", "NIS/NISN", "Jenis Kelamin", "Status", "H", "I", "S", "A", "Aksi"]}
                       centerLabels={["Status", "H", "I", "S", "A"]}
                     />
                     <DataTableBody>
@@ -354,7 +354,7 @@ export function WalasStudentsPage() {
                       <div className="mt-4 grid gap-3">
                         <MobileDataField label="NIS" value={student.nis} />
                         <MobileDataField label="NISN" value={student.nisn || "-"} />
-                        <MobileDataField label="Gender" value={formatGender(student.gender)} />
+                        <MobileDataField label="Jenis Kelamin" value={formatGender(student.gender)} />
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <AttendanceMetricPill label="Hadir" value={student.present_count} tone="success" />

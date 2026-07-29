@@ -170,7 +170,7 @@ export function BKAttendancePage() {
         <>
           <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
             <BkPageHero
-              badge="BK Attendance Workspace"
+              badge="Halaman Kehadiran BK"
               title="Absensi Lintas Kelas"
               description={<>Pantau status H/I/S/A lintas kelas, buka bukti foto, dan koreksi record bila hasil pengecekan guru berbeda dengan status otomatis.</>}
               kpiCards={kpiCards}
@@ -341,7 +341,7 @@ export function BKAttendancePage() {
           <section className="rounded-[30px] border border-white/75 bg-white/90 p-5 shadow-[0_20px_48px_rgba(28,77,61,0.08)]">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-semibold text-slate-950">Fokus Monitoring BK</h3>
+                <h3 className="text-xl font-semibold text-slate-950">Fokus Pemantauan BK</h3>
                 <p className="mt-1 text-sm text-slate-500">Siswa dengan pola alfa berulang.</p>
               </div>
               <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Prioritas</span>
@@ -399,5 +399,5 @@ export function BKAttendancePage() {
 }
 
 function getBKAttendanceTitle() {
-  return "Attendance Review Dashboard";
+  return "Tinjauan Absensi";
 }

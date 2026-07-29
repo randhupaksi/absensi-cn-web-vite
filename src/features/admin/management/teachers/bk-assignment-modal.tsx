@@ -52,7 +52,7 @@ export function BKAssignmentModal({
     <PremiumModal
       open={open}
       onOpenChange={handleOpenChange}
-      title={isEditing ? "Edit Penempatan BK" : "Tambahkan Penempatan BK"}
+      title={isEditing ? "Ubah Penempatan BK" : "Tambahkan Penempatan BK"}
       description="Tetapkan capability BK kepada guru dan batasi data yang dapat diakses berdasarkan unit sekolah."
       icon={UserCog}
     >

@@ -18,7 +18,7 @@ export const roleSummaries = [
   {
     title: "Siswa",
     description:
-      "Login, absen masuk dan pulang, melihat riwayat absensi, serta mengajukan izin atau sakit.",
+      "Masuk, absen masuk dan pulang, melihat riwayat absensi, serta mengajukan izin atau sakit.",
   },
   {
     title: "Wali Kelas",

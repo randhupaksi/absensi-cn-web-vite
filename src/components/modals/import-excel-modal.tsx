@@ -120,11 +120,11 @@ export function ImportExcelModal({
         />
       ) : (
         <div className="grid gap-5">
-          {/* Download template card */}
+          {/* Kartu unduh templat */}
           <div className="flex items-center justify-between gap-4 rounded-[1.3rem] border border-emerald-200/60 bg-[linear-gradient(135deg,rgba(236,253,245,0.9)_0%,rgba(209,250,229,0.6)_100%)] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
             <div className="min-w-0">
               <p className="text-[0.9rem] font-semibold text-emerald-900">
-                Download Template Excel
+                Unduh Templat Excel
               </p>
               <p className="mt-0.5 text-[0.78rem] leading-[1.5] text-emerald-700/80">
                 Gunakan template resmi agar format data sesuai. Lihat sheet{" "}
@@ -140,7 +140,7 @@ export function ImportExcelModal({
               className="inline-flex shrink-0 items-center gap-2 rounded-[0.85rem] bg-emerald-600 px-4 py-2.5 text-[0.82rem] font-semibold text-white shadow-[0_4px_14px_rgba(5,150,105,0.3)] transition-all duration-200 hover:bg-emerald-700 hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)] hover:-translate-y-px active:translate-y-0"
             >
               <Download className="size-3.5" />
-              Download
+              Unduh
             </button>
           </div>
 

@@ -122,7 +122,7 @@ export const roleDashboardConfig: Record<
       },
     ],
     highlights: [
-      "Monitoring absensi per kelas",
+      "Pemantauan absensi per kelas",
       "Validasi izin dan sakit",
       "Deteksi alfa berulang",
     ],
@@ -135,7 +135,7 @@ export const roleDashboardConfig: Record<
   bk: {
     title: "Dashboard BK untuk membaca pola alfa dan pembinaan.",
     subtitle:
-      "BK diarahkan ke monitoring siswa dengan alfa berulang dan catatan tindak lanjut sederhana.",
+      "BK diarahkan ke pemantauan siswa dengan alfa berulang dan catatan tindak lanjut sederhana.",
     badge: "Portal BK",
     primaryAction: "Lihat Siswa Prioritas",
     secondaryAction: "Tambah Catatan BK",
@@ -164,26 +164,26 @@ export const roleDashboardConfig: Record<
       {
         label: "Siswa Dipantau",
         value: "14",
-        description: "Masuk daftar monitoring BK.",
+        description: "Masuk daftar pemantauan BK.",
         icon: Users,
         colorClass: "bg-violet-100 text-violet-700",
       },
     ],
     highlights: [
-      "Monitoring siswa bermasalah",
+      "Pemantauan siswa bermasalah",
       "Pola alfa berulang",
       "Catatan pembinaan singkat",
     ],
     navigation: [
       { label: "Dashboard BK", href: "/dashboard/teacher", icon: LayoutDashboard },
-      { label: "Monitoring BK", href: "/dashboard/teacher/bk/students", icon: Shield },
+      { label: "Pemantauan BK", href: "/dashboard/teacher/bk/students", icon: Shield },
       { label: "Catatan Siswa", href: "/dashboard/teacher/bk/counseling", icon: NotebookPen },
     ],
   },
   admin: {
     title: "Dashboard admin untuk kontrol penuh data absensi sekolah.",
     subtitle:
-      "Admin membaca statistik global, pengelolaan user, kelas, dan kondisi absensi lintas role dalam satu tempat.",
+      "Admin membaca statistik global, pengelolaan pengguna, kelas, dan kondisi absensi lintas peran dalam satu tempat.",
     badge: "Portal Admin",
     primaryAction: "Kelola Data User",
     secondaryAction: "Lihat Rekap Global",
@@ -191,7 +191,7 @@ export const roleDashboardConfig: Record<
       {
         label: "Total User",
         value: "124",
-        description: "Akun siswa dan staff aktif.",
+        description: "Akun siswa dan staf aktif.",
         icon: UserCog,
         colorClass: "bg-sky-100 text-sky-700",
       },
@@ -218,13 +218,13 @@ export const roleDashboardConfig: Record<
       },
     ],
     highlights: [
-      "Kelola user dan role",
-      "Monitoring seluruh absensi",
+      "Kelola pengguna dan peran",
+      "Pantau seluruh absensi",
       "Kontrol data kelas dan rekap",
     ],
     navigation: [
       { label: "Dashboard Admin", href: "/dashboard/admin", icon: LayoutDashboard },
-      { label: "Kelola User", href: "/dashboard/admin", icon: UserCog },
+      { label: "Kelola Pengguna", href: "/dashboard/admin", icon: UserCog },
       { label: "Rekap Sekolah", href: "/dashboard/admin", icon: ChartColumn },
     ],
   },

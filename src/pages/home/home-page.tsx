@@ -5,6 +5,7 @@ import {
   FaArrowRight,
   FaBriefcase,
   FaBullhorn,
+  FaChartBar,
   FaCameraRetro,
   FaCheckCircle,
   FaClock,
@@ -18,20 +19,18 @@ import {
   FaInstagram,
   FaNetworkWired,
   FaSchool,
-  FaShieldAlt,
   FaStar,
   FaWhatsapp,
-  FaWifi,
 } from "react-icons/fa";
 import styles from "./home-page.module.css";
 
 const highlightChips = [
-  "Absensi Foto",
-  "Validasi Walas",
-  "Pantauan BK",
-  "Dashboard Admin",
-  "Riwayat Live",
-  "Data Terpadu",
+  { label: "Absensi Foto", icon: FaCameraRetro },
+  { label: "Validasi", icon: FaUserCheck },
+  { label: "Terpantau", icon: FaHeartbeat },
+  { label: "Rekap", icon: FaChartBar },
+  { label: "Riwayat Live", icon: FaClock },
+  { label: "Data Terpadu", icon: FaNetworkWired },
 ];
 
 const excellencePoints = [
@@ -67,7 +66,7 @@ const attendanceSteps = [
     eyebrow: "04 / KIRIM",
     title: "Kirim untuk divalidasi",
     description: "Periksa kembali data, lalu kirim absensi.",
-    detail: "Status pengajuan dapat dipantau kembali melalui dashboard dan riwayat.",
+    detail: "Status pengajuan dapat dipantau kembali melalui dasbor dan riwayat.",
     icon: FaCheckCircle,
   },
 ] as const;
@@ -168,12 +167,12 @@ export default function HomePage() {
                       Citra Negara Attendance System
                     </p>
                     <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
-                      Absensi pagi tanpa antre,
-                      <span className={`${styles.landingHeroTitle} block`}>Cukup foto saja</span>
+                      Satu langkah hadir,
+                      <span className={`${styles.landingHeroTitle} block`}>Satu sistem untuk semua</span>
                     </h1>
                     <p className={`${styles.landingReveal} ${styles.landingDelayThree} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}>
-                      Siswa absen masuk dari kamera, wali kelas memvalidasi, BK memantau
-                      prioritas, dan admin melihat rekap secara real-time.
+                      Satu sistem untuk absensi yang lebih tertib, pemantauan yang lebih cepat,
+                      dan pengelolaan data yang lebih mudah.
                     </p>
                   </div>
 
@@ -195,26 +194,16 @@ export default function HomePage() {
           <div className={`${styles.landingPageShell} mx-auto w-full max-w-[1480px] md:px-6 xl:px-10`}>
             <div className="px-5 py-7 md:px-8 md:py-9 xl:px-10">
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-                {highlightChips.map((chip, index) => (
+                {highlightChips.map(({ label, icon: Icon }, index) => (
                   <div
-                    key={chip}
+                    key={label}
                     className={`${styles.landingChip} ${styles.landingReveal} flex items-center gap-2 px-4 py-3 text-sm font-medium`}
                     style={{ animationDelay: `${980 + index * 70}ms` }}
                   >
                     <span className={`${styles.landingChipIcon} flex size-7 shrink-0 items-center justify-center rounded-full`}>
-                      {index === 0 ? (
-                        <FaShieldAlt className="size-3.5" />
-                      ) : index === 1 ? (
-                        <FaWifi className="size-3.5" />
-                      ) : index === 2 ? (
-                        <FaHeartbeat className="size-3.5" />
-                      ) : index === 3 ? (
-                        <FaClock className="size-3.5" />
-                      ) : (
-                        <FaCheckCircle className="size-3.5" />
-                      )}
+                      <Icon className="size-3.5" />
                     </span>
-                    <span>{chip}</span>
+                    <span>{label}</span>
                   </div>
                 ))}
               </div>
@@ -476,7 +465,7 @@ export default function HomePage() {
               </div>
               <p className="mt-5 max-w-[360px] text-sm leading-7 text-white/68">
                 Platform absensi sekolah yang dirancang untuk membantu proses
-                hadir, monitoring, dan manajemen siswa secara lebih modern.
+                hadir, pemantauan, dan manajemen siswa secara lebih modern.
               </p>
             </div>
 

@@ -31,7 +31,7 @@ const portalContent = {
   },
   staff: {
     badge: "Portal Staff",
-    title: "Ruang Staff CN",
+    title: "Ruang Staf CN",
     subtitle: "Masuk dengan username untuk wali kelas, BK, dan admin sekolah.",
     intro: "Akses operasional sekolah.",
     introDetail: "Gunakan username staff yang sudah terdaftar oleh admin.",

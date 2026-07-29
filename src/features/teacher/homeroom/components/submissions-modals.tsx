@@ -136,7 +136,7 @@ export function SubmissionDetailModal({
               <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
                 <p>Dibuat: {formatDateTime(submission.created_at)}</p>
                 <p>Diperbarui: {formatDateTime(submission.updated_at)}</p>
-                <p>Reviewer: {submission.reviewed_by_name || "-"}</p>
+                <p>Peninjau: {submission.reviewed_by_name || "-"}</p>
                 <p>Ditinjau: {formatDateTime(submission.reviewed_at)}</p>
               </div>
             </div>
@@ -158,7 +158,7 @@ export function SubmissionDetailModal({
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-base font-semibold text-slate-900">Tanggapan Walas</p>
-                  <p className="text-sm text-slate-500">Catatan review terbaru</p>
+                  <p className="text-sm text-slate-500">Catatan tinjauan terbaru</p>
                 </div>
                 <ShieldCheck className="size-4.5 text-emerald-600" />
               </div>
@@ -171,7 +171,7 @@ export function SubmissionDetailModal({
                 <EmptyState
                   icon={ClipboardCheck}
                   title="Belum ada tanggapan"
-                  description="Catatan review walas akan tampil setelah pengajuan ditinjau."
+                  description="Catatan tinjauan walas akan tampil setelah pengajuan ditinjau."
                   compact
                 />
               )}
@@ -183,7 +183,7 @@ export function SubmissionDetailModal({
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-base font-semibold text-slate-900">Lampiran</p>
-                  <p className="text-sm text-slate-500">Preview bukti jika tersedia</p>
+                  <p className="text-sm text-slate-500">Pratinjau bukti jika tersedia</p>
                 </div>
                 <FileImage className="size-4.5 text-emerald-600" />
               </div>
@@ -203,7 +203,7 @@ export function SubmissionDetailModal({
                   <div className="rounded-[20px] border border-slate-200 bg-slate-50/80 p-5 text-center">
                     <FileImage className="mx-auto size-8 text-slate-400" />
                     <p className="mt-3 text-sm font-medium text-slate-700">Lampiran tersedia</p>
-                    <p className="mt-1 text-sm text-slate-500">Preview inline hanya tersedia untuk gambar.</p>
+                    <p className="mt-1 text-sm text-slate-500">Pratinjau langsung hanya tersedia untuk gambar.</p>
                   </div>
                 )
               ) : (
@@ -254,7 +254,7 @@ export function SubmissionReviewModal({
     <PremiumModal
       open={Boolean(submission)}
       onOpenChange={onOpenChange}
-      title={submission ? `Review ${submission.student_name}` : "Review Pengajuan"}
+      title={submission ? `Tinjau ${submission.student_name}` : "Tinjau Pengajuan"}
       description="Berikan keputusan dan tanggapan wali kelas untuk pengajuan izin atau sakit."
       icon={PencilLine}
       className="sm:!max-w-[760px]"
@@ -302,7 +302,7 @@ export function SubmissionReviewModal({
           <div className={premiumModalFieldClassName}>
             <label className={premiumModalLabelClassName}>Catatan tanggapan</label>
             <p className={premiumModalHelperClassName}>
-              Catatan ini akan terlihat pada riwayat pengajuan siswa dan panel monitoring walas.
+              Catatan ini akan terlihat pada riwayat pengajuan siswa dan panel pemantauan walas.
             </p>
             <Textarea
               value={reviewNote}

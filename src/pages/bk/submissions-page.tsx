@@ -178,8 +178,8 @@ export function BKSubmissionsPage() {
         <>
           <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
             <BkPageHero
-              badge="BK Submissions Workspace"
-              title="Monitoring Pengajuan"
+              badge="Halaman Pengajuan BK"
+              title="Pemantauan Pengajuan"
               description={<>Tinjau izin dan sakit lintas kelas beserta bukti pendukungnya dari meja kerja BK.</>}
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
@@ -344,7 +344,7 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
             </div>
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-base font-semibold text-slate-900">Catatan Review</p>
+                <p className="text-base font-semibold text-slate-900">Catatan Tinjauan</p>
                 <ShieldCheck className="size-4.5 text-emerald-600" />
               </div>
               {submission.review_note ? (
@@ -373,7 +373,7 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-3 text-center text-sm text-slate-500">Preview inline hanya tersedia untuk gambar.</p>
+                  <p className="mt-3 text-center text-sm text-slate-500">Pratinjau langsung hanya tersedia untuk gambar.</p>
                 )
               ) : (
                 <EmptyState icon={FileImage} title="Tidak ada lampiran" description="Siswa belum mengunggah bukti pendukung." compact />
@@ -415,7 +415,7 @@ function SubmissionReviewModal({
     <PremiumModal
       open
       onOpenChange={onOpenChange}
-      title={submission ? `Review ${submission.student_name}` : "Review Pengajuan"}
+      title={submission ? `Tinjau ${submission.student_name}` : "Tinjau Pengajuan"}
       description="Berikan keputusan dan tanggapan BK untuk pengajuan siswa."
       icon={PencilLine}
       className="sm:!max-w-[760px]"
@@ -464,5 +464,5 @@ function normalizeSubmissionStatus(value?: string) {
 }
 
 function getBKSubmissionsTitle() {
-  return "Submission Monitoring Dashboard";
+  return "Pemantauan Pengajuan";
 }

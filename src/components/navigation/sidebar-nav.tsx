@@ -22,13 +22,13 @@ export function SidebarNav() {
         <div className="space-y-8">
           <div>
             <Badge className="rounded-full bg-sky-100 px-3 py-1 text-sky-800 hover:bg-sky-100">
-              School Dashboard
+              Dashboard Sekolah
             </Badge>
             <h2 className="mt-4 font-heading text-2xl font-semibold text-slate-950">
               {siteConfig.name}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Struktur navigasi dipisah agar role-based dashboard lebih mudah
+              Struktur navigasi dipisah agar dasbor berbasis peran lebih mudah
               dibangun bertahap.
             </p>
           </div>
@@ -53,9 +53,9 @@ export function SidebarNav() {
         </div>
 
         <Card className="rounded-3xl border-sky-100 bg-sky-50 p-4 shadow-none">
-          <p className="text-sm font-semibold text-slate-900">Role dashboard active</p>
+          <p className="text-sm font-semibold text-slate-900">Dashboard peran aktif</p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Sidebar sekarang menyesuaikan konteks role dari hasil login.
+            Bilah samping menyesuaikan konteks peran dari hasil masuk.
           </p>
         </Card>
       </Card>

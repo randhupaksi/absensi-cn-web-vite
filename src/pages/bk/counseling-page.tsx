@@ -196,7 +196,7 @@ export function BKCounselingPage() {
         <>
           <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
             <BkPageHero
-              badge="BK Counseling Workspace"
+              badge="Halaman Konseling BK"
               title="Catatan Konseling"
               description={<>Kelola catatan pembinaan, tindak lanjut, dan histori konseling siswa lintas kelas.</>}
               kpiCards={kpiCards}
@@ -413,5 +413,5 @@ async function invalidateBKCounseling(queryClient: ReturnType<typeof useQueryCli
 }
 
 function getBKCounselingTitle() {
-  return "Counseling Notes Dashboard";
+  return "Catatan Konseling";
 }

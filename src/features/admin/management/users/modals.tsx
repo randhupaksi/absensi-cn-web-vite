@@ -41,16 +41,16 @@ export function validateRoleUserForm(
 ): FieldErrors<keyof AdminUserPayload> {
   const errors: FieldErrors<keyof AdminUserPayload> = {};
   validateRequired(errors, "name", form.name, "Nama akun");
-  validateRequired(errors, "role", form.role, "Role");
-  validateRequired(errors, "username", form.username, "Username");
-  if (!isEdit) validateRequired(errors, "password", form.password, "Password login");
+  validateRequired(errors, "role", form.role, "Peran");
+  validateRequired(errors, "username", form.username, "Nama pengguna");
+  if (!isEdit) validateRequired(errors, "password", form.password, "Kata sandi masuk");
   return errors;
 }
 
 export function roleDescription(role: AdminUser["role"]) {
   switch (role) {
     case "ADMIN":
-      return "Kontrol penuh dashboard dan master data";
+      return "Kontrol penuh dasbor dan data utama";
     case "TEACHER":
       return "Akun dasar guru untuk modul pengajaran";
     default:
@@ -108,8 +108,8 @@ export function UserCreateModal({
             <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Masukkan nama akun" className={INPUT_CN} />
             <FieldError message={errors.name} />
           </FieldGroup>
-          <FieldGroup label="Role">
-            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih role" options={CREATE_ROLE_OPTIONS} />
+          <FieldGroup label="Peran">
+            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih peran" options={CREATE_ROLE_OPTIONS} />
             <FieldError message={errors.role} />
           </FieldGroup>
         </div>
@@ -125,7 +125,7 @@ export function UserCreateModal({
           </FieldGroup>
         </div>
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Role Staff" />
+        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Peran Staf" />
       </div>
     </PremiumModal>
   );
@@ -167,15 +167,15 @@ export function UserEditModal({
   if (!user) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Role Staff" description="Perbarui nama akun, role, username, dan password bila memang perlu diganti." icon={FilePenLine}>
+    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Peran Staf" description="Perbarui nama akun, peran, username, dan password bila memang perlu diganti." icon={FilePenLine}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Akun">
             <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Masukkan nama akun" className={INPUT_CN} />
             <FieldError message={errors.name} />
           </FieldGroup>
-          <FieldGroup label="Role">
-            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih role" options={EDIT_ROLE_OPTIONS} />
+          <FieldGroup label="Peran">
+            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih peran" options={EDIT_ROLE_OPTIONS} />
             <FieldError message={errors.role} />
           </FieldGroup>
         </div>
@@ -191,7 +191,7 @@ export function UserEditModal({
           </FieldGroup>
         </div>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Role Staff" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Peran Staf" />
       </div>
     </PremiumModal>
   );

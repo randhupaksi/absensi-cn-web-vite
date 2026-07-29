@@ -131,7 +131,7 @@ export default function App() {
           <Route path="/dashboard/admin/subjects" element={<AdminSubjectsPage />} />
           <Route path="/dashboard/admin/teachers" element={<AdminTeachersPage />} />
           <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
-          <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Report" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah section ini dibuat." />} />
+          <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Laporan" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah halaman ini dibuat." />} />
 
           <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
           <Route path="/dashboard/teacher/bk/attendance" element={<BKAttendancePage />} />

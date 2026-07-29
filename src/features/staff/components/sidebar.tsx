@@ -162,7 +162,7 @@ export const adminSidebarItems = [
   { label: "Struktur Akademik", href: "/dashboard/admin/classes", icon: Building2 },
   { label: "Kalender Libur", href: "/dashboard/admin/holidays", icon: CalendarDays },
   { label: "Admin", href: "/dashboard/admin/admins", icon: ShieldCheck },
-  { label: "Manajemen Role", href: "/dashboard/admin/users", icon: UserCog },
+  { label: "Manajemen Peran", href: "/dashboard/admin/users", icon: UserCog },
 ] satisfies StaffSidebarItem[];
 
 export const walasSidebarItems = [
@@ -232,8 +232,8 @@ export function buildTeacherWorkspaceSidebarItems(opts: {
 
   if (opts.hasBKScope) {
     items.push(
-      { label: "Monitoring Siswa", href: "/dashboard/teacher/bk/students", icon: Users },
-      { label: "Review Absensi", href: "/dashboard/teacher/bk/attendance", icon: BookOpenCheck },
+      { label: "Pemantauan Siswa", href: "/dashboard/teacher/bk/students", icon: Users },
+      { label: "Tinjauan Absensi", href: "/dashboard/teacher/bk/attendance", icon: BookOpenCheck },
       { label: "Konseling", href: "/dashboard/teacher/bk/counseling", icon: FileClock },
       { label: "Pengajuan BK", href: "/dashboard/teacher/bk/submissions", icon: ClipboardList },
     );
@@ -257,5 +257,5 @@ export const bkSidebarItems = [
 export const studentSidebarItems = [
   { label: "Dashboard", href: "/dashboard/siswa", icon: LayoutDashboard },
   { label: "Histori Absen", href: "/dashboard/siswa/history", icon: History },
-  { label: "Profile", href: "/dashboard/siswa/profile", icon: UserRound },
+  { label: "Profil", href: "/dashboard/siswa/profile", icon: UserRound },
 ] satisfies StaffSidebarItem[];

@@ -25,7 +25,7 @@ export function validateTeacherSubjectAssignmentForm(
   validateRequired(errors, "subject_id", form.subject_id, "Mapel");
   validateRequired(errors, "class_id", form.class_id, "Kelas");
   validateRequired(errors, "school_year_id", form.school_year_id, "Tahun ajaran");
-  validateRequired(errors, "is_active", String(form.is_active), "Status assignment");
+  validateRequired(errors, "is_active", String(form.is_active), "Status penugasan");
   return errors;
 }
 
@@ -167,7 +167,7 @@ export function TeacherSubjectAssignmentCreateModal({
     <PremiumModal
       open={open}
       onOpenChange={handleOpenChange}
-      title="Tambah Assignment Mapel"
+      title="Tambah Penugasan Mapel"
       description="Buat relasi guru ke mapel dan kelas untuk tahun ajaran yang relevan."
       icon={BookOpen}
     >
@@ -194,7 +194,7 @@ export function TeacherSubjectAssignmentCreateModal({
           </FieldGroup>
         </div>
 
-        <FieldGroup label="Status Assignment">
+        <FieldGroup label="Status Penugasan">
           <RadixSelectField value={String(form.is_active)} onValueChange={(v) => set("is_active", v === "true")} placeholder="Pilih status" options={ACTIVE_OPTIONS} />
           <FieldError message={errors.is_active} />
         </FieldGroup>
@@ -204,7 +204,7 @@ export function TeacherSubjectAssignmentCreateModal({
           onChange={(rows) => set("schedules", rows)}
         />
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Assignment Mapel" />
+        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Penugasan Mapel" />
       </div>
     </PremiumModal>
   );
@@ -258,7 +258,7 @@ export function TeacherSubjectAssignmentEditModal({
   if (!assignment) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Edit Assignment Mapel" description="Perbarui relasi guru, mapel, kelas, dan tahun ajaran sesuai kebutuhan." icon={BookOpen}>
+    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Penugasan Mapel" description="Perbarui relasi guru, mapel, kelas, dan tahun ajaran sesuai kebutuhan." icon={BookOpen}>
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Guru">
@@ -282,7 +282,7 @@ export function TeacherSubjectAssignmentEditModal({
           </FieldGroup>
         </div>
 
-        <FieldGroup label="Status Assignment">
+        <FieldGroup label="Status Penugasan">
           <RadixSelectField value={String(form.is_active)} onValueChange={(v) => set("is_active", v === "true")} placeholder="Pilih status" options={ACTIVE_OPTIONS} />
           <FieldError message={errors.is_active} />
         </FieldGroup>
@@ -292,7 +292,7 @@ export function TeacherSubjectAssignmentEditModal({
           onChange={(rows) => set("schedules", rows)}
         />
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Assignment Mapel" />
+        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Perbarui Penugasan Mapel" />
       </div>
     </PremiumModal>
   );

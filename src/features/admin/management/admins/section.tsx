@@ -144,12 +144,12 @@ export function AdminManagementSection({
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                 <LayoutPanelTop className="size-3.5" />
-                Admin Workspace
+                Halaman Administrator
               </div>
 
               <div className="space-y-2">
                 <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Admin Management
+                  Manajemen Administrator
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
                   Kelola akun administrator inti yang memiliki kontrol tertinggi pada dashboard
@@ -241,7 +241,7 @@ export function AdminManagementSection({
             }
           >
             <DataTable>
-              <DataTableHeadRow labels={["Administrator", "Username", "Role", "Akses", "Aksi"]} />
+              <DataTableHeadRow labels={["Administrator", "Username", "Peran", "Akses", "Aksi"]} />
               <DataTableBody>
                 {pageAdmins.map((user) => (
                   <DataTableRow key={user.id}>

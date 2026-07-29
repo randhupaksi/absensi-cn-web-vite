@@ -633,7 +633,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Download ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

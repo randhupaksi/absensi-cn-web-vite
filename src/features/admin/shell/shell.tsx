@@ -25,30 +25,30 @@ export function AdminShell({ children }: AdminShellProps) {
 }
 
 function getAdminSectionTitle(pathname: string) {
-  if (pathname === "/dashboard/admin") return "Admin Dashboard";
+  if (pathname === "/dashboard/admin") return "Dashboard Admin";
   if (pathname.startsWith("/dashboard/admin/teachers")) {
-    return "Teacher Management Dashboard";
+    return "Manajemen Guru";
   }
   if (pathname.startsWith("/dashboard/admin/subjects")) {
     return "Manajemen Mapel";
   }
   if (pathname.startsWith("/dashboard/admin/students")) {
-    return "Student Management Dashboard";
+    return "Manajemen Siswa";
   }
   if (pathname.startsWith("/dashboard/admin/classes")) {
-    return "Class Management Dashboard";
+    return "Manajemen Kelas";
   }
   if (pathname.startsWith("/dashboard/admin/holidays")) {
     return "Kalender Hari Libur";
   }
   if (pathname.startsWith("/dashboard/admin/users")) {
-    return "Role Management Dashboard";
+    return "Manajemen Peran";
   }
   if (pathname.startsWith("/dashboard/admin/admins")) {
-    return "Admin Management Dashboard";
+    return "Manajemen Administrator";
   }
   if (pathname.startsWith("/dashboard/admin/reports")) {
-    return "Reports Dashboard";
+    return "Laporan";
   }
-  return "Admin Dashboard";
+  return "Dashboard Admin";
 }

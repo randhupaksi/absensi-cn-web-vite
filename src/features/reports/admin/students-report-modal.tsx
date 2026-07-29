@@ -347,7 +347,7 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={canDownload ? `Download ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} siswa)` : "Pilih format laporan"}
+          downloadLabel={canDownload ? `Unduh ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} siswa)` : "Pilih format laporan"}
         />
       </div>
     </PremiumModal>

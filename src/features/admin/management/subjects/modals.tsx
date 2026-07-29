@@ -89,7 +89,7 @@ export function SubjectFormModal({
     <PremiumModal
       open={open}
       onOpenChange={onOpenChange}
-      title={subject ? "Edit Mapel" : "Tambah Mapel"}
+      title={subject ? "Ubah Mapel" : "Tambah Mapel"}
       description="Kelola identitas mapel yang akan dipakai pada penempatan guru dan jadwal kelas."
       icon={BookOpenCheck}
       className="sm:!max-w-2xl"
@@ -229,7 +229,7 @@ export function TeachingAssignmentFormModal({
     <PremiumModal
       open={open}
       onOpenChange={onOpenChange}
-      title={assignment ? "Edit Jadwal Mengajar" : "Tambah Jadwal Mengajar"}
+      title={assignment ? "Ubah Jadwal Mengajar" : "Tambah Jadwal Mengajar"}
       description="Hubungkan guru, mapel, kelas, tahun ajaran, dan slot waktu dalam satu penempatan."
       icon={BookOpenCheck}
       className="sm:!max-w-4xl"

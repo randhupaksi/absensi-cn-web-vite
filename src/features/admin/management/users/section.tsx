@@ -156,16 +156,16 @@ export function UserSection({
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                 <LayoutPanelTop className="size-3.5" />
-                Role Workspace
+                Halaman Peran
               </div>
 
               <div className="space-y-2">
                 <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Role Management
+                  Manajemen Peran
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
                   Kelola akun administrator dan identitas dasar guru. Penugasan operasional
-                  guru dikelola dari workspace Guru.
+                  guru dikelola dari ruang kerja Guru.
                 </p>
               </div>
             </div>
@@ -219,7 +219,7 @@ export function UserSection({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari nama, role, username" />
+              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari nama, peran, username" />
 
               <AddButton label="Administrator" onClick={() => setModalOpen(true)} />
             </div>
@@ -233,7 +233,7 @@ export function UserSection({
                 columnCount={6}
                 isEmpty={filteredUsers.length === 0}
                 emptyTitle="Belum ada role staff"
-                emptyDescription="Tambahkan administrator di sini atau akun guru dari workspace Guru."
+                  emptyDescription="Tambahkan administrator di sini atau akun guru dari ruang kerja Guru."
                 icon={ShieldCheck}
                 pagination={usersPagination}
                 mobileView={
@@ -251,7 +251,7 @@ export function UserSection({
                         />
                         <div className="mt-4 space-y-3">
                           <MobileDataField label="Username" value={user.username || "-"} />
-                          <MobileDataField label="Identifier" value={user.username || user.nis || "-"} />
+                          <MobileDataField label="Identitas" value={user.username || user.nis || "-"} />
                           <MobileDataField label="Akses" value={roleDescription(user.role)} />
                         </div>
                         <MobileDataFooter>
@@ -267,7 +267,7 @@ export function UserSection({
                 }
               >
                 <DataTable>
-                  <DataTableHeadRow labels={["Nama", "Role", "Username", "Identifier", "Akses", "Aksi"]} />
+                        <DataTableHeadRow labels={["Nama", "Peran", "Username", "Identitas", "Akses", "Aksi"]} />
                   <DataTableBody>
                     {pageUsers.map((user) => (
                       <DataTableRow key={user.id}>
@@ -327,7 +327,7 @@ export function UserSection({
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="Hapus Role Staff?"
+        title="Hapus Peran Staf?"
         description={
           deleteTarget
             ? `Akun "${deleteTarget.name}" dengan role ${deleteTarget.role} akan dihapus permanen.`

@@ -22,7 +22,7 @@ export function validateHomeroomAssignmentForm(
   validateRequired(errors, "teacher_id", form.teacher_id, "Guru");
   validateRequired(errors, "class_id", form.class_id, "Kelas");
   validateRequired(errors, "school_year_id", form.school_year_id, "Tahun ajaran");
-  validateRequired(errors, "is_active", String(form.is_active), "Status assignment");
+  validateRequired(errors, "is_active", String(form.is_active), "Status penugasan");
   return errors;
 }
 
@@ -82,7 +82,7 @@ export function HomeroomAssignmentCreateModal({
     <PremiumModal
       open={open}
       onOpenChange={handleOpenChange}
-      title="Tambah Assignment Walas"
+      title="Tambah Penugasan Walas"
       description="Tentukan guru yang menjadi wali kelas untuk rombel dan tahun ajaran tertentu."
       icon={GraduationCap}
     >
@@ -132,7 +132,7 @@ export function HomeroomAssignmentCreateModal({
             />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
-          <FieldGroup label="Status Assignment">
+          <FieldGroup label="Status Penugasan">
             <RadixSelectField
               value={String(form.is_active)}
               onValueChange={(v) => set("is_active", v === "true")}
@@ -147,7 +147,7 @@ export function HomeroomAssignmentCreateModal({
           isPending={isPending}
           onCancel={() => handleOpenChange(false)}
           onSubmit={handleSubmit}
-          submitLabel="Simpan Assignment Walas"
+          submitLabel="Simpan Penugasan Walas"
         />
       </div>
     </PremiumModal>
@@ -194,7 +194,7 @@ export function HomeroomAssignmentEditModal({
     <PremiumModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Edit Assignment Walas"
+      title="Ubah Penugasan Walas"
       description="Perbarui penugasan wali kelas untuk kelas dan tahun ajaran tertentu."
       icon={GraduationCap}
     >
@@ -244,7 +244,7 @@ export function HomeroomAssignmentEditModal({
             />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
-          <FieldGroup label="Status Assignment">
+          <FieldGroup label="Status Penugasan">
             <RadixSelectField
               value={String(form.is_active)}
               onValueChange={(v) => set("is_active", v === "true")}
@@ -259,7 +259,7 @@ export function HomeroomAssignmentEditModal({
           isPending={isPending}
           onCancel={() => onOpenChange(false)}
           onSubmit={handleSubmit}
-          submitLabel="Update Assignment Walas"
+          submitLabel="Perbarui Penugasan Walas"
         />
       </div>
     </PremiumModal>

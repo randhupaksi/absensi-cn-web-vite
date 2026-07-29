@@ -49,7 +49,7 @@ export function StaffPlaceholderPage({
           <div className="mt-6">
             <EmptyState
               icon={FileText}
-              title={`Section ${title} sedang disiapkan`}
+              title={`Halaman ${title} sedang disiapkan`}
               description={description}
             />
           </div>

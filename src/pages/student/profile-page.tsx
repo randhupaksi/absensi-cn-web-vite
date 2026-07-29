@@ -54,10 +54,10 @@ export function StudentProfilePage() {
 
                 <div className="relative mt-7">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-50/70">
-                    Profile siswa
+                    Profil siswa
                   </p>
                   <h1 className="mt-2 max-w-[18rem] text-[2rem] font-semibold leading-[1.05] tracking-[-0.04em] sm:text-[2.35rem]">
-                    {profile?.name ?? "Memuat profile"}
+                    {profile?.name ?? "Memuat profil"}
                   </h1>
                   <p className="mt-3 flex items-center gap-2 text-sm text-emerald-50/80">
                     <GraduationCap className="size-4" />
@@ -71,10 +71,10 @@ export function StudentProfilePage() {
                   {/* identity chips */}
                   <div className="hidden">
                     <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-50/80">
-                      Profile Siswa
+                      Profil Siswa
                     </p>
                     <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-[-0.03em]">
-                      {profile?.name ?? "Memuat profile"}
+                      {profile?.name ?? "Memuat profil"}
                     </h1>
                     <p className="mt-2 text-emerald-50/80">
                       {profile?.class_name ?? "-"} • {profile?.school_year_name ?? "-"}
@@ -128,11 +128,11 @@ export function StudentProfilePage() {
                     <InfoRow icon={CalendarDays} label="Tahun ajaran" value={profile.school_year_name || "-"} />
                   </div>
                 ) : profileQuery.isLoading ? (
-                  <div className="mt-5 text-sm text-slate-500">Memuat profile siswa...</div>
+                  <div className="mt-5 text-sm text-slate-500">Memuat profil siswa...</div>
                 ) : (
                   <EmptyState
                     icon={UserRound}
-                    title="Profile belum tersedia"
+                    title="Profil belum tersedia"
                     description={profileQuery.error?.message ?? "Data siswa tidak ditemukan."}
                   />
                 )}

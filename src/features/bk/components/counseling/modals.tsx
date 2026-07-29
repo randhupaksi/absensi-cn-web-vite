@@ -102,7 +102,7 @@ export function CounselingFormModal({
     <PremiumModal
       open={open}
       onOpenChange={onOpenChange}
-      title={note ? "Edit Catatan BK" : "Tambah Catatan BK"}
+      title={note ? "Ubah Catatan BK" : "Tambah Catatan BK"}
       description="Lengkapi catatan pembinaan siswa dengan informasi yang jelas dan mudah ditinjau."
       icon={note ? Edit3 : Plus}
       className="sm:!max-w-[760px]"
@@ -159,7 +159,7 @@ export function CounselingFormModal({
             disabled={isPending}
             onClick={handleSubmit}
           >
-            {isPending ? "Menyimpan..." : note ? "Update Catatan" : "Simpan Catatan"}
+            {isPending ? "Menyimpan..." : note ? "Perbarui Catatan" : "Simpan Catatan"}
           </Button>
         </div>
       </div>

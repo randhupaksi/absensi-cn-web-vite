@@ -392,7 +392,7 @@ function SchoolUnitModal({
       open={open}
       onOpenChange={onOpenChange}
       icon={School}
-      title={item ? "Edit Unit Sekolah" : "Tambah Unit Sekolah"}
+      title={item ? "Ubah Unit Sekolah" : "Tambah Unit Sekolah"}
       description="Unit menjadi batas utama data SMP, SMA, dan SMK."
       footer={
         <ModalActions
@@ -461,7 +461,7 @@ function MajorModal({
       open={open}
       onOpenChange={onOpenChange}
       icon={Network}
-      title={item ? "Edit Program / Jurusan" : "Tambah Program / Jurusan"}
+      title={item ? "Ubah Program / Jurusan" : "Tambah Program / Jurusan"}
       description="Tetapkan unit sekolah dan tipe program agar dapat dipakai saat membentuk kelas."
       footer={
         <ModalActions

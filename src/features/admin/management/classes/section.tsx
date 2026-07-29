@@ -460,7 +460,7 @@ export function ClassManagementSection({
       {editingClass && (
         <ClassFormModal
           key={editingClass.id}
-          title="Edit Kelas"
+          title="Ubah Kelas"
           description="Perbarui identitas kelas tanpa memutus relasi data yang sudah terhubung."
           open
           initialData={editingClass}

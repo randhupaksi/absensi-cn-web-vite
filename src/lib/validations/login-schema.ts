@@ -31,7 +31,7 @@ export const loginSchema = z
         ctx.addIssue({
           code: "custom",
           path: ["username"],
-          message: "Username wajib diisi.",
+          message: "Nama pengguna wajib diisi.",
         });
       }
     }

@@ -53,7 +53,7 @@ export function KoreksiModal({
       }}
       icon={AlertCircle}
       title="Koreksi Status Kehadiran"
-      description={`${studentName} - ${nis}`}
+      description={`${studentName} - NIS ${nis}`}
       className="sm:!max-w-xl"
       footer={
         <div className={premiumModalActionsClassName}>

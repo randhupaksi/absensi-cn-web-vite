@@ -152,7 +152,7 @@ export function TeacherSection({
   const createHomeroomAssignmentMutation = useMutation({
     mutationFn: createAdminHomeroomAssignment,
     onSuccess: () => {
-      toast.success("Assignment wali kelas berhasil dibuat.");
+      toast.success("Penugasan wali kelas berhasil dibuat.");
       void queryClient.invalidateQueries({
         queryKey: ["admin-homeroom-assignments"],
       });
@@ -208,7 +208,7 @@ export function TeacherSection({
       payload: AdminHomeroomAssignmentPayload;
     }) => updateAdminHomeroomAssignment(id, payload),
     onSuccess: () => {
-      toast.success("Assignment walas berhasil diperbarui.");
+      toast.success("Penugasan walas berhasil diperbarui.");
       void queryClient.invalidateQueries({
         queryKey: ["admin-homeroom-assignments"],
       });
@@ -220,7 +220,7 @@ export function TeacherSection({
   const deleteHomeroomAssignmentMutation = useMutation({
     mutationFn: deleteAdminHomeroomAssignment,
     onSuccess: () => {
-      toast.success("Assignment walas berhasil dihapus.");
+      toast.success("Penugasan walas berhasil dihapus.");
       setDeleteTarget(null);
       void queryClient.invalidateQueries({
         queryKey: ["admin-homeroom-assignments"],
@@ -425,7 +425,7 @@ export function TeacherSection({
     if (activeTab === "homerooms") {
       return [
         {
-          label: "Total Assignment",
+          label: "Total Penugasan",
           value: totalHomeroomAssignments,
           icon: GraduationCap,
           accentClass: "from-amber-400 via-orange-400 to-emerald-500",
@@ -527,12 +527,12 @@ export function TeacherSection({
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                 <LayoutPanelTop className="size-3.5" />
-                Teacher Workspace
+                Halaman Guru
               </div>
 
               <div className="space-y-2">
                 <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Teacher Management
+                  Manajemen Guru
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
                   Profil guru dan penugasan wali kelas dengan tampilan kerja yang
@@ -679,7 +679,7 @@ export function TeacherSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Guru", "Username", "Gender", "Mapel", "Walas", "Status", "Aksi"]} />
+                <DataTableHeadRow labels={["Guru", "Username", "Jenis Kelamin", "Mapel", "Walas", "Status", "Aksi"]} />
                 <DataTableBody>
                   {pageTeacherProfiles.map((teacher) => (
                     <DataTableRow key={teacher.id}>
@@ -757,7 +757,7 @@ export function TeacherSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Guru", "Kelas", "Tahun Ajaran", "Status", "ID Assignment", "Aksi"]} />
+                <DataTableHeadRow labels={["Guru", "Kelas", "Tahun Ajaran", "Status", "ID Penugasan", "Aksi"]} />
                 <DataTableBody>
                   {pageHomeroomAssignments.map((assignment) => (
                     <DataTableRow key={assignment.id}>
@@ -995,7 +995,7 @@ export function TeacherSection({
 
 function getTeacherDeleteTitle(target: TeacherDeleteTarget | null) {
   if (target?.type === "profile") return "Hapus Guru?";
-  if (target?.type === "homeroom") return "Hapus Assignment Walas?";
+  if (target?.type === "homeroom") return "Hapus Penugasan Walas?";
   return "Konfirmasi Penghapusan";
 }
 
@@ -1004,7 +1004,7 @@ function getTeacherDeleteDescription(target: TeacherDeleteTarget | null) {
   if (target.type === "profile") {
     return `Profil dan akun guru "${target.item.name}" akan dihapus permanen.`;
   }
-  return `Assignment wali kelas "${target.item.class_name}" untuk ${target.item.teacher_name} akan dihapus permanen.`;
+  return `Penugasan wali kelas "${target.item.class_name}" untuk ${target.item.teacher_name} akan dihapus permanen.`;
 }
 
 function TeacherMetricPill({

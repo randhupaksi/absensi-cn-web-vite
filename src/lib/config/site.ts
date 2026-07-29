@@ -7,6 +7,10 @@ export const siteConfig = {
 };
 
 export function getApiOrigin() {
+  if (siteConfig.apiBaseUrl.startsWith("/")) {
+    return typeof window === "undefined" ? "" : window.location.origin;
+  }
+
   try {
     return new URL(siteConfig.apiBaseUrl).origin;
   } catch {

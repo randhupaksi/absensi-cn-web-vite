@@ -15,11 +15,11 @@ export function StudentShell({ children }: StudentShellProps) {
       expectedRole="siswa"
       sidebarItems={studentSidebarItems}
       userLabel="Siswa"
-      eyebrow="Siswa Dashboard"
+      eyebrow="Dashboard Siswa"
       resolveTitle={(pathname) => {
         if (pathname.includes("/history")) return "Histori Absen";
-        if (pathname.includes("/profile")) return "Profile Siswa";
-        return "Siswa Dashboard";
+        if (pathname.includes("/profile")) return "Profil Siswa";
+        return "Dashboard Siswa";
       }}
     >
       {children}
