@@ -106,16 +106,8 @@ export function LoginForm({ portal }: LoginFormProps) {
     <form onSubmit={form.handleSubmit(onSubmit)} className={portal === "staff" ? "space-y-5" : "space-y-4"}>
       <input type="hidden" {...form.register("portal")} value={portal} />
 
-      <AnimatePresence mode="wait" initial={false}>
-        {portal === "student" ? (
-          <motion.div
-            key="student-fields"
-            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -10, scale: 0.985 }}
-            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0, scale: 1 }}
-            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 10, scale: 0.985 }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
-            className="space-y-2"
-          >
+      {portal === "student" ? (
+        <div className="space-y-2">
             <Label htmlFor="nis" className="text-sm font-medium text-slate-700">
               {content.identifierLabel}
             </Label>
@@ -140,16 +132,9 @@ export function LoginForm({ portal }: LoginFormProps) {
                 {content.identifierHelper}
               </p>
             )}
-          </motion.div>
+        </div>
         ) : (
-          <motion.div
-            key="staff-fields"
-            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 10, scale: 0.985 }}
-            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0, scale: 1 }}
-            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -10, scale: 0.985 }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
-            className="space-y-2"
-          >
+          <div className="space-y-2">
             <Label
               htmlFor="username"
               className="text-sm font-medium text-slate-700"
@@ -171,9 +156,8 @@ export function LoginForm({ portal }: LoginFormProps) {
                 {content.identifierHelper}
               </p>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       <div className="space-y-2">
         <Label htmlFor="password" className="text-sm font-medium text-slate-700">

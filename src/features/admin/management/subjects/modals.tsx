@@ -29,7 +29,6 @@ import {
 import type {
   AdminClass,
   AdminMajor,
-  AdminRoom,
   AdminSchoolYear,
   AdminSubject,
   AdminTeacherProfile,
@@ -201,7 +200,6 @@ type AssignmentModalProps = {
   subjects: AdminSubject[];
   classes: AdminClass[];
   schoolYears: AdminSchoolYear[];
-  rooms: AdminRoom[];
   isPending: boolean;
   onSubmit: (values: TeachingAssignmentFormValues) => void;
 };
@@ -214,7 +212,6 @@ export function TeachingAssignmentFormModal({
   subjects,
   classes,
   schoolYears,
-  rooms,
   isPending,
   onSubmit,
 }: AssignmentModalProps) {
@@ -270,18 +267,6 @@ export function TeachingAssignmentFormModal({
               description: item.code,
             }))}
             error={form.formState.errors.subject_id?.message}
-          />
-          <SelectController
-            control={form.control}
-            name="class_id"
-            label="Kelas"
-            placeholder="Pilih kelas"
-            options={classes.filter((item) => item.is_active).map((item) => ({
-              value: item.id,
-              label: item.display_name,
-              description: item.school_year_name,
-            }))}
-            error={form.formState.errors.class_id?.message}
           />
           <SelectController
             control={form.control}
@@ -348,7 +333,7 @@ export function TeachingAssignmentFormModal({
               type="button"
               variant="outline"
               className="h-10 gap-2.5 rounded-[18px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-3.5 text-sm font-semibold text-emerald-900 shadow-[0_10px_20px_rgba(15,23,42,0.04)] hover:border-emerald-300"
-              onClick={() => schedules.append({ hari: "senin", jam_mulai: "", jam_selesai: "", room_id: "", effective_from: "", effective_until: "", is_active: true })}
+              onClick={() => schedules.append({ hari: "senin", class_id: form.getValues("class_id"), jam_mulai: "", jam_selesai: "", effective_from: "", effective_until: "", is_active: true })}
             >
               <span className="flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_6px_12px_rgba(16,185,129,0.2)]">
                 <Plus className="size-3" />
@@ -379,10 +364,14 @@ export function TeachingAssignmentFormModal({
                   />
                 </div>
 				<div className={premiumModalFieldClassName}>
-				  <label className={premiumModalLabelClassName}>Ruangan</label>
-				  <Controller control={form.control} name={`schedules.${index}.room_id`} render={({ field: roomField }) => (
-				    <RadixSelectField value={roomField.value || "none"} onValueChange={(value) => roomField.onChange(value === "none" ? "" : value)} placeholder="Opsional" options={[{ value: "none", label: "Tanpa ruangan" }, ...rooms.filter((room) => room.is_active).map((room) => ({ value: room.id, label: room.name, description: `${room.school_unit_code} · ${room.code}` }))]} />
+				  <label className={premiumModalLabelClassName}>Kelas</label>
+				  <Controller control={form.control} name={`schedules.${index}.class_id`} render={({ field: classField }) => (
+				    <RadixSelectField value={classField.value} onValueChange={(value) => {
+				      form.setValue("class_id", value, { shouldValidate: true });
+				      form.getValues("schedules").forEach((_, scheduleIndex) => form.setValue(`schedules.${scheduleIndex}.class_id`, value, { shouldValidate: true }));
+				    }} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.filter((item) => item.is_active).map((item) => ({ value: item.id, label: item.display_name, description: item.school_year_name }))} />
 				  )} />
+				  <FieldError message={form.formState.errors.schedules?.[index]?.class_id?.message} />
 				</div>
                 <div className={premiumModalFieldClassName}>
                   <label htmlFor={`schedule-start-${index}`} className={premiumModalLabelClassName}>Jam Mulai</label>
@@ -428,7 +417,7 @@ export function TeachingAssignmentFormModal({
 
 function SelectController({ control, name, label, placeholder, options, error }: {
   control: ReturnType<typeof useForm<TeachingAssignmentFormValues>>["control"];
-  name: "teacher_id" | "subject_id" | "class_id" | "school_year_id";
+  name: "teacher_id" | "subject_id" | "school_year_id";
   label: string;
   placeholder: string;
   options: { value: string; label: string; description?: string }[];
@@ -445,9 +434,9 @@ function SelectController({ control, name, label, placeholder, options, error }:
             value={field.value as string}
             onValueChange={field.onChange}
             placeholder={placeholder}
-            searchable={name === "teacher_id" || name === "class_id"}
-            searchPlaceholder={name === "teacher_id" ? "Cari nama atau username guru..." : name === "class_id" ? "Cari kelas..." : undefined}
-            emptyText={name === "teacher_id" ? "Guru tidak ditemukan." : name === "class_id" ? "Kelas tidak ditemukan." : undefined}
+            searchable={name === "teacher_id"}
+            searchPlaceholder={name === "teacher_id" ? "Cari nama atau username guru..." : undefined}
+            emptyText={name === "teacher_id" ? "Guru tidak ditemukan." : undefined}
             options={options}
           />
         )}
@@ -558,8 +547,8 @@ function assignmentValues(assignment: AdminTeacherSubjectAssignment | null): Tea
     effective_from: assignment?.effective_from ?? "",
     effective_until: assignment?.effective_until ?? "",
     is_active: assignment?.is_active ?? true,
-    schedules: assignment?.schedules.map(({ hari, jam_mulai, jam_selesai, room_id, effective_from, effective_until, is_active }) => ({ hari, jam_mulai, jam_selesai, room_id: room_id ?? "", effective_from: effective_from ?? "", effective_until: effective_until ?? "", is_active })) ?? [
-	  { hari: "senin", jam_mulai: "", jam_selesai: "", room_id: "", effective_from: "", effective_until: "", is_active: true },
+    schedules: assignment?.schedules.map(({ hari, jam_mulai, jam_selesai, class_id, effective_from, effective_until, is_active }) => ({ hari, jam_mulai, jam_selesai, class_id: class_id || assignment.class_id, effective_from: effective_from ?? "", effective_until: effective_until ?? "", is_active })) ?? [
+	  { hari: "senin", class_id: "", jam_mulai: "", jam_selesai: "", effective_from: "", effective_until: "", is_active: true },
     ],
   };
 }

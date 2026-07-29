@@ -258,8 +258,8 @@ export type StaffSubjectSchedule = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
-  room_id?: string;
-  room_name?: string;
+  class_id: string;
+  class_name: string;
   effective_from?: string;
   effective_until?: string;
   is_active: boolean;

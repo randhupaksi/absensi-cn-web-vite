@@ -13,8 +13,6 @@ import type {
   AdminSchoolUnitPayload,
   AdminSchoolHoliday,
   AdminSchoolHolidayPayload,
-  AdminRoom,
-  AdminRoomPayload,
   AdminScheduleOverride,
   AdminScheduleOverridePayload,
   AdminBKUnitScope,
@@ -506,32 +504,6 @@ export async function updateAdminMajor(id: string, payload: AdminMajorPayload) {
 
 export async function deleteAdminMajor(id: string) {
   try { await apiClient.delete(`/admin/majors/${id}`); }
-  catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function getAdminRooms(params: { school_unit_id?: string } = {}) {
-  try {
-    const response = await apiClient.get<ApiEnvelope<AdminRoom[]>>("/admin/rooms", { params });
-    return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function createAdminRoom(payload: AdminRoomPayload) {
-  try {
-    const response = await apiClient.post<ApiEnvelope<AdminRoom>>("/admin/rooms", payload);
-    return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function updateAdminRoom(id: string, payload: AdminRoomPayload) {
-  try {
-    const response = await apiClient.patch<ApiEnvelope<AdminRoom>>(`/admin/rooms/${id}`, payload);
-    return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
-}
-
-export async function deleteAdminRoom(id: string) {
-  try { await apiClient.delete(`/admin/rooms/${id}`); }
   catch (error) { throw new Error(getErrorMessage(error)); }
 }
 

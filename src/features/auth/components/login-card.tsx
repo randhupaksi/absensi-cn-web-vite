@@ -88,10 +88,7 @@ export function LoginCard({ portal }: LoginCardProps) {
   }, []);
 
   return (
-    <motion.section
-      initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.97 }}
-      animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+    <section
       className="relative"
       onMouseEnter={(event) => {
         if (!supportsInteractiveTilt || prefersReducedMotion) {
@@ -252,6 +249,6 @@ export function LoginCard({ portal }: LoginCardProps) {
           </div>
         </div>
       </motion.div>
-    </motion.section>
+    </section>
   );
 }

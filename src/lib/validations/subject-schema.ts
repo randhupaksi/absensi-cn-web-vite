@@ -5,7 +5,7 @@ const scheduleSchema = z
     hari: z.string().min(1, "Hari wajib dipilih"),
     jam_mulai: z.string().min(1, "Jam mulai wajib diisi"),
     jam_selesai: z.string().min(1, "Jam selesai wajib diisi"),
-    room_id: z.string(),
+    class_id: z.string().min(1, "Kelas wajib dipilih"),
     effective_from: z.string(),
     effective_until: z.string(),
     is_active: z.boolean(),

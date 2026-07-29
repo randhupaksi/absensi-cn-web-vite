@@ -165,7 +165,7 @@ export default function HomePage() {
 
                   <div className="space-y-4">
                     <p className={`${styles.landingReveal} ${styles.landingDelayOne} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}>
-                      Citra Negara School Attendance System
+                      Citra Negara Attendance System
                     </p>
                     <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
                       Absensi pagi tanpa antre,
@@ -398,7 +398,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-8 mb-10 px-2 sm:mb-0 md:px-4 xl:px-6">
-              <div className={`${styles.landingCtaShell} ${styles.landingReveal} relative overflow-hidden rounded-[42px] px-6 py-8 md:px-10 md:py-10 xl:px-12 xl:py-12`}>
+              <div className={`${styles.landingCtaShell} ${styles.landingReveal} relative mx-2 overflow-hidden rounded-[42px] px-6 py-8 md:mx-0 md:px-10 md:py-10 xl:px-12 xl:py-12`}>
                 <div className={`${styles.landingCtaGlow} absolute inset-0`} />
                 <div className="absolute right-[-120px] top-[-120px] h-[260px] w-[260px] rounded-full bg-emerald-300/12 blur-3xl" />
                 <div className="absolute bottom-[-90px] left-[46%] h-[220px] w-[220px] rounded-full bg-teal-200/10 blur-3xl" />
@@ -420,29 +420,27 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className={`${styles.landingRevealRight} relative max-w-[640px]`}>
+                  <div className={`${styles.landingRevealRight} relative mx-auto w-full max-w-[260px] text-center sm:mx-0 sm:max-w-[640px] sm:text-left`}>
                     <div className={`${styles.landingCtaBadge} inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}>
                       Portal Absensi
                     </div>
-                    <h2 className="mt-5 max-w-[580px] text-[2rem] font-bold leading-[1.06] tracking-tight text-white md:text-[3.2rem]">
-                      Lakukan Absensi Atau
-                      <br />
-                      Manajemen Absensi Siswa Di Sini
+                    <h2 className="mx-auto mt-5 max-w-[580px] text-[1.7rem] font-bold leading-[1.06] tracking-tight text-white sm:mx-0 sm:text-[2rem] md:text-[3.2rem]">
+                      Lakukan Absensi Siswa Di Sini
                     </h2>
-                    <p className="mt-4 max-w-[500px] text-sm leading-7 text-white/80 md:text-base">
+                    <p className="mx-auto mt-4 max-w-[500px] text-sm leading-7 text-white/80 sm:mx-0 md:text-base">
                       Silahkan login untuk melakukan tugas sesuai keinginan Anda
                       dengan pengalaman yang lebih cepat, rapi, dan terintegrasi.
                     </p>
 
-                    <div className="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-start">
+                    <div className="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-start">
                       <Link
                         href="/login/student"
-                        className={`${styles.landingCtaButton} group inline-flex w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5`}
+                        className={`${styles.landingCtaButton} group inline-flex h-14 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-0 text-sm font-semibold transition hover:-translate-y-0.5`}
                       >
                         Masuk Siswa
                         <FaArrowRight className="size-4 transition group-hover:translate-x-0.5" />
                       </Link>
-                      <div className={`${styles.landingCtaPill} inline-flex w-fit items-center gap-3 whitespace-nowrap rounded-full px-4 py-3 text-sm`}>
+                      <div className={`${styles.landingCtaPill} hidden h-14 w-full max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-0 text-sm sm:inline-flex sm:w-fit`}>
                         <span className={`${styles.landingCtaPillIcon} flex size-8 items-center justify-center rounded-full`}>
                           <FaCheckCircle className="size-4" />
                         </span>

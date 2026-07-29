@@ -542,14 +542,14 @@ export function TeacherSection({
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
               {activeTab === "profiles" && (
                 <Button
                   variant="outline"
-                  className="h-14 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-5 text-sm font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950"
+                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
                   onClick={() => setImportModalOpen(true)}
                 >
-                  <span className="flex size-8 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)]">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
                     <FileSpreadsheet className="size-4" />
                   </span>
                   Import Excel
@@ -559,10 +559,10 @@ export function TeacherSection({
               {activeTab === "profiles" && (
                 <Button
                   variant="outline"
-                  className="h-14 rounded-[22px] border-violet-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,243,255,0.98)_100%)] px-5 text-sm font-semibold text-violet-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-violet-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(237,233,254,1)_100%)] hover:text-violet-950"
+                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-violet-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,243,255,0.98)_100%)] px-2 text-[11px] font-semibold text-violet-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-violet-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(237,233,254,1)_100%)] hover:text-violet-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
                   onClick={() => setReportModalOpen(true)}
                 >
-                  <span className="flex size-8 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_20px_rgba(124,58,237,0.2)]">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_20px_rgba(124,58,237,0.2)] sm:size-8">
                     <Printer className="size-4" />
                   </span>
                   Export Laporan

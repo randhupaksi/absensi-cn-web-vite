@@ -24,33 +24,28 @@ import {
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
 import { SubjectFormModal, TeachingAssignmentFormModal } from "@/features/admin/management/subjects/modals";
-import { RoomModal, ScheduleOverrideModal } from "@/features/admin/management/subjects/operations-modals";
+import { ScheduleOverrideModal } from "@/features/admin/management/subjects/operations-modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { SubjectFormValues, TeachingAssignmentFormValues } from "@/lib/validations/subject-schema";
-import type { RoomFormValues, ScheduleOverrideFormValues } from "@/lib/validations/academic-operations-schema";
+import type { ScheduleOverrideFormValues } from "@/lib/validations/academic-operations-schema";
 import {
   createAdminSubject,
   createAdminTeacherSubjectAssignment,
-  createAdminRoom,
   createAdminScheduleOverride,
   deleteAdminSubject,
   deleteAdminTeacherSubjectAssignment,
-  deleteAdminRoom,
   deleteAdminScheduleOverride,
   updateAdminSubject,
   updateAdminTeacherSubjectAssignment,
-  updateAdminRoom,
   updateAdminScheduleOverride,
 } from "@/services/admin.service";
 import type {
   AdminClass,
   AdminMajor,
-  AdminRoom,
   AdminScheduleOverride,
-  AdminSchoolUnit,
   AdminSchoolYear,
   AdminSubject,
   AdminSubjectScheduleOverview,
@@ -62,7 +57,6 @@ import {
   BookOpenCheck,
   CalendarClock,
   CalendarSync,
-  DoorOpen,
   GraduationCap,
   Layers3,
   LayoutPanelTop,
@@ -79,19 +73,16 @@ type SubjectManagementSectionProps = {
   classes: AdminClass[];
   schoolYears: AdminSchoolYear[];
   programs: AdminMajor[];
-  rooms: AdminRoom[];
-  overrides: AdminScheduleOverride[];
-  schoolUnits: AdminSchoolUnit[];
+	 overrides: AdminScheduleOverride[];
   isLoading: boolean;
   errorMessage?: string;
 };
 
-type ManagementTab = "subjects" | "schedules" | "rooms" | "overrides";
+type ManagementTab = "subjects" | "schedules" | "overrides";
 
 const ADD_LABELS: Record<ManagementTab, string> = {
   subjects: "Mapel",
   schedules: "Jadwal",
-  rooms: "Ruangan",
   overrides: "Perubahan Jadwal",
 };
 
@@ -103,9 +94,7 @@ export function SubjectManagementSection({
   classes,
   schoolYears,
   programs,
-  rooms,
-  overrides,
-  schoolUnits,
+	 overrides,
   isLoading,
   errorMessage,
 }: SubjectManagementSectionProps) {
@@ -123,13 +112,10 @@ export function SubjectManagementSection({
   const [editingSubject, setEditingSubject] = useState<AdminSubject | null>(null);
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<AdminTeacherSubjectAssignment | null>(null);
-  const [roomModalOpen, setRoomModalOpen] = useState(false);
-  const [editingRoom, setEditingRoom] = useState<AdminRoom | null>(null);
   const [overrideModalOpen, setOverrideModalOpen] = useState(false);
   const [editingOverride, setEditingOverride] = useState<AdminScheduleOverride | null>(null);
   const [deleteSubjectTarget, setDeleteSubjectTarget] = useState<AdminSubject | null>(null);
   const [deleteAssignmentTarget, setDeleteAssignmentTarget] = useState<AdminTeacherSubjectAssignment | null>(null);
-  const [deleteRoomTarget, setDeleteRoomTarget] = useState<AdminRoom | null>(null);
   const [deleteOverrideTarget, setDeleteOverrideTarget] = useState<AdminScheduleOverride | null>(null);
 
   const invalidateMapelData = async () => {
@@ -139,7 +125,6 @@ export function SubjectManagementSection({
       queryClient.invalidateQueries({ queryKey: ["admin-teacher-subject-assignments"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-classes"] }),
-      queryClient.invalidateQueries({ queryKey: ["admin-rooms"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-schedule-overrides"] }),
       queryClient.invalidateQueries({ queryKey: ["teacher-subject-assignments"] }),
       queryClient.invalidateQueries({ queryKey: ["subject-current-session"] }),
@@ -196,33 +181,6 @@ export function SubjectManagementSection({
     onSuccess: async () => {
       toast.success("Penempatan jadwal berhasil dihapus.");
       setDeleteAssignmentTarget(null);
-      await invalidateMapelData();
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-  const createRoomMutation = useMutation({
-    mutationFn: createAdminRoom,
-    onSuccess: async () => {
-      toast.success("Ruangan berhasil ditambahkan.");
-      setRoomModalOpen(false);
-      await invalidateMapelData();
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-  const updateRoomMutation = useMutation({
-    mutationFn: ({ id, values }: { id: string; values: RoomFormValues }) => updateAdminRoom(id, values),
-    onSuccess: async () => {
-      toast.success("Ruangan berhasil diperbarui.");
-      setEditingRoom(null);
-      await invalidateMapelData();
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-  const deleteRoomMutation = useMutation({
-    mutationFn: deleteAdminRoom,
-    onSuccess: async () => {
-      toast.success("Ruangan berhasil dihapus.");
-      setDeleteRoomTarget(null);
       await invalidateMapelData();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -292,12 +250,10 @@ export function SubjectManagementSection({
   const scheduledTeachers = new Set(schedules.filter((s) => s.is_active).map((s) => s.teacher_id)).size;
   const scheduledClasses = new Set(schedules.filter((s) => s.is_active).map((s) => s.class_id)).size;
 
-  const activeRooms = rooms.filter((r) => r.is_active).length;
   const activeOverrides = overrides.filter((o) => o.status === "ACTIVE").length;
 
   const { pageItems: pageSubjects, pagination: subjectsPagination } = usePagination(filteredSubjects);
   const { pageItems: pageAssignments, pagination: assignmentsPagination } = usePagination(filteredAssignments);
-  const { pageItems: pageRooms, pagination: roomsPagination } = usePagination(rooms);
   const { pageItems: pageOverrides, pagination: overridesPagination } = usePagination(overrides);
 
   const kpiCards = useMemo(() => {
@@ -307,12 +263,6 @@ export function SubjectManagementSection({
         { label: "Jadwal Aktif", value: activeSchedules, icon: BookOpenCheck, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
         { label: "Guru Terjadwal", value: scheduledTeachers, icon: UsersRound, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
         { label: "Kelas Terjadwal", value: scheduledClasses, icon: GraduationCap, accentClass: "from-violet-500 via-purple-500 to-indigo-500" },
-      ];
-    }
-    if (activeTab === "rooms") {
-      return [
-        { label: "Total Ruangan", value: rooms.length, icon: DoorOpen, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
-        { label: "Ruangan Aktif", value: activeRooms, icon: DoorOpen, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
       ];
     }
     if (activeTab === "overrides") {
@@ -327,7 +277,7 @@ export function SubjectManagementSection({
       { label: "Guru Terjadwal", value: scheduledTeachers, icon: UsersRound, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
       { label: "Kelas Terjadwal", value: scheduledClasses, icon: GraduationCap, accentClass: "from-violet-500 via-purple-500 to-indigo-500" },
     ];
-  }, [activeTab, activeSchedules, activeSubjects, activeRooms, activeOverrides, assignments.length, rooms.length, overrides.length, scheduledClasses, scheduledTeachers, subjects.length]);
+  }, [activeTab, activeSchedules, activeSubjects, activeOverrides, assignments.length, overrides.length, scheduledClasses, scheduledTeachers, subjects.length]);
 
   return (
     <>
@@ -363,13 +313,13 @@ export function SubjectManagementSection({
                 Manajemen Mapel
               </h2>
               <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                Kelola master mata pelajaran, guru pengajar, kelas, ruangan, dan perubahan jadwal dalam satu alur yang terhubung.
+                Kelola master mata pelajaran, guru pengajar, kelas, dan perubahan jadwal dalam satu alur yang terhubung.
               </p>
             </div>
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
+          <div className="grid items-start gap-3 min-[360px]:grid-cols-2 xl:grid-cols-4">
             {kpiCards.map((card) => (
               <StatCard
                 key={card.label}
@@ -386,7 +336,6 @@ export function SubjectManagementSection({
             tabs={[
               { value: "subjects", label: "Master Mapel", icon: BookOpenCheck },
               { value: "schedules", label: "Jadwal Mengajar", icon: CalendarClock },
-              { value: "rooms", label: "Ruangan", icon: DoorOpen },
               { value: "overrides", label: "Perubahan Jadwal", icon: CalendarSync },
             ]}
           />
@@ -426,7 +375,6 @@ export function SubjectManagementSection({
               onClick={() => {
                 if (activeTab === "subjects") setSubjectModalOpen(true);
                 else if (activeTab === "schedules") setAssignmentModalOpen(true);
-                else if (activeTab === "rooms") setRoomModalOpen(true);
                 else setOverrideModalOpen(true);
               }}
             />
@@ -625,70 +573,6 @@ export function SubjectManagementSection({
             </DataTableCard>
           </TabsContent>
 
-          {/* Ruangan tab */}
-          <TabsContent value="rooms" className="mt-4">
-            <DataTableCard
-              isLoading={isLoading}
-              columnCount={6}
-              isEmpty={rooms.length === 0}
-              emptyTitle="Belum ada ruangan"
-              emptyDescription="Tambahkan ruang yang dapat dipakai jadwal."
-              icon={DoorOpen}
-              pagination={roomsPagination}
-              mobileView={
-                <MobileDataList>
-                  {pageRooms.map((item) => (
-                    <MobileDataCard key={item.id}>
-                      <MobileDataHeader
-                        leading={
-                          <span className="flex size-11 items-center justify-center rounded-full bg-emerald-50 font-mono text-xs font-semibold text-emerald-700">
-                            {item.code}
-                          </span>
-                        }
-                        title={item.name}
-                        subtitle={item.room_type}
-                        badge={<Pill>{item.school_unit_code}</Pill>}
-                      />
-                      <div className="mt-4 grid gap-3">
-                        <MobileDataField label="Kapasitas" value={item.capacity} />
-                        <MobileDataField label="Unit" value={item.school_unit_code} />
-                      </div>
-                      <MobileDataFooter>
-                        <ActionButtons
-                          onEdit={() => setEditingRoom(item)}
-                          onDelete={() => setDeleteRoomTarget(item)}
-                          isDeletePending={deleteRoomMutation.isPending}
-                        />
-                      </MobileDataFooter>
-                    </MobileDataCard>
-                  ))}
-                </MobileDataList>
-              }
-            >
-              <DataTable>
-                <DataTableHeadRow labels={["Kode", "Nama", "Unit", "Tipe", "Kapasitas", "Aksi"]} />
-                <DataTableBody>
-                  {pageRooms.map((item) => (
-                    <DataTableRow key={item.id}>
-                      <DataTableCell><b>{item.code}</b></DataTableCell>
-                      <DataTableCell>{item.name}</DataTableCell>
-                      <DataTableCell><Pill>{item.school_unit_code}</Pill></DataTableCell>
-                      <DataTableCell>{item.room_type}</DataTableCell>
-                      <DataTableCell>{item.capacity}</DataTableCell>
-                      <DataTableCell>
-                        <ActionButtons
-                          onEdit={() => setEditingRoom(item)}
-                          onDelete={() => setDeleteRoomTarget(item)}
-                          isDeletePending={deleteRoomMutation.isPending}
-                        />
-                      </DataTableCell>
-                    </DataTableRow>
-                  ))}
-                </DataTableBody>
-              </DataTable>
-            </DataTableCard>
-          </TabsContent>
-
           {/* Perubahan Jadwal tab */}
           <TabsContent value="overrides" className="mt-4">
             <DataTableCard
@@ -713,7 +597,7 @@ export function SubjectManagementSection({
                         <div className="mt-4 grid gap-3">
                           <MobileDataField label="Tanggal Asal" value={item.original_date} />
                           <MobileDataField label="Jenis" value={<Pill>{item.override_type}</Pill>} />
-                          <MobileDataField label="Pengganti" value={item.replacement_date || item.replacement_room_id || item.substitute_teacher_id || "-"} />
+                          <MobileDataField label="Pengganti" value={item.replacement_date || item.substitute_teacher_id || "-"} />
                         </div>
                         <MobileDataFooter>
                           <ActionButtons
@@ -738,7 +622,7 @@ export function SubjectManagementSection({
                       <DataTableCell><b>{schedule?.subject_code ?? "Jadwal"}</b><small>{schedule?.class_name ?? "Kelas belum tersedia"}</small></DataTableCell>
                         <DataTableCell>{item.original_date}</DataTableCell>
                         <DataTableCell><Pill>{item.override_type}</Pill></DataTableCell>
-                        <DataTableCell>{item.replacement_date || item.replacement_room_id || item.substitute_teacher_id || "—"}</DataTableCell>
+                        <DataTableCell>{item.replacement_date || item.substitute_teacher_id || "—"}</DataTableCell>
                         <DataTableCell><StatusBadge isActive={item.status === "ACTIVE"} /></DataTableCell>
                         <DataTableCell>
                           <ActionButtons
@@ -783,7 +667,6 @@ export function SubjectManagementSection({
           subjects={subjects}
           classes={classes}
           schoolYears={schoolYears}
-          rooms={rooms}
           isPending={createAssignmentMutation.isPending || updateAssignmentMutation.isPending}
           onSubmit={(values) => {
             if (createAssignmentMutation.isPending || updateAssignmentMutation.isPending) return;
@@ -810,28 +693,12 @@ export function SubjectManagementSection({
         isPending={deleteAssignmentMutation.isPending}
         onConfirm={() => deleteAssignmentTarget && deleteAssignmentMutation.mutate(deleteAssignmentTarget.id)}
       />
-      {(roomModalOpen || editingRoom) && (
-        <RoomModal
-          key={editingRoom?.id ?? "room-create"}
-          open
-          item={editingRoom}
-          schoolUnits={schoolUnits}
-          pending={createRoomMutation.isPending || updateRoomMutation.isPending}
-          onOpenChange={(open) => { if (!open) { setRoomModalOpen(false); setEditingRoom(null); } }}
-          onSubmit={(values) => {
-            if (createRoomMutation.isPending || updateRoomMutation.isPending) return;
-            if (editingRoom) updateRoomMutation.mutate({ id: editingRoom.id, values });
-            else createRoomMutation.mutate(values);
-          }}
-        />
-      )}
       {(overrideModalOpen || editingOverride) && (
         <ScheduleOverrideModal
           key={editingOverride?.id ?? "override-create"}
           open
           item={editingOverride}
           schedules={schedules}
-          rooms={rooms}
           teachers={teachers}
           pending={createOverrideMutation.isPending || updateOverrideMutation.isPending}
           onOpenChange={(open) => { if (!open) { setOverrideModalOpen(false); setEditingOverride(null); } }}
@@ -842,15 +709,6 @@ export function SubjectManagementSection({
           }}
         />
       )}
-      <DeleteConfirmationModal
-        open={Boolean(deleteRoomTarget)}
-        onOpenChange={(open) => { if (!open) setDeleteRoomTarget(null); }}
-        title="Hapus ruangan?"
-        description={deleteRoomTarget ? `${deleteRoomTarget.code} — ${deleteRoomTarget.name}` : ""}
-        warning="Ruangan yang sudah dipakai jadwal sebaiknya dinonaktifkan dan dapat ditolak oleh server."
-        isPending={deleteRoomMutation.isPending}
-        onConfirm={() => deleteRoomTarget && deleteRoomMutation.mutate(deleteRoomTarget.id)}
-      />
       <DeleteConfirmationModal
         open={Boolean(deleteOverrideTarget)}
         onOpenChange={(open) => { if (!open) setDeleteOverrideTarget(null); }}

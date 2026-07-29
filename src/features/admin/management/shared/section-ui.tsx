@@ -535,20 +535,20 @@ export function StatCard({
   accentClass: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[26px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-4 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)]">
+    <div className="group relative min-w-0 overflow-hidden rounded-[26px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-3.5 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)] sm:p-4">
       <div className="absolute right-[-10px] top-[-26px] h-24 w-24 rounded-full bg-emerald-100/40 blur-2xl transition duration-300 group-hover:scale-110" />
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="space-y-2">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+      <div className="relative flex items-start justify-between gap-2.5 sm:gap-4">
+        <div className="min-w-0 space-y-2">
+          <p className="break-words text-[10px] font-semibold uppercase leading-[1.35] tracking-[0.14em] text-slate-400 sm:text-[12px] sm:tracking-[0.18em]">
             {label}
           </p>
-          <p className="text-[2.15rem] font-semibold tracking-[-0.04em] text-slate-950">{value}</p>
+          <p className="text-3xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.15rem]">{value}</p>
         </div>
         <div className="flex shrink-0 flex-col items-center text-right">
           <span
-            className={`inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${accentClass} text-white shadow-[0_14px_28px_rgba(15,23,42,0.16)]`}
+            className={`inline-flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br ${accentClass} text-white shadow-[0_14px_28px_rgba(15,23,42,0.16)] sm:size-12`}
           >
-            <Icon className="size-5" />
+            <Icon className="size-4 sm:size-5" />
           </span>
         </div>
       </div>

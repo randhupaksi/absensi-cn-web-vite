@@ -55,7 +55,6 @@ export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
         <ChevronRight className="size-4 text-emerald-600" />
       </button>
 
-      <div className="pointer-events-none absolute right-0 top-0 h-[calc(100%-10px)] w-20 bg-gradient-to-l from-white via-white/75 to-transparent xl:hidden" />
     </div>
   );
 }

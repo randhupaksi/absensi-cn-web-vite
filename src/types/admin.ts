@@ -94,8 +94,8 @@ export type AdminSubjectSchedule = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
-  room_id?: string;
-  room_name?: string;
+  class_id: string;
+  class_name: string;
   effective_from?: string;
   effective_until?: string;
   is_active: boolean;
@@ -105,7 +105,7 @@ export type AdminSubjectScheduleInput = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
-  room_id?: string;
+  class_id: string;
   effective_from?: string;
   effective_until?: string;
   is_active?: boolean;
@@ -207,8 +207,6 @@ export type AdminSubjectScheduleOverview = {
   hari: string;
   jam_mulai: string;
   jam_selesai: string;
-  room_id?: string;
-  room_name?: string;
   effective_from?: string;
   effective_until?: string;
   is_active: boolean;
@@ -296,28 +294,14 @@ export type AdminMajorPayload = {
   is_active: boolean;
 };
 
-export type AdminRoom = {
-  id: string;
-  school_unit_id: string;
-  school_unit_code: string;
-  code: string;
-  name: string;
-  room_type: string;
-  capacity: number;
-  is_active: boolean;
-};
-
-export type AdminRoomPayload = Omit<AdminRoom, "id" | "school_unit_code">;
-
 export type AdminScheduleOverride = {
   id: string;
   schedule_id: string;
   original_date: string;
-  override_type: "CANCELLED" | "RESCHEDULED" | "SUBSTITUTE" | "ROOM_CHANGED" | string;
+  override_type: "CANCELLED" | "RESCHEDULED" | "SUBSTITUTE" | string;
   replacement_date?: string;
   replacement_start_time?: string;
   replacement_end_time?: string;
-  replacement_room_id?: string;
   substitute_teacher_id?: string;
   reason: string;
   status: "ACTIVE" | "CANCELLED" | "APPLIED" | string;

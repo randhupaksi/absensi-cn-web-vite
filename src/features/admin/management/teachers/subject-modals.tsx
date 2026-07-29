@@ -52,7 +52,7 @@ const EMPTY_FORM: AdminTeacherSubjectAssignmentPayload = {
   schedules: [],
 };
 
-const EMPTY_SCHEDULE: AdminSubjectScheduleInput = { hari: "senin", jam_mulai: "", jam_selesai: "" };
+const EMPTY_SCHEDULE: AdminSubjectScheduleInput = { class_id: "", hari: "senin", jam_mulai: "", jam_selesai: "" };
 
 type SharedProps = {
   teacherProfiles: AdminTeacherProfile[];
@@ -152,7 +152,10 @@ export function TeacherSubjectAssignmentCreateModal({
     const nextErrors = validateTeacherSubjectAssignmentForm(form);
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      schedules: form.schedules?.map((schedule) => ({ ...schedule, class_id: form.class_id })),
+    });
   };
 
   const set = <K extends keyof AdminTeacherSubjectAssignmentPayload>(
@@ -226,7 +229,8 @@ export function TeacherSubjectAssignmentEditModal({
           class_id: assignment.class_id,
           school_year_id: assignment.school_year_id,
           is_active: assignment.is_active,
-          schedules: assignment.schedules?.map(({ hari, jam_mulai, jam_selesai }) => ({
+          schedules: assignment.schedules?.map(({ class_id, hari, jam_mulai, jam_selesai }) => ({
+            class_id: class_id || assignment.class_id,
             hari,
             jam_mulai,
             jam_selesai,
@@ -240,7 +244,10 @@ export function TeacherSubjectAssignmentEditModal({
     const nextErrors = validateTeacherSubjectAssignmentForm(form);
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
-    onSubmit(form);
+    onSubmit({
+      ...form,
+      schedules: form.schedules?.map((schedule) => ({ ...schedule, class_id: form.class_id })),
+    });
   };
 
   const set = <K extends keyof AdminTeacherSubjectAssignmentPayload>(

@@ -5,8 +5,6 @@ import { SubjectManagementSection } from "@/features/admin/management/subjects/s
 import {
   getAdminClasses,
   getAdminMajors,
-  getAdminRooms,
-  getAdminSchoolUnits,
   getAdminScheduleOverrides,
   getAdminSchoolYears,
   getAdminSubjects,
@@ -24,11 +22,9 @@ export function AdminSubjectsPage() {
   const classesQuery = useQuery({ queryKey: ["admin-classes"], queryFn: () => getAdminClasses() });
   const schoolYearsQuery = useQuery({ queryKey: ["admin-school-years"], queryFn: getAdminSchoolYears });
 	const programsQuery = useQuery({ queryKey: ["admin-majors"], queryFn: () => getAdminMajors() });
-	const roomsQuery = useQuery({ queryKey: ["admin-rooms"], queryFn: () => getAdminRooms() });
-	const unitsQuery = useQuery({ queryKey: ["admin-school-units"], queryFn: getAdminSchoolUnits });
 	const overridesQuery = useQuery({ queryKey: ["admin-schedule-overrides"], queryFn: () => getAdminScheduleOverrides() });
 
-  const queries = [subjectsQuery, schedulesQuery, assignmentsQuery, teachersQuery, classesQuery, schoolYearsQuery, programsQuery, roomsQuery, unitsQuery, overridesQuery];
+  const queries = [subjectsQuery, schedulesQuery, assignmentsQuery, teachersQuery, classesQuery, schoolYearsQuery, programsQuery, overridesQuery];
 
   return (
     <AdminShell>
@@ -41,9 +37,7 @@ export function AdminSubjectsPage() {
           classes={classesQuery.data ?? []}
           schoolYears={schoolYearsQuery.data ?? []}
 		  programs={programsQuery.data ?? []}
-		  rooms={roomsQuery.data ?? []}
 		  overrides={overridesQuery.data ?? []}
-		  schoolUnits={unitsQuery.data ?? []}
           isLoading={queries.some((query) => query.isLoading)}
           errorMessage={queries.find((query) => query.error)?.error?.message}
         />
