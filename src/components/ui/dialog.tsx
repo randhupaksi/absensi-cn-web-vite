@@ -7,12 +7,14 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function isRadixSelectLayer(target: EventTarget | null) {
-  return target instanceof Element && Boolean(target.closest("[data-radix-select-content]"))
+const selectLayerSelector = "[data-radix-select-content], [data-combobox-content]"
+
+function isSelectLayer(target: EventTarget | null) {
+  return target instanceof Element && Boolean(target.closest(selectLayerSelector))
 }
 
-function hasOpenRadixSelectLayer() {
-  return typeof document !== "undefined" && document.querySelector("[data-radix-select-content]") !== null
+function hasOpenSelectLayer() {
+  return typeof document !== "undefined" && document.querySelector(selectLayerSelector) !== null
 }
 
 function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
@@ -20,7 +22,7 @@ function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
 
   React.useEffect(() => {
     const rememberSelectDismissal = (event: Event) => {
-      if (!hasOpenRadixSelectLayer() || isRadixSelectLayer(event.target)) return
+      if (!hasOpenSelectLayer() || isSelectLayer(event.target)) return
 
       // On physical touch devices Radix can unmount the select before the
       // dialog receives its outside-press event. Remember this first tap so
@@ -52,12 +54,12 @@ function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
           // interaction even though it belongs to a field in this modal.
           const selectDismissalWasJustStarted = Date.now() - selectDismissalStartedAt.current < 750
           const selectIsHandlingOutsidePress = eventDetails.reason === "outside-press"
-            && (hasOpenRadixSelectLayer() || selectDismissalWasJustStarted)
+            && (hasOpenSelectLayer() || selectDismissalWasJustStarted)
 
           if (
             selectIsHandlingOutsidePress
-            || isRadixSelectLayer(eventDetails.event.target)
-            || isRadixSelectLayer(focusTarget)
+            || isSelectLayer(eventDetails.event.target)
+            || isSelectLayer(focusTarget)
           ) {
             selectDismissalStartedAt.current = 0
             eventDetails.cancel()

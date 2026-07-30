@@ -1,6 +1,7 @@
 "use client";
 
 import * as Select from "@radix-ui/react-select";
+import { ComboboxField } from "@/components/ui/combobox-field";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -29,11 +30,33 @@ type RadixSelectProps = {
 };
 
 export function RadixSelectField({
+  searchable,
+  ...props
+}: RadixSelectProps) {
+  if (searchable) {
+    return (
+      <ComboboxField
+        value={props.value}
+        onValueChange={props.onValueChange}
+        placeholder={props.placeholder}
+        options={props.options}
+        searchPlaceholder={props.searchPlaceholder}
+        emptyText={props.emptyText}
+        className={props.className}
+        contentClassName={props.contentClassName}
+        triggerClassName={props.triggerClassName}
+      />
+    );
+  }
+
+  return <RadixSelectFieldBase {...props} />;
+}
+
+function RadixSelectFieldBase({
   value,
   onValueChange,
   placeholder,
   options,
-  searchable = false,
   searchPlaceholder = "Cari data...",
   emptyText = "Tidak ditemukan.",
   className,
@@ -41,7 +64,8 @@ export function RadixSelectField({
   triggerClassName,
   hideIndicator = false,
   itemClassName,
-}: RadixSelectProps) {
+}: Omit<RadixSelectProps, "searchable">) {
+  const searchable = false;
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleOptionCount, setVisibleOptionCount] = useState(MAX_RENDERED_OPTIONS);

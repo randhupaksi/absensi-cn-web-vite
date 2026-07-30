@@ -102,6 +102,7 @@ export function ComboboxField({
       </PopoverTrigger>
 
       <PopoverContent
+        data-combobox-content
         align="start"
         sideOffset={8}
         className={cn(
