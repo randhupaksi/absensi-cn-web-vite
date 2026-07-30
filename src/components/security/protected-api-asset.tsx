@@ -8,7 +8,7 @@ import { useEffect, useState, type ImgHTMLAttributes } from "react";
 function isProtectedUpload(value: string) {
   try {
     const resolved = new URL(resolveApiAssetUrl(value));
-    const api = new URL(apiClient.defaults.baseURL ?? window.location.origin);
+    const api = new URL(apiClient.defaults.baseURL ?? window.location.origin, window.location.origin);
     return resolved.origin === api.origin && resolved.pathname.startsWith("/uploads/");
   } catch {
     return false;
