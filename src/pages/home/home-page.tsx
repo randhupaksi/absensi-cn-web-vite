@@ -575,6 +575,9 @@ export default function HomePage() {
 
           <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/56 sm:mt-8 sm:pt-6 sm:text-sm">
             <p>2026@ SEKOLAH CITRA NEGARA ALL RIGHT RESERVED</p>
+            <p className="mt-1">
+              Dikembangkan oleh Randhu Paksi Membumi
+            </p>
           </div>
         </div>
       </footer>
