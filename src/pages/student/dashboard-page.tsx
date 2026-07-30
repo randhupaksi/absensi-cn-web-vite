@@ -76,6 +76,7 @@ export function StudentDashboardPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const photoPreviewRef = useRef("");
   const locationCaptureSequenceRef = useRef(0);
+  const hasRequestedInitialLocationRef = useRef(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState("");
@@ -128,6 +129,16 @@ export function StudentDashboardPage() {
     },
     [],
   );
+
+  useEffect(() => {
+    if (hasRequestedInitialLocationRef.current) return;
+    hasRequestedInitialLocationRef.current = true;
+
+    // Ask once as soon as the student dashboard is available. Requesting it
+    // after the login API has resolved can lose the browser's permission flow
+    // on mobile; requesting it here lets the native prompt appear on entry.
+    void captureAttendanceLocation();
+  }, []);
 
   const dashboard = dashboardQuery.data;
   const today = dashboard?.today;

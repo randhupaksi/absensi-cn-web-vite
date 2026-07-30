@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { getDashboardPathForUser, saveAuthSession } from "@/lib/auth";
 import { loginSchema, type LoginSchema, type PortalType } from "@/lib/validations/login-schema";
 import { login, type AuthLoginResponse } from "@/services/auth.service";
-import { captureAttendanceLocation } from "@/lib/location/capture-attendance-location";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -85,14 +84,6 @@ export function LoginForm({ portal }: LoginFormProps) {
       toast.success("Berhasil masuk", {
         description: `Selamat datang, ${response.user.name}.`,
       });
-
-      // Request location while the successful login interaction is still active.
-      // This lets the browser show its native permission prompt before students
-      // reach the attendance dashboard. The result is captured again when a
-      // photo is ready, so only that fresh location is submitted as evidence.
-      if (response.user.role === "STUDENT") {
-        await captureAttendanceLocation();
-      }
 
       if (typeof window !== "undefined") {
         window.location.replace(getDashboardPathForUser(response.user));
