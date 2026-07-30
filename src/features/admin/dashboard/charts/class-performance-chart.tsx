@@ -27,13 +27,13 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
   return (
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <p className="text-xl font-semibold text-slate-950">Kehadiran Terbaik</p>
           <p className="mt-1 text-sm text-slate-500">
             Kelas dengan performa kehadiran paling stabil
           </p>
         </div>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
           Bulanan
         </span>
       </div>

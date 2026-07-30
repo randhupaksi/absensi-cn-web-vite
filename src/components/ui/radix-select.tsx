@@ -100,6 +100,7 @@ export function RadixSelectField({
 
       <Select.Portal>
         <Select.Content
+          data-radix-select-content
           position="popper"
           sideOffset={8}
           className={cn(

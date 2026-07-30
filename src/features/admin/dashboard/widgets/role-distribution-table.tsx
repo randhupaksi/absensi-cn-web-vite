@@ -23,13 +23,13 @@ export function RoleDistributionTable({
   return (
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <p className="text-xl font-semibold text-slate-950">Akun dan Penugasan Sistem</p>
           <p className="mt-1 text-sm text-slate-500">
             Komposisi role akun serta capability BK yang aktif di sistem
           </p>
         </div>
-        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
           {totalUsers} akun
         </span>
       </div>

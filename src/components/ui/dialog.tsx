@@ -7,8 +7,44 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+function isRadixSelectLayer(target: EventTarget | null) {
+  return target instanceof Element && Boolean(target.closest("[data-radix-select-content]"))
+}
+
+function hasOpenRadixSelectLayer() {
+  return typeof document !== "undefined" && document.querySelector("[data-radix-select-content]") !== null
+}
+
+function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
+  return (
+    <DialogPrimitive.Root
+      data-slot="dialog"
+      {...props}
+      onOpenChange={(open, eventDetails) => {
+        if (!open && (eventDetails.reason === "outside-press" || eventDetails.reason === "focus-out")) {
+          const focusTarget = eventDetails.event instanceof FocusEvent
+            ? eventDetails.event.relatedTarget
+            : null
+
+          // Radix Select renders its menu in a portal. From the dialog's DOM
+          // boundary, a tap or focus inside that menu looks like an outside
+          // interaction even though it belongs to a field in this modal.
+          const selectIsHandlingOutsidePress = eventDetails.reason === "outside-press" && hasOpenRadixSelectLayer()
+
+          if (
+            selectIsHandlingOutsidePress
+            || isRadixSelectLayer(eventDetails.event.target)
+            || isRadixSelectLayer(focusTarget)
+          ) {
+            eventDetails.cancel()
+            return
+          }
+        }
+
+        onOpenChange?.(open, eventDetails)
+      }}
+    />
+  )
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
@@ -31,7 +67,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs",
         className
       )}
       {...props}
@@ -53,7 +89,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none sm:max-w-sm",
           className
         )}
         {...props}
