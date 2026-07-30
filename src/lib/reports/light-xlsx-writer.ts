@@ -401,7 +401,21 @@ function renderBorder(border: Borders) { const render = (name: keyof Borders) =>
 function customFormatId(formats: Map<string, number>, value: string) { const existing = formats.get(value); if (existing) return existing; const id = 164 + formats.size; formats.set(value, id); return id; }
 function builtInFormat(value: string) { return ({ "0": 1, "#,##0": 3, "0%": 9 } as Record<string, number>)[value]; }
 function normalizeColor(value: string) { return value.length === 8 ? value.slice(2) : value; }
-function excelDateSerial(value: Date) { return Math.round((value.getTime() - Date.UTC(1899, 11, 30)) / 86400000 * 100000) / 100000; }
+function excelDateSerial(value: Date) {
+  // Excel date serials do not carry timezone data. Use the date/time the
+  // school user sees in the browser (WIB), instead of the source UTC instant.
+  // Otherwise 14:20 WIB would be exported as 07:20 in Excel.
+  const localWallClock = Date.UTC(
+    value.getFullYear(),
+    value.getMonth(),
+    value.getDate(),
+    value.getHours(),
+    value.getMinutes(),
+    value.getSeconds(),
+    value.getMilliseconds(),
+  );
+  return Math.round((localWallClock - Date.UTC(1899, 11, 30)) / 86400000 * 100000) / 100000;
+}
 function cellAddress(row: number, column: number) { let value = column; let letters = ""; while (value > 0) { const remainder = (value - 1) % 26; letters = String.fromCharCode(65 + remainder) + letters; value = Math.floor((value - 1) / 26); } return letters + row; }
 function xmlEscape(value: string) {
   const safeValue = Array.from(value).filter((character) => {

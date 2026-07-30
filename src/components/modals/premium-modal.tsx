@@ -34,7 +34,10 @@ export const premiumModalSurfaceClassName =
   "rounded-[1.45rem] border border-emerald-200/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(240,253,244,0.88)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]";
 
 export const premiumModalActionsClassName =
-  "relative mt-6 flex flex-row items-center justify-between gap-2 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] sm:gap-3";
+  "relative mt-6 flex flex-row items-center justify-between gap-2 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] sm:justify-end sm:gap-3";
+
+export const premiumModalSubmitButtonClassName =
+  "h-12 rounded-[1.1rem] !bg-emerald-700 px-5 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:!bg-emerald-800 active:scale-[0.96] active:!bg-emerald-900";
 
 export function PremiumModal({
   open,

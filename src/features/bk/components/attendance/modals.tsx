@@ -14,6 +14,7 @@ import {
   premiumModalFieldClassName,
   premiumModalHelperClassName,
   premiumModalLabelClassName,
+  premiumModalSubmitButtonClassName,
 } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
 import { ProtectedApiImage } from "@/components/security/protected-api-asset";
@@ -174,7 +175,7 @@ export function AttendanceReviewModal({
           </Button>
           <Button
             type="button"
-            className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white hover:bg-emerald-800"
+            className={premiumModalSubmitButtonClassName}
             disabled={isPending}
             onClick={handleSubmit}
           >

@@ -56,7 +56,7 @@ export function ReportModalFooter({
         className={cn(
           "inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] px-6 text-[0.88rem] font-semibold text-white transition-all duration-200",
           canDownload && !generating
-            ? "bg-emerald-600 shadow-[0_4px_14px_rgba(5,150,105,0.3)] hover:-translate-y-px hover:bg-emerald-700 hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)]"
+            ? "!bg-emerald-600 shadow-[0_4px_14px_rgba(5,150,105,0.3)] hover:-translate-y-px hover:!bg-emerald-700 hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)] active:!bg-emerald-800"
             : "cursor-not-allowed bg-slate-300",
         )}
       >
