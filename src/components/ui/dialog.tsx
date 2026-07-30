@@ -16,6 +16,27 @@ function hasOpenRadixSelectLayer() {
 }
 
 function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
+  const selectDismissalStartedAt = React.useRef(0)
+
+  React.useEffect(() => {
+    const rememberSelectDismissal = (event: Event) => {
+      if (!hasOpenRadixSelectLayer() || isRadixSelectLayer(event.target)) return
+
+      // On physical touch devices Radix can unmount the select before the
+      // dialog receives its outside-press event. Remember this first tap so
+      // it can be reserved for closing the select instead of the modal.
+      selectDismissalStartedAt.current = Date.now()
+    }
+
+    document.addEventListener("pointerdown", rememberSelectDismissal, true)
+    document.addEventListener("touchstart", rememberSelectDismissal, true)
+
+    return () => {
+      document.removeEventListener("pointerdown", rememberSelectDismissal, true)
+      document.removeEventListener("touchstart", rememberSelectDismissal, true)
+    }
+  }, [])
+
   return (
     <DialogPrimitive.Root
       data-slot="dialog"
@@ -29,13 +50,16 @@ function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
           // Radix Select renders its menu in a portal. From the dialog's DOM
           // boundary, a tap or focus inside that menu looks like an outside
           // interaction even though it belongs to a field in this modal.
-          const selectIsHandlingOutsidePress = eventDetails.reason === "outside-press" && hasOpenRadixSelectLayer()
+          const selectDismissalWasJustStarted = Date.now() - selectDismissalStartedAt.current < 750
+          const selectIsHandlingOutsidePress = eventDetails.reason === "outside-press"
+            && (hasOpenRadixSelectLayer() || selectDismissalWasJustStarted)
 
           if (
             selectIsHandlingOutsidePress
             || isRadixSelectLayer(eventDetails.event.target)
             || isRadixSelectLayer(focusTarget)
           ) {
+            selectDismissalStartedAt.current = 0
             eventDetails.cancel()
             return
           }
@@ -138,7 +162,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse justify-end gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row",
+        "-mx-4 -mb-4 flex flex-row items-center justify-between gap-2 rounded-b-xl border-t bg-muted/50 p-4",
         className
       )}
       {...props}
