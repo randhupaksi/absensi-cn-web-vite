@@ -14,7 +14,11 @@ export async function compressUploadImage(file: File): Promise<File> {
   }
 
   if (file.size <= TARGET_IMAGE_BYTES) {
-    return file;
+    const normalizedFile = await normalizeImageOrientation(file);
+    if (normalizedFile.size <= MAX_UPLOAD_IMAGE_BYTES) {
+      return normalizedFile;
+    }
+    return compressUploadImage(normalizedFile);
   }
 
   const image = await loadImageSource(file);
@@ -44,6 +48,17 @@ export async function compressUploadImage(file: File): Promise<File> {
     }
 
     throw new Error("Foto tidak dapat dikompres hingga batas 300 KB. Silakan ambil ulang foto dengan pencahayaan yang lebih baik.");
+  } finally {
+    image.cleanup();
+  }
+}
+
+async function normalizeImageOrientation(file: File): Promise<File> {
+  const image = await loadImageSource(file);
+  try {
+    const canvas = renderImageToCanvas(image.source, image.width, image.height, MAX_DIMENSION_STEPS[0]);
+    const blob = await canvasToJpegBlob(canvas, 0.92);
+    return blob ? createCompressedFile(file, blob) : file;
   } finally {
     image.cleanup();
   }
