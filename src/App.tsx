@@ -29,6 +29,7 @@ const WalasSubmissionsPage = lazy(() => import("@/pages/teacher/homeroom/submiss
 const MapelHistoryPage = lazy(() => import("@/pages/teacher/subject/history-page").then((module) => ({ default: module.MapelHistoryPage })));
 const MapelRecapPage = lazy(() => import("@/pages/teacher/subject/recap-page").then((module) => ({ default: module.MapelRecapPage })));
 const MapelSessionPage = lazy(() => import("@/pages/teacher/subject/session-page").then((module) => ({ default: module.MapelSessionPage })));
+const DevFixLogPage = lazy(() => import("@/pages/dev/fix-log-page").then((module) => ({ default: module.DevFixLogPage })));
 
 function PageBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -100,6 +101,7 @@ export default function App() {
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />
+          <Route path="/deveran" element={<DevFixLogPage />} />
           <Route path="/login" element={<Navigate replace to="/login/student" />} />
           <Route path="/login/student" element={<LoginRoute portal="student" />} />
           <Route path="/login/staff" element={<LoginRoute portal="staff" />} />

@@ -139,6 +139,51 @@ export function StudentDashboardPage() {
     void captureAttendanceLocation();
   }, []);
 
+  useEffect(() => {
+    if (!modalOpen || typeof navigator === "undefined" || !navigator.permissions) return;
+
+    let cancelled = false;
+    let permissionStatus: PermissionStatus | null = null;
+    let permissionChangeHandler: (() => void) | null = null;
+
+    void navigator.permissions
+      .query({ name: "geolocation" })
+      .then((status) => {
+        if (cancelled) return;
+        permissionStatus = status;
+        permissionChangeHandler = () => {
+          if (!cancelled && status.state === "granted" && locationState !== "loading") {
+            void refreshAttendanceLocation();
+          }
+        };
+        status.addEventListener("change", permissionChangeHandler);
+      })
+      .catch(() => {
+        // Safari versions without a usable Permissions API still support the
+      // explicit retry button and visibility fallback below.
+      });
+
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        !cancelled &&
+        locationResult?.outcome === "permission_denied" &&
+        locationState !== "loading"
+      ) {
+        void refreshAttendanceLocation();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      if (permissionStatus && permissionChangeHandler) {
+        permissionStatus.removeEventListener("change", permissionChangeHandler);
+      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [modalOpen, locationResult?.outcome, locationState]);
+
   const dashboard = dashboardQuery.data;
   const today = dashboard?.today;
   const stats = dashboard?.stats;
