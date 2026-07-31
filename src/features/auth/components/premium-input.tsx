@@ -35,7 +35,7 @@ export function PremiumInput({
             : "0 10px 24px rgba(16, 24, 40, 0.05)",
       }}
       transition={{ type: "spring", stiffness: 250, damping: 24 }}
-      className="group relative rounded-[1.2rem]"
+      className="group relative isolate rounded-[1.2rem]"
     >
       <motion.div
         className="pointer-events-none absolute inset-0 rounded-[1.2rem]"
@@ -81,7 +81,7 @@ export function PremiumInput({
           onPointerLeave?.(event);
         }}
         className={cn(
-          "h-12 rounded-[1.2rem] border border-white/60 bg-white/76 pl-11 text-[14px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] backdrop-blur-md transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white/88 focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55",
+          "relative z-[1] h-12 appearance-none rounded-[1.2rem] border border-white/60 bg-white/76 pl-11 text-[14px] text-slate-700 caret-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] backdrop-blur-md transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white/88 focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55",
           trailing ? "pr-12" : "",
           className,
         )}
