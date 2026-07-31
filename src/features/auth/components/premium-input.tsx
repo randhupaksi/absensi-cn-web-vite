@@ -23,10 +23,11 @@ export function PremiumInput({
 }: PremiumInputProps) {
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const isPassword = props.type === "password";
 
   return (
     <motion.div
-      animate={{
+      animate={isPassword ? { y: 0, boxShadow: "none" } : {
         y: focused ? -2 : hovered ? -1 : 0,
         boxShadow: focused
           ? "0 24px 54px rgba(36, 140, 103, 0.16)"
@@ -37,22 +38,26 @@ export function PremiumInput({
       transition={{ type: "spring", stiffness: 250, damping: 24 }}
       className="group relative isolate rounded-[1.2rem]"
     >
-      <motion.div
-        className="pointer-events-none absolute inset-0 rounded-[1.2rem]"
-        animate={{
-          opacity: focused ? 1 : hovered ? 0.86 : 0.42,
-          boxShadow: focused
-            ? "inset 0 0 0 1px rgba(94, 198, 146, 0.9)"
-            : hovered
-              ? "inset 0 0 0 1px rgba(94, 198, 146, 0.55)"
-              : "inset 0 0 0 1px rgba(255,255,255,0.6)",
-        }}
-        transition={{ duration: 0.24, ease: "easeOut" }}
-      />
-      <motion.div
-        className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"
-        animate={{ opacity: focused ? 1 : hovered ? 0.82 : 0.48 }}
-      />
+      {!isPassword ? (
+        <>
+          <motion.div
+            className="pointer-events-none absolute inset-0 rounded-[1.2rem]"
+            animate={{
+              opacity: focused ? 1 : hovered ? 0.86 : 0.42,
+              boxShadow: focused
+                ? "inset 0 0 0 1px rgba(94, 198, 146, 0.9)"
+                : hovered
+                  ? "inset 0 0 0 1px rgba(94, 198, 146, 0.55)"
+                  : "inset 0 0 0 1px rgba(255,255,255,0.6)",
+            }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+          />
+          <motion.div
+            className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"
+            animate={{ opacity: focused ? 1 : hovered ? 0.82 : 0.48 }}
+          />
+        </>
+      ) : null}
       <motion.div
         animate={{
           scale: focused ? 1.12 : hovered ? 1.06 : 1,

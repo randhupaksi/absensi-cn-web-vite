@@ -46,7 +46,6 @@ import {
   BadgeCheck,
   Camera,
   CheckCircle2,
-  Clock,
   FileImage,
   FileText,
   History,
@@ -175,6 +174,10 @@ export function StudentDashboardPage() {
   function handleStartAttendance() {
     if (!canSubmit) return;
     if (isMobileDevice()) {
+      // iOS may not fire `change` when the same photo is picked again. Clear
+      // the file input before each user gesture so every attempt can reopen
+      // the native camera/photo picker reliably.
+      if (inputRef.current) inputRef.current.value = "";
       inputRef.current?.click();
     } else {
       setCameraModalOpen(true);
@@ -299,7 +302,7 @@ export function StudentDashboardPage() {
             type="file"
             accept="image/*"
             capture="environment"
-            className="hidden"
+            className="absolute left-0 top-0 size-px opacity-0"
             onChange={(event) => void handlePhotoPicked(event.target.files?.[0])}
           />
 
