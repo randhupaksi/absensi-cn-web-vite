@@ -8,8 +8,8 @@ type AppShellProps = {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-transparent">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl gap-6 px-4 py-4 lg:px-6">
+    <div className="min-h-[100svh] bg-transparent supports-[min-height:100dvh]:min-h-[100dvh]">
+      <div className="mx-auto flex min-h-[100svh] w-full max-w-7xl gap-6 px-4 py-4 supports-[min-height:100dvh]:min-h-[100dvh] lg:px-6">
         <SidebarNav />
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <Topbar />

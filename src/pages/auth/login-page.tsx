@@ -15,8 +15,8 @@ export default function LoginPage({ portal }: LoginPageProps) {
     <main
       className={
         isStaffPortal
-          ? "relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e7f6f1_28%,#d8efe9_64%,#edf7f3_100%)]"
-          : "relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f4fbf7_0%,#e6f6ee_30%,#d7efe3_65%,#edf7f3_100%)]"
+          ? "relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e7f6f1_28%,#d8efe9_64%,#edf7f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]"
+          : "relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f4fbf7_0%,#e6f6ee_30%,#d7efe3_65%,#edf7f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]"
       }
     >
       <AnimatedBackground />
@@ -25,7 +25,7 @@ export default function LoginPage({ portal }: LoginPageProps) {
         label="Kembali ke beranda"
         className="absolute left-5 top-4 z-20 lg:hidden sm:left-6 sm:top-5"
       />
-      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 py-6 sm:px-6 lg:px-10">
+      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-7xl items-center px-5 py-6 supports-[min-height:100dvh]:min-h-[100dvh] sm:px-6 lg:px-10">
         <div
           className={
             isStaffPortal

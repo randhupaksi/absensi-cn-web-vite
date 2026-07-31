@@ -165,6 +165,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           id="password"
           icon={LockKeyhole}
           type={showPassword ? "text" : "password"}
+          autoComplete="current-password"
           placeholder="Masukkan Password"
           trailing={
             <button
