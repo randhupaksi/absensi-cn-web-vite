@@ -240,7 +240,7 @@ input[type="submit"]:not(:disabled):not([aria-disabled="true"]),
  * It never changes their color or selected state, so each feature keeps its
  * existing hierarchy while still feeling responsive on touch screens.
  */
-@media (prefers-reduced-motion: no-preference) {
+@media (hover: none) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
   button:not([data-slot="button"]):not([data-press-managed]):not(:disabled):not([aria-disabled="true"]),
   a[href]:not([data-slot="button"]):not([data-press-managed]):not([aria-disabled="true"]),
   [role="button"]:not([data-press-managed]):not([aria-disabled="true"]):not([data-disabled]),

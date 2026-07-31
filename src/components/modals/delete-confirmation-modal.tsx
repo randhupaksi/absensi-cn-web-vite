@@ -72,10 +72,10 @@ export function DeleteConfirmationModal({
           </button>
         </div>
 
-        <div className="flex flex-row items-center justify-between gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:justify-end sm:px-6">
+        <div className="flex flex-row items-center justify-between gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:justify-end sm:px-6 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none">
           <button
             type="button"
-            className="inline-flex h-11 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 active:shadow-inner disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 active:shadow-inner disabled:cursor-not-allowed disabled:opacity-60 sm:px-5"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
@@ -83,7 +83,7 @@ export function DeleteConfirmationModal({
           </button>
           <AsyncButton
             type="button"
-            className="inline-flex h-11 items-center justify-center rounded-[0.95rem] bg-red-500 px-5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(239,68,68,0.24)] transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] bg-red-500 px-3 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(239,68,68,0.24)] transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70 sm:px-5"
             onClick={onConfirm}
             isPending={isPending}
             pendingLabel="Menghapus..."

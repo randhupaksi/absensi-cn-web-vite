@@ -194,7 +194,7 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
       </section>
 
       {hasSubjectAssignments && (
-        <section className="grid items-start gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <ActiveSessionCard
             session={activeSession}
             isLoading={activeSessionQuery.isLoading}
@@ -206,7 +206,7 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
       )}
 
       {(isHomeroomTeacher || hasBKScope) && (
-        <section className="grid items-start gap-5 xl:grid-cols-2">
+        <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           {isHomeroomTeacher && (
             <AttentionCard
               title="Prioritas Kelas Walas"

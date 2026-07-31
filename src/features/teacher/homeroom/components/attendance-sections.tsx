@@ -179,9 +179,6 @@ export function AttendanceTableSection({
                 {formatFriendlyDate(overview.date)}.
               </p>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-              {overview.records.length} record
-            </span>
           </div>
         </div>
 

@@ -17,4 +17,16 @@ export default defineConfig({
     target: "es2020",
     chunkSizeWarningLimit: 600,
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://absensmk.citranegara.online",
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          origin: "https://absensmk.citranegara.online",
+        },
+      },
+    },
+  },
 });

@@ -73,7 +73,6 @@ import {
   GraduationCap,
   LayoutPanelTop,
   ShieldCheck,
-  Printer,
   TimerReset,
   UsersRound,
 } from "lucide-react";
@@ -82,11 +81,6 @@ import { toast } from "sonner";
 
 const ImportExcelModal = dynamic(
   () => import("@/components/modals/import-excel-modal").then((module) => module.ImportExcelModal),
-  { ssr: false },
-);
-
-const SiswaReportModal = dynamic(
-  () => import("@/features/reports/admin/students-report-modal").then((module) => module.SiswaReportModal),
   { ssr: false },
 );
 
@@ -124,7 +118,6 @@ export function StudentSection({
   const [activeTab, setActiveTab] = useState<StudentTab>("profiles");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
-  const [reportModalOpen, setReportModalOpen] = useState(false);
   const [membershipModalOpen, setMembershipModalOpen] = useState(false);
   const [ruleModalOpen, setRuleModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<AdminStudent | null>(null);
@@ -501,18 +494,6 @@ export function StudentSection({
                 </Button>
               )}
 
-              {(activeTab === "profiles" || activeTab === "memberships") && (
-                <Button
-                  variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-violet-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,243,255,0.98)_100%)] px-2 text-[11px] font-semibold text-violet-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-violet-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(237,233,254,1)_100%)] hover:text-violet-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                  onClick={() => setReportModalOpen(true)}
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_20px_rgba(124,58,237,0.2)] sm:size-8">
-                    <Printer className="size-4" />
-                  </span>
-                  Export Laporan
-                </Button>
-              )}
             </div>
           </div>
 
@@ -829,14 +810,6 @@ export function StudentSection({
             void queryClient.invalidateQueries({ queryKey: ["admin-students"] });
             void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
           }}
-        />
-      )}
-
-      {reportModalOpen && (
-        <SiswaReportModal
-          open={reportModalOpen}
-          onOpenChange={setReportModalOpen}
-          students={students}
         />
       )}
 

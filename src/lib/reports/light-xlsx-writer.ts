@@ -20,7 +20,7 @@ type Tone = { fill: string; text: string; border: string };
 type Font = { name?: string; size?: number; bold?: boolean; italic?: boolean; color?: string };
 type Side = { style: string; color: string };
 type Borders = { top?: Side; bottom?: Side; left?: Side; right?: Side };
-type Alignment = { horizontal?: string; vertical?: string; wrapText?: boolean };
+type Alignment = { horizontal?: string; vertical?: string; wrapText?: boolean; indent?: number };
 type Style = { font?: Font; fill?: string; border?: Borders; alignment?: Alignment; numberFormat?: string };
 type Cell = { value: ExcelReportValue; style: Style };
 type Sheet = {
@@ -394,7 +394,8 @@ function renderCell(row: number, column: number, cell: Cell, styleId: number, st
 
 function renderXf(font: number, fill: number, border: number, numberFormat: number, alignment: Alignment) {
   const horizontal = alignment.horizontal === "middle" ? "center" : alignment.horizontal; const vertical = alignment.vertical === "middle" ? "center" : alignment.vertical;
-  const alignmentXml = horizontal || vertical || alignment.wrapText ? "<alignment" + (horizontal ? " horizontal=\"" + horizontal + "\"" : "") + (vertical ? " vertical=\"" + vertical + "\"" : "") + (alignment.wrapText ? " wrapText=\"1\"" : "") + "/>" : "";
+  const indent = alignment.indent ?? (horizontal === "left" ? 1 : undefined);
+  const alignmentXml = horizontal || vertical || alignment.wrapText || indent !== undefined ? "<alignment" + (horizontal ? " horizontal=\"" + horizontal + "\"" : "") + (vertical ? " vertical=\"" + vertical + "\"" : "") + (alignment.wrapText ? " wrapText=\"1\"" : "") + (indent !== undefined ? " indent=\"" + indent + "\"" : "") + "/>" : "";
   return "<xf numFmtId=\"" + numberFormat + "\" fontId=\"" + font + "\" fillId=\"" + fill + "\" borderId=\"" + border + "\" applyFont=\"1\" applyFill=\"" + (fill ? 1 : 0) + "\" applyBorder=\"" + (border ? 1 : 0) + "\" applyAlignment=\"" + (alignmentXml ? 1 : 0) + "\">" + alignmentXml + "</xf>";
 }
 function renderBorder(border: Borders) { const render = (name: keyof Borders) => { const value = border[name]; return value ? "<" + name + " style=\"" + value.style + "\"><color rgb=\"FF" + normalizeColor(value.color) + "\"/></" + name + ">" : "<" + name + "/>"; }; return "<border>" + render("left") + render("right") + render("top") + render("bottom") + "<diagonal/></border>"; }
