@@ -31,6 +31,7 @@ import { RadixSelectField } from "@/components/ui/radix-select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { SubjectFormValues, TeachingAssignmentFormValues } from "@/lib/validations/subject-schema";
 import type { ScheduleOverrideFormValues } from "@/lib/validations/academic-operations-schema";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import {
   createAdminSubject,
   createAdminTeacherSubjectAssignment,
@@ -387,7 +388,7 @@ export function SubjectManagementSection({
               <RadixSelectField value={schoolYearFilter} onValueChange={setSchoolYearFilter} placeholder="Semua tahun ajaran" options={[{ value: "all", label: "Semua tahun ajaran" }, ...schoolYears.map((y) => ({ value: y.id, label: y.name }))]} triggerClassName="h-12 rounded-[18px]" />
               <RadixSelectField value={teacherFilter} onValueChange={setTeacherFilter} placeholder="Semua guru" searchable searchPlaceholder="Cari nama guru..." emptyText="Guru tidak ditemukan." options={[{ value: "all", label: "Semua guru" }, ...teachers.map((t) => ({ value: t.id, label: t.name }))]} triggerClassName="h-12 rounded-[18px]" />
               <RadixSelectField value={subjectFilter} onValueChange={setSubjectFilter} placeholder="Semua mapel" options={[{ value: "all", label: "Semua mapel" }, ...subjects.map((s) => ({ value: s.id, label: s.name, description: s.code }))]} triggerClassName="h-12 rounded-[18px]" />
-              <RadixSelectField value={classFilter} onValueChange={setClassFilter} placeholder="Semua kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={[{ value: "all", label: "Semua kelas" }, ...classes.map((c) => ({ value: c.id, label: c.display_name }))]} triggerClassName="h-12 rounded-[18px]" />
+              <RadixSelectField value={classFilter} onValueChange={setClassFilter} placeholder="Semua kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={[{ value: "all", label: "Semua kelas" }, ...classes.map((c) => ({ value: c.id, label: getClassDisplayName(c) }))]} triggerClassName="h-12 rounded-[18px]" />
             </div>
           )}
 

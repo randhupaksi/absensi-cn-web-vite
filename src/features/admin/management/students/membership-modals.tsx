@@ -7,6 +7,7 @@ import { ComboboxField } from "@/components/ui/combobox-field";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import type {
   AdminClass,
   AdminSchoolYear,
@@ -193,7 +194,7 @@ function ClassPlacementFields({
       .sort(compareClasses)
       .map((item) => ({
         value: item.id,
-        label: item.display_name,
+        label: getClassDisplayName(item),
         description: `${item.major_name} · ${item.school_year_name}`,
       })),
     [selectedMajorId, selectedUnitId, yearClasses],

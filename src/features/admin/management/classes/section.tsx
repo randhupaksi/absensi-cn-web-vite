@@ -31,6 +31,7 @@ import { RadixSelectField } from "@/components/ui/radix-select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { createAdminClass, deleteAdminClass, updateAdminClass } from "@/services/admin.service";
 import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, Network, School } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -132,7 +133,7 @@ export function ClassManagementSection({
       const matchesMajor = majorFilter === "all" || item.major_id === majorFilter;
       const matchesQuery =
         normalized.length === 0 ||
-        item.display_name.toLowerCase().includes(normalized) ||
+        getClassDisplayName(item).toLowerCase().includes(normalized) ||
         item.major_name.toLowerCase().includes(normalized) ||
         item.school_year_name.toLowerCase().includes(normalized) ||
         (item.homeroom_teacher_name ?? "").toLowerCase().includes(normalized);
@@ -325,7 +326,7 @@ export function ClassManagementSection({
                           {item.grade}
                         </span>
                       }
-                      title={item.display_name}
+                      title={getClassDisplayName(item)}
                       subtitle={`${item.major_code} - ${item.school_year_name}`}
                       badge={
                         <Badge variant="outline" className={item.is_active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"}>
@@ -380,7 +381,7 @@ export function ClassManagementSection({
                           {item.grade}
                         </span>
                         <div>
-                          <p className="font-semibold text-slate-800">{item.display_name}</p>
+                          <p className="font-semibold text-slate-800">{getClassDisplayName(item)}</p>
                           {item.class_type ? <p className="text-xs font-medium text-emerald-700">{item.class_type}</p> : null}
                         </div>
                       </div>
@@ -478,7 +479,7 @@ export function ClassManagementSection({
         title="Hapus Kelas?"
         description={
           deleteTarget
-            ? `Kelas "${deleteTarget.display_name}" akan dihapus bersama relasi walas, mapel, membership siswa, dan record absensi terkait.`
+            ? `Kelas "${getClassDisplayName(deleteTarget)}" akan dihapus bersama relasi walas, mapel, membership siswa, dan record absensi terkait.`
             : ""
         }
         onOpenChange={(open) => {

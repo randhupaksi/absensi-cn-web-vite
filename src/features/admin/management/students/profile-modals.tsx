@@ -6,6 +6,7 @@ import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { createStudentProfileSchema, editStudentProfileSchema, type StudentProfileFormValues } from "@/lib/validations/student-profile-schema";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import type { AdminClass, AdminStudent, AdminStudentPayload } from "@/types/admin";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FilePenLine, UsersRound } from "lucide-react";
@@ -86,7 +87,7 @@ function StudentFormModal({ open, onOpenChange, title, description, icon, form, 
       .sort(compareClasses)
       .map((item) => ({
         value: item.id,
-        label: item.display_name,
+        label: getClassDisplayName(item),
         description: `${item.major_name} · ${item.school_year_name}`,
       })),
     [activeClasses, selectedMajorId, selectedUnitId],

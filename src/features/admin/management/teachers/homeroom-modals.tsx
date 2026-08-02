@@ -5,6 +5,7 @@ import { PremiumModal } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import type {
   AdminClass,
   AdminHomeroomAssignment,
@@ -114,7 +115,7 @@ export function HomeroomAssignmentCreateModal({
               emptyText="Kelas tidak ditemukan."
               options={classes.map((c) => ({
                 value: c.id,
-                label: c.display_name,
+                label: getClassDisplayName(c),
                 description: c.school_year_name,
               }))}
             />
@@ -226,7 +227,7 @@ export function HomeroomAssignmentEditModal({
               emptyText="Kelas tidak ditemukan."
               options={classes.map((c) => ({
                 value: c.id,
-                label: c.display_name,
+                label: getClassDisplayName(c),
                 description: c.school_year_name,
               }))}
             />

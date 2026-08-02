@@ -5,6 +5,7 @@ import { PremiumModal } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import type {
   AdminClass,
   AdminSchoolYear,
@@ -185,7 +186,7 @@ export function TeacherSubjectAssignmentCreateModal({
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
+            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: getClassDisplayName(c), description: c.school_year_name }))} />
             <FieldError message={errors.class_id} />
           </FieldGroup>
           <FieldGroup label="Tahun Ajaran">
@@ -273,7 +274,7 @@ export function TeacherSubjectAssignmentEditModal({
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: c.display_name, description: c.school_year_name }))} />
+          <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: getClassDisplayName(c), description: c.school_year_name }))} />
             <FieldError message={errors.class_id} />
           </FieldGroup>
           <FieldGroup label="Tahun Ajaran">

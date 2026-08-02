@@ -116,7 +116,7 @@ function RadixSelectFieldBase({
           className,
         )}
       >
-        <Select.Value placeholder={placeholder} />
+        <Select.Value className="min-w-0 flex-1 truncate" placeholder={placeholder} />
         <Select.Icon className="text-slate-400 transition group-data-[state=open]:rotate-180">
           <ChevronDown className="size-4" />
         </Select.Icon>
@@ -163,7 +163,7 @@ function RadixSelectFieldBase({
             ) : null}
             {renderedOptions.map(({ option }) => (
               <SelectItem key={option.value} value={option.value} hideIndicator={hideIndicator} className={itemClassName}>
-                <div className="min-w-0">
+                <div className="w-0 min-w-0 flex-1">
                   <p className="truncate font-medium text-slate-700">{option.label}</p>
                   {option.description ? (
                     <p className="truncate text-xs text-slate-400">
@@ -218,7 +218,7 @@ function SelectItem({
         pointerStartedOnItem.current = false;
       }}
       className={cn(
-        "group/item relative flex cursor-pointer touch-manipulation select-none items-start gap-3 rounded-[1rem] border border-transparent px-3 py-3 text-sm outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-150 ease-out hover:!border-emerald-200 hover:!bg-emerald-100 hover:!text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] active:scale-[0.985] active:bg-emerald-100/80 active:duration-75 data-[highlighted]:border-transparent data-[highlighted]:bg-transparent data-[highlighted]:text-slate-700 data-[state=checked]:border-emerald-200 data-[state=checked]:bg-emerald-100 data-[state=checked]:text-emerald-950 data-[state=checked]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]",
+        "group/item relative flex min-w-0 cursor-pointer touch-manipulation select-none items-start gap-3 rounded-[1rem] border border-transparent px-3 py-3 text-sm outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-150 ease-out hover:!border-emerald-200 hover:!bg-emerald-100 hover:!text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] active:scale-[0.985] active:bg-emerald-100/80 active:duration-75 data-[highlighted]:border-transparent data-[highlighted]:bg-transparent data-[state=checked]:border-emerald-200 data-[state=checked]:bg-emerald-100 data-[state=checked]:text-emerald-950 data-[state=checked]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]",
         className,
       )}
     >

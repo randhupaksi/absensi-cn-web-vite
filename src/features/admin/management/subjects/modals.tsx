@@ -20,6 +20,7 @@ import {
   premiumModalLabelClassName,
 } from "@/components/modals/premium-modal";
 import { RadixSelectField } from "@/components/ui/radix-select";
+import { getClassDisplayName } from "@/lib/class-display-name";
 import {
   subjectSchema,
   teachingAssignmentSchema,
@@ -369,7 +370,7 @@ export function TeachingAssignmentFormModal({
 				    <RadixSelectField value={classField.value} onValueChange={(value) => {
 				      form.setValue("class_id", value, { shouldValidate: true });
 				      form.getValues("schedules").forEach((_, scheduleIndex) => form.setValue(`schedules.${scheduleIndex}.class_id`, value, { shouldValidate: true }));
-				    }} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.filter((item) => item.is_active).map((item) => ({ value: item.id, label: item.display_name, description: item.school_year_name }))} />
+				    }} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.filter((item) => item.is_active).map((item) => ({ value: item.id, label: getClassDisplayName(item), description: item.school_year_name }))} />
 				  )} />
 				  <FieldError message={form.formState.errors.schedules?.[index]?.class_id?.message} />
 				</div>

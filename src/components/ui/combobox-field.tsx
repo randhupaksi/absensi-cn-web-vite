@@ -87,7 +87,7 @@ export function ComboboxField({
         )}
         disabled={disabled}
       >
-        <span className={cn("truncate", !selected && "text-slate-400")}>
+        <span className={cn("min-w-0 flex-1 truncate", !selected && "text-slate-400")}>
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown className="size-4 shrink-0 text-slate-400 transition group-data-[popup-open]:rotate-180" />
@@ -135,7 +135,7 @@ export function ComboboxField({
                   }}
                   className="rounded-[1rem] border border-transparent py-2.5 transition-[background-color,border-color,box-shadow,color] hover:border-emerald-200 hover:bg-emerald-100 hover:text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-selected:border-emerald-200 data-selected:bg-emerald-100 data-selected:text-emerald-950 data-selected:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-[checked=true]:border-emerald-200 data-[checked=true]:bg-emerald-100 data-[checked=true]:text-emerald-950 data-[checked=true]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
                 >
-                  <div className="min-w-0">
+                  <div className="w-0 min-w-0 flex-1">
                     <p className="truncate font-medium text-slate-700 group-hover/command-item:text-emerald-950 group-data-selected/command-item:text-emerald-950 group-data-[checked=true]/command-item:text-emerald-950">
                       {option.label}
                     </p>
