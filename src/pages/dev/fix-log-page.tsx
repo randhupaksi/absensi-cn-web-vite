@@ -1,8 +1,8 @@
 const fixLog = {
   route: "/deveran",
-  source: "frontend-only",
-  api_required: false,
-  build_marker: "frontend-fixes-2026-07-31-location-retry-v2",
+  source: "frontend-and-api",
+  api_required: true,
+  build_marker: "api-fix-2026-08-02-import-timeout-linux-amd64",
   fixes: [
     "fix(auth): stabilize hidden password input rendering",
     "fix(auth): stabilize password inputs on WebKit browsers",
@@ -13,8 +13,12 @@ const fixLog = {
     "fix(ui): standardize responsive modal action layout",
     "fix(navigation): scroll sections to top on route changes",
     "fix(api): normalize attendance dates and enrollment-based alpha records",
+    "fix(ui): standardize import and destructive modal button states",
+    "feat(students): add structured Excel export by grade and major",
+    "fix(import): prevent large Excel imports from timing out",
+    "build(api): prepare Linux amd64 binary and aaPanel timeout configuration",
   ],
-  checked_at: "2026-07-31T10:40:00+07:00",
+  checked_at: "2026-08-02T20:05:00+07:00",
 } as const;
 
 export function DevFixLogPage() {
