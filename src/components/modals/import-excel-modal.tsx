@@ -19,8 +19,9 @@ import { useCallback, useRef, useState } from "react";
 import {
   PremiumModal,
   premiumModalActionsClassName,
-  premiumModalSubmitButtonClassName,
 } from "@/components/modals/premium-modal";
+import { AsyncButton } from "@/components/ui/async-button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type ImportExcelModalProps = {
@@ -138,17 +139,14 @@ export function ImportExcelModal({
                 )}
               </p>
             </div>
-            <button
+            <Button
               type="button"
               onClick={() => downloadAdminImportTemplate(type)}
-              className={cn(
-                premiumModalSubmitButtonClassName,
-                "inline-flex w-full shrink-0 items-center justify-center gap-2 text-[0.82rem] sm:w-auto",
-              )}
+              className="h-12 w-full shrink-0 rounded-[1.1rem] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:-translate-y-px hover:bg-emerald-800 hover:shadow-[0_24px_44px_rgba(22,101,52,0.24)] active:translate-y-0 active:scale-[0.96] active:bg-emerald-900 sm:w-auto"
             >
               <Download className="size-3.5" />
               Unduh
-            </button>
+            </Button>
           </div>
 
           {/* Upload zone */}
@@ -232,38 +230,25 @@ export function ImportExcelModal({
           </div>
 
           <div className={premiumModalActionsClassName}>
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => handleClose(false)}
-              className="inline-flex h-12 items-center justify-center rounded-[1.1rem] border border-slate-200 bg-white px-5 text-[0.88rem] font-semibold text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.96]"
+              className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 sm:flex-none sm:px-5"
             >
               Batal
-            </button>
-            <button
-              type="button"
+            </Button>
+            <AsyncButton
+              data-modal-submit
               disabled={!file || state === "loading"}
               onClick={handleImport}
-              data-modal-submit
-              className={cn(
-                premiumModalSubmitButtonClassName,
-                "inline-flex items-center justify-center gap-2 text-[0.88rem]",
-                file && state !== "loading"
-                  ? ""
-                  : "cursor-not-allowed !bg-slate-300 !shadow-none",
-              )}
+              isPending={state === "loading"}
+              pendingLabel="Memproses..."
+              icon={Upload}
+              className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none sm:flex-none sm:px-5"
             >
-              {state === "loading" ? (
-                <>
-                  <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Memproses...
-                </>
-              ) : (
-                <>
-                  <Upload className="size-4" />
-                  Import {label}
-                </>
-              )}
-            </button>
+              Import {label}
+            </AsyncButton>
           </div>
         </div>
       )}
@@ -355,26 +340,24 @@ function ImportResultView({
 
       <div className={premiumModalActionsClassName}>
         {hasErrors && (
-          <button
+          <Button
             type="button"
             onClick={onImportAgain}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-[1.1rem] border border-slate-200 bg-white px-5 text-[0.88rem] font-semibold text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.96]"
+            variant="outline"
+            className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 sm:flex-none sm:px-5"
           >
             <Upload className="size-4" />
             Import Lagi
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           type="button"
           onClick={onClose}
           data-modal-submit
-          className={cn(
-            premiumModalSubmitButtonClassName,
-            "inline-flex items-center justify-center text-[0.88rem]",
-          )}
+          className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 sm:flex-none sm:px-5"
         >
           Selesai
-        </button>
+        </Button>
       </div>
     </div>
   );
