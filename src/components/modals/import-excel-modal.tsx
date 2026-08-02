@@ -16,7 +16,11 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { PremiumModal, premiumModalActionsClassName } from "@/components/modals/premium-modal";
+import {
+  PremiumModal,
+  premiumModalActionsClassName,
+  premiumModalSubmitButtonClassName,
+} from "@/components/modals/premium-modal";
 import { cn } from "@/lib/utils";
 
 type ImportExcelModalProps = {
@@ -121,7 +125,7 @@ export function ImportExcelModal({
       ) : (
         <div className="grid gap-5">
           {/* Kartu unduh templat */}
-          <div className="flex items-center justify-between gap-4 rounded-[1.3rem] border border-emerald-200/60 bg-[linear-gradient(135deg,rgba(236,253,245,0.9)_0%,rgba(209,250,229,0.6)_100%)] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+          <div className="flex flex-col items-stretch gap-4 rounded-[1.3rem] border border-emerald-200/60 bg-[linear-gradient(135deg,rgba(236,253,245,0.9)_0%,rgba(209,250,229,0.6)_100%)] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-[0.9rem] font-semibold text-emerald-900">
                 Unduh Templat Excel
@@ -137,7 +141,10 @@ export function ImportExcelModal({
             <button
               type="button"
               onClick={() => downloadAdminImportTemplate(type)}
-              className="inline-flex shrink-0 items-center gap-2 rounded-[0.85rem] bg-emerald-600 px-4 py-2.5 text-[0.82rem] font-semibold text-white shadow-[0_4px_14px_rgba(5,150,105,0.3)] transition-all duration-200 hover:bg-emerald-700 hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)] hover:-translate-y-px active:translate-y-0"
+              className={cn(
+                premiumModalSubmitButtonClassName,
+                "inline-flex w-full shrink-0 items-center justify-center gap-2 text-[0.82rem] sm:w-auto",
+              )}
             >
               <Download className="size-3.5" />
               Unduh
@@ -228,7 +235,7 @@ export function ImportExcelModal({
             <button
               type="button"
               onClick={() => handleClose(false)}
-              className="inline-flex h-10 items-center justify-center rounded-[0.8rem] border border-slate-200 bg-white px-5 text-[0.88rem] font-medium text-slate-600 transition hover:bg-slate-50"
+              className="inline-flex h-12 items-center justify-center rounded-[1.1rem] border border-slate-200 bg-white px-5 text-[0.88rem] font-semibold text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.96]"
             >
               Batal
             </button>
@@ -236,11 +243,13 @@ export function ImportExcelModal({
               type="button"
               disabled={!file || state === "loading"}
               onClick={handleImport}
+              data-modal-submit
               className={cn(
-                "inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] px-6 text-[0.88rem] font-semibold text-white transition-all duration-200",
+                premiumModalSubmitButtonClassName,
+                "inline-flex items-center justify-center gap-2 text-[0.88rem]",
                 file && state !== "loading"
-                  ? "bg-emerald-600 shadow-[0_4px_14px_rgba(5,150,105,0.3)] hover:bg-emerald-700 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(5,150,105,0.38)]"
-                  : "cursor-not-allowed bg-slate-300",
+                  ? ""
+                  : "cursor-not-allowed !bg-slate-300 !shadow-none",
               )}
             >
               {state === "loading" ? (
@@ -349,7 +358,7 @@ function ImportResultView({
           <button
             type="button"
             onClick={onImportAgain}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[0.8rem] border border-slate-200 bg-white px-5 text-[0.88rem] font-medium text-slate-600 transition hover:bg-slate-50"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-[1.1rem] border border-slate-200 bg-white px-5 text-[0.88rem] font-semibold text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.06)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.96]"
           >
             <Upload className="size-4" />
             Import Lagi
@@ -358,7 +367,11 @@ function ImportResultView({
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex h-10 items-center justify-center rounded-[0.8rem] bg-emerald-600 px-6 text-[0.88rem] font-semibold text-white shadow-[0_4px_14px_rgba(5,150,105,0.3)] transition-all duration-200 hover:bg-emerald-700 hover:-translate-y-px"
+          data-modal-submit
+          className={cn(
+            premiumModalSubmitButtonClassName,
+            "inline-flex items-center justify-center text-[0.88rem]",
+          )}
         >
           Selesai
         </button>

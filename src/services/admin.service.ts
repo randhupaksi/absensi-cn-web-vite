@@ -655,7 +655,12 @@ export async function importAdminTeachers(file: File): Promise<ImportResult> {
     const response = await apiClient.post<ApiEnvelope<ImportResult>>(
       "/admin/import/guru",
       formData,
-      { headers: { "Content-Type": "multipart/form-data" } },
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        // Bulk imports hash a password and persist several records per row.
+        // They need a longer request window than ordinary API operations.
+        timeout: 5 * 60 * 1_000,
+      },
     );
     return response.data.data;
   } catch (error) {
@@ -670,7 +675,10 @@ export async function importAdminStudents(file: File): Promise<ImportResult> {
     const response = await apiClient.post<ApiEnvelope<ImportResult>>(
       "/admin/import/siswa",
       formData,
-      { headers: { "Content-Type": "multipart/form-data" } },
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 5 * 60 * 1_000,
+      },
     );
     return response.data.data;
   } catch (error) {

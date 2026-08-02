@@ -83,7 +83,7 @@ export function DeleteConfirmationModal({
           </button>
           <AsyncButton
             type="button"
-            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] bg-red-500 px-3 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(239,68,68,0.24)] transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70 sm:px-5"
+            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] bg-red-500 px-3 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(239,68,68,0.24)] transition-colors hover:bg-red-600 active:!bg-red-800 active:!shadow-[inset_0_2px_5px_rgba(127,29,29,0.3)] disabled:cursor-not-allowed disabled:opacity-70 sm:px-5"
             onClick={onConfirm}
             isPending={isPending}
             pendingLabel="Menghapus..."
