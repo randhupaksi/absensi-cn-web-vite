@@ -6,7 +6,7 @@ type ClassDisplaySource = {
 /** Hide the default regular type while keeping plus classes explicit. */
 export function getClassDisplayName(classItem: ClassDisplaySource) {
   const withoutRegular = classItem.display_name
-    .replace(/\bREGULER\b/gi, "")
+    .replace(/\bREGUL(?:ER|AR)\b/gi, "")
     .replace(/\s+/g, " ")
     .trim();
 

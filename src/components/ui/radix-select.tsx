@@ -111,12 +111,12 @@ function RadixSelectFieldBase({
     >
       <Select.Trigger
         className={cn(
-          "group flex h-14 w-full touch-manipulation items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color,color] duration-150 ease-out hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] active:border-emerald-400 active:bg-emerald-50/70 active:shadow-[0_0_0_2px_rgba(16,185,129,0.12),0_10px_22px_rgba(15,23,42,0.04)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[state=open]:border-emerald-500 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/80 data-[placeholder]:text-slate-400",
+          "group flex h-14 w-full touch-manipulation items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color,color] duration-150 ease-out hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] active:border-emerald-400 active:bg-emerald-50/70 active:shadow-[0_0_0_2px_rgba(16,185,129,0.12),0_10px_22px_rgba(15,23,42,0.04)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[state=open]:border-emerald-500 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/80 data-[placeholder]:text-slate-400 [&>span:first-child]:min-w-0 [&>span:first-child]:flex-1 [&>span:first-child]:truncate",
           triggerClassName,
           className,
         )}
       >
-        <Select.Value className="min-w-0 flex-1 truncate" placeholder={placeholder} />
+        <Select.Value placeholder={placeholder} />
         <Select.Icon className="text-slate-400 transition group-data-[state=open]:rotate-180">
           <ChevronDown className="size-4" />
         </Select.Icon>
@@ -163,7 +163,7 @@ function RadixSelectFieldBase({
             ) : null}
             {renderedOptions.map(({ option }) => (
               <SelectItem key={option.value} value={option.value} hideIndicator={hideIndicator} className={itemClassName}>
-                <div className="w-0 min-w-0 flex-1">
+                <div className="min-w-0 flex-1 overflow-hidden">
                   <p className="truncate font-medium text-slate-700">{option.label}</p>
                   {option.description ? (
                     <p className="truncate text-xs text-slate-400">
