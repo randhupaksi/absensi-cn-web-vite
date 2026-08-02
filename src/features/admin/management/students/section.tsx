@@ -41,6 +41,7 @@ import {
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Button } from "@/components/ui/button";
 import { RadixSelectField } from "@/components/ui/radix-select";
+import { exportStudentRosterExcel } from "@/lib/reports/student-roster-excel";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   createAdminAttendanceRule,
@@ -69,6 +70,7 @@ import {
   BookOpen,
   CalendarClock,
   FilePenLine,
+  FileDown,
   FileSpreadsheet,
   GraduationCap,
   LayoutPanelTop,
@@ -118,6 +120,7 @@ export function StudentSection({
   const [activeTab, setActiveTab] = useState<StudentTab>("profiles");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [isExportingStudents, setIsExportingStudents] = useState(false);
   const [membershipModalOpen, setMembershipModalOpen] = useState(false);
   const [ruleModalOpen, setRuleModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<AdminStudent | null>(null);
@@ -454,6 +457,23 @@ export function StudentSection({
 
   const activeAction = addActionConfig[activeTab];
 
+  const handleExportStudents = async () => {
+    setIsExportingStudents(true);
+    try {
+      const exportedMajorCount = await exportStudentRosterExcel({
+        students,
+        memberships,
+        classes,
+        allowedClassIds: hasAcademicFilter ? matchingClassIDs : undefined,
+      });
+      toast.success(`Data siswa berhasil diekspor dalam ${exportedMajorCount} tab jurusan.`);
+    } catch {
+      toast.error("Gagal membuat Excel data siswa. Silakan coba lagi.");
+    } finally {
+      setIsExportingStudents(false);
+    }
+  };
+
   return (
     <>
       <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
@@ -481,6 +501,20 @@ export function StudentSection({
             </div>
 
             <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
+              {activeTab === "profiles" && (
+                <Button
+                  variant="outline"
+                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-violet-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,245,255,0.98)_100%)] px-2 text-[11px] font-semibold text-violet-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-violet-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(243,232,255,1)_100%)] hover:text-violet-950 disabled:cursor-wait sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                  onClick={() => void handleExportStudents()}
+                  disabled={isExportingStudents || classes.filter((item) => item.is_active).length === 0}
+                >
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_20px_rgba(124,58,237,0.2)] sm:size-8">
+                    <FileDown className="size-4" />
+                  </span>
+                  {isExportingStudents ? "Membuat Excel..." : "Export Siswa"}
+                </Button>
+              )}
+
               {(activeTab === "profiles" || activeTab === "memberships") && (
                 <Button
                   variant="outline"

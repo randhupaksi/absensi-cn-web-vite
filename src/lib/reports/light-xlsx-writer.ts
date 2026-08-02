@@ -138,13 +138,60 @@ class SharedStrings {
 }
 
 export function createStyledXlsx<Row>(definition: ExcelReportDefinition<Row>) {
-  const styles = new Styles();
-  const sharedStrings = new SharedStrings();
   const sheets = [
     createSummarySheet(definition),
     createDataSheet(definition),
     createStatisticsSheet(definition),
   ].filter((sheet): sheet is Sheet => Boolean(sheet));
+
+  return createWorkbookArchive(sheets, definition.title, definition.subtitle);
+}
+
+export type StudentRosterExcelRow = {
+  name: string;
+  nis: string;
+  nisn?: string;
+  gender?: string;
+  isActive: boolean;
+  joinedAt?: string;
+};
+
+export type StudentRosterExcelClass = {
+  className: string;
+  schoolYearName: string;
+  rows: StudentRosterExcelRow[];
+};
+
+export type StudentRosterExcelSheet = {
+  gradeLabel: string;
+  majorCode: string;
+  majorName: string;
+  classes: StudentRosterExcelClass[];
+};
+
+export type StudentRosterExcelDefinition = {
+  title: string;
+  subtitle: string;
+  sheets: StudentRosterExcelSheet[];
+  footerLabel?: string;
+};
+
+export function createStudentRosterXlsx(definition: StudentRosterExcelDefinition) {
+  const usedNames = new Set<string>();
+  const sheets = definition.sheets.map((item) =>
+    createStudentRosterMajorSheet(item, definition.footerLabel, usedNames),
+  );
+
+  if (sheets.length === 0) {
+    sheets.push(createEmptyRosterSheet(definition.footerLabel));
+  }
+
+  return createWorkbookArchive(sheets, definition.title, definition.subtitle);
+}
+
+function createWorkbookArchive(sheets: Sheet[], title: string, subtitle: string) {
+  const styles = new Styles();
+  const sharedStrings = new SharedStrings();
 
   const worksheetXml = sheets.map((sheet) => renderSheet(sheet, styles, sharedStrings));
   const files: Record<string, Uint8Array> = {
@@ -155,7 +202,7 @@ export function createStyledXlsx<Row>(definition: ExcelReportDefinition<Row>) {
     "xl/styles.xml": strToU8(styles.xml()),
     "xl/sharedStrings.xml": strToU8(sharedStrings.xml()),
     "xl/theme/theme1.xml": strToU8(themeXml()),
-    "docProps/core.xml": strToU8(corePropertiesXml(definition)),
+    "docProps/core.xml": strToU8(corePropertiesXml(title, subtitle)),
     "docProps/app.xml": strToU8(appPropertiesXml(sheets)),
   };
 
@@ -163,6 +210,180 @@ export function createStyledXlsx<Row>(definition: ExcelReportDefinition<Row>) {
     files["xl/worksheets/sheet" + (index + 1) + ".xml"] = strToU8(xml);
   });
   return zipSync(files, { level: 6 });
+}
+
+function createStudentRosterMajorSheet(
+  definition: StudentRosterExcelSheet,
+  footerLabel: string | undefined,
+  usedNames: Set<string>,
+) {
+  const sheetName = `${definition.gradeLabel} ${definition.majorCode}`.trim();
+  const sheet = createSheet(uniqueSheetName(sheetName, usedNames), COLORS.emerald700, footerLabel);
+  const columns = [7, 32, 18, 18, 16, 16, 20];
+  columns.forEach((width, index) => sheet.widths.set(index + 1, width));
+  sheet.orientation = "landscape";
+  sheet.fitToHeight = 0;
+
+  merge(sheet, 1, 1, 1, 7);
+  merge(sheet, 2, 1, 3, 7);
+  merge(sheet, 4, 1, 4, 7);
+  merge(sheet, 5, 1, 5, 7);
+  setCell(sheet, 1, 1, "ABSENSI CN  /  DATA SISWA PER TINGKAT DAN JURUSAN", { font: { size: 8, bold: true, color: COLORS.emerald200 }, fill: COLORS.emerald950 });
+  setCell(sheet, 2, 1, sheetName.toUpperCase(), { font: { name: "Aptos Display", size: 21, bold: true, color: COLORS.white }, fill: COLORS.emerald950, alignment: { vertical: "center", horizontal: "left" } });
+  setCell(sheet, 4, 1, definition.majorName, { font: { size: 10, color: COLORS.emerald100 }, fill: COLORS.emerald900, alignment: { vertical: "center" } });
+  setCell(sheet, 5, 1, `Data siswa Absensi CN untuk tingkat ${definition.gradeLabel} jurusan ${definition.majorCode.toUpperCase()}. Setiap tabel menampilkan data satu kelas beserta tahun ajarannya.`, { font: { size: 8.5, color: COLORS.slate600 }, fill: COLORS.emerald50, alignment: { vertical: "center", wrapText: true } });
+  setRangeStyle(sheet, 1, 3, 1, 7, { fill: COLORS.emerald950 });
+  setRangeStyle(sheet, 4, 4, 1, 7, { fill: COLORS.emerald900, border: { bottom: side("medium", COLORS.emerald500) } });
+  setRangeStyle(sheet, 5, 5, 1, 7, { fill: COLORS.emerald50, border: { bottom: side("thin", COLORS.emerald200) } });
+  [19, 25, 25, 23, 28].forEach((height, index) => sheet.heights.set(index + 1, height));
+
+  let nextRow = 7;
+  definition.classes.forEach((classDefinition, index) => {
+    nextRow = addStudentRosterClassSection(sheet, nextRow, classDefinition);
+    if (index < definition.classes.length - 1) nextRow += 2;
+  });
+
+  return sheet;
+}
+
+function addStudentRosterClassSection(sheet: Sheet, startRow: number, definition: StudentRosterExcelClass) {
+  merge(sheet, startRow, 1, startRow, 7);
+  setCell(sheet, startRow, 1, `KELAS ${definition.className.toUpperCase()}  /  TAHUN AJARAN ${definition.schoolYearName}`, {
+    font: { size: 10, bold: true, color: COLORS.white },
+    fill: COLORS.emerald800,
+    alignment: { vertical: "center" },
+  });
+  setRangeStyle(sheet, startRow, startRow, 1, 7, { fill: COLORS.emerald800, border: { bottom: side("medium", COLORS.emerald500) } });
+  sheet.heights.set(startRow, 25);
+
+  merge(sheet, startRow + 1, 1, startRow + 1, 7);
+  setCell(sheet, startRow + 1, 1, `Data siswa Absensi CN untuk kelas ${definition.className} pada tahun ajaran ${definition.schoolYearName}.`, {
+    font: { size: 8.5, color: COLORS.slate600 },
+    fill: COLORS.emerald50,
+    alignment: { vertical: "center", wrapText: true },
+  });
+  setRangeStyle(sheet, startRow + 1, startRow + 1, 1, 7, { fill: COLORS.emerald50, border: { bottom: side("thin", COLORS.emerald200) } });
+  sheet.heights.set(startRow + 1, 24);
+
+  const maleCount = definition.rows.filter((student) => student.gender === "MALE" || student.gender === "L").length;
+  const femaleCount = definition.rows.filter((student) => student.gender === "FEMALE" || student.gender === "P").length;
+  const metricRow = startRow + 3;
+  addCenteredRosterStatCard(sheet, metricRow, 1, 2, "TOTAL SISWA", definition.rows.length, metricTone("emerald"));
+  addCenteredRosterStatCard(sheet, metricRow, 3, 4, "LAKI-LAKI", maleCount, metricTone("sky"));
+  addCenteredRosterStatCard(sheet, metricRow, 5, 7, "PEREMPUAN", femaleCount, metricTone("violet"));
+
+  const headerRow = startRow + 6;
+  const headers = ["No", "Nama Siswa", "NIS", "NISN", "Jenis Kelamin", "Status Akun", "Tanggal Masuk"];
+  headers.forEach((header, index) => setCell(sheet, headerRow, index + 1, header, {
+    font: { size: 10, bold: true, color: COLORS.white },
+    fill: COLORS.emerald800,
+    border: { bottom: side("medium", COLORS.emerald500), right: side("thin", "2A8069") },
+    alignment: { vertical: "center", horizontal: "center", wrapText: true },
+  }));
+  sheet.heights.set(headerRow, 32);
+
+  if (definition.rows.length === 0) {
+    merge(sheet, headerRow + 1, 1, headerRow + 1, 7);
+    setCell(sheet, headerRow + 1, 1, "Belum ada siswa aktif pada kelas ini.", {
+      font: { size: 9, color: COLORS.slate500, italic: true },
+      fill: COLORS.slate50,
+      border: { bottom: side("thin", COLORS.slate200) },
+      alignment: { vertical: "center", horizontal: "center" },
+    });
+    setRangeStyle(sheet, headerRow + 1, headerRow + 1, 1, 7, { fill: COLORS.slate50, border: { bottom: side("thin", COLORS.slate200) } });
+    sheet.heights.set(headerRow + 1, 25);
+    return headerRow + 2;
+  }
+
+  definition.rows.forEach((student, index) => {
+    const row = headerRow + 1 + index;
+    const fill = index % 2 === 0 ? COLORS.white : COLORS.slate50;
+    const values: ExcelReportValue[] = [
+      index + 1,
+      student.name,
+      student.nis,
+      student.nisn || "-",
+      formatStudentGender(student.gender),
+      student.isActive ? "Aktif" : "Nonaktif",
+      formatRosterDate(student.joinedAt),
+    ];
+    values.forEach((value, column) => {
+      const statusTone = column === 5 ? statusColor(String(value).toLowerCase()) : undefined;
+      setCell(sheet, row, column + 1, value, {
+        font: { size: 10, color: statusTone?.text ?? COLORS.slate700, bold: Boolean(statusTone) },
+        fill: statusTone?.fill ?? fill,
+        border: dataBorder(column === 0, column === values.length - 1, index === definition.rows.length - 1),
+        alignment: { vertical: "center", horizontal: column === 0 || column === 4 || column === 5 ? "center" : "left", wrapText: true },
+      });
+    });
+    sheet.heights.set(row, 25);
+  });
+
+  return headerRow + definition.rows.length + 1;
+}
+
+function addCenteredRosterStatCard(
+  sheet: Sheet,
+  row: number,
+  fromColumn: number,
+  toColumn: number,
+  label: string,
+  value: ExcelReportValue,
+  tone: Tone,
+) {
+  merge(sheet, row, fromColumn, row, toColumn);
+  merge(sheet, row + 1, fromColumn, row + 1, toColumn);
+  setCell(sheet, row, fromColumn, label, {
+    font: { size: 8, bold: true, color: tone.text },
+    fill: tone.fill,
+    alignment: { vertical: "center", horizontal: "center" },
+  });
+  setCell(sheet, row + 1, fromColumn, value, {
+    font: { name: "Aptos Display", size: 18, bold: true, color: tone.text },
+    fill: tone.fill,
+    alignment: { vertical: "center", horizontal: "center" },
+  });
+  setRangeStyle(sheet, row, row + 1, fromColumn, toColumn, {
+    fill: tone.fill,
+    border: { bottom: side("thin", tone.border), left: side("thin", tone.border), right: side("thin", tone.border) },
+  });
+  sheet.heights.set(row, 21);
+  sheet.heights.set(row + 1, 31);
+}
+
+function createEmptyRosterSheet(footerLabel?: string) {
+  const sheet = createSheet("Data Siswa", COLORS.emerald700, footerLabel);
+  sheet.widths.set(1, 58);
+  merge(sheet, 1, 1, 1, 1);
+  setCell(sheet, 1, 1, "ABSENSI CN  /  DATA SISWA PER KELAS", { font: { size: 12, bold: true, color: COLORS.white }, fill: COLORS.emerald950 });
+  setCell(sheet, 3, 1, "Belum ada siswa dengan penempatan kelas aktif untuk diekspor.", { font: { size: 10, color: COLORS.slate600 } });
+  sheet.heights.set(1, 28);
+  return sheet;
+}
+
+function uniqueSheetName(value: string, usedNames: Set<string>) {
+  const base = safeSheetName(value);
+  let name = base;
+  let index = 2;
+  while (usedNames.has(name.toLowerCase())) {
+    const suffix = ` (${index})`;
+    name = `${base.slice(0, 31 - suffix.length)}${suffix}`;
+    index += 1;
+  }
+  usedNames.add(name.toLowerCase());
+  return name;
+}
+
+function formatStudentGender(value?: string) {
+  if (value === "MALE" || value === "L") return "Laki-laki";
+  if (value === "FEMALE" || value === "P") return "Perempuan";
+  return "-";
+}
+
+function formatRosterDate(value?: string) {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function createSheet(name: string, tabColor: string, footerLabel?: string): Sheet {
@@ -430,6 +651,6 @@ function workbookXml(sheets: Sheet[]) { return "<?xml version=\"1.0\" encoding=\
 function workbookRelationshipsXml(sheets: Sheet[]) { const sheetsXml = sheets.map((_, index) => "<Relationship Id=\"rId" + (index + 1) + "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet" + (index + 1) + ".xml\"/>").join(""); const base = sheets.length + 1; return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">" + sheetsXml + "<Relationship Id=\"rId" + base + "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/><Relationship Id=\"rId" + (base + 1) + "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\" Target=\"sharedStrings.xml\"/><Relationship Id=\"rId" + (base + 2) + "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme\" Target=\"theme/theme1.xml\"/></Relationships>"; }
 function contentTypesXml(sheetCount: number) { const sheets = Array.from({ length: sheetCount }, (_, index) => "<Override PartName=\"/xl/worksheets/sheet" + (index + 1) + ".xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>").join(""); return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/xl/sharedStrings.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/>" + sheets + "<Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"; }
 function rootRelationshipsXml() { return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"docProps/core.xml\"/><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties\" Target=\"docProps/app.xml\"/></Relationships>"; }
-function corePropertiesXml<Row>(definition: ExcelReportDefinition<Row>) { const now = new Date().toISOString(); return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><dc:title>" + xmlEscape(definition.title) + "</dc:title><dc:subject>" + xmlEscape(definition.subtitle) + "</dc:subject><dc:creator>Absensi CN</dc:creator><cp:lastModifiedBy>Absensi CN</cp:lastModifiedBy><dcterms:created xsi:type=\"dcterms:W3CDTF\">" + now + "</dcterms:created><dcterms:modified xsi:type=\"dcterms:W3CDTF\">" + now + "</dcterms:modified></cp:coreProperties>"; }
+function corePropertiesXml(title: string, subtitle: string) { const now = new Date().toISOString(); return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><dc:title>" + xmlEscape(title) + "</dc:title><dc:subject>" + xmlEscape(subtitle) + "</dc:subject><dc:creator>Absensi CN</dc:creator><cp:lastModifiedBy>Absensi CN</cp:lastModifiedBy><dcterms:created xsi:type=\"dcterms:W3CDTF\">" + now + "</dcterms:created><dcterms:modified xsi:type=\"dcterms:W3CDTF\">" + now + "</dcterms:modified></cp:coreProperties>"; }
 function appPropertiesXml(sheets: Sheet[]) { return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\"><Application>Absensi CN</Application><HeadingPairs><vt:vector size=\"2\" baseType=\"variant\"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>" + sheets.length + "</vt:i4></vt:variant></vt:vector></HeadingPairs><TitlesOfParts><vt:vector size=\"" + sheets.length + "\" baseType=\"lpstr\">" + sheets.map((sheet) => "<vt:lpstr>" + xmlEscape(sheet.name) + "</vt:lpstr>").join("") + "</vt:vector></TitlesOfParts></Properties>"; }
 function themeXml() { return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><a:theme xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" name=\"Office Theme\"><a:themeElements><a:clrScheme name=\"Office\"><a:dk1><a:sysClr val=\"windowText\" lastClr=\"000000\"/></a:dk1><a:lt1><a:sysClr val=\"window\" lastClr=\"FFFFFF\"/></a:lt1><a:dk2><a:srgbClr val=\"44546A\"/></a:dk2><a:lt2><a:srgbClr val=\"E7E6E6\"/></a:lt2><a:accent1><a:srgbClr val=\"4472C4\"/></a:accent1><a:accent2><a:srgbClr val=\"ED7D31\"/></a:accent2><a:accent3><a:srgbClr val=\"A5A5A5\"/></a:accent3><a:accent4><a:srgbClr val=\"FFC000\"/></a:accent4><a:accent5><a:srgbClr val=\"5B9BD5\"/></a:accent5><a:accent6><a:srgbClr val=\"70AD47\"/></a:accent6><a:hlink><a:srgbClr val=\"0563C1\"/></a:hlink><a:folHlink><a:srgbClr val=\"954F72\"/></a:folHlink></a:clrScheme><a:fontScheme name=\"Office\"><a:majorFont><a:latin typeface=\"Aptos Display\"/></a:majorFont><a:minorFont><a:latin typeface=\"Aptos\"/></a:minorFont></a:fontScheme><a:fmtScheme name=\"Office\"><a:fillStyleLst/><a:lnStyleLst/><a:effectStyleLst/><a:bgFillStyleLst/></a:fmtScheme></a:themeElements></a:theme>"; }
