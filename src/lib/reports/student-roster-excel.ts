@@ -43,7 +43,6 @@ export async function exportStudentRosterExcel({
             nisn: student.nisn,
             gender: student.gender,
             isActive: student.is_active,
-            joinedAt: membership.joined_at,
           };
         })
         .filter((student): student is NonNullable<typeof student> => Boolean(student))

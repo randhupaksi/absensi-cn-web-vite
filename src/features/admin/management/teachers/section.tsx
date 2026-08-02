@@ -660,7 +660,7 @@ export function TeacherSection({
                       />
                       <div className="mt-4 grid gap-3">
                         <MobileDataField label="Username" value={teacher.username || "-"} />
-                        <MobileDataField label="Gender" value={teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "-"} />
+                        <MobileDataField label="Gender" value={formatTeacherGender(teacher.gender)} />
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <TeacherMetricPill label="Mapel" value={subjectAssignmentsByTeacher[teacher.id] ?? 0} tone="emerald" />
@@ -697,7 +697,7 @@ export function TeacherSection({
                       </DataTableCell>
                       <DataTableCell>{teacher.username || "-"}</DataTableCell>
                       <DataTableCell>
-                        {teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "-"}
+                        {formatTeacherGender(teacher.gender)}
                       </DataTableCell>
                       <DataTableCell>{subjectAssignmentsByTeacher[teacher.id] ?? 0}</DataTableCell>
                       <DataTableCell>{homeroomAssignmentsByTeacher[teacher.id] ?? 0}</DataTableCell>
@@ -997,6 +997,21 @@ function getTeacherDeleteTitle(target: TeacherDeleteTarget | null) {
   if (target?.type === "profile") return "Hapus Guru?";
   if (target?.type === "homeroom") return "Hapus Penugasan Walas?";
   return "Konfirmasi Penghapusan";
+}
+
+function formatTeacherGender(gender?: string) {
+  switch ((gender ?? "").trim().toUpperCase()) {
+    case "L":
+    case "MALE":
+    case "LAKI-LAKI":
+      return "Laki-laki";
+    case "P":
+    case "FEMALE":
+    case "PEREMPUAN":
+      return "Perempuan";
+    default:
+      return "-";
+  }
 }
 
 function getTeacherDeleteDescription(target: TeacherDeleteTarget | null) {

@@ -153,7 +153,6 @@ export type StudentRosterExcelRow = {
   nisn?: string;
   gender?: string;
   isActive: boolean;
-  joinedAt?: string;
 };
 
 export type StudentRosterExcelClass = {
@@ -219,22 +218,22 @@ function createStudentRosterMajorSheet(
 ) {
   const sheetName = `${definition.gradeLabel} ${definition.majorCode}`.trim();
   const sheet = createSheet(uniqueSheetName(sheetName, usedNames), COLORS.emerald700, footerLabel);
-  const columns = [7, 32, 18, 18, 16, 16, 20];
+  const columns = [7, 32, 18, 18, 16, 16];
   columns.forEach((width, index) => sheet.widths.set(index + 1, width));
   sheet.orientation = "landscape";
   sheet.fitToHeight = 0;
 
-  merge(sheet, 1, 1, 1, 7);
-  merge(sheet, 2, 1, 3, 7);
-  merge(sheet, 4, 1, 4, 7);
-  merge(sheet, 5, 1, 5, 7);
+  merge(sheet, 1, 1, 1, 6);
+  merge(sheet, 2, 1, 3, 6);
+  merge(sheet, 4, 1, 4, 6);
+  merge(sheet, 5, 1, 5, 6);
   setCell(sheet, 1, 1, "ABSENSI CN  /  DATA SISWA PER TINGKAT DAN JURUSAN", { font: { size: 8, bold: true, color: COLORS.emerald200 }, fill: COLORS.emerald950 });
   setCell(sheet, 2, 1, sheetName.toUpperCase(), { font: { name: "Aptos Display", size: 21, bold: true, color: COLORS.white }, fill: COLORS.emerald950, alignment: { vertical: "center", horizontal: "left" } });
   setCell(sheet, 4, 1, definition.majorName, { font: { size: 10, color: COLORS.emerald100 }, fill: COLORS.emerald900, alignment: { vertical: "center" } });
   setCell(sheet, 5, 1, `Data siswa Absensi CN untuk tingkat ${definition.gradeLabel} jurusan ${definition.majorCode.toUpperCase()}. Setiap tabel menampilkan data satu kelas beserta tahun ajarannya.`, { font: { size: 8.5, color: COLORS.slate600 }, fill: COLORS.emerald50, alignment: { vertical: "center", wrapText: true } });
-  setRangeStyle(sheet, 1, 3, 1, 7, { fill: COLORS.emerald950 });
-  setRangeStyle(sheet, 4, 4, 1, 7, { fill: COLORS.emerald900, border: { bottom: side("medium", COLORS.emerald500) } });
-  setRangeStyle(sheet, 5, 5, 1, 7, { fill: COLORS.emerald50, border: { bottom: side("thin", COLORS.emerald200) } });
+  setRangeStyle(sheet, 1, 3, 1, 6, { fill: COLORS.emerald950 });
+  setRangeStyle(sheet, 4, 4, 1, 6, { fill: COLORS.emerald900, border: { bottom: side("medium", COLORS.emerald500) } });
+  setRangeStyle(sheet, 5, 5, 1, 6, { fill: COLORS.emerald50, border: { bottom: side("thin", COLORS.emerald200) } });
   [19, 25, 25, 23, 28].forEach((height, index) => sheet.heights.set(index + 1, height));
 
   let nextRow = 7;
@@ -247,22 +246,22 @@ function createStudentRosterMajorSheet(
 }
 
 function addStudentRosterClassSection(sheet: Sheet, startRow: number, definition: StudentRosterExcelClass) {
-  merge(sheet, startRow, 1, startRow, 7);
+  merge(sheet, startRow, 1, startRow, 6);
   setCell(sheet, startRow, 1, `KELAS ${definition.className.toUpperCase()}  /  TAHUN AJARAN ${definition.schoolYearName}`, {
     font: { size: 10, bold: true, color: COLORS.white },
     fill: COLORS.emerald800,
     alignment: { vertical: "center" },
   });
-  setRangeStyle(sheet, startRow, startRow, 1, 7, { fill: COLORS.emerald800, border: { bottom: side("medium", COLORS.emerald500) } });
+  setRangeStyle(sheet, startRow, startRow, 1, 6, { fill: COLORS.emerald800, border: { bottom: side("medium", COLORS.emerald500) } });
   sheet.heights.set(startRow, 25);
 
-  merge(sheet, startRow + 1, 1, startRow + 1, 7);
+  merge(sheet, startRow + 1, 1, startRow + 1, 6);
   setCell(sheet, startRow + 1, 1, `Data siswa Absensi CN untuk kelas ${definition.className} pada tahun ajaran ${definition.schoolYearName}.`, {
     font: { size: 8.5, color: COLORS.slate600 },
     fill: COLORS.emerald50,
     alignment: { vertical: "center", wrapText: true },
   });
-  setRangeStyle(sheet, startRow + 1, startRow + 1, 1, 7, { fill: COLORS.emerald50, border: { bottom: side("thin", COLORS.emerald200) } });
+  setRangeStyle(sheet, startRow + 1, startRow + 1, 1, 6, { fill: COLORS.emerald50, border: { bottom: side("thin", COLORS.emerald200) } });
   sheet.heights.set(startRow + 1, 24);
 
   const maleCount = definition.rows.filter((student) => student.gender === "MALE" || student.gender === "L").length;
@@ -270,10 +269,10 @@ function addStudentRosterClassSection(sheet: Sheet, startRow: number, definition
   const metricRow = startRow + 3;
   addCenteredRosterStatCard(sheet, metricRow, 1, 2, "TOTAL SISWA", definition.rows.length, metricTone("emerald"));
   addCenteredRosterStatCard(sheet, metricRow, 3, 4, "LAKI-LAKI", maleCount, metricTone("sky"));
-  addCenteredRosterStatCard(sheet, metricRow, 5, 7, "PEREMPUAN", femaleCount, metricTone("violet"));
+  addCenteredRosterStatCard(sheet, metricRow, 5, 6, "PEREMPUAN", femaleCount, metricTone("violet"));
 
   const headerRow = startRow + 6;
-  const headers = ["No", "Nama Siswa", "NIS", "NISN", "Jenis Kelamin", "Status Akun", "Tanggal Masuk"];
+  const headers = ["No", "Nama Siswa", "NIS", "NISN", "Jenis Kelamin", "Status Akun"];
   headers.forEach((header, index) => setCell(sheet, headerRow, index + 1, header, {
     font: { size: 10, bold: true, color: COLORS.white },
     fill: COLORS.emerald800,
@@ -283,14 +282,14 @@ function addStudentRosterClassSection(sheet: Sheet, startRow: number, definition
   sheet.heights.set(headerRow, 32);
 
   if (definition.rows.length === 0) {
-    merge(sheet, headerRow + 1, 1, headerRow + 1, 7);
+    merge(sheet, headerRow + 1, 1, headerRow + 1, 6);
     setCell(sheet, headerRow + 1, 1, "Belum ada siswa aktif pada kelas ini.", {
       font: { size: 9, color: COLORS.slate500, italic: true },
       fill: COLORS.slate50,
       border: { bottom: side("thin", COLORS.slate200) },
       alignment: { vertical: "center", horizontal: "center" },
     });
-    setRangeStyle(sheet, headerRow + 1, headerRow + 1, 1, 7, { fill: COLORS.slate50, border: { bottom: side("thin", COLORS.slate200) } });
+    setRangeStyle(sheet, headerRow + 1, headerRow + 1, 1, 6, { fill: COLORS.slate50, border: { bottom: side("thin", COLORS.slate200) } });
     sheet.heights.set(headerRow + 1, 25);
     return headerRow + 2;
   }
@@ -305,7 +304,6 @@ function addStudentRosterClassSection(sheet: Sheet, startRow: number, definition
       student.nisn || "-",
       formatStudentGender(student.gender),
       student.isActive ? "Aktif" : "Nonaktif",
-      formatRosterDate(student.joinedAt),
     ];
     values.forEach((value, column) => {
       const statusTone = column === 5 ? statusColor(String(value).toLowerCase()) : undefined;
@@ -378,12 +376,6 @@ function formatStudentGender(value?: string) {
   if (value === "MALE" || value === "L") return "Laki-laki";
   if (value === "FEMALE" || value === "P") return "Perempuan";
   return "-";
-}
-
-function formatRosterDate(value?: string) {
-  if (!value) return "-";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function createSheet(name: string, tabColor: string, footerLabel?: string): Sheet {
