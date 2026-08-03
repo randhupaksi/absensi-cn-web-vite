@@ -96,19 +96,29 @@ export function WalasAttendancePage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const overview = normalizeOverview(overviewQuery.data ?? fallbackOverview);
+  const overview = useMemo(
+    () => normalizeOverview(overviewQuery.data ?? fallbackOverview),
+    [overviewQuery.data],
+  );
   const { summary, records } = overview;
   const totalAttendance = summary.present + summary.permission + summary.sick + summary.alpha;
-  const reviewedCount = records.filter((record) => Boolean(record.verified_at)).length;
-  const pendingReviewCount = records.filter(
-    (record) => record.status.toLowerCase() === "alfa" && !record.verified_at,
-  ).length;
+  const reviewMetrics = useMemo(() => {
+    let reviewed = 0;
+    let pending = 0;
+
+    for (const record of records) {
+      if (record.verified_at) reviewed += 1;
+      if (record.status.toLowerCase() === "alfa" && !record.verified_at) pending += 1;
+    }
+
+    return { reviewed, pending };
+  }, [records]);
 
   const kpiCards: AttendanceKpi[] = [
     { label: "Total Data", value: String(records.length), subtitle: "Absensi tanggal ini", icon: NotebookText, accentClass: "bg-emerald-100 text-emerald-700" },
     { label: "Hadir Tepat Waktu", value: String(summary.present), subtitle: "Masuk tepat waktu", icon: BadgeCheck, accentClass: "bg-teal-100 text-teal-700" },
-    { label: "Alfa Belum Dikonfirmasi", value: String(pendingReviewCount), subtitle: "Perlu dicek saat absensi kelas", icon: ShieldAlert, accentClass: "bg-amber-100 text-amber-700" },
-    { label: "Sudah Dikoreksi", value: String(reviewedCount), subtitle: "Status pernah diperbarui walas", icon: CheckCheck, accentClass: "bg-sky-100 text-sky-700" },
+    { label: "Alfa Belum Dikonfirmasi", value: String(reviewMetrics.pending), subtitle: "Perlu dicek saat absensi kelas", icon: ShieldAlert, accentClass: "bg-amber-100 text-amber-700" },
+    { label: "Sudah Dikoreksi", value: String(reviewMetrics.reviewed), subtitle: "Status pernah diperbarui walas", icon: CheckCheck, accentClass: "bg-sky-100 text-sky-700" },
   ];
 
   const sortedRecords = useMemo(() => {
@@ -129,7 +139,7 @@ export function WalasAttendancePage() {
             overview={overview}
             kpiCards={kpiCards}
             totalAttendance={totalAttendance}
-            pendingReviewCount={pendingReviewCount}
+            pendingReviewCount={reviewMetrics.pending}
           />
           <AttendanceTableSection
             overview={overview}

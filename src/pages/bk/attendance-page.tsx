@@ -49,8 +49,7 @@ import {
   ShieldAlert,
   TriangleAlert,
 } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
@@ -116,13 +115,20 @@ export function BKAttendancePage() {
     alpha: 0,
     repeated_alpha: [],
   };
-  const records = overview?.records ?? [];
-  const classes = overview?.classes ?? [];
-  const reviewedCount = records.filter((record) => Boolean(record.verified_at)).length;
+  const records = useMemo(() => overview?.records ?? [], [overview?.records]);
+  const classes = useMemo(() => overview?.classes ?? [], [overview?.classes]);
+  const reviewMetrics = useMemo(() => {
+    let reviewed = 0;
+    let pending = 0;
+
+    for (const record of records) {
+      if (record.verified_at) reviewed += 1;
+      if (record.status.toLowerCase() === "alfa" && !record.verified_at) pending += 1;
+    }
+
+    return { reviewed, pending };
+  }, [records]);
   const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
-  const pendingReviewCount = records.filter(
-    (record) => record.status.toLowerCase() === "alfa" && !record.verified_at,
-  ).length;
 
   const kpiCards = [
     {
@@ -148,7 +154,7 @@ export function BKAttendancePage() {
     },
     {
       label: "Sudah Dikoreksi",
-      value: String(reviewedCount),
+      value: String(reviewMetrics.reviewed),
       subtitle: "Status pernah diperbarui",
       icon: CheckCheck,
       accentClass: "bg-sky-100 text-sky-700",
@@ -180,7 +186,7 @@ export function BKAttendancePage() {
               actionClassName="flex justify-start xl:justify-end"
               footer={(
                 <div className="text-xs font-medium text-slate-400">
-                  {records.length} record tercatat dengan {pendingReviewCount} alfa yang belum dikonfirmasi.
+                  {records.length} record tercatat dengan {reviewMetrics.pending} alfa yang belum dikonfirmasi.
                 </div>
               )}
             />
@@ -216,11 +222,8 @@ export function BKAttendancePage() {
               </div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-              className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
+            <div
+              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
             >
               {overviewQuery.isLoading ? (
                 <TableSkeleton columns={7} />
@@ -335,7 +338,7 @@ export function BKAttendancePage() {
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
-            </motion.div>
+            </div>
           </section>
 
           <section className="rounded-[30px] border border-white/75 bg-white/90 p-5 shadow-[0_20px_48px_rgba(28,77,61,0.08)]">
@@ -351,17 +354,15 @@ export function BKAttendancePage() {
                 <EmptyState icon={BadgeCheck} title="Belum ada fokus monitoring" description="Pola alfa berulang akan tampil di sini." compact />
               ) : (
                 focusItems.map((item, index) => (
-                  <motion.article
+                  <article
                     key={`${item.student_id}-${item.tone}-${index}`}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.04 }}
-                    className="rounded-[22px] border border-slate-100 bg-slate-50/92 p-4"
+                    className="content-enter-up-8 rounded-[22px] border border-slate-100 bg-slate-50/92 p-4"
+                    style={{ animationDelay: `${index * 40}ms` }}
                   >
                     <p className="font-semibold text-slate-900">{item.student_name}</p>
                     <p className="mt-1 text-sm text-slate-500">{item.nis} - {item.class_name}</p>
                     <p className="mt-3 text-xs font-semibold text-rose-700">{item.occurrences} catatan {item.tone}</p>
-                  </motion.article>
+                  </article>
                 ))
               )}
             </div>

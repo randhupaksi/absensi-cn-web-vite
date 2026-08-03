@@ -36,7 +36,6 @@ import {
 } from "@/services/staff.service";
 import type { StaffHomeroomContext } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "motion/react";
 import {
   BadgeCheck,
   Eye,
@@ -71,6 +70,8 @@ const emptyHomeroom: StaffHomeroomContext = {
   is_active: false,
 };
 
+const emptyStudents: Awaited<ReturnType<typeof getTeacherHomeroomStudents>> = [];
+
 export function WalasStudentsPage() {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
@@ -95,12 +96,11 @@ export function WalasStudentsPage() {
   });
 
   const homeroom = homeroomQuery.data ?? emptyHomeroom;
-  const studentsData = studentsQuery.data;
-  const students = studentsData ?? [];
+  const students = studentsQuery.data ?? emptyStudents;
   const normalizedQuery = deferredQuery.trim().toLowerCase();
 
   const filteredStudents = useMemo(() => {
-    return (studentsData ?? []).filter((student) => {
+    return students.filter((student) => {
       const needsAttention = student.alpha_count > 0;
 
       const matchesStatus =
@@ -117,15 +117,23 @@ export function WalasStudentsPage() {
 
       return matchesStatus && matchesQuery;
     });
-  }, [normalizedQuery, statusFilter, studentsData]);
+  }, [normalizedQuery, statusFilter, students]);
 
   const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(filteredStudents);
 
-  const activeStudents = students.filter((student) => student.is_active).length;
-  const studentsNeedingAttention = students.filter(
-    (student) => student.alpha_count > 0,
-  ).length;
-  const totalAlphaCount = students.reduce((sum, student) => sum + student.alpha_count, 0);
+  const studentMetrics = useMemo(() => {
+    let activeStudents = 0;
+    let studentsNeedingAttention = 0;
+    let totalAlphaCount = 0;
+
+    for (const student of students) {
+      if (student.is_active) activeStudents += 1;
+      if (student.alpha_count > 0) studentsNeedingAttention += 1;
+      totalAlphaCount += student.alpha_count;
+    }
+
+    return { activeStudents, studentsNeedingAttention, totalAlphaCount };
+  }, [students]);
 
   const tableErrorMessage = homeroomQuery.error?.message ?? studentsQuery.error?.message;
 
@@ -183,19 +191,19 @@ export function WalasStudentsPage() {
                 />
                 <StaffStatCard
                   label="Siswa Aktif"
-                  value={activeStudents}
+                  value={studentMetrics.activeStudents}
                   icon={BadgeCheck}
                   accentClass="from-teal-500 via-emerald-500 to-green-500"
                 />
                 <StaffStatCard
                   label="Perlu Perhatian"
-                  value={studentsNeedingAttention}
+                  value={studentMetrics.studentsNeedingAttention}
                   icon={TriangleAlert}
                   accentClass="from-amber-400 via-orange-400 to-rose-500"
                 />
                 <StaffStatCard
                   label="Akumulasi Alfa"
-                  value={totalAlphaCount}
+                  value={studentMetrics.totalAlphaCount}
                   icon={ShieldCheck}
                   accentClass="from-sky-500 via-cyan-500 to-emerald-500"
                 />
@@ -203,7 +211,7 @@ export function WalasStudentsPage() {
 
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <div className="text-xs font-medium text-slate-400">
-                  {totalAlphaCount} catatan alfa tercatat untuk siswa kelas ini
+                  {studentMetrics.totalAlphaCount} catatan alfa tercatat untuk siswa kelas ini
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
@@ -244,11 +252,8 @@ export function WalasStudentsPage() {
               </div>
             ) : null}
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-              className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
+            <div
+              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
             >
               {studentsQuery.isLoading || homeroomQuery.isLoading ? (
                 <div className="overflow-x-auto">
@@ -379,7 +384,7 @@ export function WalasStudentsPage() {
               {!studentsQuery.isLoading && !homeroomQuery.isLoading && filteredStudents.length > 0 ? (
                 <DataTablePagination {...studentsPagination} />
               ) : null}
-            </motion.div>
+            </div>
           </section>
 
           <StudentDetailModal

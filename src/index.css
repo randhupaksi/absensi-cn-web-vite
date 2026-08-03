@@ -341,6 +341,61 @@ body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
   }
 }
 
+@keyframes content-enter-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--content-enter-offset, 12px), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.content-enter-up-12,
+.content-enter-up-12-now,
+.content-enter-up-10,
+.content-enter-up-8,
+.content-enter-up-6,
+.content-enter-up-4 {
+  animation-name: content-enter-up;
+  animation-duration: var(--content-enter-duration, 280ms);
+  animation-delay: var(--content-enter-delay, 0ms);
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.content-enter-up-12 {
+  --content-enter-offset: 12px;
+  --content-enter-duration: 280ms;
+  --content-enter-delay: 80ms;
+}
+
+.content-enter-up-12-now {
+  --content-enter-offset: 12px;
+  --content-enter-duration: 280ms;
+}
+
+.content-enter-up-10 {
+  --content-enter-offset: 10px;
+  --content-enter-duration: 240ms;
+}
+
+.content-enter-up-8 {
+  --content-enter-offset: 8px;
+  --content-enter-duration: 200ms;
+}
+
+.content-enter-up-6 {
+  --content-enter-offset: 6px;
+  --content-enter-duration: 180ms;
+}
+
+.content-enter-up-4 {
+  --content-enter-offset: 4px;
+  --content-enter-duration: 150ms;
+}
+
 .app-loader-enter {
   animation: app-loader-enter 280ms ease-out both;
 }
@@ -362,5 +417,14 @@ body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
 
   .app-loader-progress {
     width: 60%;
+  }
+
+  .content-enter-up-12,
+  .content-enter-up-12-now,
+  .content-enter-up-10,
+  .content-enter-up-8,
+  .content-enter-up-6,
+  .content-enter-up-4 {
+    animation: none;
   }
 }

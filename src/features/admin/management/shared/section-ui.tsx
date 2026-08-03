@@ -573,7 +573,7 @@ const TAB_GRID_COLS_CLASS: Record<number, string> = {
 };
 
 const SECTION_TAB_TRIGGER_CLASS =
-  "shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 hover:shadow-[0_10px_20px_rgba(16,185,129,0.16)] data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full";
+  "shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-[color,background-color,border-color] duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full";
 
 export function SectionTabSwitch({ tabs }: { tabs: SectionTabItem[] }) {
   const gridColsClass = TAB_GRID_COLS_CLASS[tabs.length] ?? "";

@@ -149,6 +149,24 @@
   background: linear-gradient(90deg, rgba(236, 253, 245, 0.34), rgba(255, 255, 255, 0.2) 52%, rgba(240, 253, 250, 0.32));
 }
 
+.landingStepsSectionReveal {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+}
+
+.landingStepsSectionReveal[data-scroll-revealed="true"] {
+  animation: landingStepsSectionIn 460ms ease-out both;
+}
+
+.landingStepsIntroReveal {
+  opacity: 0;
+  transform: translate3d(-24px, 10px, 0);
+}
+
+.landingStepsIntroReveal[data-scroll-revealed="true"] {
+  animation: landingStepsIntroIn 440ms ease-out 80ms both;
+}
+
 .landingStepsCounter {
   color: var(--landing-accent-strong);
 }
@@ -182,10 +200,28 @@
   transform-origin: top;
 }
 
+.landingStepsTimelineReveal {
+  opacity: 0;
+  transform: scaleY(0);
+}
+
+.landingStepsTimelineReveal[data-scroll-revealed="true"] {
+  animation: landingStepsTimelineIn 680ms ease-out 140ms both;
+}
+
 .landingStepItem {
   border-bottom-color: var(--landing-border-soft);
   color: var(--landing-ink-soft);
   z-index: 1;
+}
+
+.landingStepReveal {
+  opacity: 0;
+  transform: translate3d(28px, 0, 0);
+}
+
+.landingStepReveal[data-scroll-revealed="true"] {
+  animation: landingStepIn 380ms ease-out both;
 }
 
 .landingStepItem:hover {
@@ -457,6 +493,54 @@
   }
 }
 
+@keyframes landingStepsSectionIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes landingStepsIntroIn {
+  from {
+    opacity: 0;
+    transform: translate3d(-24px, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes landingStepsTimelineIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes landingStepIn {
+  from {
+    opacity: 0;
+    transform: translate3d(28px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (hover: none) {
   .landingHeroImage {
     animation: landingImageWakeMobile 700ms ease-out both;
@@ -490,7 +574,11 @@
   .landingReveal,
   .landingRevealLeft,
   .landingRevealRight,
-  .landingFloatReveal {
+  .landingFloatReveal,
+  .landingStepsSectionReveal,
+  .landingStepsIntroReveal,
+  .landingStepsTimelineReveal,
+  .landingStepReveal {
     animation: none;
     filter: none;
     opacity: 1;

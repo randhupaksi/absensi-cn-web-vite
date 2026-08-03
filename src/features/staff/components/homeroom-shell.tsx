@@ -1,8 +1,6 @@
 "use client";
 
-import { getTeacherMe } from "@/services/staff.service";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { StaffShell } from "./shell";
 import { buildWalasSidebarItems } from "./sidebar";
 import type { AuthSession } from "@/types/auth";
@@ -11,26 +9,16 @@ type WalasShellProps = {
   children: (session: AuthSession) => ReactNode;
 };
 
+const walasSidebarItems = buildWalasSidebarItems({
+  isHomeroomTeacher: false,
+  hasSubjectAssignments: false,
+});
+
 export function WalasShell({ children }: WalasShellProps) {
-  const teacherMeQuery = useQuery({
-    queryKey: ["teacher-me"],
-    queryFn: getTeacherMe,
-    staleTime: 60_000,
-  });
-
-  const sidebarItems = useMemo(
-    () =>
-      buildWalasSidebarItems({
-        isHomeroomTeacher: teacherMeQuery.data?.is_homeroom_teacher ?? false,
-        hasSubjectAssignments: teacherMeQuery.data?.has_subject_assignments ?? false,
-      }),
-    [teacherMeQuery.data],
-  );
-
   return (
     <StaffShell
       expectedRole="walas"
-      sidebarItems={sidebarItems}
+      sidebarItems={walasSidebarItems}
       userLabel="Guru"
       resolveTitle={resolveWalasSectionTitle}
     >

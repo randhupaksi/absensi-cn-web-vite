@@ -49,7 +49,6 @@ import {
   ShieldAlert,
   Upload,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -218,14 +217,13 @@ export function WalasSubmissionsPage() {
 
               <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
                 {kpiCards.map((item, index) => (
-                  <motion.div
+                  <div
                     key={item.label}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.24, delay: index * 0.04, ease: "easeOut" }}
+                    className="content-enter-up-10"
+                    style={{ animationDelay: `${index * 40}ms` }}
                   >
                     <KpiCard {...item} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
@@ -271,11 +269,8 @@ export function WalasSubmissionsPage() {
               <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, alasan, tipe" />
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-              className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
+            <div
+              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
             >
               <div className="overflow-x-auto bg-white/92">
                 {overviewQuery.isLoading ? (
@@ -416,7 +411,7 @@ export function WalasSubmissionsPage() {
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
-            </motion.div>
+            </div>
           </section>
 
           <SubmissionDetailModal

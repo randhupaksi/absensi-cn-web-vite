@@ -45,6 +45,7 @@ import {
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { getBKSubmissionsOverview, reviewBKSubmission } from "@/services/staff.service";
 import type { StaffSubmission } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,7 +61,6 @@ import {
   ShieldCheck,
   Upload,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -91,6 +91,7 @@ const reviewStatusOptions = [
 export function BKSubmissionsPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query.trim());
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [typeFilter, setTypeFilter] = useState("Semua");
   const [classFilter, setClassFilter] = useState("Semua");
@@ -99,13 +100,13 @@ export function BKSubmissionsPage() {
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const overviewQuery = useQuery({
-    queryKey: ["bk-submissions-overview", statusFilter, typeFilter, classFilter, query],
+    queryKey: ["bk-submissions-overview", statusFilter, typeFilter, classFilter, debouncedQuery],
     queryFn: () =>
       getBKSubmissionsOverview({
         status: statusFilter === "Semua" ? "" : statusFilter,
         type: typeFilter === "Semua" ? "" : typeFilter,
         class_id: classFilter === "Semua" ? "" : classFilter,
-        query: query.trim(),
+        query: debouncedQuery,
       }),
     placeholderData: (previousData) => previousData,
   });
@@ -203,11 +204,8 @@ export function BKSubmissionsPage() {
               </div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-              className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
+            <div
+              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
             >
               {overviewQuery.isLoading ? (
                 <TableSkeleton columns={7} />
@@ -286,7 +284,7 @@ export function BKSubmissionsPage() {
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
-            </motion.div>
+            </div>
           </section>
 
           {reportModalOpen && (

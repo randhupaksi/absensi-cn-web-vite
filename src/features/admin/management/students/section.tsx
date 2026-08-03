@@ -345,9 +345,47 @@ export function StudentSection({
   const { pageItems: pageMemberships, pagination: membershipsPagination } = usePagination(filteredMemberships);
   const { pageItems: pageRules, pagination: rulesPagination } = usePagination(filteredRules);
 
-  const activeStudentCount = students.filter((student) => student.is_active).length;
-  const activeMembershipCount = memberships.filter((membership) => membership.is_active).length;
-  const activeRuleCount = attendanceRules.filter((rule) => rule.is_active).length;
+  const studentMetrics = useMemo(() => {
+    let activeStudentCount = 0;
+    let studentsWithNisn = 0;
+    const membershipClassIds = new Set<string>();
+    const membershipSchoolYearIds = new Set<string>();
+    const placedStudentIds = new Set<string>();
+    const ruleSchoolYearIds = new Set<string>();
+    const ruleWindows = new Set<string>();
+    let activeMembershipCount = 0;
+    let activeRuleCount = 0;
+
+    for (const student of students) {
+      if (student.is_active) activeStudentCount += 1;
+      if (student.nisn?.trim()) studentsWithNisn += 1;
+    }
+    for (const membership of memberships) {
+      if (membership.is_active) {
+        activeMembershipCount += 1;
+        placedStudentIds.add(membership.student_id);
+      }
+      membershipClassIds.add(membership.class_id);
+      membershipSchoolYearIds.add(membership.school_year_id);
+    }
+    for (const rule of attendanceRules) {
+      if (rule.is_active) activeRuleCount += 1;
+      ruleSchoolYearIds.add(rule.school_year_id);
+      ruleWindows.add(`${rule.check_in_start}|${rule.on_time_until}|${rule.late_until}`);
+    }
+
+    return {
+      activeStudentCount,
+      studentsWithNisn,
+      activeMembershipCount,
+      membershipClassCount: membershipClassIds.size,
+      membershipSchoolYearCount: membershipSchoolYearIds.size,
+      placedStudentCount: placedStudentIds.size,
+      activeRuleCount,
+      ruleSchoolYearCount: ruleSchoolYearIds.size,
+      ruleWindowCount: ruleWindows.size,
+    };
+  }, [attendanceRules, memberships, students]);
 
   const kpiCards = useMemo(() => {
     if (activeTab === "memberships") {
@@ -360,19 +398,19 @@ export function StudentSection({
         },
         {
           label: "Penempatan Aktif",
-          value: activeMembershipCount,
+          value: studentMetrics.activeMembershipCount,
           icon: BadgeCheck,
           accentClass: "from-teal-500 via-emerald-500 to-green-500",
         },
         {
           label: "Kelas Terisi",
-          value: new Set(memberships.map((membership) => membership.class_id)).size,
+          value: studentMetrics.membershipClassCount,
           icon: BookOpen,
           accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
         },
         {
           label: "Tahun Ajaran",
-          value: new Set(memberships.map((membership) => membership.school_year_id)).size,
+          value: studentMetrics.membershipSchoolYearCount,
           icon: CalendarClock,
           accentClass: "from-amber-400 via-orange-400 to-emerald-500",
         },
@@ -389,23 +427,19 @@ export function StudentSection({
         },
         {
           label: "Rule Aktif",
-          value: activeRuleCount,
+          value: studentMetrics.activeRuleCount,
           icon: ShieldCheck,
           accentClass: "from-teal-500 via-emerald-500 to-green-500",
         },
         {
           label: "Tahun Ajaran",
-          value: new Set(attendanceRules.map((rule) => rule.school_year_id)).size,
+          value: studentMetrics.ruleSchoolYearCount,
           icon: CalendarClock,
           accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
         },
         {
           label: "Window Unik",
-          value: new Set(
-            attendanceRules.map(
-              (rule) => `${rule.check_in_start}|${rule.on_time_until}|${rule.late_until}`,
-            ),
-          ).size,
+          value: studentMetrics.ruleWindowCount,
           icon: BadgeCheck,
           accentClass: "from-amber-400 via-orange-400 to-emerald-500",
         },
@@ -421,24 +455,24 @@ export function StudentSection({
       },
       {
         label: "Siswa Aktif",
-        value: activeStudentCount,
+        value: studentMetrics.activeStudentCount,
         icon: BadgeCheck,
         accentClass: "from-teal-500 via-emerald-500 to-green-500",
       },
       {
         label: "Punya NISN",
-        value: students.filter((student) => Boolean(student.nisn?.trim())).length,
+        value: studentMetrics.studentsWithNisn,
         icon: FilePenLine,
         accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
       },
       {
         label: "Sudah Ditempatkan",
-        value: new Set(memberships.filter((membership) => membership.is_active).map((membership) => membership.student_id)).size,
+        value: studentMetrics.placedStudentCount,
         icon: GraduationCap,
         accentClass: "from-amber-400 via-orange-400 to-emerald-500",
       },
     ];
-  }, [activeMembershipCount, activeRuleCount, activeStudentCount, activeTab, attendanceRules, memberships, students]);
+  }, [activeTab, attendanceRules.length, memberships.length, studentMetrics, students.length]);
 
   const addActionConfig = {
     profiles: {

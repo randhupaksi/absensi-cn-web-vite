@@ -3,7 +3,6 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import type { DashboardRole } from "@/types/auth";
 import { FileText } from "lucide-react";
-import { motion } from "motion/react";
 import { StaffShell } from "./shell";
 import {
   adminSidebarItems,
@@ -33,11 +32,8 @@ export function StaffPlaceholderPage({
       resolveTitle={() => title}
     >
       {() => (
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, ease: "easeOut" }}
-          className="rounded-[28px] border border-white/70 bg-white/82 p-5 shadow-[0_24px_60px_rgba(28,77,61,0.08)] backdrop-blur-xl sm:p-6"
+        <section
+          className="content-enter-up-12-now rounded-[28px] border border-white/70 bg-white/82 p-5 shadow-[0_24px_60px_rgba(28,77,61,0.08)] backdrop-blur-xl sm:p-6"
         >
           <div className="border-b border-slate-200/80 pb-4">
             <h2 className="text-[1.9rem] font-semibold tracking-tight text-slate-950">
@@ -53,7 +49,7 @@ export function StaffPlaceholderPage({
               description={description}
             />
           </div>
-        </motion.section>
+        </section>
       )}
     </StaffShell>
   );

@@ -46,7 +46,6 @@ import {
   TriangleAlert,
   UsersRound,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -199,11 +198,8 @@ export function BKStudentsPage() {
               </div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-              className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
+            <div
+              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
             >
               <div className="overflow-x-auto bg-white/92">
                 {overviewQuery.isLoading ? (
@@ -363,7 +359,7 @@ export function BKStudentsPage() {
               {!overviewQuery.isLoading && !overviewQuery.error && students.length > 0 ? (
                 <DataTablePagination {...studentsPagination} />
               ) : null}
-            </motion.div>
+            </div>
           </section>
 
           {reportModalOpen && (

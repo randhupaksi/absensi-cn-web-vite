@@ -396,13 +396,34 @@ export function TeacherSection({
   const { pageItems: pageHomeroomAssignments, pagination: homeroomAssignmentsPagination } = usePagination(filteredHomeroomAssignments);
   const { pageItems: pageBkTeachers, pagination: bkTeachersPagination } = usePagination(filteredBkTeachers);
 
-  const activeTeacherCount = teacherProfiles.filter(
-    (teacher) => teacher.is_active,
-  ).length;
   const totalHomeroomAssignments = homeroomAssignments.length;
-  const activeHomeroomAssignments = homeroomAssignments.filter(
-    (assignment) => assignment.is_active,
-  ).length;
+  const teacherMetrics = useMemo(() => {
+    let activeTeacherCount = 0;
+    let activeHomeroomAssignments = 0;
+    const homeroomTeacherIds = new Set<string>();
+    const homeroomClassIds = new Set<string>();
+    const subjectTeacherIds = new Set<string>();
+
+    for (const teacher of teacherProfiles) {
+      if (teacher.is_active) activeTeacherCount += 1;
+    }
+    for (const assignment of homeroomAssignments) {
+      if (assignment.is_active) activeHomeroomAssignments += 1;
+      homeroomTeacherIds.add(assignment.teacher_id);
+      homeroomClassIds.add(assignment.class_id);
+    }
+    for (const assignment of teacherSubjectAssignments) {
+      subjectTeacherIds.add(assignment.teacher_id);
+    }
+
+    return {
+      activeTeacherCount,
+      activeHomeroomAssignments,
+      homeroomTeacherCount: homeroomTeacherIds.size,
+      homeroomClassCount: homeroomClassIds.size,
+      subjectTeacherCount: subjectTeacherIds.size,
+    };
+  }, [homeroomAssignments, teacherProfiles, teacherSubjectAssignments]);
 
   const kpiCards = useMemo(() => {
     if (activeTab === "bk") {
@@ -432,19 +453,19 @@ export function TeacherSection({
         },
         {
           label: "Walas Aktif",
-          value: activeHomeroomAssignments,
+          value: teacherMetrics.activeHomeroomAssignments,
           icon: BadgeCheck,
           accentClass: "from-emerald-500 via-teal-500 to-green-500",
         },
         {
           label: "Guru Walas",
-          value: new Set(homeroomAssignments.map((assignment) => assignment.teacher_id)).size,
+          value: teacherMetrics.homeroomTeacherCount,
           icon: UsersRound,
           accentClass: "from-teal-500 via-emerald-500 to-lime-500",
         },
         {
           label: "Kelas Berwali",
-          value: new Set(homeroomAssignments.map((assignment) => assignment.class_id)).size,
+          value: teacherMetrics.homeroomClassCount,
           icon: BookOpen,
           accentClass: "from-sky-500 via-cyan-500 to-emerald-500",
         },
@@ -460,32 +481,29 @@ export function TeacherSection({
       },
       {
         label: "Guru Aktif",
-        value: activeTeacherCount,
+        value: teacherMetrics.activeTeacherCount,
         icon: BadgeCheck,
         accentClass: "from-emerald-500 via-teal-500 to-green-500",
       },
       {
         label: "Guru Mapel",
-        value: new Set(teacherSubjectAssignments.map((assignment) => assignment.teacher_id)).size,
+        value: teacherMetrics.subjectTeacherCount,
         icon: IdCard,
         accentClass: "from-teal-500 via-emerald-500 to-lime-500",
       },
       {
         label: "Guru Walas",
-        value: new Set(homeroomAssignments.map((assignment) => assignment.teacher_id)).size,
+        value: teacherMetrics.homeroomTeacherCount,
         icon: FilePenLine,
         accentClass: "from-amber-400 via-orange-400 to-emerald-500",
       },
     ];
   }, [
-    activeHomeroomAssignments,
     activeTab,
-    activeTeacherCount,
     bkTeachers.length,
     eligibleTeachersForBk.length,
-    homeroomAssignments,
-    teacherSubjectAssignments,
-    teacherProfiles,
+    teacherMetrics,
+    teacherProfiles.length,
     totalHomeroomAssignments,
   ]);
 

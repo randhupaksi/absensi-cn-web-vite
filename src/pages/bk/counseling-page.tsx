@@ -54,7 +54,6 @@ import {
   Trash2,
   UsersRound,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -238,11 +237,8 @@ export function BKCounselingPage() {
               </div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: 0.08, ease: "easeOut" }}
-              className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
+            <div
+              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
             >
               {overviewQuery.isLoading ? (
                 <TableSkeleton columns={6} />
@@ -326,7 +322,7 @@ export function BKCounselingPage() {
               {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
-            </motion.div>
+            </div>
           </section>
 
           {reportModalOpen && (

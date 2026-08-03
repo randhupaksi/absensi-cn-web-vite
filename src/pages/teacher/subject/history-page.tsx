@@ -16,7 +16,6 @@ import dynamic from "@/lib/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { motion } from "motion/react";
 import { ArrowUpRight, BookOpenCheck, CalendarClock, CalendarDays, Eye, History, Printer } from "lucide-react";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useSearchParams } from "@/lib/router";
@@ -48,6 +47,9 @@ const STATUS_OPTIONS = [
   { value: "sudah_divalidasi", label: "Sudah Divalidasi" },
   { value: "diedit", label: "Diedit" },
 ];
+
+const EMPTY_ASSIGNMENTS: Awaited<ReturnType<typeof getTeacherSubjectAssignments>> = [];
+const EMPTY_SESSIONS: Awaited<ReturnType<typeof getTeacherSubjectSessions>>["sessions"] = [];
 
 type DateFilterMode = "single" | "range";
 
@@ -90,7 +92,7 @@ export function MapelHistoryPage() {
     staleTime: 30_000,
   });
 
-  const assignments = assignmentsQuery.data ?? [];
+  const assignments = assignmentsQuery.data ?? EMPTY_ASSIGNMENTS;
 
   useEffect(() => {
     if (selectedAssignmentId || assignments.length === 0) return;
@@ -125,7 +127,7 @@ export function MapelHistoryPage() {
   });
 
   const sessionList = sessionsQuery.data;
-  const sessions = sessionsQuery.data?.sessions ?? [];
+  const sessions = sessionsQuery.data?.sessions ?? EMPTY_SESSIONS;
   const { pageItems: pagedSessions, pagination: sessionsPagination } = usePagination(sessions, 10);
   const selectedAssignment = sessionList?.assignment ?? assignments.find((a) => a.id === selectedAssignmentId);
   const periodeLabel = buildPeriodLabel(dateFromStr, dateToStr, sessions.map((session) => session.tanggal));
@@ -292,11 +294,10 @@ export function MapelHistoryPage() {
                         cls: "bg-slate-100 text-slate-600",
                       };
                       return (
-                        <motion.tr
+                        <tr
                           key={sess.session_id}
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.15, delay: i * 0.02 }}
+                          className="content-enter-up-4"
+                          style={{ animationDelay: `${i * 20}ms` }}
                         >
                           <td className="py-3 pr-4 font-semibold text-slate-950">{formatDisplayDate(sess.tanggal)}</td>
                           <td className="py-3 pr-4 text-slate-600">
@@ -329,7 +330,7 @@ export function MapelHistoryPage() {
                               <Eye className="size-4" />
                             </Link>
                           </td>
-                        </motion.tr>
+                        </tr>
                       );
                     })}
                   </tbody>
@@ -343,12 +344,10 @@ export function MapelHistoryPage() {
                     cls: "bg-slate-100 text-slate-600",
                   };
                   return (
-                    <motion.div
+                    <div
                       key={sess.session_id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.18, delay: i * 0.03 }}
-                      className="rounded-[1.35rem] border border-emerald-100/70 bg-white/80 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.06)]"
+                      className="content-enter-up-6 rounded-[1.35rem] border border-emerald-100/70 bg-white/80 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.06)]"
+                      style={{ animationDelay: `${i * 30}ms` }}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -386,7 +385,7 @@ export function MapelHistoryPage() {
                           <Eye className="size-4" />
                         </Link>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>

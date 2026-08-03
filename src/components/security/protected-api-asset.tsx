@@ -15,7 +15,7 @@ function isProtectedUpload(value: string) {
   }
 }
 
-async function createAssetObjectUrl(value: string) {
+async function createAssetObjectUrl(value: string, signal: AbortSignal) {
   const resolved = resolveApiAssetUrl(value);
   if (!isProtectedUpload(resolved)) return { url: resolved, revoke: false };
 
@@ -29,6 +29,7 @@ async function createAssetObjectUrl(value: string) {
   const response = await fetch(resolved, {
     headers: { Authorization: `Bearer ${accessToken}` },
     credentials: "same-origin",
+    signal,
   });
   if (!response.ok) {
     throw new Error(`Bukti foto tidak dapat dimuat (${response.status}).`);
@@ -52,8 +53,9 @@ export function ProtectedApiImage({ src, alt, ...props }: ProtectedApiImageProps
   useEffect(() => {
     let active = true;
     let objectUrl = "";
+    const controller = new AbortController();
 
-    void createAssetObjectUrl(src)
+    void createAssetObjectUrl(src, controller.signal)
       .then((asset) => {
         if (!active) {
           if (asset.revoke) URL.revokeObjectURL(asset.url);
@@ -68,6 +70,7 @@ export function ProtectedApiImage({ src, alt, ...props }: ProtectedApiImageProps
 
     return () => {
       active = false;
+      controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [src]);

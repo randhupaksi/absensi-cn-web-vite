@@ -22,7 +22,6 @@ import type { StaffSubjectRecapStudentRow } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { motion } from "motion/react";
 import { BookOpenCheck, CalendarDays, ChartColumnBig, Printer } from "lucide-react";
 import { useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
@@ -199,11 +198,10 @@ export function MapelRecapPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {pagedStudents.map((s, i) => (
-                        <motion.tr
+                        <tr
                           key={s.student_id}
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.15, delay: i * 0.02 }}
+                          className="content-enter-up-4"
+                          style={{ animationDelay: `${i * 20}ms` }}
                         >
                           <td className="py-3 pr-4 font-medium text-slate-900">{s.student_name}</td>
                           <td className="py-3 pr-4 text-slate-500">{s.nis}</td>
@@ -212,7 +210,7 @@ export function MapelRecapPage() {
                           <RecapCell value={s.sakit} cls="text-violet-700 bg-violet-50" />
                           <RecapCell value={s.alfa} cls="text-rose-700 bg-rose-50" />
                           <AttendancePercentageCell hadir={s.hadir} totalPertemuan={recap.total_pertemuan} />
-                        </motion.tr>
+                        </tr>
                       ))}
                     </tbody>
                     <tfoot>

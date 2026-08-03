@@ -246,12 +246,34 @@ export function SubjectManagementSection({
     return matchingAssignmentIDs.has(assignment.id);
   }), [assignments, classFilter, dayFilter, matchingAssignmentIDs, normalizedQuery, schoolYearFilter, statusFilter, subjectFilter, teacherFilter]);
 
-  const activeSubjects = subjects.filter((s) => s.is_active).length;
-  const activeSchedules = schedules.filter((s) => s.is_active).length;
-  const scheduledTeachers = new Set(schedules.filter((s) => s.is_active).map((s) => s.teacher_id)).size;
-  const scheduledClasses = new Set(schedules.filter((s) => s.is_active).map((s) => s.class_id)).size;
+  const subjectMetrics = useMemo(() => {
+    let activeSubjects = 0;
+    let activeSchedules = 0;
+    let activeOverrides = 0;
+    const scheduledTeacherIds = new Set<string>();
+    const scheduledClassIds = new Set<string>();
 
-  const activeOverrides = overrides.filter((o) => o.status === "ACTIVE").length;
+    for (const subject of subjects) {
+      if (subject.is_active) activeSubjects += 1;
+    }
+    for (const schedule of schedules) {
+      if (!schedule.is_active) continue;
+      activeSchedules += 1;
+      scheduledTeacherIds.add(schedule.teacher_id);
+      scheduledClassIds.add(schedule.class_id);
+    }
+    for (const override of overrides) {
+      if (override.status === "ACTIVE") activeOverrides += 1;
+    }
+
+    return {
+      activeSubjects,
+      activeSchedules,
+      activeOverrides,
+      scheduledTeachers: scheduledTeacherIds.size,
+      scheduledClasses: scheduledClassIds.size,
+    };
+  }, [overrides, schedules, subjects]);
 
   const { pageItems: pageSubjects, pagination: subjectsPagination } = usePagination(filteredSubjects);
   const { pageItems: pageAssignments, pagination: assignmentsPagination } = usePagination(filteredAssignments);
@@ -261,24 +283,24 @@ export function SubjectManagementSection({
     if (activeTab === "schedules") {
       return [
         { label: "Total Penempatan", value: assignments.length, icon: CalendarClock, accentClass: "from-emerald-500 via-teal-500 to-cyan-500" },
-        { label: "Jadwal Aktif", value: activeSchedules, icon: BookOpenCheck, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
-        { label: "Guru Terjadwal", value: scheduledTeachers, icon: UsersRound, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
-        { label: "Kelas Terjadwal", value: scheduledClasses, icon: GraduationCap, accentClass: "from-violet-500 via-purple-500 to-indigo-500" },
+        { label: "Jadwal Aktif", value: subjectMetrics.activeSchedules, icon: BookOpenCheck, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
+        { label: "Guru Terjadwal", value: subjectMetrics.scheduledTeachers, icon: UsersRound, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
+        { label: "Kelas Terjadwal", value: subjectMetrics.scheduledClasses, icon: GraduationCap, accentClass: "from-violet-500 via-purple-500 to-indigo-500" },
       ];
     }
     if (activeTab === "overrides") {
       return [
         { label: "Total Perubahan", value: overrides.length, icon: CalendarSync, accentClass: "from-amber-400 via-orange-400 to-emerald-500" },
-        { label: "Perubahan Aktif", value: activeOverrides, icon: CalendarSync, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
+        { label: "Perubahan Aktif", value: subjectMetrics.activeOverrides, icon: CalendarSync, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
       ];
     }
     return [
       { label: "Total Mapel", value: subjects.length, icon: BookOpenCheck, accentClass: "from-emerald-500 via-teal-500 to-cyan-500" },
-      { label: "Mapel Aktif", value: activeSubjects, icon: Layers3, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
-      { label: "Guru Terjadwal", value: scheduledTeachers, icon: UsersRound, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
-      { label: "Kelas Terjadwal", value: scheduledClasses, icon: GraduationCap, accentClass: "from-violet-500 via-purple-500 to-indigo-500" },
+      { label: "Mapel Aktif", value: subjectMetrics.activeSubjects, icon: Layers3, accentClass: "from-emerald-500 via-teal-500 to-green-500" },
+      { label: "Guru Terjadwal", value: subjectMetrics.scheduledTeachers, icon: UsersRound, accentClass: "from-sky-500 via-cyan-500 to-emerald-500" },
+      { label: "Kelas Terjadwal", value: subjectMetrics.scheduledClasses, icon: GraduationCap, accentClass: "from-violet-500 via-purple-500 to-indigo-500" },
     ];
-  }, [activeTab, activeSchedules, activeSubjects, activeOverrides, assignments.length, overrides.length, scheduledClasses, scheduledTeachers, subjects.length]);
+  }, [activeTab, assignments.length, overrides.length, subjectMetrics, subjects.length]);
 
   return (
     <>

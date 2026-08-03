@@ -1,6 +1,5 @@
 "use client";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { appCreditLongStatement, appCreditSummary, appCredits } from "@/lib/config/credits";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { lazy, ReactNode, Suspense, useEffect, useState } from "react";
@@ -96,12 +95,10 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider delay={100}>
-        {children}
-        <Suspense fallback={null}>
-          <Toaster richColors position="top-right" />
-        </Suspense>
-      </TooltipProvider>
+      {children}
+      <Suspense fallback={null}>
+        <Toaster richColors position="top-right" />
+      </Suspense>
     </QueryClientProvider>
   );
 }

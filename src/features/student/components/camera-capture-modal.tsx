@@ -23,7 +23,9 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
   const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
-    navigator.mediaDevices
+    let cancelled = false;
+
+    void navigator.mediaDevices
       .getUserMedia({
         video: {
           facingMode: "environment",
@@ -32,16 +34,25 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
         },
       })
       .then((stream) => {
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
         streamRef.current = stream;
         if (videoRef.current) videoRef.current.srcObject = stream;
       })
       .catch(() => {
-        setCameraError(
-          "Kamera tidak dapat diakses. Pastikan izin kamera sudah diaktifkan di browser.",
-        );
+        if (!cancelled) {
+          setCameraError(
+            "Kamera tidak dapat diakses. Pastikan izin kamera sudah diaktifkan di browser.",
+          );
+        }
       });
 
-    return stopStream;
+    return () => {
+      cancelled = true;
+      stopStream();
+    };
   }, []);
 
   function stopStream() {
