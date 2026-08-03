@@ -20,11 +20,13 @@ export default function LoginPage({ portal }: LoginPageProps) {
       }
     >
       <AnimatedBackground />
-      <BackButton
-        href="/"
-        label="Kembali ke beranda"
-        className="absolute left-5 top-4 z-20 lg:hidden sm:left-6 sm:top-5"
-      />
+      {isStaffPortal ? null : (
+        <BackButton
+          href="/"
+          label="Kembali ke beranda"
+          className="absolute left-5 top-4 z-20 lg:hidden sm:left-6 sm:top-5"
+        />
+      )}
       <div className="relative mx-auto flex min-h-[100svh] w-full max-w-7xl items-center px-5 py-6 supports-[min-height:100dvh]:min-h-[100dvh] sm:px-6 lg:px-10">
         <div
           className={
