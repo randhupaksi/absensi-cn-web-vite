@@ -27,6 +27,7 @@ export type ExcelReportDefinition<Row> = {
   metrics?: ExcelReportMetric[];
   dataSheetName?: string;
   showColumnFilters?: boolean;
+  includeStatisticsSheet?: boolean;
   footerLabel?: string;
 };
 

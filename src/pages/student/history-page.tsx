@@ -10,9 +10,13 @@ import {
   MobileDataList,
   MobileDataSection,
   SearchFilterBar,
+  SectionTabSwitch,
 } from "@/features/admin/management/shared/section-ui";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StudentShell } from "@/features/student/components/shell";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import dynamic from "@/lib/dynamic";
 import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import { StudentSubmissionEvidenceModal } from "@/features/student/components/submission-evidence-modal";
 import {
@@ -25,14 +29,18 @@ import {
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { getStudentHistory } from "@/services/student.service";
 import type { StaffAttendanceRecord } from "@/types/staff";
-import type { StudentSubmission } from "@/types/student";
+import type { StudentProfile, StudentStats, StudentSubmission } from "@/types/student";
 import { useQuery } from "@tanstack/react-query";
 import {
   CalendarCheck,
+  ChartLine,
   CheckCircle2,
   FileImage,
   FileText,
   History,
+  LayoutPanelTop,
+  List,
+  Printer,
   ShieldAlert,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -46,9 +54,30 @@ const statusOptions = [
   { value: "alfa", label: "Alfa" },
 ];
 
+const StudentHistoryReportModal = dynamic(
+  () => import("@/features/reports/student/student-history-report-modal").then(
+    (module) => module.StudentHistoryReportModal,
+  ),
+);
+
+type StudentHistoryTab = "overview" | "history";
+
+type MonthlyAttendanceSummary = {
+  key: string;
+  label: string;
+  total: number;
+  present: number;
+  permission: number;
+  sick: number;
+  alpha: number;
+  attendanceRate: number;
+};
+
 export function StudentHistoryPage() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
+  const [activeTab, setActiveTab] = useState<StudentHistoryTab>("overview");
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const [attendanceEvidence, setAttendanceEvidence] = useState<StaffAttendanceRecord | null>(null);
   const [submissionEvidence, setSubmissionEvidence] = useState<StudentSubmission | null>(null);
 
@@ -60,6 +89,13 @@ export function StudentHistoryPage() {
 
   const history = historyQuery.data;
   const stats = history?.stats;
+  const attendanceRate = stats?.total_attendance
+    ? Math.round((stats.present / stats.total_attendance) * 100)
+    : 0;
+  const monthlySummary = useMemo(
+    () => getMonthlyAttendanceSummary(history?.attendance ?? []),
+    [history?.attendance],
+  );
   const records = useMemo(() => {
     const attendanceItems = (history?.attendance ?? []).map((item) => ({
       kind: "attendance" as const,
@@ -117,16 +153,30 @@ export function StudentHistoryPage() {
                   dalam satu tempat.
                 </p>
               </div>
-              <div className="rounded-[1.4rem] border border-slate-200 bg-white/82 px-5 py-4 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                  Kelas Aktif
-                </p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {history?.profile.class_name ?? "-"}
-                </p>
-                <p className="text-sm text-slate-500">
-                  {history?.profile.school_year_name ?? "-"}
-                </p>
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+                <div className="w-full rounded-[1.4rem] border border-slate-200 bg-white/82 px-5 py-4 shadow-[0_18px_44px_rgba(15,23,42,0.06)] sm:w-auto sm:min-w-[220px]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                    Kelas Aktif
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950">
+                    {history?.profile.class_name ?? "-"}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {history?.profile.school_year_name ?? "-"}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setReportModalOpen(true)}
+                  disabled={(history?.attendance.length ?? 0) === 0}
+                  className="h-14 min-w-0 w-full gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] px-3 text-xs font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(220,252,231,1)_100%)] hover:text-emerald-950 sm:w-auto sm:gap-2 sm:px-5 sm:text-sm"
+                >
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
+                    <Printer className="size-4" />
+                  </span>
+                  Export Laporan
+                </Button>
               </div>
             </div>
 
@@ -158,6 +208,25 @@ export function StudentHistoryPage() {
             </div>
           </section>
 
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as StudentHistoryTab)} className="gap-0">
+            <SectionTabSwitch
+              hugContent
+              tabs={[
+                { value: "overview", label: "Ringkasan", icon: LayoutPanelTop },
+                { value: "history", label: "Histori Absensi", icon: List },
+              ]}
+            />
+
+            <TabsContent value="overview" className="mt-5">
+              <StudentHistoryOverview
+                profile={history?.profile}
+                stats={stats}
+                attendanceRate={attendanceRate}
+                monthlySummary={monthlySummary}
+              />
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-5">
           <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -226,6 +295,8 @@ export function StudentHistoryPage() {
               </div>
             )}
           </section>
+            </TabsContent>
+          </Tabs>
 
           <AttendanceEvidenceModal
             record={attendanceEvidence}
@@ -235,9 +306,129 @@ export function StudentHistoryPage() {
             submission={submissionEvidence}
             onOpenChange={(open) => !open && setSubmissionEvidence(null)}
           />
+          <StudentHistoryReportModal
+            open={reportModalOpen}
+            onOpenChange={setReportModalOpen}
+            profile={history?.profile}
+            stats={stats}
+            attendance={history?.attendance ?? []}
+          />
         </div>
       )}
     </StudentShell>
+  );
+}
+
+function StudentHistoryOverview({
+  profile,
+  stats,
+  attendanceRate,
+  monthlySummary,
+}: {
+  profile?: StudentProfile;
+  stats?: StudentStats;
+  attendanceRate: number;
+  monthlySummary: MonthlyAttendanceSummary[];
+}) {
+  return (
+    <div className="space-y-5">
+      <section className="grid gap-5 lg:grid-cols-[1.06fr_0.94fr]">
+        <article className="rounded-[2rem] border border-emerald-100 bg-[linear-gradient(135deg,#f7fffb_0%,#ecfdf5_58%,#ffffff_100%)] p-5 shadow-[0_18px_48px_rgba(5,120,91,0.08)]">
+          <div className="flex items-center gap-3">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.22)]">
+              <LayoutPanelTop className="size-5" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Profil laporan</p>
+              <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-slate-950">Data Siswa</h2>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 min-[420px]:grid-cols-2">
+            <OverviewField label="Nama lengkap" value={profile?.name ?? "-"} />
+            <OverviewField label="NIS" value={profile?.nis ?? "-"} />
+            <OverviewField label="Kelas aktif" value={profile?.class_name ?? "-"} />
+            <OverviewField label="Tahun ajaran" value={profile?.school_year_name ?? "-"} />
+          </div>
+        </article>
+
+        <article className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Kehadiran</p>
+              <p className="mt-3 text-5xl font-semibold tracking-[-0.06em] text-slate-950">{attendanceRate}%</p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">Persentase hadir dari seluruh data absensi yang tercatat.</p>
+            </div>
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+              <ChartLine className="size-5" />
+            </span>
+          </div>
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-[linear-gradient(90deg,#059669,#34d399)] transition-[width] duration-500" style={{ width: `${attendanceRate}%` }} />
+          </div>
+          <div className="mt-5 grid grid-cols-4 gap-2 text-center">
+            <OverviewStat label="Hadir" value={stats?.present ?? 0} tone="text-emerald-700" />
+            <OverviewStat label="Izin" value={stats?.permission ?? 0} tone="text-sky-700" />
+            <OverviewStat label="Sakit" value={stats?.sick ?? 0} tone="text-violet-700" />
+            <OverviewStat label="Alfa" value={stats?.alpha ?? 0} tone="text-rose-700" />
+          </div>
+        </article>
+      </section>
+
+      <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="flex flex-col gap-2 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Ringkasan per bulan</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">Pantau pola kehadiran dari bulan ke bulan sebelum membuka histori lengkap.</p>
+          </div>
+          <p className="text-xs font-medium text-emerald-700">{monthlySummary.length} periode tercatat</p>
+        </div>
+
+        {monthlySummary.length > 0 ? (
+          <div className="mt-5 grid gap-3 min-[520px]:grid-cols-2 xl:grid-cols-3">
+            {monthlySummary.map((month) => (
+              <article key={month.key} className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/72 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-slate-900">{month.label}</p>
+                    <p className="mt-1 text-xs text-slate-500">{month.total} data absensi</p>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">{month.attendanceRate}% hadir</span>
+                </div>
+                <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs">
+                  <OverviewStat label="H" value={month.present} tone="text-emerald-700" compact />
+                  <OverviewStat label="I" value={month.permission} tone="text-sky-700" compact />
+                  <OverviewStat label="S" value={month.sick} tone="text-violet-700" compact />
+                  <OverviewStat label="A" value={month.alpha} tone="text-rose-700" compact />
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5">
+            <EmptyState icon={CalendarCheck} title="Belum ada ringkasan bulanan" description="Ringkasan akan terbentuk setelah histori absensi tersedia." compact />
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function OverviewField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-[1.1rem] border border-white bg-white/84 px-3.5 py-3 shadow-[0_8px_18px_rgba(15,23,42,0.035)]">
+      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.15em] text-slate-400">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function OverviewStat({ label, value, tone, compact = false }: { label: string; value: number; tone: string; compact?: boolean }) {
+  return (
+    <div className={`rounded-[0.9rem] bg-white px-2 shadow-[0_6px_14px_rgba(15,23,42,0.03)] ${compact ? "py-2.5" : "py-3"}`}>
+      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className={`mt-1 text-lg font-semibold ${tone}`}>{value}</p>
+    </div>
   );
 }
 
@@ -404,4 +595,39 @@ function MobileSubmissionCard({ submission, onOpen }: { submission: StudentSubmi
       ) : null}
     </MobileDataCard>
   );
+}
+
+function getMonthlyAttendanceSummary(attendance: StaffAttendanceRecord[]): MonthlyAttendanceSummary[] {
+  const summaries = new Map<string, Omit<MonthlyAttendanceSummary, "label" | "attendanceRate">>();
+
+  attendance.forEach((record) => {
+    const key = record.attendance_date.slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(key)) return;
+    const current = summaries.get(key) ?? {
+      key,
+      total: 0,
+      present: 0,
+      permission: 0,
+      sick: 0,
+      alpha: 0,
+    };
+    current.total += 1;
+    const status = record.status.toLowerCase();
+    if (status === "hadir") current.present += 1;
+    if (status === "izin") current.permission += 1;
+    if (status === "sakit") current.sick += 1;
+    if (status === "alfa") current.alpha += 1;
+    summaries.set(key, current);
+  });
+
+  return [...summaries.values()]
+    .sort((first, second) => second.key.localeCompare(first.key))
+    .map((item) => ({
+      ...item,
+      label: new Date(`${item.key}-01T00:00:00`).toLocaleDateString("id-ID", {
+        month: "long",
+        year: "numeric",
+      }),
+      attendanceRate: item.total ? Math.round((item.present / item.total) * 100) : 0,
+    }));
 }

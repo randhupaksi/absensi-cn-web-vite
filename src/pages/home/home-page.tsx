@@ -2,6 +2,7 @@ import { AppImage as Image } from "@/components/media/app-image";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useEffect } from "react";
 import type { IconType } from "react-icons";
+import { FiPhone } from "react-icons/fi";
 import {
   FaArrowRight,
   FaBriefcase,
@@ -100,7 +101,7 @@ const majors = [
   },
   {
     name: "Perhotelan",
-    label: "Hospitality",
+    label: "Layanan",
     detail: "Etika layanan dan kesiapan industri",
   },
 ];
@@ -135,7 +136,8 @@ const majorImagePositions = {
 const contactLinks = [
   { icon: FaGlobe, label: "Website", href: "https://smk.citranegara.sch.id/" },
   { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/smkcitranegaradepok/" },
-  { icon: FaWhatsapp, label: "WhatsApp", href: "https://wa.me/622177201052" },
+  { icon: FiPhone, label: "Telepon (021) 77201052", href: "tel:+622177201052" },
+  { icon: FaWhatsapp, label: "WhatsApp", href: "https://wa.me/6281325269477" },
 ] as const;
 
 export default function HomePage() {
@@ -199,7 +201,7 @@ export default function HomePage() {
                 <div className="mx-auto max-w-[960px] space-y-6 text-center">
                   <div className={`${styles.landingReveal} inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-100 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl`}>
                     <FaCameraRetro className="size-3.5 text-emerald-300" />
-                    Portal Absensi Real Time
+                    Portal Absensi Citra Negara
                   </div>
 
                   <div className="space-y-4">
@@ -382,8 +384,7 @@ export default function HomePage() {
                   Jurusan yang Terpantau Sistem
                 </h2>
                 <p className={`${styles.landingMutedText} mx-auto mt-3 max-w-[620px] text-sm leading-7 md:text-base`}>
-                  Setiap jurusan dipresentasikan dengan sistem yang lebih
-                  modern, kontras, dan interaktif agar terasa premium saat dilihat.
+                  Setiap jurusan terhubung dalam satu sistem absensi yang praktis dan informatif.
                 </p>
               </div>
 
@@ -497,15 +498,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className={`${styles.landingFooterShell} ${styles.landingReveal} relative mt-0 overflow-hidden px-4 pb-8 pt-10 text-white sm:px-6 md:px-8 md:pb-10 md:pt-18`}>
+      <footer className={`${styles.landingFooterShell} relative mt-10 overflow-hidden px-4 pb-8 pt-10 text-white sm:px-6 md:px-8 md:pb-10 md:pt-10`}>
         <div className="absolute left-[8%] top-12 h-24 w-24 rounded-full bg-emerald-400/10 blur-3xl" />
         <div className="absolute right-[10%] top-16 h-28 w-28 rounded-full bg-teal-300/8 blur-3xl" />
         <div className="mx-auto max-w-[1480px]">
-          <div className={`${styles.landingFooterGlass} grid gap-8 rounded-[28px] px-6 py-8 sm:px-8 sm:py-10 md:rounded-b-[36px] lg:grid-cols-[1.1fr_0.9fr_0.8fr] lg:items-start`}>
+          <div
+            className={`${styles.landingFooterGlass} ${styles.landingReveal} grid min-w-0 max-w-full gap-8 overflow-hidden rounded-[28px] px-6 py-8 sm:px-8 sm:py-10 md:rounded-b-[36px] lg:grid-cols-[1.1fr_0.9fr_0.8fr] lg:items-start`}
+            data-reveal-threshold="0.12"
+          >
             <div>
               <div className="inline-flex items-center gap-3">
-                <div className={`${styles.landingFooterBrandBadge} flex size-11 shrink-0 items-center justify-center rounded-2xl sm:size-12`}>
-                  <FaSchool className="size-5" />
+                <div className="flex size-14 shrink-0 items-center justify-center sm:size-16">
+                  <Image
+                    src="/images/optimized/logo-sma-smk-yatkj.png"
+                    alt="Logo Sekolah Citra Negara"
+                    width={64}
+                    height={64}
+                    className="size-full object-contain"
+                  />
                 </div>
                 <div>
                   <p className={`${styles.landingFooterKicker} text-[10px] font-semibold uppercase tracking-[0.26em] sm:text-xs sm:tracking-[0.28em]`}>
@@ -552,8 +562,8 @@ export default function HomePage() {
                     key={label}
                     href={href}
                     aria-label={label}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
                     className={`${styles.landingFooterContact} inline-flex size-11 items-center justify-center rounded-2xl transition hover:-translate-y-0.5`}
                   >
                     <Icon className="size-4.5" />
@@ -568,7 +578,11 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/56 sm:mt-8 sm:pt-6 sm:text-sm">
+          <div
+            className={`${styles.landingReveal} mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/56 sm:mt-8 sm:pt-6 sm:text-sm`}
+            data-reveal-threshold="0.08"
+            style={{ animationDelay: "120ms" }}
+          >
             <p>Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.</p>
           </div>
         </div>

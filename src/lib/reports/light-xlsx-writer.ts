@@ -141,7 +141,7 @@ export function createStyledXlsx<Row>(definition: ExcelReportDefinition<Row>) {
   const sheets = [
     createSummarySheet(definition),
     createDataSheet(definition),
-    createStatisticsSheet(definition),
+    ...(definition.includeStatisticsSheet === false ? [] : [createStatisticsSheet(definition)]),
   ].filter((sheet): sheet is Sheet => Boolean(sheet));
 
   return createWorkbookArchive(sheets, definition.title, definition.subtitle);

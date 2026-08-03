@@ -511,7 +511,7 @@ export function MobileDataSection({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="mt-4 space-y-1.5">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
       <div className="text-xs leading-5 text-slate-600">{children}</div>
     </div>
@@ -573,14 +573,18 @@ const TAB_GRID_COLS_CLASS: Record<number, string> = {
 };
 
 const SECTION_TAB_TRIGGER_CLASS =
-  "shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-[color,background-color,border-color] duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full";
+  "shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-[color,background-color,border-color,box-shadow,transform] duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 active:scale-[0.97] active:border-emerald-300 active:bg-emerald-50/70 active:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)] active:duration-100 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full";
 
-export function SectionTabSwitch({ tabs }: { tabs: SectionTabItem[] }) {
+export function SectionTabSwitch({ tabs, hugContent = false }: { tabs: SectionTabItem[]; hugContent?: boolean }) {
   const gridColsClass = TAB_GRID_COLS_CLASS[tabs.length] ?? "";
   return (
     <ScrollableTabsWrapper>
       <TabsList
-        className={`h-full w-fit min-w-max gap-2 rounded-none bg-transparent p-0 xl:min-w-0 xl:grid xl:w-full ${gridColsClass}`}
+        className={
+          hugContent
+            ? "h-full w-fit min-w-max gap-2 rounded-none bg-transparent p-0"
+            : `h-full w-fit min-w-max gap-2 rounded-none bg-transparent p-0 xl:min-w-0 xl:grid xl:w-full ${gridColsClass}`
+        }
       >
         {tabs.map(({ value, label, icon: Icon }) => (
           <TabsTrigger key={value} value={value} className={SECTION_TAB_TRIGGER_CLASS}>

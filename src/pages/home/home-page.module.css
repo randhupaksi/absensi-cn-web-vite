@@ -201,12 +201,12 @@
 }
 
 .landingStepsTimelineReveal {
-  opacity: 0;
+  opacity: 1;
   transform: scaleY(0);
 }
 
 .landingStepsTimelineReveal[data-scroll-revealed="true"] {
-  animation: landingStepsTimelineIn 680ms ease-out 140ms both;
+  animation: landingStepsTimelineIn 3300ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
 }
 
 .landingStepItem {
@@ -519,7 +519,7 @@
 
 @keyframes landingStepsTimelineIn {
   from {
-    opacity: 0;
+    opacity: 1;
     transform: scaleY(0);
   }
 

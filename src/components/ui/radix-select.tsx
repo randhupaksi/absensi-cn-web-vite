@@ -91,6 +91,24 @@ function RadixSelectFieldBase({
   useEffect(() => {
     setVisibleOptionCount(MAX_RENDERED_OPTIONS);
   }, [normalizedQuery, options.length, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const body = document.body;
+    body.setAttribute("data-radix-select-open", "true");
+    const frame = window.requestAnimationFrame(() => {
+      // Radix Select mounts RemoveScroll internally. With the app's stable
+      // scrollbar gutter, its body lock can reset the active scroll context
+      // and clip sticky navigation. Release only the select's own lock.
+      if (body.getAttribute("data-scroll-locked") === "1") {
+        body.removeAttribute("data-scroll-locked");
+      }
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      body.removeAttribute("data-radix-select-open");
+    };
+  }, [open]);
   const renderedOptions = useMemo(
     () => filteredOptions.slice(0, visibleOptionCount),
     [filteredOptions, visibleOptionCount],
