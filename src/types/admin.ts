@@ -33,7 +33,7 @@ export type AdminDashboardData = {
   }>;
 };
 
-export type AdminSchoolHolidayType = "NATIONAL" | "COLLECTIVE_LEAVE" | "SCHOOL";
+export type AdminSchoolHolidayType = "NATIONAL" | "COLLECTIVE_LEAVE" | "SCHOOL" | "SYSTEM_MAINTENANCE";
 
 export type AdminSchoolHoliday = {
   id: string;

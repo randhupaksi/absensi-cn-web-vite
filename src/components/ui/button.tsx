@@ -9,11 +9,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[0_8px_18px_color-mix(in_oklab,var(--primary)_24%,transparent)] hover:-translate-y-px hover:bg-primary/90 hover:shadow-[0_12px_24px_color-mix(in_oklab,var(--primary)_30%,transparent)] active:bg-primary",
+          "bg-primary text-primary-foreground shadow-[0_10px_22px_color-mix(in_oklab,var(--primary)_28%,transparent)] hover:-translate-y-px hover:bg-primary/90 hover:shadow-[0_14px_28px_color-mix(in_oklab,var(--primary)_34%,transparent)] active:bg-primary",
         outline:
-          "border-border bg-background hover:-translate-y-px hover:border-primary/25 hover:bg-muted hover:text-foreground hover:shadow-sm active:bg-muted/85 aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-2 border-slate-300 bg-slate-100 text-slate-800 shadow-[0_6px_16px_rgba(15,23,42,0.08)] hover:-translate-y-px hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_10px_22px_rgba(16,185,129,0.16)] active:bg-emerald-100/80 aria-expanded:border-emerald-400 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950 dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:-translate-y-px hover:bg-secondary/80 hover:shadow-sm active:bg-secondary/90 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "border border-slate-200/80 bg-slate-100/90 text-slate-700 shadow-[0_5px_14px_rgba(15,23,42,0.04)] hover:-translate-y-px hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.14)] active:bg-emerald-100/80 aria-expanded:border-emerald-300 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950",
         ghost:
           "hover:bg-muted hover:text-foreground active:bg-muted/85 aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:

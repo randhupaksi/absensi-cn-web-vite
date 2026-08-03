@@ -64,7 +64,7 @@ export type StudentToday = {
   attendance?: StaffAttendanceRecord;
   is_school_day?: boolean;
   holiday_name?: string;
-  holiday_type?: "WEEKEND" | "NATIONAL" | "COLLECTIVE_LEAVE" | "SCHOOL" | string;
+  holiday_type?: "WEEKEND" | "NATIONAL" | "COLLECTIVE_LEAVE" | "SCHOOL" | "SYSTEM_MAINTENANCE" | string;
   can_submit: boolean;
   cooldown_until?: string;
   current_status: string;

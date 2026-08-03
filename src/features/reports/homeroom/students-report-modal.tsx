@@ -546,7 +546,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
                   </div>
                 )}
                 {dateMode === "range" && (
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <div className="mt-3 grid grid-cols-2 gap-2">
                     <Popover open={rangeFromOpen} onOpenChange={setRangeFromOpen}>
                       <PopoverTrigger render={<Button type="button" variant="outline" />} className="h-10 w-full justify-start"><CalendarClock className="mr-2 size-4 text-emerald-600" />{rangeFrom ? formatDisplayDate(rangeFrom) : "Tanggal mulai"}</PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start"><PopoverHeader><PopoverTitle>Tanggal mulai</PopoverTitle></PopoverHeader><Calendar mode="single" selected={parseDateValue(rangeFrom)} onSelect={(date) => { if (date) { setRangeFrom(toDateInputValue(date)); setConditionFilter(null); setSortBy(null); setRangeFromOpen(false); } }} locale={localeID} /></PopoverContent>

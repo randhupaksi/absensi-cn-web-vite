@@ -21,6 +21,7 @@ const TYPE_LABEL: Record<AdminSchoolHolidayType, string> = {
   NATIONAL: "Libur Nasional",
   COLLECTIVE_LEAVE: "Cuti Bersama",
   SCHOOL: "Libur Sekolah",
+  SYSTEM_MAINTENANCE: "Pemeliharaan Sistem",
 };
 
 export function HolidayManagementSection({ holidays, isLoading = false, errorMessage }: Props) {
@@ -153,7 +154,7 @@ function HolidayMobileList({ items, onEdit, onDelete, isDeletePending }: { items
 }
 
 function HolidayTypeBadge({ type }: { type: AdminSchoolHolidayType }) {
-  const style = type === "NATIONAL" ? "border-rose-200 bg-rose-50 text-rose-700" : type === "COLLECTIVE_LEAVE" ? "border-sky-200 bg-sky-50 text-sky-700" : "border-violet-200 bg-violet-50 text-violet-700";
+  const style = type === "NATIONAL" ? "border-rose-200 bg-rose-50 text-rose-700" : type === "COLLECTIVE_LEAVE" ? "border-sky-200 bg-sky-50 text-sky-700" : type === "SYSTEM_MAINTENANCE" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-violet-200 bg-violet-50 text-violet-700";
   return <Badge variant="outline" className={style}>{TYPE_LABEL[type]}</Badge>;
 }
 
