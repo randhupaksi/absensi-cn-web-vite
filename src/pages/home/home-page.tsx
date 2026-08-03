@@ -162,16 +162,27 @@ export default function HomePage() {
       .map((className) => `.${className}`)
       .join(", ");
     const revealTargets = Array.from(document.querySelectorAll<HTMLElement>(revealSelector));
+    const revealOrder = new Map(revealTargets.map((target, index) => [target, index]));
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        entries
+          .filter((entry) => {
+            const revealThreshold = Number(
+              (entry.target as HTMLElement).dataset.revealThreshold ?? 0.14,
+            );
+            return entry.isIntersecting && entry.intersectionRatio >= revealThreshold;
+          })
+          .sort((first, second) => {
+            return (revealOrder.get(first.target as HTMLElement) ?? 0) - (revealOrder.get(second.target as HTMLElement) ?? 0);
+          })
+          .forEach((entry) => {
           const revealThreshold = Number(
             (entry.target as HTMLElement).dataset.revealThreshold ?? 0.14,
           );
-          if (!entry.isIntersecting || entry.intersectionRatio < revealThreshold) return;
+          if (entry.intersectionRatio < revealThreshold) return;
           entry.target.setAttribute("data-scroll-revealed", "true");
           observer.unobserve(entry.target);
-        });
+          });
       },
       { threshold: [0.14, 0.18, 0.2, 0.25] },
     );
@@ -199,26 +210,26 @@ export default function HomePage() {
               <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-emerald-950/70 via-emerald-950/18 to-transparent" />
               <div className={`${styles.landingHeroViewport} relative z-10 mx-auto flex w-full max-w-[1480px] items-center px-6 py-16 md:px-10 xl:px-14`}>
                 <div className="mx-auto max-w-[960px] space-y-6 text-center">
-                  <div className={`${styles.landingReveal} inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-100 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl`}>
+                  <div className={`${styles.landingReveal} ${styles.landingHeroBadgeReveal} inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-100 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl`}>
                     <FaCameraRetro className="size-3.5 text-emerald-300" />
                     Portal Absensi Citra Negara
                   </div>
 
                   <div className="space-y-4">
-                    <p className={`${styles.landingReveal} ${styles.landingDelayOne} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}>
+                    <p className={`${styles.landingReveal} ${styles.landingHeroEyebrowReveal} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}>
                       Citra Negara Attendance System
                     </p>
-                    <h1 className={`${styles.landingReveal} ${styles.landingDelayTwo} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
+                    <h1 className={`${styles.landingReveal} ${styles.landingHeroTitleReveal} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
                       Satu langkah hadir,
                       <span className={`${styles.landingHeroTitle} block`}>Satu sistem untuk semua</span>
                     </h1>
-                    <p className={`${styles.landingReveal} ${styles.landingDelayThree} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}>
+                    <p className={`${styles.landingReveal} ${styles.landingHeroDescriptionReveal} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}>
                       Satu sistem untuk absensi yang lebih tertib, pemantauan yang lebih cepat,
                       dan pengelolaan data yang lebih mudah.
                     </p>
                   </div>
 
-                  <div className={`${styles.landingReveal} ${styles.landingDelayFour} flex justify-center`}>
+                  <div className={`${styles.landingReveal} ${styles.landingHeroCtaReveal} flex justify-center`}>
                     <Link
                       href="/login/student"
                       className={`${styles.landingCtaButton} group inline-flex h-14 items-center justify-center gap-3 rounded-full px-6 text-sm font-semibold transition hover:-translate-y-0.5 hover:bg-emerald-50`}
@@ -276,11 +287,10 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className={`${styles.landingRevealRight} space-y-5`}>
+                <div className={`${styles.landingRevealRight} min-w-0 w-full space-y-5`}>
                   <div className="space-y-3">
-                    <h2 className={`${styles.landingInkText} font-heading text-3xl font-bold tracking-tight md:text-[2.8rem]`}>
-                      Keistimewaan Aplikasi
-                      <br />
+                    <h2 className={`${styles.landingInkText} w-full max-w-full overflow-visible break-words whitespace-normal font-heading text-[clamp(1.5rem,7.4vw,1.875rem)] font-bold leading-[1.12] tracking-tight [text-wrap:balance] md:text-[2.8rem]`}>
+                      Keistimewaan Website
                       Absensi Sekolah Citra Negara
                     </h2>
                   </div>
@@ -375,7 +385,11 @@ export default function HomePage() {
             </section>
 
             <div className="mt-10 px-2 py-4 md:px-4 md:py-5 xl:px-6">
-              <div className={`${styles.landingReveal} text-center`}>
+              <div
+                className={`${styles.landingReveal} text-center`}
+                data-reveal-threshold="0.16"
+                style={{ animationDelay: "100ms", animationDuration: "1000ms" }}
+              >
                 <div className={`${styles.landingMajorBadge} inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}>
                   <FaStar className="size-3.5" />
                   Jurusan Unggulan
@@ -400,7 +414,7 @@ export default function HomePage() {
                   <article
                     key={major.name}
                     className={`${styles.landingMajorCard} ${styles.landingReveal} group relative mx-auto w-full max-w-[310px] overflow-hidden transition duration-500 hover:-translate-y-2`}
-                    style={{ animationDelay: `${90 + index * 55}ms` }}
+                    style={{ animationDelay: `${260 + index * 80}ms`, animationDuration: "650ms" }}
                   >
                     <div className="relative h-[340px]">
                       <Image
@@ -441,7 +455,10 @@ export default function HomePage() {
             </div>
 
             <div className="mt-8 mb-10 px-2 sm:mb-0 md:px-4 xl:px-6">
-              <div className={`${styles.landingCtaShell} ${styles.landingReveal} relative mx-2 overflow-hidden rounded-[42px] px-6 py-8 md:mx-0 md:px-10 md:py-10 xl:px-12 xl:py-12`}>
+              <div
+                className={`${styles.landingCtaShell} ${styles.landingReveal} ${styles.landingCtaReveal} relative mx-2 overflow-hidden rounded-[42px] px-6 py-8 md:mx-0 md:px-10 md:py-10 xl:px-12 xl:py-12`}
+                data-reveal-threshold="0.12"
+              >
                 <div className={`${styles.landingCtaGlow} absolute inset-0`} />
                 <div className="absolute right-[-120px] top-[-120px] h-[260px] w-[260px] rounded-full bg-emerald-300/12 blur-3xl" />
                 <div className="absolute bottom-[-90px] left-[46%] h-[220px] w-[220px] rounded-full bg-teal-200/10 blur-3xl" />
@@ -463,19 +480,19 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className={`${styles.landingRevealRight} relative mx-auto w-full max-w-[260px] text-center sm:mx-0 sm:max-w-[640px] sm:text-left`}>
-                    <div className={`${styles.landingCtaBadge} inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}>
+                  <div className="relative mx-auto w-full max-w-[260px] text-center sm:mx-0 sm:max-w-[640px] sm:text-left">
+                    <div className={`${styles.landingReveal} ${styles.landingCtaBadgeReveal} ${styles.landingCtaBadge} inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}>
                       Portal Absensi
                     </div>
-                    <h2 className="mx-auto mt-5 max-w-[580px] text-[1.7rem] font-bold leading-[1.06] tracking-tight text-white sm:mx-0 sm:text-[2rem] md:text-[3.2rem]">
+                    <h2 className={`${styles.landingReveal} ${styles.landingCtaTitleReveal} mx-auto mt-5 max-w-[580px] text-[1.7rem] font-bold leading-[1.06] tracking-tight text-white sm:mx-0 sm:text-[2rem] md:text-[3.2rem]`}>
                       Lakukan Absensi Siswa Di Sini
                     </h2>
-                    <p className="mx-auto mt-4 max-w-[500px] text-sm leading-7 text-white/80 sm:mx-0 md:text-base">
+                    <p className={`${styles.landingReveal} ${styles.landingCtaDescriptionReveal} mx-auto mt-4 max-w-[500px] text-sm leading-7 text-white/80 sm:mx-0 md:text-base`}>
                       Silahkan login untuk melakukan tugas sesuai keinginan Anda
                       dengan pengalaman yang lebih cepat, rapi, dan terintegrasi.
                     </p>
 
-                    <div className="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-start">
+                    <div className={`${styles.landingReveal} ${styles.landingCtaActionsReveal} mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-start`}>
                       <Link
                         href="/login/student"
                         className={`${styles.landingCtaButton} group inline-flex h-14 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-0 text-sm font-semibold transition hover:-translate-y-0.5`}
@@ -503,10 +520,9 @@ export default function HomePage() {
         <div className="absolute right-[10%] top-16 h-28 w-28 rounded-full bg-teal-300/8 blur-3xl" />
         <div className="mx-auto max-w-[1480px]">
           <div
-            className={`${styles.landingFooterGlass} ${styles.landingReveal} grid min-w-0 max-w-full gap-8 overflow-hidden rounded-[28px] px-6 py-8 sm:px-8 sm:py-10 md:rounded-b-[36px] lg:grid-cols-[1.1fr_0.9fr_0.8fr] lg:items-start`}
-            data-reveal-threshold="0.12"
+            className={`${styles.landingFooterGlass} grid min-w-0 max-w-full gap-8 overflow-hidden rounded-[28px] px-6 py-8 sm:px-8 sm:py-10 md:rounded-b-[36px] lg:grid-cols-[1.1fr_0.9fr_0.8fr] lg:items-start`}
           >
-            <div>
+            <div className={styles.landingReveal} data-reveal-threshold="0.12" style={{ animationDelay: "0ms", animationDuration: "650ms" }}>
               <div className="inline-flex items-center gap-3">
                 <div className="flex size-14 shrink-0 items-center justify-center sm:size-16">
                   <Image
@@ -532,7 +548,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div>
+            <div className={styles.landingReveal} data-reveal-threshold="0.12" style={{ animationDelay: "90ms", animationDuration: "650ms" }}>
               <p className={`${styles.landingFooterKicker} text-xs font-semibold uppercase tracking-[0.24em] sm:text-sm`}>
                 Nilai Utama
               </p>
@@ -552,7 +568,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div>
+            <div className={styles.landingReveal} data-reveal-threshold="0.12" style={{ animationDelay: "180ms", animationDuration: "650ms" }}>
               <p className={`${styles.landingFooterKicker} text-xs font-semibold uppercase tracking-[0.24em] sm:text-sm`}>
                 Hubungi
               </p>
@@ -581,7 +597,7 @@ export default function HomePage() {
           <div
             className={`${styles.landingReveal} mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/56 sm:mt-8 sm:pt-6 sm:text-sm`}
             data-reveal-threshold="0.08"
-            style={{ animationDelay: "120ms" }}
+            style={{ animationDelay: "270ms", animationDuration: "750ms" }}
           >
             <p>Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.</p>
           </div>

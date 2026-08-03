@@ -51,6 +51,52 @@
   animation: landingRevealUp 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
 }
 
+.landingHeroBadgeReveal[data-scroll-revealed="true"] {
+  animation: landingHeroBadgeIn 850ms cubic-bezier(0.19, 1, 0.22, 1) 80ms both;
+}
+
+.landingHeroEyebrowReveal[data-scroll-revealed="true"] {
+  animation: landingHeroEyebrowIn 900ms cubic-bezier(0.19, 1, 0.22, 1) 220ms both;
+}
+
+.landingHeroTitleReveal[data-scroll-revealed="true"] {
+  animation: landingHeroTitleIn 1050ms cubic-bezier(0.19, 1, 0.22, 1) 360ms both;
+}
+
+.landingHeroDescriptionReveal[data-scroll-revealed="true"] {
+  animation: landingHeroDescriptionIn 900ms cubic-bezier(0.19, 1, 0.22, 1) 620ms both;
+}
+
+.landingHeroCtaReveal[data-scroll-revealed="true"] {
+  animation: landingHeroCtaIn 950ms cubic-bezier(0.19, 1, 0.22, 1) 820ms both;
+}
+
+.landingCtaReveal {
+  opacity: 0.5;
+  transform: translateY(52px) scale(0.94);
+  clip-path: inset(14% 0 0 round 42px);
+}
+
+.landingCtaReveal[data-scroll-revealed="true"] {
+  animation: landingCtaFrameIn 850ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.landingCtaBadgeReveal[data-scroll-revealed="true"] {
+  animation: landingCtaBadgeIn 600ms cubic-bezier(0.19, 1, 0.22, 1) 100ms both;
+}
+
+.landingCtaTitleReveal[data-scroll-revealed="true"] {
+  animation: landingCtaTitleIn 760ms cubic-bezier(0.19, 1, 0.22, 1) 240ms both;
+}
+
+.landingCtaDescriptionReveal[data-scroll-revealed="true"] {
+  animation: landingCtaDescriptionIn 650ms cubic-bezier(0.19, 1, 0.22, 1) 400ms both;
+}
+
+.landingCtaActionsReveal[data-scroll-revealed="true"] {
+  animation: landingCtaActionsIn 700ms cubic-bezier(0.19, 1, 0.22, 1) 560ms both;
+}
+
 .landingRevealLeft[data-scroll-revealed="true"] {
   animation: landingRevealLeft 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
 }
@@ -457,6 +503,64 @@
   }
 }
 
+@keyframes landingHeroBadgeIn {
+  from { opacity: 0; transform: translateY(-14px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes landingHeroEyebrowIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landingHeroTitleIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes landingHeroDescriptionIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landingHeroCtaIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes landingCtaFrameIn {
+  from {
+    opacity: 0.5;
+    transform: translateY(52px) scale(0.94);
+    clip-path: inset(14% 0 0 round 42px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    clip-path: inset(0 0 0 round 42px);
+  }
+}
+
+@keyframes landingCtaBadgeIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes landingCtaTitleIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes landingCtaDescriptionIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landingCtaActionsIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @keyframes landingRevealLeft {
   from {
     opacity: 0;
@@ -572,6 +676,16 @@
   .landingHeroImage,
   .landingOverlayReveal,
   .landingReveal,
+  .landingHeroBadgeReveal,
+  .landingHeroEyebrowReveal,
+  .landingHeroTitleReveal,
+  .landingHeroDescriptionReveal,
+  .landingHeroCtaReveal,
+  .landingCtaReveal,
+  .landingCtaBadgeReveal,
+  .landingCtaTitleReveal,
+  .landingCtaDescriptionReveal,
+  .landingCtaActionsReveal,
   .landingRevealLeft,
   .landingRevealRight,
   .landingFloatReveal,
@@ -583,5 +697,19 @@
     filter: none;
     opacity: 1;
     transform: none;
+  }
+
+  .landingCtaReveal {
+    clip-path: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .landingRevealRight {
+    transform: translate3d(0, 22px, 0) scale(0.985);
+  }
+
+  .landingRevealRight[data-scroll-revealed="true"] {
+    animation: landingRevealUp 760ms cubic-bezier(0.19, 1, 0.22, 1) both;
   }
 }
