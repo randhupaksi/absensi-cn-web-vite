@@ -46,7 +46,9 @@ import {
   Bell,
   BadgeCheck,
   Camera,
+  CalendarDays,
   CheckCircle2,
+  ClipboardCheck,
   FileImage,
   FileText,
   History,
@@ -55,7 +57,6 @@ import {
   School,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   TimerReset,
   UserRound,
 } from "lucide-react";
@@ -90,6 +91,11 @@ export function StudentDashboardPage() {
   const [locationState, setLocationState] = useState<"idle" | "loading" | "complete">("idle");
   const [locationResult, setLocationResult] = useState<AttendanceLocationCaptureResult | null>(null);
   const [evidenceRecord, setEvidenceRecord] = useState<StaffAttendanceRecord | null>(null);
+  const [greetingNow, setGreetingNow] = useState(() => new Date());
+  const greetingRowRef = useRef<HTMLDivElement | null>(null);
+  const greetingTextRef = useRef<HTMLSpanElement | null>(null);
+  const greetingDateRef = useRef<HTMLSpanElement | null>(null);
+  const [greetingIsInline, setGreetingIsInline] = useState(true);
 
   const dashboardQuery = useQuery({
     queryKey: ["student-dashboard"],
@@ -129,6 +135,30 @@ export function StudentDashboardPage() {
     },
     [],
   );
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setGreetingNow(new Date()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const row = greetingRowRef.current;
+    const greetingText = greetingTextRef.current;
+    const greetingDate = greetingDateRef.current;
+    if (!row || !greetingText || !greetingDate) return;
+
+    const updateInlineState = () => {
+      const greetingTop = greetingText.getBoundingClientRect().top;
+      const dateTop = greetingDate.getBoundingClientRect().top;
+      const nextInline = Math.abs(greetingTop - dateTop) < 2;
+      setGreetingIsInline((current) => (current === nextInline ? current : nextInline));
+    };
+
+    updateInlineState();
+    const observer = new ResizeObserver(updateInlineState);
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (hasRequestedInitialLocationRef.current) return;
@@ -199,6 +229,7 @@ export function StudentDashboardPage() {
     lateUntil.setHours(h, m, s ?? 0, 0);
     return serverNow > lateUntil;
   })();
+  const greeting = getDashboardGreeting(greetingNow);
 
   function resetCaptureState() {
     locationCaptureSequenceRef.current += 1;
@@ -339,7 +370,7 @@ export function StudentDashboardPage() {
 
   return (
     <StudentShell>
-      {() => dashboardQuery.isLoading && !dashboard ? (
+      {(session) => dashboardQuery.isLoading && !dashboard ? (
         <StudentDashboardSkeleton />
       ) : (
         <div className="space-y-5">
@@ -352,12 +383,19 @@ export function StudentDashboardPage() {
             onChange={(event) => void handlePhotoPicked(event.target.files?.[0])}
           />
 
-          <section className="overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]">
+          <section id="status-absensi-hari-ini" className="scroll-mt-5 overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]">
             <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
                 <div className="space-y-4">
+                  <div ref={greetingRowRef} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-emerald-50/85">
+                    <span ref={greetingTextRef} className="font-semibold text-white">
+                      {greeting.label}, {formatPersonName(today?.profile.name ?? session.user.name).split(" ")[0] || "Siswa"}!
+                    </span>
+                    {greetingIsInline ? <span className="size-1 shrink-0 rounded-full bg-emerald-200" /> : null}
+                    <span ref={greetingDateRef} className="inline-flex items-center gap-1.5 text-white/75"><CalendarDays className="size-3.5" />{formatDashboardGreetingDate(greetingNow)}</span>
+                  </div>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-50">
-                    <Sparkles className="size-3.5" />
+                    <ClipboardCheck className="size-3.5" />
                     Portal Absensi Siswa
                   </span>
                   <div className="max-w-2xl space-y-3">
@@ -576,6 +614,7 @@ export function StudentDashboardPage() {
                     icon={History}
                     title="Belum ada histori"
                     description="Data absensi akan tampil setelah kamu mengirim absensi."
+                    tone="notice"
                   />
                 )}
               </div>
@@ -838,6 +877,22 @@ function InfoTile({
       </div>
     </div>
   );
+}
+
+function getDashboardGreeting(now: Date) {
+  const hour = now.getHours();
+  if (hour < 11) return { label: "Selamat pagi" };
+  if (hour < 15) return { label: "Selamat siang" };
+  if (hour < 18) return { label: "Selamat sore" };
+  return { label: "Selamat malam" };
+}
+
+function formatDashboardGreetingDate(date: Date) {
+  return new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(date);
 }
 
 function isMobileDevice(): boolean {

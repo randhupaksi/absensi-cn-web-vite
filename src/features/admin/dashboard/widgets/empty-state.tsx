@@ -7,6 +7,7 @@ type EmptyStateProps = {
   title: string;
   description?: string;
   compact?: boolean;
+  tone?: "default" | "notice";
 };
 
 export function EmptyState({
@@ -14,14 +15,19 @@ export function EmptyState({
   title,
   description,
   compact = false,
+  tone = "default",
 }: EmptyStateProps) {
+  const iconTone = tone === "notice"
+    ? "bg-amber-50 text-amber-600 ring-1 ring-amber-100"
+    : "bg-white text-slate-400";
+
   return (
     <div
       className={`flex flex-col items-center justify-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/85 text-center ${
         compact ? "gap-3 p-5" : "gap-4 p-8"
       }`}
     >
-      <div className="flex size-12 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+      <div className={`flex size-12 items-center justify-center rounded-2xl shadow-sm ${iconTone}`}>
         <Icon className="size-5" />
       </div>
       <div className="space-y-1">

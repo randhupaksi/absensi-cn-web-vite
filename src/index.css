@@ -201,11 +201,15 @@
   html {
     @apply font-sans scroll-smooth;
     min-height: 100%;
+    overflow-x: clip;
+    scrollbar-gutter: stable;
   }
   body,
   #root {
     min-height: 100%;
     min-height: 100svh;
+    min-width: 0;
+    overflow-x: clip;
   }
   @supports (min-height: 100dvh) {
     body,

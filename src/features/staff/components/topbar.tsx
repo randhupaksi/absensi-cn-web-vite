@@ -30,40 +30,19 @@ export function StaffTopbar({
           >
             <Menu className="size-4" />
           </button>
-
           <div className="min-w-0">
-            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700/80 sm:text-xs sm:tracking-[0.22em]">
-              {eyebrow}
-            </p>
-
-            <h1 className="mt-0.5 truncate text-[1.15rem] font-semibold tracking-[-0.04em] text-slate-900 sm:mt-1 sm:text-[1.7rem]">
-              {title}
-            </h1>
+            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700/80 sm:text-xs sm:tracking-[0.22em]">{eyebrow}</p>
+            <h1 className="mt-0.5 truncate text-[1.15rem] font-semibold tracking-[-0.04em] text-slate-900 sm:mt-1 sm:text-[1.7rem]">{title}</h1>
           </div>
         </div>
-
         <div className="flex shrink-0 items-center justify-end">
           <div className="flex max-w-[142px] items-center gap-2 rounded-full border border-slate-200/80 bg-white px-2 py-1.5 shadow-[0_12px_24px_rgba(148,163,184,0.12)] sm:max-w-none sm:gap-3 sm:px-3 sm:py-2">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 sm:size-11">
-              <Image
-                src="/images/optimized/logo-sma-smk-yatkj-ui.png"
-                alt={`Avatar ${userLabel}`}
-                width={34}
-                height={34}
-                priority
-                className="rounded-full"
-                style={{ width: "auto", height: "auto" }}
-              />
+              <Image src="/images/optimized/logo-sma-smk-yatkj-ui.png" alt={`Avatar ${userLabel}`} width={34} height={34} priority className="rounded-full" style={{ width: "auto", height: "auto" }} />
             </div>
-
             <div className="min-w-0 pr-1 sm:pr-2">
-              <p className="truncate text-xs font-semibold text-slate-900 sm:text-sm">
-                {formatPersonName(userName)}
-              </p>
-
-              <p className="truncate text-xs text-slate-500 sm:text-sm">
-                {userLabel}
-              </p>
+              <p className="truncate text-xs font-semibold text-slate-900 sm:text-sm">{formatPersonName(userName)}</p>
+              <p className="truncate text-xs text-slate-500 sm:text-sm">{userLabel}</p>
             </div>
           </div>
         </div>
