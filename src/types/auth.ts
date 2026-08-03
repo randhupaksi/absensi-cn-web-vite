@@ -9,6 +9,7 @@ export type AuthUser = {
   role: ApiUserRole;
   portal: "student" | "staff";
   has_bk_scope: boolean;
+  must_change_password: boolean;
   nis?: string;
   username?: string;
 };

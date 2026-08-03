@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
+const ChangePasswordPage = lazy(() => import("@/pages/auth/change-password-page").then((module) => ({ default: module.ChangePasswordPage })));
 const AdminDashboardPage = lazy(() => import("@/pages/admin/dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
 const AdminAdminsPage = lazy(() => import("@/pages/admin/admins-page").then((module) => ({ default: module.AdminAdminsPage })));
 const AdminClassesPage = lazy(() => import("@/pages/admin/classes-page").then((module) => ({ default: module.AdminClassesPage })));
@@ -84,6 +85,27 @@ function LoginRoute({ portal }: { portal: PortalType }) {
   return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <LoginPage portal={portal} />;
 }
 
+function ChangePasswordRoute() {
+  const session = getAuthSession();
+  if (!session) return <Navigate replace to="/login/student" />;
+  if (session.user.role !== "STUDENT" || !session.user.must_change_password) {
+    return <Navigate replace to={getDashboardPathForUser(session.user)} />;
+  }
+  return <ChangePasswordPage />;
+}
+
+function StudentRoute({ children }: { children: ReactNode }) {
+  const session = getAuthSession();
+  if (!session) return <Navigate replace to="/login/student" />;
+  if (session.user.role !== "STUDENT") {
+    return <Navigate replace to={getDashboardPathForUser(session.user)} />;
+  }
+  if (session.user.must_change_password) {
+    return <Navigate replace to="/auth/change-password" />;
+  }
+  return <>{children}</>;
+}
+
 function TeacherDashboard() {
   const session = getAuthSession();
   if (!session) return <Navigate replace to="/login/staff" />;
@@ -105,6 +127,7 @@ export default function App() {
           <Route path="/login" element={<Navigate replace to="/login/student" />} />
           <Route path="/login/student" element={<LoginRoute portal="student" />} />
           <Route path="/login/staff" element={<LoginRoute portal="staff" />} />
+	          <Route path="/auth/change-password" element={<ChangePasswordRoute />} />
           <Route path="/admin/dashboard" element={<DashboardRedirect />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />
 
@@ -124,9 +147,9 @@ export default function App() {
           <Route path="/dashboard/teacher/bk/students" element={<BKStudentsPage />} />
           <Route path="/dashboard/teacher/bk/submissions" element={<BKSubmissionsPage />} />
 
-          <Route path="/dashboard/siswa" element={<StudentDashboardPage />} />
-          <Route path="/dashboard/siswa/history" element={<StudentHistoryPage />} />
-          <Route path="/dashboard/siswa/profile" element={<StudentProfilePage />} />
+          <Route path="/dashboard/siswa" element={<StudentRoute><StudentDashboardPage /></StudentRoute>} />
+          <Route path="/dashboard/siswa/history" element={<StudentRoute><StudentHistoryPage /></StudentRoute>} />
+          <Route path="/dashboard/siswa/profile" element={<StudentRoute><StudentProfilePage /></StudentRoute>} />
 
           <Route path="/dashboard/teacher/homeroom" element={<Navigate replace to="/dashboard/teacher" />} />
           <Route path="/dashboard/teacher/homeroom/attendance" element={<WalasAttendancePage />} />

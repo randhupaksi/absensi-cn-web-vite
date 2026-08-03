@@ -96,6 +96,9 @@ export function getDefaultDashboardRole(user: AuthUser): DashboardRole {
 }
 
 export function getDashboardPathForUser(user: AuthUser) {
+  if (user.role === "STUDENT" && user.must_change_password) {
+    return "/auth/change-password";
+  }
   if (user.role === "TEACHER") {
     return "/dashboard/teacher";
   }

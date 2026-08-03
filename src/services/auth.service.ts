@@ -11,6 +11,11 @@ type ApiAuthSession = {
   user: AuthSession["user"];
 };
 
+type ChangePasswordPayload = {
+  current_password: string;
+  new_password: string;
+};
+
 type ApiEnvelope<T> = {
   success: boolean;
   message: string;
@@ -38,6 +43,21 @@ export async function login(payload: LoginSchema) {
       throw new Error(message);
     }
 
+    throw error;
+  }
+}
+
+export async function changeStudentPassword(payload: ChangePasswordPayload) {
+  try {
+    const response = await apiClient.post<ApiEnvelope<{ must_change_password: false }>>(
+      "/auth/change-password",
+      payload,
+    );
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
+      throw new Error(error.response?.data?.message ?? "Password belum dapat diperbarui.");
+    }
     throw error;
   }
 }
