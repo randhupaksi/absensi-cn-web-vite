@@ -7,13 +7,13 @@ import { formatDisplayLabel } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
-  BadgeCheck,
   BookOpen,
   CalendarDays,
   Check,
   CircleUserRound,
   Copy,
   GraduationCap,
+  Hash,
   IdCard,
   ShieldCheck,
   UserRound,
@@ -55,7 +55,7 @@ export function StudentProfilePage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-50/70">
                     Profil siswa
                   </p>
-                  <h1 className="mt-2 max-w-[19rem] text-[2rem] font-semibold leading-[1.02] tracking-[-0.045em] sm:text-[2.45rem]">
+                  <h1 className="mt-2 w-full max-w-full break-words text-[2rem] font-semibold leading-[1.02] tracking-[-0.045em] sm:text-[2.45rem]">
                     {formatPersonName(profile?.name) || "Memuat profil"}
                   </h1>
                   <p className="mt-3 flex items-center gap-2 text-sm text-emerald-50/80">
@@ -66,9 +66,9 @@ export function StudentProfilePage() {
                   </p>
                 </div>
 
-                <div className="relative mt-8 grid gap-2.5 sm:grid-cols-2">
+                <div className="relative mt-8 grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2">
                   <ProfileChip icon={IdCard} label="NIS" value={profile?.nis ?? "-"} />
-                  <ProfileChip icon={BadgeCheck} label="NISN" value={profile?.nisn ?? "-"} />
+                  <ProfileChip icon={Hash} label="NISN" value={profile?.nisn ?? "-"} />
                   <ProfileChip
                     icon={GraduationCap}
                     label="Jurusan"
@@ -111,7 +111,7 @@ export function StudentProfilePage() {
                       <InfoRow icon={UserRound} label="Nama lengkap" value={formatPersonName(profile.name)} />
                       <InfoRow icon={CircleUserRound} label="Jenis kelamin" value={formatGender(profile.gender)} />
                       <InfoRow icon={IdCard} label="NIS" value={profile.nis} copyable />
-                      <InfoRow icon={BadgeCheck} label="NISN" value={profile.nisn || "-"} copyable={Boolean(profile.nisn)} />
+                      <InfoRow icon={Hash} label="NISN" value={profile.nisn || "-"} copyable={Boolean(profile.nisn)} />
                       <InfoRow icon={BookOpen} label="Jurusan" value={profile.major_code || "-"} />
                       <InfoRow icon={GraduationCap} label="Kelas aktif" value={profile.class_name || "-"} />
                       <InfoRow icon={CalendarDays} label="Tahun ajaran" value={profile.school_year_name || "-"} />
