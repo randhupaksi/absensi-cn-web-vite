@@ -168,7 +168,7 @@ function CalendarDateField({
       <Popover>
         <PopoverTrigger
           render={<Button type="button" variant="outline" />}
-          className={`${INPUT_CLASS} w-full justify-between font-normal`}
+          className={`${INPUT_CLASS} w-full justify-between font-normal text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/70 hover:text-emerald-950 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.12)] focus-visible:border-emerald-500 focus-visible:bg-emerald-50/70 focus-visible:text-emerald-950 focus-visible:ring-4 focus-visible:ring-emerald-200/80 active:border-emerald-400 active:bg-emerald-100/70 aria-expanded:border-emerald-400 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950`}
           aria-label={label}
         >
           <span className={selectedDate ? "text-slate-700" : "text-slate-400"}>

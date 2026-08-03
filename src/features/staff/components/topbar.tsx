@@ -2,6 +2,7 @@
 
 import { AppImage as Image } from "@/components/media/app-image";
 import { Menu } from "lucide-react";
+import { formatPersonName } from "@/lib/format-person-name";
 
 type StaffTopbarProps = {
   userName: string;
@@ -57,7 +58,7 @@ export function StaffTopbar({
 
             <div className="min-w-0 pr-1 sm:pr-2">
               <p className="truncate text-xs font-semibold text-slate-900 sm:text-sm">
-                {userName}
+                {formatPersonName(userName)}
               </p>
 
               <p className="truncate text-xs text-slate-500 sm:text-sm">

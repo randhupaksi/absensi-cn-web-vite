@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "@/lib/dynamic";
+import { formatPersonName } from "@/lib/format-person-name";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
   ActionButtons,
@@ -651,7 +652,7 @@ export function StudentSection({
                               {getInitials(student.name)}
                             </span>
                           }
-                          title={student.name}
+                          title={formatPersonName(student.name)}
                           badge={<StatusBadge isActive={student.is_active} />}
                         />
                         <div className="mt-4 space-y-3">
@@ -684,7 +685,7 @@ export function StudentSection({
                             {getInitials(student.name)}
                           </span>
                           <div>
-                            <p className="font-medium text-slate-700">{student.name}</p>
+                            <p className="font-medium text-slate-700">{formatPersonName(student.name)}</p>
                           </div>
                         </div>
                       </DataTableCell>

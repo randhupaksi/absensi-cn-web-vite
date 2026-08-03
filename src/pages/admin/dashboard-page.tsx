@@ -16,6 +16,7 @@ import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { AnnouncementCard } from "@/features/admin/dashboard/widgets/announcement-card";
 import { RoleDistributionTable } from "@/features/admin/dashboard/widgets/role-distribution-table";
 import { ChartSkeleton, PageSkeleton } from "@/components/loading/loading-system";
+import { formatPersonName } from "@/lib/format-person-name";
 
 const AttendanceDonutChart = dynamic(
   () =>
@@ -116,7 +117,7 @@ export function AdminDashboardPage() {
         <>
           <section className="grid items-start gap-5 xl:grid-cols-[1.45fr_0.78fr]">
             <div className="space-y-5">
-              <GreetingCard adminName={session.user.name} />
+              <GreetingCard adminName={formatPersonName(session.user.name)} />
 
               <div className="grid grid-cols-2 items-start gap-3 sm:gap-4">
                 {kpiCards.map((item) => (

@@ -16,6 +16,7 @@ import {
   StudentSubmissionPill,
 } from "@/features/student/components/common";
 import { Button } from "@/components/ui/button";
+import { formatPersonName } from "@/lib/format-person-name";
 import {
   PremiumModal,
   premiumModalFieldClassName,
@@ -454,7 +455,7 @@ export function StudentDashboardPage() {
                     <InfoTile
                       icon={UserRound}
                       label="Nama"
-                      value={today?.profile.name ?? "-"}
+                      value={formatPersonName(today?.profile.name) || "-"}
                       tone="profile"
                     />
                     <InfoTile

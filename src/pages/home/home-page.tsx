@@ -67,7 +67,7 @@ const attendanceSteps = [
     eyebrow: "04 / KIRIM",
     title: "Kirim untuk divalidasi",
     description: "Periksa kembali data, lalu kirim absensi.",
-    detail: "Status pengajuan dapat dipantau kembali melalui dasbor dan riwayat.",
+    detail: "Status pengajuan dapat dipantau kembali melalui dashboard dan riwayat.",
     icon: FaCheckCircle,
   },
 ] as const;

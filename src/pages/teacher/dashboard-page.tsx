@@ -17,6 +17,7 @@ import type {
   StaffHomeroomDashboard,
   StaffRiskStudentRecord,
 } from "@/types/staff";
+import { formatPersonName } from "@/lib/format-person-name";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight,
@@ -168,7 +169,7 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
     <>
       <section className="grid items-start gap-5 xl:grid-cols-[1.25fr_0.75fr]">
         <TeacherHero
-          name={session.user.name}
+          name={formatPersonName(session.user.name)}
           isHomeroomTeacher={isHomeroomTeacher}
           hasSubjectAssignments={hasSubjectAssignments}
           hasBKScope={hasBKScope}
@@ -403,7 +404,7 @@ function SubjectAssignmentsCard({
 }
 
 function AttentionCard({ title, subtitle, students, isLoading, errorMessage, href, badge }: { title: string; subtitle: string; students: StaffRiskStudentRecord[]; isLoading: boolean; errorMessage?: string; href: string; badge: string }) {
-  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{badge}</span></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={ShieldAlert} title="Data prioritas belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : students.length === 0 ? <EmptyState icon={ShieldAlert} title="Belum ada prioritas" description="Siswa dengan pola alfa berulang akan muncul di panel ini." compact /> : students.slice(0, 4).map((item) => <div key={item.student_id} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{item.student_name}</p><p className="mt-1 text-xs text-slate-500">{item.nis} · {item.class_name}</p></div><span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">{item.occurrences}x</span></div>)}</div><MoreLink href={href} label="Buka pemantauan" /></article>;
+  return <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]"><div className="flex items-start justify-between gap-4"><div><p className="text-xl font-semibold text-slate-950">{title}</p><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{badge}</span></div><div className="mt-5 space-y-3">{errorMessage ? <EmptyState icon={ShieldAlert} title="Data prioritas belum bisa dimuat" description={errorMessage} compact /> : isLoading ? <ListRowsSkeleton rows={4} /> : students.length === 0 ? <EmptyState icon={ShieldAlert} title="Belum ada prioritas" description="Siswa dengan pola alfa berulang akan muncul di panel ini." compact /> : students.slice(0, 4).map((item) => <div key={item.student_id} className="flex items-center justify-between gap-3 rounded-[22px] border border-slate-100 bg-slate-50/95 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900">{formatPersonName(item.student_name)}</p><p className="mt-1 text-xs text-slate-500">{item.nis} · {item.class_name}</p></div><span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">{item.occurrences}x</span></div>)}</div><MoreLink href={href} label="Buka pemantauan" /></article>;
 }
 
 function SubmissionCard({ submissions, isLoading, errorMessage, href, title, subtitle }: { submissions: StaffHomeroomDashboard["recent_submissions"]; isLoading: boolean; errorMessage?: string; href: string; title: string; subtitle: string }) {

@@ -28,7 +28,7 @@ export function SidebarNav() {
               {siteConfig.name}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Struktur navigasi dipisah agar dasbor berbasis peran lebih mudah
+              Struktur navigasi dipisah agar dashboard berbasis peran lebih mudah
               dibangun bertahap.
             </p>
           </div>

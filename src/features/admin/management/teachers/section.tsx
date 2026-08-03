@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "@/lib/dynamic";
+import { formatPersonName } from "@/lib/format-person-name";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
   ActionButtons,
@@ -673,7 +674,7 @@ export function TeacherSection({
                             {getInitials(teacher.name)}
                           </span>
                         }
-                        title={teacher.name}
+                        title={formatPersonName(teacher.name)}
                         badge={<StatusBadge isActive={teacher.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">
@@ -708,7 +709,7 @@ export function TeacherSection({
                           </span>
                           <div>
                             <p className="font-medium text-slate-700">
-                              {teacher.name}
+                              {formatPersonName(teacher.name)}
                             </p>
                           </div>
                         </div>
@@ -819,7 +820,7 @@ export function TeacherSection({
                             {getInitials(teacher.name)}
                           </span>
                         }
-                        title={teacher.name}
+                        title={formatPersonName(teacher.name)}
                         subtitle={teacher.username || "-"}
                         badge={
                           <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
@@ -865,7 +866,7 @@ export function TeacherSection({
                           <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700 shadow-[0_8px_20px_rgba(22,85,58,0.08)]">
                             {getInitials(teacher.name)}
                           </span>
-                          <p className="font-medium text-slate-700">{teacher.name}</p>
+                          <p className="font-medium text-slate-700">{formatPersonName(teacher.name)}</p>
                         </div>
                       </DataTableCell>
                       <DataTableCell>{teacher.username || "-"}</DataTableCell>

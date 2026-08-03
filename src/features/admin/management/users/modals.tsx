@@ -50,7 +50,7 @@ export function validateRoleUserForm(
 export function roleDescription(role: AdminUser["role"]) {
   switch (role) {
     case "ADMIN":
-      return "Kontrol penuh dasbor dan data utama";
+      return "Kontrol penuh dashboard dan data utama";
     case "TEACHER":
       return "Akun dasar guru untuk modul pengajaran";
     default:

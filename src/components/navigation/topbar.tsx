@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, LogOut, Menu, Search } from "lucide-react";
 import { usePathname, useRouter } from "@/lib/router";
+import { formatPersonName } from "@/lib/format-person-name";
 
 export function Topbar() {
   const router = useRouter();
@@ -94,7 +95,7 @@ export function Topbar() {
             </Avatar>
             <div className="hidden sm:block">
               <p className="text-sm font-semibold text-slate-900">
-                {session?.user.name ?? "Guest"}
+                {formatPersonName(session?.user.name) || "Guest"}
               </p>
               <p className="text-xs text-slate-500">
                 {session ? getDashboardLabel(session.user.role) : "Belum login"}

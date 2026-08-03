@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { formatPersonName } from "@/lib/format-person-name";
 import {
   ActionButtons,
   AddButton,
@@ -246,7 +247,7 @@ export function UserSection({
                               {getInitials(user.name)}
                             </span>
                           }
-                          title={user.name}
+                              title={formatPersonName(user.name)}
                           badge={<UserRoleBadge role={user.role} />}
                         />
                         <div className="mt-4 space-y-3">
@@ -277,7 +278,7 @@ export function UserSection({
                               {getInitials(user.name)}
                             </span>
                             <div>
-                              <p className="font-medium text-slate-700">{user.name}</p>
+                              <p className="font-medium text-slate-700">{formatPersonName(user.name)}</p>
                             </div>
                           </div>
                         </DataTableCell>
