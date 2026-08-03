@@ -33,8 +33,8 @@ import type {
   AdminUserPayload,
   ImportResult,
 } from "@/types/admin";
-import axios from "axios";
 import { downloadBlob } from "@/lib/download-file";
+import { getUserErrorMessage } from "@/lib/user-error-message";
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -81,22 +81,8 @@ export async function deleteAdminSchoolHoliday(id: string) {
 // MySQL/GORM sometimes bubble raw driver errors (e.g. "Error 1062 (23000):
 // Duplicate entry '...' for key '...'") straight into the API envelope
 // message. Surface a readable message instead of the raw SQL error text.
-function humanizeBackendMessage(message: string) {
-  if (/duplicate entry/i.test(message)) {
-    return "Data yang sama sudah tersimpan. Periksa kembali pilihan Anda (kemungkinan ada duplikat, misalnya program/jurusan yang sama dipilih dua kali).";
-  }
-  return message;
-}
-
 function getErrorMessage(error: unknown) {
-  if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
-    const message = error.response?.data?.message;
-    return message
-      ? humanizeBackendMessage(message)
-      : "Terjadi kesalahan saat menghubungkan dashboard admin.";
-  }
-
-  return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui.";
+  return getUserErrorMessage(error, "admin");
 }
 
 export async function getAdminDashboard() {

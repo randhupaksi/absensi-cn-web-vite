@@ -2,7 +2,7 @@ import { apiClient } from "@/services/api/client";
 import { retryTransientRequest } from "@/services/api/transient-retry";
 import { LoginSchema } from "@/lib/validations/login-schema";
 import type { AuthSession } from "@/types/auth";
-import axios from "axios";
+import { getUserErrorMessage } from "@/lib/user-error-message";
 
 export type AuthLoginResponse = AuthSession;
 
@@ -36,13 +36,7 @@ export async function login(payload: LoginSchema) {
       },
     };
   } catch (error) {
-    if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
-      const message =
-        error.response?.data?.message ?? "Tidak dapat terhubung ke server login.";
-      throw new Error(message);
-    }
-
-    throw error;
+    throw new Error(getUserErrorMessage(error, "login"));
   }
 }
 
@@ -54,9 +48,6 @@ export async function changeInitialPassword(payload: ChangePasswordPayload) {
     );
     return response.data.data;
   } catch (error) {
-    if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
-      throw new Error(error.response?.data?.message ?? "Password belum dapat diperbarui.");
-    }
-    throw error;
+    throw new Error(getUserErrorMessage(error, "login"));
   }
 }

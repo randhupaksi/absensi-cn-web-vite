@@ -8,7 +8,7 @@ import type {
   StudentSubmission,
   StudentToday,
 } from "@/types/student";
-import axios from "axios";
+import { getUserErrorMessage } from "@/lib/user-error-message";
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -18,14 +18,7 @@ type ApiEnvelope<T> = {
 };
 
 function getErrorMessage(error: unknown) {
-  if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
-    return (
-      error.response?.data?.message ??
-      "Terjadi kesalahan saat menghubungkan portal siswa."
-    );
-  }
-
-  return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui.";
+  return getUserErrorMessage(error, "student");
 }
 
 export async function getStudentDashboard() {

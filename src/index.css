@@ -2,6 +2,17 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Keep native text selection aligned with the application's emerald brand. */
+::selection {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

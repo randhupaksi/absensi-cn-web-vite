@@ -25,7 +25,7 @@ import type {
   StaffSubjectRecap,
   StaffSubjectSessionList,
 } from "@/types/staff";
-import axios from "axios";
+import { getUserErrorMessage } from "@/lib/user-error-message";
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -35,14 +35,7 @@ type ApiEnvelope<T> = {
 };
 
 function getErrorMessage(error: unknown) {
-  if (axios.isAxiosError<ApiEnvelope<never>>(error)) {
-    return (
-      error.response?.data?.message ??
-      "Terjadi kesalahan saat menghubungkan dashboard staff."
-    );
-  }
-
-  return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui.";
+  return getUserErrorMessage(error, "staff");
 }
 
 export async function getTeacherHomeroomDashboard() {
