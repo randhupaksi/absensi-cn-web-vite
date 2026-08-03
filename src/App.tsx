@@ -1,4 +1,4 @@
-import { getAuthSession, getDashboardPathForUser } from "@/lib/auth";
+import { getAuthSession, getDashboardPathForUser, requiresInitialPasswordChange } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
 import { RouteLoadingFallback } from "@/components/loading/loading-system";
 import { lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from "react";
@@ -88,7 +88,7 @@ function LoginRoute({ portal }: { portal: PortalType }) {
 function ChangePasswordRoute() {
   const session = getAuthSession();
   if (!session) return <Navigate replace to="/login/student" />;
-  if (session.user.role !== "STUDENT" || !session.user.must_change_password) {
+  if (!requiresInitialPasswordChange(session.user)) {
     return <Navigate replace to={getDashboardPathForUser(session.user)} />;
   }
   return <ChangePasswordPage />;
@@ -100,19 +100,22 @@ function StudentRoute({ children }: { children: ReactNode }) {
   if (session.user.role !== "STUDENT") {
     return <Navigate replace to={getDashboardPathForUser(session.user)} />;
   }
-  if (session.user.must_change_password) {
+  if (requiresInitialPasswordChange(session.user)) {
     return <Navigate replace to="/auth/change-password" />;
   }
   return <>{children}</>;
 }
 
-function TeacherDashboard() {
+function TeacherRoute({ children }: { children: ReactNode }) {
   const session = getAuthSession();
   if (!session) return <Navigate replace to="/login/staff" />;
   if (session.user.role !== "TEACHER") {
     return <Navigate replace to={getDashboardPathForUser(session.user)} />;
   }
-  return <TeacherDashboardPage />;
+  if (requiresInitialPasswordChange(session.user)) {
+    return <Navigate replace to="/auth/change-password" />;
+  }
+  return <>{children}</>;
 }
 
 export default function App() {
@@ -141,24 +144,24 @@ export default function App() {
           <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
           <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Laporan" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah halaman ini dibuat." />} />
 
-          <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
-          <Route path="/dashboard/teacher/bk/attendance" element={<BKAttendancePage />} />
-          <Route path="/dashboard/teacher/bk/counseling" element={<BKCounselingPage />} />
-          <Route path="/dashboard/teacher/bk/students" element={<BKStudentsPage />} />
-          <Route path="/dashboard/teacher/bk/submissions" element={<BKSubmissionsPage />} />
+          <Route path="/dashboard/teacher" element={<TeacherRoute><TeacherDashboardPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/bk/attendance" element={<TeacherRoute><BKAttendancePage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/bk/counseling" element={<TeacherRoute><BKCounselingPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/bk/students" element={<TeacherRoute><BKStudentsPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/bk/submissions" element={<TeacherRoute><BKSubmissionsPage /></TeacherRoute>} />
 
           <Route path="/dashboard/siswa" element={<StudentRoute><StudentDashboardPage /></StudentRoute>} />
           <Route path="/dashboard/siswa/history" element={<StudentRoute><StudentHistoryPage /></StudentRoute>} />
           <Route path="/dashboard/siswa/profile" element={<StudentRoute><StudentProfilePage /></StudentRoute>} />
 
           <Route path="/dashboard/teacher/homeroom" element={<Navigate replace to="/dashboard/teacher" />} />
-          <Route path="/dashboard/teacher/homeroom/attendance" element={<WalasAttendancePage />} />
-          <Route path="/dashboard/teacher/homeroom/students" element={<WalasStudentsPage />} />
-          <Route path="/dashboard/teacher/homeroom/submissions" element={<WalasSubmissionsPage />} />
+          <Route path="/dashboard/teacher/homeroom/attendance" element={<TeacherRoute><WalasAttendancePage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/homeroom/students" element={<TeacherRoute><WalasStudentsPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/homeroom/submissions" element={<TeacherRoute><WalasSubmissionsPage /></TeacherRoute>} />
           <Route path="/dashboard/teacher/subject" element={<Navigate replace to="/dashboard/teacher" />} />
-          <Route path="/dashboard/teacher/subject/history" element={<MapelHistoryPage />} />
-          <Route path="/dashboard/teacher/subject/recap" element={<MapelRecapPage />} />
-          <Route path="/dashboard/teacher/subject/session" element={<MapelSessionPage />} />
+          <Route path="/dashboard/teacher/subject/history" element={<TeacherRoute><MapelHistoryPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/subject/recap" element={<TeacherRoute><MapelRecapPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/subject/session" element={<TeacherRoute><MapelSessionPage /></TeacherRoute>} />
 
           <Route path="/dashboard/bk/*" element={<Navigate replace to="/dashboard/teacher" />} />
           <Route path="/dashboard/walas/*" element={<Navigate replace to="/dashboard/teacher" />} />

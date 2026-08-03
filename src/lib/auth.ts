@@ -95,8 +95,12 @@ export function getDefaultDashboardRole(user: AuthUser): DashboardRole {
   }
 }
 
+export function requiresInitialPasswordChange(user: AuthUser) {
+  return (user.role === "STUDENT" || user.role === "TEACHER") && user.must_change_password;
+}
+
 export function getDashboardPathForUser(user: AuthUser) {
-  if (user.role === "STUDENT" && user.must_change_password) {
+  if (requiresInitialPasswordChange(user)) {
     return "/auth/change-password";
   }
   if (user.role === "TEACHER") {

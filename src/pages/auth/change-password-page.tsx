@@ -1,14 +1,32 @@
 import { AnimatedBackground } from "@/features/auth/components/animated-background";
 import { ChangePasswordForm } from "@/features/auth/components/change-password-form";
-import { getAuthSession } from "@/lib/auth";
+import { BackButton } from "@/components/ui/back-button";
+import { clearAuthSession, getAuthSession } from "@/lib/auth";
 import { KeyRound, Sparkles } from "lucide-react";
 
+function formatAccountName(name?: string) {
+  const firstName = name?.trim().split(/\s+/)[0];
+  if (!firstName) return "Pengguna";
+
+  const normalized = firstName.toLocaleLowerCase("id-ID");
+  return `${normalized.charAt(0).toLocaleUpperCase("id-ID")}${normalized.slice(1)}`;
+}
+
 export function ChangePasswordPage() {
-  const studentName = getAuthSession()?.user.name?.split(" ")[0] || "Siswa";
+  const account = getAuthSession()?.user;
+  const accountName = formatAccountName(account?.name);
+  const accountLabel = account?.role === "TEACHER" ? "guru" : "siswa";
+  const loginPath = account?.role === "TEACHER" ? "/login/staff" : "/login/student";
 
   return (
     <main className="relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e5f6ed_34%,#d7eee2_70%,#edf8f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]">
       <AnimatedBackground />
+      <BackButton
+        href={loginPath}
+        label="Kembali ke login"
+        onClick={() => clearAuthSession()}
+        className="absolute left-5 top-4 z-20 sm:left-6 sm:top-5"
+      />
       <div className="relative mx-auto flex min-h-[100svh] w-full max-w-xl items-center px-5 py-6 supports-[min-height:100dvh]:min-h-[100dvh] sm:px-6">
         <section className="w-full overflow-hidden rounded-[2rem] border border-white/90 bg-white/88 shadow-[0_28px_72px_rgba(15,23,42,0.13),inset_0_1px_0_rgba(255,255,255,0.96)] backdrop-blur-sm">
           <div className="relative overflow-hidden border-b border-emerald-100/80 bg-[linear-gradient(135deg,rgba(236,253,245,0.96)_0%,rgba(255,255,255,0.96)_68%)] px-5 pb-5 pt-6 sm:px-7 sm:pb-6 sm:pt-7">
@@ -18,10 +36,10 @@ export function ChangePasswordPage() {
                 <KeyRound className="size-5" />
               </span>
               <div className="min-w-0">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-700">Keamanan akun siswa</p>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-700">Keamanan akun {accountLabel}</p>
                 <h1 className="mt-1.5 text-[1.38rem] font-semibold tracking-[-0.03em] text-slate-950 sm:text-[1.55rem]">Buat password pribadimu</h1>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Hai, {studentName}. Password awal dari sekolah hanya digunakan sekali untuk mengaktifkan akunmu.
+                  Hai, {accountName}. Password awal dari sekolah hanya digunakan sekali untuk mengaktifkan akunmu.
                 </p>
               </div>
             </div>
@@ -30,7 +48,7 @@ export function ChangePasswordPage() {
           <div className="px-5 py-5 sm:px-7 sm:py-6">
             <div className="mb-5 flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50 px-3.5 py-2 text-xs font-medium text-amber-800">
               <Sparkles className="size-3.5 shrink-0" />
-              <span>Langkah ini wajib diselesaikan sebelum melanjutkan ke absensi.</span>
+              <span>Langkah ini wajib diselesaikan sebelum melanjutkan ke layanan Absensi CN.</span>
             </div>
             <ChangePasswordForm />
           </div>

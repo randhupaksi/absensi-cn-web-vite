@@ -2,7 +2,7 @@ const fixLog = {
   route: "/deveran",
   source: "frontend-and-api",
   api_required: true,
-  build_marker: "auth-password-change-2026-08-03-linux-amd64",
+  build_marker: "auth-password-change-student-teacher-2026-08-03-linux-amd64",
   fixes: [
     "fix(auth): stabilize hidden password input rendering",
     "fix(auth): stabilize password inputs on WebKit browsers",
@@ -17,9 +17,9 @@ const fixLog = {
     "feat(students): add structured Excel export by grade and major",
     "fix(import): prevent large Excel imports from timing out",
     "build(api): prepare Linux amd64 binary and aaPanel timeout configuration",
-    "feat(auth): require students to replace administrator-issued passwords",
+    "feat(auth): require students and teachers to replace administrator-issued passwords",
   ],
-  checked_at: "2026-08-03T09:19:00+07:00",
+  checked_at: "2026-08-03T10:05:00+07:00",
 } as const;
 
 export function DevFixLogPage() {

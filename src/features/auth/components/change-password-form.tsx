@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { PremiumInput } from "@/features/auth/components/premium-input";
 import { getDashboardPathForUser, getAuthSession, saveAuthSession } from "@/lib/auth";
 import { changePasswordSchema, type ChangePasswordSchema } from "@/lib/validations/change-password-schema";
-import { changeStudentPassword } from "@/services/auth.service";
+import { changeInitialPassword } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, KeyRound, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export function ChangePasswordForm() {
 
   const onSubmit = async (values: ChangePasswordSchema) => {
     try {
-      await changeStudentPassword({
+      await changeInitialPassword({
         current_password: values.currentPassword,
         new_password: values.newPassword,
       });

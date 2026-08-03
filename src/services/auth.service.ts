@@ -47,7 +47,7 @@ export async function login(payload: LoginSchema) {
   }
 }
 
-export async function changeStudentPassword(payload: ChangePasswordPayload) {
+export async function changeInitialPassword(payload: ChangePasswordPayload) {
   try {
     const response = await apiClient.post<ApiEnvelope<{ must_change_password: false }>>(
       "/auth/change-password",
