@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { X, type LucideIcon } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
+import { useModalScrollLock } from "@/components/modals/modal-scroll-lock";
 
 type PremiumModalProps = {
   open: boolean;
@@ -50,28 +51,7 @@ export function PremiumModal({
   className,
   disablePointerDismissal = false,
 }: PremiumModalProps) {
-  useEffect(() => {
-    if (!open) return;
-
-    const html = document.documentElement;
-    const body = document.body;
-    const previousHtmlOverflow = html.style.overflow;
-    const previousBodyOverflow = body.style.overflow;
-    const previousBodyOverscrollBehavior = body.style.overscrollBehavior;
-
-    // Keep the page underneath fixed while the modal's own content remains
-    // scrollable. This prevents mobile rubber-band scrolling from pulling the
-    // dialog container out of position.
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    body.style.overscrollBehavior = "none";
-
-    return () => {
-      html.style.overflow = previousHtmlOverflow;
-      body.style.overflow = previousBodyOverflow;
-      body.style.overscrollBehavior = previousBodyOverscrollBehavior;
-    };
-  }, [open]);
+  useModalScrollLock(open);
 
   return (
     <Dialog
@@ -129,7 +109,7 @@ export function PremiumModal({
           </button>
         </div>
 
-        <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-[1.45rem] pt-[1.4rem] pb-[1.55rem] [touch-action:pan-y] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[2px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-[linear-gradient(180deg,rgba(52,211,153,0.52),rgba(22,163,74,0.42))] [&::-webkit-scrollbar-thumb]:bg-clip-padding">
+        <div data-modal-scroll-area className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-[1.45rem] pt-[1.4rem] pb-[1.55rem] [touch-action:pan-y] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[2px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-[linear-gradient(180deg,rgba(52,211,153,0.52),rgba(22,163,74,0.42))] [&::-webkit-scrollbar-thumb]:bg-clip-padding">
           {children}
         </div>
 

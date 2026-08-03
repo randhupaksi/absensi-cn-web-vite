@@ -6,6 +6,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useModalScrollLock } from "@/components/modals/modal-scroll-lock";
 import { cn } from "@/lib/utils";
 import { Trash2, X } from "lucide-react";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -35,6 +36,8 @@ export function DeleteConfirmationModal({
   onConfirm,
   className,
 }: DeleteConfirmationModalProps) {
+  useModalScrollLock(open);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent

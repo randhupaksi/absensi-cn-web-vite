@@ -29,7 +29,7 @@ export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative h-14 min-h-14 max-h-14 overflow-hidden overscroll-y-none">
       <button
         type="button"
         aria-label="Scroll kiri"
@@ -41,7 +41,7 @@ export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
 
       <div
         ref={scrollRef}
-        className="overflow-x-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:overflow-visible"
+        className="h-full w-full overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-none [scrollbar-width:none] [touch-action:pan-x] [&::-webkit-scrollbar]:hidden xl:overflow-visible"
       >
         {children}
       </div>
