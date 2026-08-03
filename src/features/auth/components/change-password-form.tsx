@@ -7,19 +7,14 @@ import { getDashboardPathForUser, getAuthSession, saveAuthSession } from "@/lib/
 import { changePasswordSchema, type ChangePasswordSchema } from "@/lib/validations/change-password-schema";
 import { changeInitialPassword } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, KeyRound, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-type PasswordField = "currentPassword" | "newPassword" | "confirmation";
+type PasswordField = "newPassword" | "confirmation";
 
 const fieldCopy: Record<PasswordField, { label: string; placeholder: string; autoComplete: string }> = {
-  currentPassword: {
-    label: "Password awal",
-    placeholder: "Masukkan password dari sekolah",
-    autoComplete: "current-password",
-  },
   newPassword: {
     label: "Password baru",
     placeholder: "Minimal 8 karakter",
@@ -34,13 +29,12 @@ const fieldCopy: Record<PasswordField, { label: string; placeholder: string; aut
 
 export function ChangePasswordForm() {
   const [visibleFields, setVisibleFields] = useState<Record<PasswordField, boolean>>({
-    currentPassword: false,
     newPassword: false,
     confirmation: false,
   });
   const form = useForm<ChangePasswordSchema>({
     resolver: zodResolver(changePasswordSchema),
-    defaultValues: { currentPassword: "", newPassword: "", confirmation: "" },
+    defaultValues: { newPassword: "", confirmation: "" },
   });
 
   const toggleVisibility = (field: PasswordField) => {
@@ -50,7 +44,6 @@ export function ChangePasswordForm() {
   const onSubmit = async (values: ChangePasswordSchema) => {
     try {
       await changeInitialPassword({
-        current_password: values.currentPassword,
         new_password: values.newPassword,
       });
 
@@ -91,7 +84,7 @@ export function ChangePasswordForm() {
             </Label>
             <PremiumInput
               id={field}
-              icon={field === "currentPassword" ? KeyRound : LockKeyhole}
+              icon={LockKeyhole}
               type={isVisible ? "text" : "password"}
               autoComplete={copy.autoComplete}
               placeholder={copy.placeholder}

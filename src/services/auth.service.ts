@@ -12,7 +12,6 @@ type ApiAuthSession = {
 };
 
 type ChangePasswordPayload = {
-  current_password: string;
   new_password: string;
 };
 
