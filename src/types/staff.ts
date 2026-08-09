@@ -260,6 +260,8 @@ export type StaffSubjectSchedule = {
   jam_selesai: string;
   class_id: string;
   class_name: string;
+	 school_unit_id?: string;
+	 school_unit_code?: string;
   effective_from?: string;
   effective_until?: string;
   is_active: boolean;
@@ -270,8 +272,11 @@ export type StaffSubjectAssignment = {
   subject_id: string;
   subject_code: string;
   subject_name: string;
-  class_id: string;
-  class_name: string;
+  /** @deprecated Current class data comes from schedules/classes. */
+  class_id?: string;
+  /** @deprecated Current class data comes from schedules/classes. */
+  class_name?: string;
+  classes: Array<{ id: string; name: string; school_unit_id?: string; school_unit_code?: string }>;
   school_year_id: string;
   school_year_name: string;
   school_unit_id: string;
@@ -360,6 +365,8 @@ export type StaffSubjectRecap = {
 export type StaffSubjectSessionListItem = {
   session_id: string;
   schedule_id: string;
+  class_id: string;
+  class_name: string;
   hari: string;
   jam_mulai: string;
   jam_selesai: string;

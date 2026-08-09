@@ -231,7 +231,7 @@ export function TeachingAssignmentFormModal({
       open={open}
       onOpenChange={onOpenChange}
       title={assignment ? "Ubah Jadwal Mengajar" : "Tambah Jadwal Mengajar"}
-      description="Hubungkan guru, mapel, kelas, tahun ajaran, dan slot waktu dalam satu penempatan."
+	      description="Hubungkan guru, mapel, tahun ajaran, dan beberapa slot kelas dalam satu penempatan."
       icon={BookOpenCheck}
       className="sm:!max-w-4xl"
       footer={
@@ -334,7 +334,7 @@ export function TeachingAssignmentFormModal({
               type="button"
               variant="outline"
               className="h-10 gap-2.5 rounded-[18px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-3.5 text-sm font-semibold text-emerald-900 shadow-[0_10px_20px_rgba(15,23,42,0.04)] hover:border-emerald-300"
-              onClick={() => schedules.append({ hari: "senin", class_id: form.getValues("class_id"), jam_mulai: "", jam_selesai: "", effective_from: "", effective_until: "", is_active: true })}
+	              onClick={() => schedules.append({ hari: "senin", class_id: "", jam_mulai: "", jam_selesai: "", effective_from: "", effective_until: "", is_active: true })}
             >
               <span className="flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_6px_12px_rgba(16,185,129,0.2)]">
                 <Plus className="size-3" />
@@ -366,12 +366,9 @@ export function TeachingAssignmentFormModal({
                 </div>
 				<div className={premiumModalFieldClassName}>
 				  <label className={premiumModalLabelClassName}>Kelas</label>
-				  <Controller control={form.control} name={`schedules.${index}.class_id`} render={({ field: classField }) => (
-				    <RadixSelectField value={classField.value} onValueChange={(value) => {
-				      form.setValue("class_id", value, { shouldValidate: true });
-				      form.getValues("schedules").forEach((_, scheduleIndex) => form.setValue(`schedules.${scheduleIndex}.class_id`, value, { shouldValidate: true }));
-				    }} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.filter((item) => item.is_active).map((item) => ({ value: item.id, label: getClassDisplayName(item), description: item.school_year_name }))} />
-				  )} />
+			  <Controller control={form.control} name={`schedules.${index}.class_id`} render={({ field: classField }) => (
+			    <RadixSelectField value={classField.value} onValueChange={classField.onChange} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.filter((item) => item.is_active).map((item) => ({ value: item.id, label: getClassDisplayName(item), description: item.school_year_name }))} />
+			  )} />
 				  <FieldError message={form.formState.errors.schedules?.[index]?.class_id?.message} />
 				</div>
                 <div className={premiumModalFieldClassName}>
@@ -541,7 +538,6 @@ function assignmentValues(assignment: AdminTeacherSubjectAssignment | null): Tea
   return {
     teacher_id: assignment?.teacher_id ?? "",
     subject_id: assignment?.subject_id ?? "",
-    class_id: assignment?.class_id ?? "",
     school_year_id: assignment?.school_year_id ?? "",
     assignment_role: assignment?.assignment_role === "ASSISTANT" || assignment?.assignment_role === "SUBSTITUTE" ? assignment.assignment_role : "PRIMARY",
     is_primary: assignment?.is_primary ?? true,

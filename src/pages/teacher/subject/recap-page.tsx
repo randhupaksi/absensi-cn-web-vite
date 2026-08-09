@@ -167,7 +167,7 @@ export function MapelRecapPage() {
               <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xl font-semibold text-slate-950">
-                    {recap.assignment.subject_name} — {recap.assignment.class_name}
+	                    {recap.assignment.subject_name} — {recap.assignment.classes.length} kelas
                   </p>
                   <p className="mt-1 text-sm text-slate-500">
                     {recap.assignment.school_year_name} ·{" "}

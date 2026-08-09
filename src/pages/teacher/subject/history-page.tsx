@@ -143,7 +143,7 @@ export function MapelHistoryPage() {
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
-    label: `${a.subject_name} — ${a.class_name}`,
+    label: `${a.subject_name} — ${a.classes.map((item) => item.name).join(", ") || "Belum ada kelas"}`,
   }));
 
   return (
@@ -306,7 +306,7 @@ export function MapelHistoryPage() {
                           </td>
                           <td className="py-3 pr-4">
                             <p className="font-medium text-slate-900">{selectedAssignment?.subject_name ?? "Mapel"}</p>
-                            <p className="mt-0.5 text-xs text-slate-500">{selectedAssignment?.class_name ?? "Kelas belum dipilih"}</p>
+                            <p className="mt-0.5 text-xs text-slate-500">{sess.class_name ?? "Kelas belum tersedia"}</p>
                           </td>
                           <td className="max-w-[240px] py-3 pr-4 text-slate-600">
                             <span className="line-clamp-2">{sess.topic || "Belum ada topik"}</span>
@@ -356,7 +356,7 @@ export function MapelHistoryPage() {
                         </p>
                         <div className="mt-3">
                           <p className="text-sm font-medium leading-6 text-slate-900">{selectedAssignment?.subject_name ?? "Mapel"}</p>
-                          <p className="text-xs leading-5 text-slate-500">{selectedAssignment?.class_name ?? "Kelas belum dipilih"}</p>
+                          <p className="text-xs leading-5 text-slate-500">{sess.class_name ?? "Kelas belum tersedia"}</p>
                         </div>
                         <p className="mt-0.5 text-xs leading-5 text-slate-500">
                           {HARI_LABEL[sess.hari] ?? sess.hari} · {sess.jam_mulai}–{sess.jam_selesai}
@@ -426,8 +426,7 @@ type TodaySessionFocus = {
 type SubjectAssignmentScheduleSource = Array<{
   id: string;
   subject_name: string;
-  class_name: string;
-  schedules: Array<{ hari: string; jam_mulai: string; jam_selesai: string; is_active: boolean }>;
+  schedules: Array<{ class_name: string; hari: string; jam_mulai: string; jam_selesai: string; is_active: boolean }>;
 }>;
 
 type SubjectSessionClock = { day: string; time: string; date: Date };
@@ -442,6 +441,7 @@ function buildTodaySessionFocus({
   assignments: SubjectAssignmentScheduleSource;
   sessions: Array<{
     session_id: string;
+    class_name?: string;
     tanggal: string;
     hari: string;
     jam_mulai: string;
@@ -450,7 +450,7 @@ function buildTodaySessionFocus({
   }>;
   activeSession: {
     session_id: string;
-    assignment: { id: string; subject_name: string; class_name: string };
+    assignment: { id: string; subject_name: string; class_name?: string };
     hari: string;
     jam_mulai: string;
     jam_selesai: string;
@@ -465,7 +465,7 @@ function buildTodaySessionFocus({
     return {
       assignmentId: activeSession.assignment.id,
       subjectName: activeSession.assignment.subject_name,
-      className: activeSession.assignment.class_name,
+	  className: activeSession.assignment.class_name ?? "Kelas belum tersedia",
       hari: activeSession.hari,
       jamMulai: activeSession.jam_mulai,
       jamSelesai: activeSession.jam_selesai,
@@ -484,7 +484,7 @@ function buildTodaySessionFocus({
     return {
       assignmentId: selectedAssignment.id,
       subjectName: selectedAssignment.subject_name,
-      className: selectedAssignment.class_name,
+  className: recordedToday.class_name ?? "Kelas belum tersedia",
       hari: recordedToday.hari,
       jamMulai: recordedToday.jam_mulai,
       jamSelesai: recordedToday.jam_selesai,
@@ -536,7 +536,7 @@ function buildUpcomingScheduleFocuses(
         return [{
           assignmentId: assignment.id,
           subjectName: assignment.subject_name,
-          className: assignment.class_name,
+		  className: schedule.class_name,
           hari: schedule.hari,
           jamMulai: schedule.jam_mulai,
           jamSelesai: schedule.jam_selesai,

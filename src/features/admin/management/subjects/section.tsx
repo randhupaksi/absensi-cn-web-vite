@@ -524,6 +524,7 @@ export function SubjectManagementSection({
                       />
                       <div className="mt-4 grid gap-3">
                         <MobileDataField label="Tahun Ajaran" value={assignment.school_year_name} />
+						<MobileDataField label="Kelas Terhubung" value={formatAssignmentClasses(assignment)} />
                       </div>
                       <MobileDataSection label="Status Jadwal">
                         {hasActiveSchedule(assignment) ? (
@@ -549,7 +550,7 @@ export function SubjectManagementSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
+				<DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Kelas", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
                 <DataTableBody>
                   {pageAssignments.map((assignment) => (
                     <DataTableRow key={assignment.id}>
@@ -565,6 +566,10 @@ export function SubjectManagementSection({
                         <p className="text-slate-700">{assignment.subject_name}</p>
                         <p className="mt-0.5 text-xs text-slate-400">{assignment.subject_code}</p>
                       </DataTableCell>
+					  <DataTableCell>
+						<p className="text-sm font-medium text-slate-700">{getAssignmentClasses(assignment).length} kelas</p>
+						<p className="mt-0.5 max-w-52 truncate text-xs text-slate-400">{formatAssignmentClasses(assignment)}</p>
+					  </DataTableCell>
                       <DataTableCell>
                         {hasActiveSchedule(assignment) ? (
                           <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
@@ -743,6 +748,23 @@ export function SubjectManagementSection({
   );
 }
 
+function formatAssignmentClasses(assignment: AdminTeacherSubjectAssignment) {
+	const classes = getAssignmentClasses(assignment);
+	if (classes.length === 0) return "Belum ada kelas";
+	return classes.map((item) => item.name).join(" · ");
+}
+
+function getAssignmentClasses(assignment: AdminTeacherSubjectAssignment) {
+	if (Array.isArray(assignment.classes) && assignment.classes.length > 0) return assignment.classes;
+	if (!assignment.class_name) return [];
+	return [{
+		id: assignment.class_id ?? "legacy-class",
+		name: assignment.class_name,
+		school_unit_id: assignment.school_unit_id,
+		school_unit_code: assignment.school_unit_code,
+	}];
+}
+
 const statusOptions = [
   { value: "all", label: "Semua status" },
   { value: "active", label: "Aktif" },
@@ -761,7 +783,7 @@ const dayOptions = [
 ];
 
 function hasActiveSchedule(assignment: AdminTeacherSubjectAssignment) {
-  return assignment.schedules.some((schedule) => schedule.is_active);
+  return (assignment.schedules ?? []).some((schedule) => schedule.is_active);
 }
 
 function Pill({ children }: { children: React.ReactNode }) {

@@ -26,10 +26,9 @@ export const subjectSchema = z.object({
 });
 
 export const teachingAssignmentSchema = z.object({
-  teacher_id: z.string().min(1, "Guru wajib dipilih"),
-  subject_id: z.string().min(1, "Mapel wajib dipilih"),
-  class_id: z.string().min(1, "Kelas wajib dipilih"),
-  school_year_id: z.string().min(1, "Tahun ajaran wajib dipilih"),
+	teacher_id: z.string().min(1, "Guru wajib dipilih"),
+	subject_id: z.string().min(1, "Mapel wajib dipilih"),
+	school_year_id: z.string().min(1, "Tahun ajaran wajib dipilih"),
   assignment_role: z.enum(["PRIMARY", "ASSISTANT", "SUBSTITUTE"]),
   is_primary: z.boolean(),
   effective_from: z.string(),
