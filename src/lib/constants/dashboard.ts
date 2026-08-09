@@ -127,7 +127,7 @@ export const roleDashboardConfig: Record<
       "Deteksi alfa berulang",
     ],
     navigation: [
-      { label: "Dashboard Walas", href: "/dashboard/teacher/homeroom", icon: LayoutDashboard },
+      { label: "Dashboard Guru", href: "/dashboard/teacher/homeroom", icon: LayoutDashboard },
       { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardCheck },
       { label: "Data Siswa", href: "/dashboard/teacher/homeroom/students", icon: Users },
     ],

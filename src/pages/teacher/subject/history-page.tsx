@@ -556,11 +556,9 @@ function TodaySessionCard({
   focus: TodaySessionFocus | null;
   nextSchedule: TodaySessionFocus | null;
 }) {
-  const focusHref = focus?.sessionId
+  const sessionHref = focus?.sessionId
     ? `/dashboard/teacher/subject/session?session_id=${focus.sessionId}`
-    : focus
-      ? `/dashboard/teacher/subject/history?assignment_id=${focus.assignmentId}`
-      : "#riwayat-sesi";
+    : null;
   const stateCopy = focus?.state === "active"
     ? { eyebrow: "SEDANG BERLANGSUNG", title: "Sesi mapel aktif", badge: "Buka sekarang" }
     : focus?.state === "recorded"
@@ -613,12 +611,29 @@ function TodaySessionCard({
             </span>
           ) : null}
           <Link
-            href={focusHref}
-            className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800"
+            href="/dashboard/teacher/subject/schedule"
+            className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] border border-emerald-200 bg-white/90 px-4 text-sm font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(15,118,110,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50"
           >
-            {stateCopy.badge}
+            Lihat jadwal
             <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
+          {sessionHref ? (
+            <Link
+              href={sessionHref}
+              className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800"
+            >
+              Masuk
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          ) : (
+            <span
+              title="Ticket sesi akan tersedia saat jadwal sudah dimulai."
+              className="inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-[16px] bg-slate-200 px-4 text-sm font-semibold text-slate-500"
+            >
+              Masuk
+              <ArrowUpRight className="size-4" />
+            </span>
+          )}
         </div>
       </div>
 

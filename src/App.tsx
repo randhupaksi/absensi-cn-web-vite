@@ -28,6 +28,7 @@ const WalasAttendancePage = lazy(() => import("@/pages/teacher/homeroom/attendan
 const WalasStudentsPage = lazy(() => import("@/pages/teacher/homeroom/students-page").then((module) => ({ default: module.WalasStudentsPage })));
 const WalasSubmissionsPage = lazy(() => import("@/pages/teacher/homeroom/submissions-page").then((module) => ({ default: module.WalasSubmissionsPage })));
 const MapelHistoryPage = lazy(() => import("@/pages/teacher/subject/history-page").then((module) => ({ default: module.MapelHistoryPage })));
+const MapelSchedulePage = lazy(() => import("@/pages/teacher/subject/schedule-page").then((module) => ({ default: module.MapelSchedulePage })));
 const MapelRecapPage = lazy(() => import("@/pages/teacher/subject/recap-page").then((module) => ({ default: module.MapelRecapPage })));
 const MapelSessionPage = lazy(() => import("@/pages/teacher/subject/session-page").then((module) => ({ default: module.MapelSessionPage })));
 const DevFixLogPage = lazy(() => import("@/pages/dev/fix-log-page").then((module) => ({ default: module.DevFixLogPage })));
@@ -160,6 +161,7 @@ export default function App() {
           <Route path="/dashboard/teacher/homeroom/submissions" element={<TeacherRoute><WalasSubmissionsPage /></TeacherRoute>} />
           <Route path="/dashboard/teacher/subject" element={<Navigate replace to="/dashboard/teacher" />} />
           <Route path="/dashboard/teacher/subject/history" element={<TeacherRoute><MapelHistoryPage /></TeacherRoute>} />
+          <Route path="/dashboard/teacher/subject/schedule" element={<TeacherRoute><MapelSchedulePage /></TeacherRoute>} />
           <Route path="/dashboard/teacher/subject/recap" element={<TeacherRoute><MapelRecapPage /></TeacherRoute>} />
           <Route path="/dashboard/teacher/subject/session" element={<TeacherRoute><MapelSessionPage /></TeacherRoute>} />
 

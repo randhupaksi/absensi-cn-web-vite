@@ -126,7 +126,7 @@ function getDashboardEyebrow(role: DashboardRole) {
     case "admin":
       return "Dashboard Admin";
     case "walas":
-      return "Dashboard Walas";
+      return "Dashboard Guru";
     case "bk":
       return "Dashboard BK";
     case "siswa":
