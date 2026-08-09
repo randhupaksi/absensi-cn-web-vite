@@ -418,7 +418,7 @@ export function SubjectManagementSection({
           <TabsContent value="subjects" className="mt-4">
             <DataTableCard
               isLoading={isLoading}
-              columnCount={7}
+              columnCount={6}
               isEmpty={filteredSubjects.length === 0}
               emptyTitle="Mapel tidak ditemukan"
               emptyDescription="Tambahkan master mapel baru atau ubah filter pencarian."
@@ -523,11 +523,10 @@ export function SubjectManagementSection({
                         badge={<StatusBadge isActive={assignment.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">
-                        <MobileDataField label="Kelas" value={assignment.class_name} />
                         <MobileDataField label="Tahun Ajaran" value={assignment.school_year_name} />
                       </div>
                       <MobileDataSection label="Status Jadwal">
-                        {assignment.schedules.length > 0 ? (
+                        {hasActiveSchedule(assignment) ? (
                           <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
                             Sudah dijadwalkan
                           </Badge>
@@ -550,7 +549,7 @@ export function SubjectManagementSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Kelas", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
+                <DataTableHeadRow labels={["Guru", "Mata Pelajaran", "Jadwal", "Tahun Ajaran", "Status", "Aksi"]} />
                 <DataTableBody>
                   {pageAssignments.map((assignment) => (
                     <DataTableRow key={assignment.id}>
@@ -566,9 +565,8 @@ export function SubjectManagementSection({
                         <p className="text-slate-700">{assignment.subject_name}</p>
                         <p className="mt-0.5 text-xs text-slate-400">{assignment.subject_code}</p>
                       </DataTableCell>
-                      <DataTableCell className="text-slate-700">{assignment.class_name}</DataTableCell>
                       <DataTableCell>
-                        {assignment.schedules.length > 0 ? (
+                        {hasActiveSchedule(assignment) ? (
                           <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
                             Sudah dijadwalkan
                           </Badge>
@@ -761,6 +759,10 @@ const dayOptions = [
   { value: "sabtu", label: "Sabtu" },
   { value: "minggu", label: "Minggu" },
 ];
+
+function hasActiveSchedule(assignment: AdminTeacherSubjectAssignment) {
+  return assignment.schedules.some((schedule) => schedule.is_active);
+}
 
 function Pill({ children }: { children: React.ReactNode }) {
   return (
