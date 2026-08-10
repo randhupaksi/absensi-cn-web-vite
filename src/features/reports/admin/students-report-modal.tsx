@@ -65,10 +65,10 @@ async function generateSiswaPdf(
 
   const body = data.map((s, i) => {
     const row: string[] = [String(i + 1), s.name, s.nis];
-    if (columns.nisn) row.push(s.nisn || "—");
+    if (columns.nisn) row.push(s.nisn || "-");
     if (columns.gender)
       row.push(
-        s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "—",
+        s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "-",
       );
     return row;
   });
@@ -100,7 +100,7 @@ async function generateSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Data Siswa — ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Data Siswa - ABSENSI CN");
 
   doc.save(`Laporan-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -133,7 +133,7 @@ async function generateSiswaExcel(
       ...(columns.nisn ? [{ header: "NISN", value: (student: AdminStudent) => student.nisn, width: 18 }] : []),
       ...(columns.gender ? [{
         header: "Jenis Kelamin",
-        value: (student: AdminStudent) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—",
+        value: (student: AdminStudent) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "-",
         width: 18,
       }] : []),
       { header: "Status", value: (student) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" },
@@ -242,7 +242,7 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Filter */}
+        {/* Q1 - Filter */}
         <QuestionBlock
           icon={ListFilter}
           label="Saring berdasarkan"
@@ -270,7 +270,7 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
           </div>
         </QuestionBlock>
 
-        {/* Q2 — Columns */}
+        {/* Q2 - Columns */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div
@@ -303,7 +303,7 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q3 — Sort */}
+        {/* Q3 - Sort */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div

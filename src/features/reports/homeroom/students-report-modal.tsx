@@ -117,12 +117,12 @@ async function generateWalasSiswaPdf(
 
   const body = data.map((s, i) => {
     const row: string[] = [String(i + 1), s.name];
-    if (columns.nis) row.push(`${s.nis}\n${s.nisn ?? "—"}`);
+    if (columns.nis) row.push(`${s.nis}\n${s.nisn ?? "-"}`);
     if (columns.gender) {
       const g = (s.gender ?? "").toUpperCase();
-      row.push(g === "MALE" ? "Laki-laki" : g === "FEMALE" ? "Perempuan" : "—");
+      row.push(g === "MALE" ? "Laki-laki" : g === "FEMALE" ? "Perempuan" : "-");
     }
-    if (columns.identitas) row.push(s.nisn || "—");
+    if (columns.identitas) row.push(s.nisn || "-");
     if (columns.hadir) row.push(String(s.present_count));
     if (columns.izin) row.push(String(s.permission_count));
     if (columns.sakit) row.push(String(s.sick_count));
@@ -161,7 +161,7 @@ async function generateWalasSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, `Laporan Siswa Kelas — ${homeroom.class_name} — ABSENSI CN`);
+  drawReportPdfFooter(doc, `Laporan Siswa Kelas - ${homeroom.class_name} - ABSENSI CN`);
 
   doc.save(`Laporan-Walas-Siswa-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -195,7 +195,7 @@ async function generateWalasSiswaExcel(
         { header: "NIS", value: (student: StaffStudentSummary) => student.nis, width: 17 },
         { header: "NISN", value: (student: StaffStudentSummary) => student.nisn, width: 17 },
       ] : []),
-      ...(columns.gender ? [{ header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—", width: 18 }] : []),
+      ...(columns.gender ? [{ header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "-", width: 18 }] : []),
       ...(columns.identitas ? [{ header: "Identitas", value: (student: StaffStudentSummary) => student.nisn, width: 18 }] : []),
       ...(columns.hadir ? [{ header: "H", value: (student: StaffStudentSummary) => student.present_count, width: 8, kind: "attendance" as const }] : []),
       ...(columns.izin ? [{ header: "I", value: (student: StaffStudentSummary) => student.permission_count, width: 8, kind: "attendance" as const }] : []),
@@ -520,7 +520,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Filter kondisi */}
+        {/* Q1 - Filter kondisi */}
         <QuestionBlock icon={Printer} label="Pilih tipe laporan" answered={reportType !== null}>
           <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio selected={reportType === "daily"} label="Periodik per hari" badge="Per tanggal" onClick={() => { setReportType("daily"); setDateMode(null); setConditionFilter(null); setSortBy(null); }} />
@@ -577,7 +577,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q2 — Kolom */}
+        {/* Q2 - Kolom */}
         <AnimatePresence>
           {showColumns && (
             <motion.div key="q2" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
@@ -609,7 +609,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q3 — Urutan */}
+        {/* Q3 - Urutan */}
         <AnimatePresence>
           {showColumns && (
             <motion.div key="q3" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut", delay: 0.08 }}>

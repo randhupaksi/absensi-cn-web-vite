@@ -83,21 +83,21 @@ function formatDisplayDate(value: string): string {
 }
 
 function formatDate(dateStr: string) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const parts = dateStr.split("-");
   if (parts.length !== 3) return dateStr;
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
 function formatTime(isoStr?: string) {
-  if (!isoStr) return "—";
+  if (!isoStr) return "-";
   try {
     return new Date(isoStr).toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
     });
   } catch {
-    return "—";
+    return "-";
   }
 }
 
@@ -174,12 +174,12 @@ async function generateBKAbsensiPdf(
 
   const body = records.map((r, i) => {
     const row: string[] = [String(i + 1), r.student_name, r.nis];
-    if (columns.kelas) row.push(r.class_name || "—");
+    if (columns.kelas) row.push(r.class_name || "-");
     if (columns.tanggal) row.push(formatDate(r.attendance_date));
     if (columns.checkIn) row.push(formatTime(r.check_in_at));
     if (columns.status) row.push(STATUS_LABEL[r.status.toLowerCase()] ?? r.status);
     if (columns.diverifikasi) row.push(r.verified_at ? "Sudah" : "Belum");
-    if (columns.catatan) row.push(r.verification_note || r.notes || "—");
+    if (columns.catatan) row.push(r.verification_note || r.notes || "-");
     return row;
   });
 
@@ -191,7 +191,7 @@ async function generateBKAbsensiPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas — BK ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas - BK ABSENSI CN");
 
   doc.save(`Laporan-Absensi-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -342,7 +342,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           : dateMode === "specific" && specificDate
           ? formatDisplayDate(specificDate)
           : dateMode === "range" && dateRange.from && dateRange.to
-          ? `${formatDisplayDate(toDateInputValue(dateRange.from))} — ${formatDisplayDate(toDateInputValue(dateRange.to))}`
+          ? `${formatDisplayDate(toDateInputValue(dateRange.from))} - ${formatDisplayDate(toDateInputValue(dateRange.to))}`
           : "Semua",
         kelas: classFilter === "specific" && selectedClass
           ? selectedClass.class_name
@@ -377,7 +377,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Tanggal */}
+        {/* Q1 - Tanggal */}
         <QuestionBlock icon={CalendarClock} label="Pilih tanggal absensi" answered={q1Answered}>
           <div className="grid gap-2 sm:grid-cols-3">
             <ReportRadio
@@ -584,7 +584,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           </AnimatePresence>
         </QuestionBlock>
 
-        {/* Q2 — Kelas */}
+        {/* Q2 - Kelas */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div
@@ -646,7 +646,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q3 — Status */}
+        {/* Q3 - Status */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div
@@ -672,7 +672,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q4 — Kolom */}
+        {/* Q4 - Kolom */}
         <AnimatePresence>
           {showQ4 && (
             <motion.div
@@ -697,7 +697,7 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q5 — Urutan */}
+        {/* Q5 - Urutan */}
         <AnimatePresence>
           {showQ4 && (
             <motion.div

@@ -50,7 +50,7 @@ type Columns = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDateTime(dateStr?: string) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   try {
     return new Date(dateStr).toLocaleString("id-ID", {
       day: "2-digit",
@@ -60,7 +60,7 @@ function formatDateTime(dateStr?: string) {
       minute: "2-digit",
     });
   } catch {
-    return "—";
+    return "-";
   }
 }
 
@@ -105,10 +105,10 @@ async function generateBKKonselingPdf(
   const body = records.map((r, i) => {
     const row: string[] = [String(i + 1), r.student_name];
     if (columns.nis) row.push(r.nis);
-    if (columns.kelas) row.push(r.class_name || "—");
+    if (columns.kelas) row.push(r.class_name || "-");
     if (columns.judul) row.push(r.title);
     if (columns.isiCatatan) row.push(truncate(r.note, 120));
-    if (columns.dibuatOleh) row.push(r.created_by_name || "—");
+    if (columns.dibuatOleh) row.push(r.created_by_name || "-");
     if (columns.waktu) row.push(formatDateTime(r.created_at));
     return row;
   });
@@ -121,7 +121,7 @@ async function generateBKKonselingPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Catatan Konseling BK — ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Catatan Konseling BK - ABSENSI CN");
 
   doc.save(`Laporan-Konseling-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -281,7 +281,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Kelas */}
+        {/* Q1 - Kelas */}
         <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q1FullyAnswered}>
           <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio
@@ -331,7 +331,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           </AnimatePresence>
         </QuestionBlock>
 
-        {/* Q2 — Siswa */}
+        {/* Q2 - Siswa */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div
@@ -400,7 +400,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           )}
         </AnimatePresence>
 
-        {/* Q3 — Kolom */}
+        {/* Q3 - Kolom */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div
@@ -425,7 +425,7 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           )}
         </AnimatePresence>
 
-        {/* Q4 — Urutan */}
+        {/* Q4 - Urutan */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div

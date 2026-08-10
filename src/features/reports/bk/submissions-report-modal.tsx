@@ -67,7 +67,7 @@ function normalizeStatus(val?: string) {
 }
 
 function formatDateTime(dateStr?: string) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   try {
     return new Date(dateStr).toLocaleString("id-ID", {
       day: "2-digit",
@@ -77,7 +77,7 @@ function formatDateTime(dateStr?: string) {
       minute: "2-digit",
     });
   } catch {
-    return "—";
+    return "-";
   }
 }
 
@@ -99,7 +99,7 @@ async function generateBKPengajuanPdf(
   applyPdfCreditMetadata(doc, "Laporan Pengajuan BK");
   const mx = REPORT_PDF_MARGIN_X;
   const { metaY } = drawReportPdfHeader(doc, {
-    title: "LAPORAN PENGAJUAN SISWA — BK",
+    title: "LAPORAN PENGAJUAN SISWA - BK",
     subtitle: "Laporan Guru Bimbingan Konseling",
   });
   const pills = [
@@ -122,11 +122,11 @@ async function generateBKPengajuanPdf(
 
   const body = records.map((r, i) => {
     const row: string[] = [String(i + 1), r.student_name, r.nis];
-    if (columns.kelas) row.push(r.class_name || "—");
+    if (columns.kelas) row.push(r.class_name || "-");
     if (columns.tipe) row.push(TYPE_LABEL[r.type] ?? r.type);
     if (columns.alasan) row.push(truncate(r.reason, 80));
     if (columns.status) row.push(STATUS_LABEL[normalizeStatus(r.status)] ?? r.status);
-    if (columns.catatanReview) row.push(r.review_note ? truncate(r.review_note, 80) : "—");
+    if (columns.catatanReview) row.push(r.review_note ? truncate(r.review_note, 80) : "-");
     if (columns.waktu) row.push(formatDateTime(r.created_at));
     return row;
   });
@@ -139,7 +139,7 @@ async function generateBKPengajuanPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Pengajuan Siswa — BK ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Pengajuan Siswa - BK ABSENSI CN");
 
   doc.save(`Laporan-Pengajuan-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -299,7 +299,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Kelas */}
+        {/* Q1 - Kelas */}
         <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q1FullyAnswered}>
           <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio
@@ -349,7 +349,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           </AnimatePresence>
         </QuestionBlock>
 
-        {/* Q2 — Tipe pengajuan */}
+        {/* Q2 - Tipe pengajuan */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div
@@ -370,7 +370,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q3 — Status pengajuan */}
+        {/* Q3 - Status pengajuan */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div
@@ -392,7 +392,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q4 — Kolom */}
+        {/* Q4 - Kolom */}
         <AnimatePresence>
           {showQ4 && (
             <motion.div
@@ -417,7 +417,7 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q5 — Urutan */}
+        {/* Q5 - Urutan */}
         <AnimatePresence>
           {showQ4 && (
             <motion.div

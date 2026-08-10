@@ -22,7 +22,7 @@ import type { StaffSubjectRecapStudentRow } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { BookOpenCheck, CalendarDays, ChartColumnBig, Printer } from "lucide-react";
+import { BookOpenCheck, CalendarDays, ChartColumnBig, LoaderCircle, Printer } from "lucide-react";
 import { useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
@@ -35,7 +35,7 @@ type DateFilterMode = "single" | "range";
 
 export function MapelRecapPage() {
   const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
-  const [dateFilterMode, setDateFilterMode] = useState<DateFilterMode>("range");
+  const [dateFilterMode, setDateFilterMode] = useState<DateFilterMode | null>(null);
   const [singleDate, setSingleDate] = useState<Date | undefined>(undefined);
   const [rangeDateFrom, setRangeDateFrom] = useState<Date | undefined>(undefined);
   const [rangeDateTo, setRangeDateTo] = useState<Date | undefined>(undefined);
@@ -43,10 +43,10 @@ export function MapelRecapPage() {
 
   const dateFromStr = dateFilterMode === "single"
     ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
-    : rangeDateFrom ? format(rangeDateFrom, "yyyy-MM-dd") : "";
+    : dateFilterMode === "range" && rangeDateFrom ? format(rangeDateFrom, "yyyy-MM-dd") : "";
   const dateToStr = dateFilterMode === "single"
     ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
-    : rangeDateTo ? format(rangeDateTo, "yyyy-MM-dd") : "";
+    : dateFilterMode === "range" && rangeDateTo ? format(rangeDateTo, "yyyy-MM-dd") : "";
 
   const assignmentsQuery = useQuery({
     queryKey: ["teacher-subject-assignments"],
@@ -64,7 +64,7 @@ export function MapelRecapPage() {
         date_from: dateFromStr || undefined,
         date_to: dateToStr || undefined,
       }),
-    enabled: !!selectedAssignmentId,
+    enabled: !!selectedAssignmentId && dateFilterMode !== null,
     placeholderData: (previousData) => previousData,
     staleTime: 0,
   });
@@ -75,14 +75,25 @@ export function MapelRecapPage() {
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
-    label: `${a.subject_name} — ${a.class_name} (${a.school_year_name})`,
+    label: `${a.subject_name} - ${a.class_name} (${a.school_year_name})`,
   }));
+
+  const filterStep = !selectedAssignmentId ? 1 : dateFilterMode === null ? 2 : 3;
+  const filterStepTitle = filterStep === 1
+    ? "Mulai dari mata pelajaran"
+    : filterStep === 2
+      ? "Pilih mode tanggal"
+      : "Tentukan tanggal rekap";
+  const filterStepDescription = filterStep === 1
+    ? "Pilih mapel tujuan untuk membuka rekap kehadiran siswa."
+    : filterStep === 2
+      ? "Tentukan apakah rekap berdasarkan satu tanggal atau rentang tanggal."
+      : "Atur tanggal untuk mempersempit data yang ingin kamu lihat.";
 
   return (
     <WalasShell>
       {() => (
-        (assignmentsQuery.isLoading && !assignmentsQuery.data) ||
-        (Boolean(selectedAssignmentId) && recapQuery.isLoading && !recapQuery.data)
+        assignmentsQuery.isLoading && !assignmentsQuery.data
       ) ? (
         <HistoryPageSkeleton />
       ) : (
@@ -101,33 +112,49 @@ export function MapelRecapPage() {
                 Export Laporan
               </Button>
             </div>
+            <div className="mb-5 flex items-center gap-3 rounded-[20px] border border-emerald-100 bg-emerald-50/55 px-4 py-3.5">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-[13px] bg-emerald-600 text-sm font-bold text-white shadow-[0_8px_18px_rgba(5,150,105,0.18)]">{filterStep}</span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-emerald-950">{filterStepTitle}</p>
+                <p className="mt-0.5 text-xs leading-5 text-emerald-800/75">{filterStepDescription}</p>
+              </div>
+            </div>
             <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">
               <div className="sm:col-span-2 lg:col-span-1">
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Mata Pelajaran</label>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <label className="block text-xs font-semibold text-slate-600">1. Mata Pelajaran</label>
+                  <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Wajib</span>
+                </div>
                 <RadixSelectField
                   value={selectedAssignmentId}
-                  onValueChange={setSelectedAssignmentId}
+                  onValueChange={(value) => {
+                    setSelectedAssignmentId(value);
+                    setDateFilterMode(null);
+                    setSingleDate(undefined);
+                    setRangeDateFrom(undefined);
+                    setRangeDateTo(undefined);
+                  }}
                   placeholder="Pilih mata pelajaran"
                   options={assignmentOptions}
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600">Mode Tanggal</label>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600">2. Mode Tanggal</label>
                 <DateFilterModeSwitch value={dateFilterMode} onChange={setDateFilterMode} />
               </div>
               {dateFilterMode === "single" ? (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">Tanggal Tertentu</label>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">3. Tanggal Tertentu</label>
                   <DatePickerButton
                     value={singleDate}
                     onChange={setSingleDate}
                     placeholder="Pilih tanggal"
                   />
                 </div>
-              ) : (
+              ) : dateFilterMode === "range" ? (
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">Dari</label>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">3. Dari</label>
                     <DatePickerButton
                       value={rangeDateFrom}
                       onChange={setRangeDateFrom}
@@ -143,7 +170,7 @@ export function MapelRecapPage() {
                     />
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
             {dateFilterMode === "range" && !dateFromStr && !dateToStr ? (
               <p className="mt-3 text-sm text-slate-500">
@@ -155,8 +182,19 @@ export function MapelRecapPage() {
 
           {/* Recap table */}
           {!selectedAssignmentId ? (
-            <section>
-              <EmptyState icon={ChartColumnBig} title="Pilih mata pelajaran" description="Pilih mata pelajaran di atas untuk membuka rekap kehadiran siswa." />
+            <section className="rounded-[32px] border border-dashed border-slate-200 bg-white/45 p-6">
+              <EmptyState icon={ChartColumnBig} title="Rekap siap ditampilkan" description="Pilih mata pelajaran pada langkah pertama untuk melihat data kehadiran siswa." />
+            </section>
+          ) : dateFilterMode === null ? (
+            <section className="rounded-[32px] border border-dashed border-emerald-200 bg-emerald-50/25 p-6">
+              <EmptyState icon={CalendarDays} title="Pilih mode tanggal" description="Gunakan switch langkah 2 untuk melanjutkan ke pengaturan tanggal rekap." />
+            </section>
+          ) : recapQuery.isLoading && !recapQuery.data ? (
+            <section className="flex min-h-56 items-center justify-center rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
+                <LoaderCircle className="size-5 animate-spin text-emerald-600" />
+                Memuat rekap mata pelajaran...
+              </div>
             </section>
           ) : recapQuery.error ? (
             <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
@@ -167,7 +205,7 @@ export function MapelRecapPage() {
               <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xl font-semibold text-slate-950">
-	                    {recap.assignment.subject_name} — {recap.assignment.classes.length} kelas
+	                    {recap.assignment.subject_name} - {recap.assignment.classes.length} kelas
                   </p>
                   <p className="mt-1 text-sm text-slate-500">
                     {recap.assignment.school_year_name} ·{" "}
@@ -325,7 +363,7 @@ function DateFilterModeSwitch({
   value,
   onChange,
 }: {
-  value: DateFilterMode;
+  value: DateFilterMode | null;
   onChange: (value: DateFilterMode) => void;
 }) {
   return (
@@ -335,7 +373,7 @@ function DateFilterModeSwitch({
         variant="ghost"
         onClick={() => onChange("single")}
         className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
-          value === "single" ? "bg-emerald-600 !text-white hover:bg-emerald-700 hover:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+          value === "single" ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
         }`}
       >
         Tanggal
@@ -345,7 +383,7 @@ function DateFilterModeSwitch({
         variant="ghost"
         onClick={() => onChange("range")}
         className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
-          value === "range" ? "bg-emerald-600 !text-white hover:bg-emerald-700 hover:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+          value === "range" ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
         }`}
       >
         Rentang
@@ -360,7 +398,7 @@ function RecapCell({ value, cls }: { value: number; cls: string }) {
       {value > 0 ? (
         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>{value}</span>
       ) : (
-        <span className="text-xs text-slate-300">—</span>
+        <span className="text-xs text-slate-300">-</span>
       )}
     </td>
   );

@@ -58,10 +58,10 @@ async function generateGuruPdf(
   if (columns.status) head[0].push("Status");
 
   const body = data.map((t, i) => {
-    const row: string[] = [String(i + 1), t.name, t.username || "—"];
+    const row: string[] = [String(i + 1), t.name, t.username || "-"];
     if (columns.gender)
       row.push(
-        t.gender === "MALE" ? "Laki-laki" : t.gender === "FEMALE" ? "Perempuan" : "—",
+        t.gender === "MALE" ? "Laki-laki" : t.gender === "FEMALE" ? "Perempuan" : "-",
       );
     if (columns.status) row.push(t.is_active ? "Aktif" : "Non-aktif");
     return row;
@@ -93,7 +93,7 @@ async function generateGuruPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Data Guru — ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Data Guru - ABSENSI CN");
 
   doc.save(`Laporan-Guru-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -125,7 +125,7 @@ async function generateGuruExcel(
       { header: "Username", value: (teacher) => teacher.username, width: 20 },
       ...(columns.gender ? [{
         header: "Jenis Kelamin",
-        value: (teacher: AdminTeacherProfile) => teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "—",
+        value: (teacher: AdminTeacherProfile) => teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "-",
         width: 18,
       }] : []),
       ...(columns.status ? [{ header: "Status", value: (teacher: AdminTeacherProfile) => teacher.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
@@ -220,7 +220,7 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Filter status */}
+        {/* Q1 - Filter status */}
         <QuestionBlock
           icon={ListFilter}
           label="Saring berdasarkan status guru"
@@ -248,7 +248,7 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
           </div>
         </QuestionBlock>
 
-        {/* Q2 — Columns */}
+        {/* Q2 - Columns */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div
@@ -281,7 +281,7 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q3 — Sort */}
+        {/* Q3 - Sort */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div

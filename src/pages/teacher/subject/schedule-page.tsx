@@ -1,5 +1,6 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
+import { BackButton } from "@/components/ui/back-button";
 import { AppLink as Link } from "@/components/router/app-link";
 import {
   getTeacherSubjectAssignments,
@@ -11,6 +12,8 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { ArrowUpRight, BookOpenCheck, CalendarDays, CalendarOff, Clock3, GraduationCap, Layers3, Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { RadixSelectField } from "@/components/ui/radix-select";
 
 const HARI_LABEL: Record<string, string> = {
   senin: "Senin", selasa: "Selasa", rabu: "Rabu", kamis: "Kamis",
@@ -31,6 +34,8 @@ type ScheduleTicket = {
 };
 
 export function MapelSchedulePage() {
+  const [dayFilter, setDayFilter] = useState("all");
+  const [classFilter, setClassFilter] = useState("all");
   const now = new Date();
   const today = format(now, "yyyy-MM-dd");
   const currentDay = getDayKey(now);
@@ -60,18 +65,34 @@ export function MapelSchedulePage() {
   });
 
   const assignments = assignmentsQuery.data ?? [];
-  const tickets = buildScheduleTickets(assignments, now).filter(
+  const allTickets = buildScheduleTickets(assignments, now).filter(
     (ticket) => !isHoliday || format(ticket.date, "yyyy-MM-dd") !== today,
   );
   const activeSession = activeSessionQuery.data ?? null;
   const activeAssignments = assignments.filter((assignment) => assignment.is_active);
+  const tickets = allTickets.filter((ticket) =>
+    (dayFilter === "all" || ticket.day === dayFilter)
+    && (classFilter === "all" || ticket.classId === classFilter),
+  );
+  const classFilterOptions = useMemo(() => {
+    const classes = new Map<string, string>();
+    activeAssignments.forEach((assignment) => {
+      assignment.schedules
+        .filter((schedule) => schedule.is_active)
+        .forEach((schedule) => classes.set(schedule.class_id, schedule.class_name));
+    });
+    return [...classes.entries()]
+      .sort((first, second) => first[1].localeCompare(second[1], "id"))
+      .map(([value, label]) => ({ value, label }));
+  }, [activeAssignments]);
+  const dayFilterOptions = Object.entries(HARI_LABEL).map(([value, label]) => ({ value, label }));
   const activeSubjectCount = new Set(activeAssignments.map((assignment) => assignment.subject_id)).size;
   const activeClassCount = new Set(
     activeAssignments.flatMap((assignment) => assignment.schedules
       .filter((schedule) => schedule.is_active)
       .map((schedule) => `${schedule.class_id}:${assignment.school_year_id}`)),
   ).size;
-  const nextTicket = tickets.find((ticket) => ticket.state === "active" || ticket.state === "upcoming");
+  const teachingDayCount = new Set(tickets.map((ticket) => ticket.day)).size;
 
   return (
     <WalasShell>
@@ -83,6 +104,7 @@ export function MapelSchedulePage() {
         </section>
       ) : (
         <div className="space-y-5">
+          <BackButton href="/dashboard/teacher/subject/history" label="Kembali ke Sesi Mapel" />
           <section className="relative overflow-hidden rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-5 shadow-[0_24px_52px_rgba(15,118,110,0.11)] sm:p-6">
             <div className="pointer-events-none absolute -right-10 -top-24 size-60 rounded-full bg-emerald-200/30 blur-3xl" />
             <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -96,30 +118,23 @@ export function MapelSchedulePage() {
                   Lihat semua jadwal aktif, pantau sesi terdekat, lalu masuk ke ticket absensi ketika kelas sudah dimulai.
                 </p>
               </div>
-              <Link
-                href="/dashboard/teacher/subject/history"
-                className="group inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[16px] border border-emerald-200 bg-white/90 px-4 text-sm font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(15,118,110,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50"
-              >
-                Sesi mapel
-                <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
             </div>
           </section>
 
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <ScheduleKpi icon={BookOpenCheck} label="Mapel Aktif" value={activeSubjectCount} tone="emerald" />
             <ScheduleKpi icon={Users} label="Kelas Terjadwal" value={activeClassCount} tone="sky" />
             <ScheduleKpi icon={Layers3} label="Sesi Mingguan" value={tickets.length} tone="violet" />
             <ScheduleKpi
-              icon={Clock3}
-              label="Sesi Terdekat"
-              value={nextTicket ? nextTicket.start : "—"}
-              detail={nextTicket ? `${HARI_LABEL[nextTicket.day]}, ${nextTicket.className}` : "Belum ada slot aktif"}
+              icon={CalendarDays}
+              label="Hari Mengajar"
+              value={teachingDayCount}
+              detail="dalam 7 hari"
               tone="amber"
             />
           </section>
 
-          {tickets.length === 0 ? (
+          {allTickets.length === 0 ? (
             <section className="rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
               <EmptyState icon={CalendarDays} title="Belum ada jadwal aktif" description="Jadwal mengajar akan muncul setelah admin menautkan mata pelajaran dan slot waktu yang aktif." />
             </section>
@@ -130,17 +145,32 @@ export function MapelSchedulePage() {
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">Agenda 7 Hari</p>
                   <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-slate-950">Ticket jadwal mapel</h3>
                 </div>
-                <p className="text-sm text-slate-500">Ticket aktif dapat langsung dibuka untuk presensi.</p>
+                <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:w-auto sm:min-w-[440px]">
+                  <RadixSelectField
+                    value={dayFilter}
+                    onValueChange={setDayFilter}
+                    options={[{ value: "all", label: "Semua hari" }, ...dayFilterOptions]}
+                    placeholder="Filter hari"
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                  <RadixSelectField
+                    value={classFilter}
+                    onValueChange={setClassFilter}
+                    options={[{ value: "all", label: "Semua kelas" }, ...classFilterOptions]}
+                    placeholder="Filter kelas"
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
               </div>
 
               {isHoliday ? (
-                <div className="mb-6 flex items-start gap-3 rounded-[20px] border border-amber-200/80 bg-amber-50/70 px-4 py-3.5 text-sm text-amber-900">
+                <div className="mb-6 flex items-center gap-3 rounded-[20px] border border-amber-200/80 bg-amber-50/70 px-4 py-3.5 text-sm text-amber-900">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-[14px] bg-white text-amber-700 shadow-[0_8px_18px_rgba(180,83,9,0.08)]">
                     <CalendarOff className="size-4" />
                   </span>
                   <p className="leading-6">
                     <span className="font-semibold">Hari ini libur{holidayName ? `: ${holidayName}` : ""}.</span>{" "}
-                    Ticket presensi hari ini tidak tersedia; jadwal berikutnya tetap ditampilkan di bawah.
+                    Ticket presensi hari ini tidak tersedia.
                   </p>
                 </div>
               ) : null}
@@ -157,16 +187,23 @@ export function MapelSchedulePage() {
                 ))}
               </div>
 
-              <div className="space-y-6">
-                {groupTicketsByDate(tickets).map(([dateKey, dayTickets]) => (
-                  <div key={dateKey}>
+              {tickets.length === 0 ? (
+                <EmptyState
+                  icon={CalendarDays}
+                  title="Tidak ada jadwal yang cocok"
+                  description="Coba ubah filter hari atau kelas untuk melihat ticket lainnya."
+                />
+              ) : (
+                <div className="space-y-6">
+                  {groupTicketsByDate(tickets).map(([dateKey, dayTickets]) => (
+                  <div key={dateKey} className={`rounded-[28px] border border-l-4 p-3.5 sm:p-4 ${getDayGroupTone(dayTickets[0].date).wrapper}`}>
                     <div className="mb-3 flex items-center gap-3">
-                      <span className="flex size-10 shrink-0 flex-col items-center justify-center rounded-[14px] bg-emerald-50 text-emerald-700">
+                      <span className={`flex size-10 shrink-0 flex-col items-center justify-center rounded-[14px] ${getDayGroupTone(dayTickets[0].date).dateBadge}`}>
                         <span className="text-[10px] font-bold uppercase leading-none">{format(dayTickets[0].date, "MMM", { locale: localeID })}</span>
                         <span className="mt-0.5 text-sm font-bold leading-none">{format(dayTickets[0].date, "d")}</span>
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{format(dayTickets[0].date, "EEEE, d MMMM", { locale: localeID })}</p>
+                        <p className={`text-sm font-semibold ${getDayGroupTone(dayTickets[0].date).heading}`}>{format(dayTickets[0].date, "EEEE, d MMMM", { locale: localeID })}</p>
                         <p className="text-xs text-slate-500">{dayTickets.length} ticket jadwal</p>
                       </div>
                       {dateKey === today ? <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Hari ini</span> : null}
@@ -186,14 +223,28 @@ export function MapelSchedulePage() {
                       ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
           )}
         </div>
       )}
     </WalasShell>
   );
+}
+
+function getDayGroupTone(date: Date) {
+  const tones = [
+    { wrapper: "border-slate-300 bg-slate-100/75 border-l-slate-500", dateBadge: "bg-slate-200 text-slate-700", heading: "text-slate-900", icon: "text-slate-600" },
+    { wrapper: "border-emerald-300 bg-emerald-100/70 border-l-emerald-500", dateBadge: "bg-emerald-200 text-emerald-800", heading: "text-emerald-950", icon: "text-emerald-700" },
+    { wrapper: "border-sky-300 bg-sky-100/70 border-l-sky-500", dateBadge: "bg-sky-200 text-sky-800", heading: "text-sky-950", icon: "text-sky-700" },
+    { wrapper: "border-violet-300 bg-violet-100/65 border-l-violet-500", dateBadge: "bg-violet-200 text-violet-800", heading: "text-violet-950", icon: "text-violet-700" },
+    { wrapper: "border-amber-300 bg-amber-100/70 border-l-amber-500", dateBadge: "bg-amber-200 text-amber-800", heading: "text-amber-950", icon: "text-amber-700" },
+    { wrapper: "border-cyan-300 bg-cyan-100/70 border-l-cyan-500", dateBadge: "bg-cyan-200 text-cyan-800", heading: "text-cyan-950", icon: "text-cyan-700" },
+    { wrapper: "border-indigo-300 bg-indigo-100/65 border-l-indigo-500", dateBadge: "bg-indigo-200 text-indigo-800", heading: "text-indigo-950", icon: "text-indigo-700" },
+  ];
+  return tones[date.getDay()] ?? tones[0];
 }
 
 function ScheduleKpi({
@@ -220,8 +271,10 @@ function ScheduleKpi({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-slate-400">{label}</p>
-          <p className="mt-2 truncate text-2xl font-bold tracking-[-0.03em] text-slate-950">{value}</p>
-          {detail ? <p className="mt-1 truncate text-xs text-slate-500">{detail}</p> : null}
+          <div className="mt-2 flex min-w-0 items-baseline gap-2">
+            <p className="shrink-0 truncate text-2xl font-bold tracking-[-0.03em] text-slate-950">{value}</p>
+            {detail ? <p className="min-w-0 truncate text-xs text-slate-500">{detail}</p> : null}
+          </div>
         </div>
         <span className={`flex size-10 shrink-0 items-center justify-center rounded-[14px] ${tones[tone]}`}><Icon className="size-4.5" /></span>
       </div>
@@ -246,7 +299,7 @@ function ScheduleTicketCard({ ticket, sessionId }: { ticket: ScheduleTicket; ses
           </div>
           <p className="mt-1.5 text-sm text-slate-600">{ticket.className} · {ticket.assignment.school_year_name}</p>
         </div>
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-white text-emerald-700 shadow-[0_8px_20px_rgba(15,23,42,0.06)]"><GraduationCap className="size-4.5" /></span>
+        <span className={`flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-white shadow-[0_8px_20px_rgba(15,23,42,0.06)] ${getDayGroupTone(ticket.date).icon}`}><GraduationCap className="size-4.5" /></span>
       </div>
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-200/70 pt-3.5">
         <div className="min-w-0">

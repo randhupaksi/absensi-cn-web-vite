@@ -208,7 +208,7 @@ export function MapelSessionPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-slate-900">
-                    {session.assignment.subject_name} — {session.assignment.class_name}
+                    {session.assignment.subject_name} - {session.assignment.class_name}
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500">
                     {session.hari.charAt(0).toUpperCase() + session.hari.slice(1)} ·{" "}

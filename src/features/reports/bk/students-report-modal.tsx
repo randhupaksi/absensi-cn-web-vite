@@ -89,11 +89,11 @@ async function generateBKSiswaPdf(
   const body = data.map((s, i) => {
     const row: string[] = [String(i + 1), s.name, s.nis];
     if (columns.kelas) {
-      row.push([s.class_name, s.school_year_name].filter(Boolean).join("\n") || "—");
+      row.push([s.class_name, s.school_year_name].filter(Boolean).join("\n") || "-");
     }
     if (columns.identitas) {
-      const gender = s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "—";
-      row.push(`${gender}\nNISN: ${s.nisn || "—"}`);
+      const gender = s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "-";
+      row.push(`${gender}\nNISN: ${s.nisn || "-"}`);
     }
     if (columns.hadir) row.push(String(s.present_count));
     if (columns.izin) row.push(String(s.permission_count));
@@ -133,7 +133,7 @@ async function generateBKSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Monitoring Siswa — BK ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Monitoring Siswa - BK ABSENSI CN");
 
   doc.save(`Laporan-BK-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -162,7 +162,7 @@ async function generateBKSiswaExcel(
       { header: "NIS", value: (student) => student.nis, width: 17 },
       ...(columns.kelas ? [{ header: "Kelas", value: (student: StaffStudentSummary) => student.class_name, width: 24 }] : []),
       ...(columns.identitas ? [
-        { header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "—", width: 18 },
+        { header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "-", width: 18 },
         { header: "NISN", value: (student: StaffStudentSummary) => student.nisn, width: 17 },
       ] : []),
       ...(columns.hadir ? [{ header: "H", value: (student: StaffStudentSummary) => student.present_count, width: 8, kind: "attendance" as const }] : []),
@@ -292,7 +292,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Filter kelas */}
+        {/* Q1 - Filter kelas */}
         <QuestionBlock
           icon={GraduationCap}
           label="Filter per kelas"
@@ -356,7 +356,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
           </AnimatePresence>
         </QuestionBlock>
 
-        {/* Q2 — Filter risiko */}
+        {/* Q2 - Filter risiko */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div
@@ -395,7 +395,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q3 — Kolom */}
+        {/* Q3 - Kolom */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div
@@ -453,7 +453,7 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
           )}
         </AnimatePresence>
 
-        {/* Q4 — Sort */}
+        {/* Q4 - Sort */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div

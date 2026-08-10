@@ -75,16 +75,16 @@ async function generateWalasPengajuanPdf(
   const body = records.map((r, i) => {
     const row: string[] = [String(i + 1), r.student_name];
     if (columns.nis) row.push(r.nis);
-    if (columns.type) row.push(r.type ?? "—");
-    if (columns.reason) row.push(r.reason ?? "—");
+    if (columns.type) row.push(r.type ?? "-");
+    if (columns.reason) row.push(r.reason ?? "-");
     if (columns.status) {
       const s = r.status ?? "";
       row.push(s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
     }
-    if (columns.catatan) row.push((r as unknown as Record<string, string>).review_note ?? "—");
+    if (columns.catatan) row.push((r as unknown as Record<string, string>).review_note ?? "-");
     if (columns.waktu) {
       const ts = (r as unknown as Record<string, string>).created_at ?? (r as unknown as Record<string, string>).submitted_at;
-      row.push(ts ? new Date(ts).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "—");
+      row.push(ts ? new Date(ts).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "-");
     }
     return row;
   });
@@ -97,7 +97,7 @@ async function generateWalasPengajuanPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Laporan Pengajuan Kelas — ${homeroom.class_name} — ABSENSI CN`);
+  drawReportPdfFooter(doc, `Laporan Pengajuan Kelas - ${homeroom.class_name} - ABSENSI CN`);
 
   doc.save(`Laporan-Walas-Pengajuan-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -230,7 +230,7 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        {/* Q1 — Tipe */}
+        {/* Q1 - Tipe */}
         <QuestionBlock icon={FileText} label="Filter berdasarkan tipe pengajuan" answered={typeFilter !== null}>
           <div className="grid gap-2 sm:grid-cols-2">
             {(["Semua", "IZIN", "SAKIT"] as TypeFilter[]).map((t) => (
@@ -239,7 +239,7 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
           </div>
         </QuestionBlock>
 
-        {/* Q2 — Status */}
+        {/* Q2 - Status */}
         <AnimatePresence>
           {showQ2 && (
             <motion.div key="q2" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
@@ -254,7 +254,7 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
           )}
         </AnimatePresence>
 
-        {/* Q3 — Kolom */}
+        {/* Q3 - Kolom */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div key="q3" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut" }}>
@@ -273,7 +273,7 @@ export function WalasPengajuanReportModal({ open, onOpenChange, homeroom }: Prop
           )}
         </AnimatePresence>
 
-        {/* Q4 — Urutan */}
+        {/* Q4 - Urutan */}
         <AnimatePresence>
           {showQ3 && (
             <motion.div key="q4" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.26, ease: "easeOut", delay: 0.08 }}>

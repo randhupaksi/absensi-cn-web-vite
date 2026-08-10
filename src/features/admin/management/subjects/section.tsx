@@ -648,7 +648,7 @@ export function SubjectManagementSection({
                       <DataTableCell><b>{schedule?.subject_code ?? "Jadwal"}</b><small>{schedule?.class_name ?? "Kelas belum tersedia"}</small></DataTableCell>
                         <DataTableCell>{item.original_date}</DataTableCell>
                         <DataTableCell><Pill>{item.override_type}</Pill></DataTableCell>
-                        <DataTableCell>{item.replacement_date || item.substitute_teacher_id || "—"}</DataTableCell>
+                        <DataTableCell>{item.replacement_date || item.substitute_teacher_id || "-"}</DataTableCell>
                         <DataTableCell><StatusBadge isActive={item.status === "ACTIVE"} /></DataTableCell>
                         <DataTableCell>
                           <ActionButtons
@@ -705,7 +705,7 @@ export function SubjectManagementSection({
         open={Boolean(deleteSubjectTarget)}
         onOpenChange={(open) => { if (!open) setDeleteSubjectTarget(null); }}
         title="Hapus mapel?"
-        description={deleteSubjectTarget ? `${deleteSubjectTarget.code} — ${deleteSubjectTarget.name}` : ""}
+        description={deleteSubjectTarget ? `${deleteSubjectTarget.code} - ${deleteSubjectTarget.name}` : ""}
         warning="Mapel yang sudah digunakan pada penempatan guru tidak dapat dihapus. Nonaktifkan mapel untuk mempertahankan histori."
         isPending={deleteSubjectMutation.isPending}
         onConfirm={() => deleteSubjectTarget && deleteSubjectMutation.mutate(deleteSubjectTarget.id)}
@@ -714,7 +714,7 @@ export function SubjectManagementSection({
         open={Boolean(deleteAssignmentTarget)}
         onOpenChange={(open) => { if (!open) setDeleteAssignmentTarget(null); }}
         title="Hapus penempatan jadwal?"
-        description={deleteAssignmentTarget ? `${deleteAssignmentTarget.teacher_name} — ${deleteAssignmentTarget.subject_name} — ${deleteAssignmentTarget.class_name}` : ""}
+        description={deleteAssignmentTarget ? `${deleteAssignmentTarget.teacher_name} - ${deleteAssignmentTarget.subject_name} - ${deleteAssignmentTarget.class_name}` : ""}
         warning="Penempatan yang sudah memiliki histori absensi tidak dapat dihapus. Nonaktifkan penempatan untuk menjaga histori."
         isPending={deleteAssignmentMutation.isPending}
         onConfirm={() => deleteAssignmentTarget && deleteAssignmentMutation.mutate(deleteAssignmentTarget.id)}

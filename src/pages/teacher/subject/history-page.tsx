@@ -158,7 +158,7 @@ export function MapelHistoryPage() {
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
-    label: `${a.subject_name} — ${a.classes.map((item) => item.name).join(", ") || "Belum ada kelas"}`,
+    label: `${a.subject_name} - ${a.classes.map((item) => item.name).join(", ") || "Belum ada kelas"}`,
   }));
 
   return (
@@ -181,7 +181,7 @@ export function MapelHistoryPage() {
                 type="button"
                 disabled={!selectedAssignmentId || sessions.length === 0 || sessionsQuery.isLoading}
                 onClick={() => setReportModalOpen(true)}
-                className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800"
+                className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800 focus:!border-emerald-700 focus:!bg-emerald-700 focus:!text-white focus:!ring-emerald-300/70 active:!bg-emerald-800"
               >
                 <Printer className="size-4" />
                 Export Laporan
@@ -649,7 +649,7 @@ function TodaySessionCard({
           ) : null}
           <Link
             href="/dashboard/teacher/subject/schedule"
-            className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] border border-emerald-200 bg-white/90 px-4 text-sm font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(15,118,110,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50"
+            className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] border border-emerald-200 bg-white/90 px-4 text-sm font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(15,118,110,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 active:translate-y-px active:scale-[0.97] active:!border-emerald-500 active:!bg-emerald-100 active:!text-emerald-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80"
           >
             Lihat jadwal
             <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -657,7 +657,7 @@ function TodaySessionCard({
           {sessionHref ? (
             <Link
               href={sessionHref}
-              className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800"
+              className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800 active:translate-y-px active:scale-[0.97] active:!bg-emerald-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80"
             >
               Masuk
               <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -834,7 +834,7 @@ function DateFilterModeSwitch({
         variant="ghost"
         onClick={() => onChange("single")}
         className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
-          value === "single" ? "bg-emerald-600 !text-white hover:bg-emerald-700 hover:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+          value === "single" ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
         }`}
       >
         Tanggal
@@ -844,7 +844,7 @@ function DateFilterModeSwitch({
         variant="ghost"
         onClick={() => onChange("range")}
         className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
-          value === "range" ? "bg-emerald-600 !text-white hover:bg-emerald-700 hover:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+          value === "range" ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
         }`}
       >
         Rentang
