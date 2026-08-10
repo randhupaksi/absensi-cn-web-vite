@@ -10,6 +10,7 @@ import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   getTeacherSubjectAssignments,
   getTeacherSubjectCurrentSession,
+  getTeacherSubjectScheduleDayStatus,
   getTeacherSubjectSessions,
 } from "@/services/staff.service";
 import dynamic from "@/lib/dynamic";
@@ -31,6 +32,7 @@ const SubjectSessionHistoryReportModal = dynamic(
 );
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
+  tidak_dibuka: { label: "Tidak Dibuka", cls: "bg-slate-100 text-slate-600" },
   belum_divalidasi: { label: "Belum Divalidasi", cls: "bg-amber-100 text-amber-700" },
   sudah_divalidasi: { label: "Sudah Divalidasi", cls: "bg-emerald-100 text-emerald-700" },
   diedit: { label: "Diedit", cls: "bg-violet-100 text-violet-700" },
@@ -43,6 +45,7 @@ const HARI_LABEL: Record<string, string> = {
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua status" },
+  { value: "tidak_dibuka", label: "Tidak Dibuka" },
   { value: "belum_divalidasi", label: "Belum Divalidasi" },
   { value: "sudah_divalidasi", label: "Sudah Divalidasi" },
   { value: "diedit", label: "Diedit" },
@@ -79,6 +82,14 @@ export function MapelHistoryPage() {
     staleTime: 60_000,
   });
 
+  const scheduleDayStatusQuery = useQuery({
+    queryKey: ["teacher-subject-schedule-day-status"],
+    queryFn: getTeacherSubjectScheduleDayStatus,
+    staleTime: 60_000,
+  });
+  const isHoliday = scheduleDayStatusQuery.data?.is_school_day === false;
+  const holidayName = scheduleDayStatusQuery.data?.holiday_name;
+
   useEffect(() => {
     const interval = window.setInterval(() => setCurrentClock(getCurrentClock()), 30_000);
     return () => window.clearInterval(interval);
@@ -87,7 +98,7 @@ export function MapelHistoryPage() {
   const currentSessionQuery = useQuery({
     queryKey: ["teacher-subject-current-session-selection", currentClock.day, currentClock.time],
     queryFn: () => getTeacherSubjectCurrentSession(currentClock.day, currentClock.time),
-    enabled: assignmentsQuery.isSuccess,
+    enabled: assignmentsQuery.isSuccess && !isHoliday,
     refetchInterval: 30_000,
     staleTime: 30_000,
   });
@@ -132,14 +143,18 @@ export function MapelHistoryPage() {
   const selectedAssignment = sessionList?.assignment ?? assignments.find((a) => a.id === selectedAssignmentId);
   const periodeLabel = buildPeriodLabel(dateFromStr, dateToStr, sessions.map((session) => session.tanggal));
   const statusLabel = STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label ?? "Semua status";
-  const todayFocus = buildTodaySessionFocus({
-    assignments,
-    sessions,
-    activeSession: currentSessionQuery.data ?? null,
-    selectedAssignmentId,
-    currentClock,
-  });
-  const nextSchedule = buildNextScheduleFocus(assignments, currentClock, todayFocus);
+  const todayFocus = isHoliday
+    ? null
+    : buildTodaySessionFocus({
+      assignments,
+      sessions,
+      activeSession: currentSessionQuery.data ?? null,
+      selectedAssignmentId,
+      currentClock,
+    });
+  const nextSchedule = isHoliday
+    ? buildUpcomingScheduleFocuses(assignments, { ...currentClock, time: "23:59" })[0] ?? null
+    : buildNextScheduleFocus(assignments, currentClock, todayFocus);
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
@@ -156,7 +171,7 @@ export function MapelHistoryPage() {
         <HistoryPageSkeleton />
       ) : (
         <>
-          <TodaySessionCard focus={todayFocus} nextSchedule={nextSchedule} />
+          <TodaySessionCard focus={todayFocus} nextSchedule={nextSchedule} isHoliday={isHoliday} holidayName={holidayName} />
 
           {/* Filter */}
           <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
@@ -254,7 +269,7 @@ export function MapelHistoryPage() {
               <EmptyState
                 icon={BookOpenCheck}
                 title="Belum ada sesi tercatat"
-                description="Belum ada sesi yang tersimpan untuk mata pelajaran ini."
+                description="Belum ada slot jadwal yang selesai pada periode ini."
               />
             </section>
           ) : (
@@ -321,14 +336,20 @@ export function MapelHistoryPage() {
                             </span>
                           </td>
                           <td className="py-3 text-center">
-                            <Link
-                              href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
-                              aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
-                              title="Lihat sesi"
-                              className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
-                            >
-                              <Eye className="size-4" />
-                            </Link>
+                            {sess.is_recorded ? (
+                              <Link
+                                href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
+                                aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
+                                title="Lihat sesi"
+                                className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
+                              >
+                                <Eye className="size-4" />
+                              </Link>
+                            ) : (
+                              <span title="Sesi tidak dibuka, sehingga tidak ada detail presensi." className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                                <Eye className="size-4" />
+                              </span>
+                            )}
                           </td>
                         </tr>
                       );
@@ -376,14 +397,20 @@ export function MapelHistoryPage() {
                       </div>
                       <div className="mt-4 flex items-center justify-between gap-3">
                         <p className="min-w-0 text-sm leading-6 text-slate-600">{sess.topic || "Belum ada topik"}</p>
-                        <Link
-                          href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
-                          aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
-                          title="Lihat sesi"
-                          className={`inline-flex shrink-0 items-center justify-center ${actionIconButtonClass("emerald")}`}
-                        >
-                          <Eye className="size-4" />
-                        </Link>
+                        {sess.is_recorded ? (
+                          <Link
+                            href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
+                            aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
+                            title="Lihat sesi"
+                            className={`inline-flex shrink-0 items-center justify-center ${actionIconButtonClass("emerald")}`}
+                          >
+                            <Eye className="size-4" />
+                          </Link>
+                        ) : (
+                          <span title="Sesi tidak dibuka, sehingga tidak ada detail presensi." className="inline-flex size-9 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                            <Eye className="size-4" />
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
@@ -552,14 +579,20 @@ function buildUpcomingScheduleFocuses(
 function TodaySessionCard({
   focus,
   nextSchedule,
+  isHoliday = false,
+  holidayName,
 }: {
   focus: TodaySessionFocus | null;
   nextSchedule: TodaySessionFocus | null;
+  isHoliday?: boolean;
+  holidayName?: string;
 }) {
   const sessionHref = focus?.sessionId
     ? `/dashboard/teacher/subject/session?session_id=${focus.sessionId}`
     : null;
-  const stateCopy = focus?.state === "active"
+  const stateCopy = isHoliday
+    ? { eyebrow: "HARI LIBUR", title: "Tidak ada sesi mapel hari ini", badge: "Jadwal berikutnya" }
+    : focus?.state === "active"
     ? { eyebrow: "SEDANG BERLANGSUNG", title: "Sesi mapel aktif", badge: "Buka sekarang" }
     : focus?.state === "recorded"
       ? { eyebrow: "SUDAH TERCATAT HARI INI", title: "Tinjau hasil sesi", badge: "Lihat sesi" }
@@ -599,7 +632,11 @@ function TodaySessionCard({
                 <span>{HARI_LABEL[focus.hari] ?? focus.hari}, {focus.jamMulai}–{focus.jamSelesai}</span>
               </div>
             ) : (
-              <p className="mt-2 text-sm text-slate-500">Tidak ada jadwal yang perlu dibuka pada hari ini.</p>
+              <p className="mt-2 text-sm text-slate-500">
+                {isHoliday
+                  ? `Hari ini libur${holidayName ? `: ${holidayName}` : ""}. Ticket presensi tidak tersedia.`
+                  : "Tidak ada jadwal yang perlu dibuka pada hari ini."}
+              </p>
             )}
           </div>
         </div>

@@ -1,12 +1,16 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { AppLink as Link } from "@/components/router/app-link";
-import { getTeacherSubjectAssignments, getTeacherSubjectCurrentSession } from "@/services/staff.service";
+import {
+  getTeacherSubjectAssignments,
+  getTeacherSubjectCurrentSession,
+  getTeacherSubjectScheduleDayStatus,
+} from "@/services/staff.service";
 import type { StaffSubjectAssignment } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { ArrowUpRight, BookOpenCheck, CalendarClock, CalendarDays, Clock3, GraduationCap, Layers3, Users } from "lucide-react";
+import { ArrowUpRight, BookOpenCheck, CalendarDays, CalendarOff, Clock3, GraduationCap, Layers3, Users } from "lucide-react";
 
 const HARI_LABEL: Record<string, string> = {
   senin: "Senin", selasa: "Selasa", rabu: "Rabu", kamis: "Kamis",
@@ -38,16 +42,27 @@ export function MapelSchedulePage() {
     staleTime: 60_000,
   });
 
+  const scheduleDayStatusQuery = useQuery({
+    queryKey: ["teacher-subject-schedule-day-status"],
+    queryFn: getTeacherSubjectScheduleDayStatus,
+    staleTime: 60_000,
+  });
+
+  const isHoliday = scheduleDayStatusQuery.data?.is_school_day === false;
+  const holidayName = scheduleDayStatusQuery.data?.holiday_name;
+
   const activeSessionQuery = useQuery({
     queryKey: ["teacher-subject-current-session", currentDay, currentTime],
     queryFn: () => getTeacherSubjectCurrentSession(currentDay, currentTime),
-    enabled: assignmentsQuery.isSuccess,
+    enabled: assignmentsQuery.isSuccess && !isHoliday,
     staleTime: 30_000,
     refetchInterval: 30_000,
   });
 
   const assignments = assignmentsQuery.data ?? [];
-  const tickets = buildScheduleTickets(assignments, now);
+  const tickets = buildScheduleTickets(assignments, now).filter(
+    (ticket) => !isHoliday || format(ticket.date, "yyyy-MM-dd") !== today,
+  );
   const activeSession = activeSessionQuery.data ?? null;
   const activeAssignments = assignments.filter((assignment) => assignment.is_active);
   const activeSubjectCount = new Set(activeAssignments.map((assignment) => assignment.subject_id)).size;
@@ -117,6 +132,18 @@ export function MapelSchedulePage() {
                 </div>
                 <p className="text-sm text-slate-500">Ticket aktif dapat langsung dibuka untuk presensi.</p>
               </div>
+
+              {isHoliday ? (
+                <div className="mb-6 flex items-start gap-3 rounded-[20px] border border-amber-200/80 bg-amber-50/70 px-4 py-3.5 text-sm text-amber-900">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-[14px] bg-white text-amber-700 shadow-[0_8px_18px_rgba(180,83,9,0.08)]">
+                    <CalendarOff className="size-4" />
+                  </span>
+                  <p className="leading-6">
+                    <span className="font-semibold">Hari ini libur{holidayName ? `: ${holidayName}` : ""}.</span>{" "}
+                    Ticket presensi hari ini tidak tersedia; jadwal berikutnya tetap ditampilkan di bawah.
+                  </p>
+                </div>
+              ) : null}
 
               <div className="mb-6 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {groupSchedulesBySubject(activeAssignments).map((group) => (

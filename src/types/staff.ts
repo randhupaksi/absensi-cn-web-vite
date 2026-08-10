@@ -306,6 +306,13 @@ export type StaffSubjectCurrentSession = {
   divalidasi_at?: string;
 };
 
+export type StaffSubjectScheduleDayStatus = {
+  date: string;
+  is_school_day: boolean;
+  holiday_name?: string;
+  holiday_type?: string;
+};
+
 export type StaffSubjectAttendanceRecord = {
   student_id: string;
   student_name: string;
@@ -364,6 +371,7 @@ export type StaffSubjectRecap = {
 
 export type StaffSubjectSessionListItem = {
   session_id: string;
+  is_recorded: boolean;
   schedule_id: string;
   class_id: string;
   class_name: string;

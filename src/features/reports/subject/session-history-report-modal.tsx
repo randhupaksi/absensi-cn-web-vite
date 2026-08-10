@@ -22,6 +22,7 @@ type SortBy = "date_desc" | "date_asc" | "status";
 type Columns = { status: boolean; topic: boolean; hisa: boolean };
 
 const STATUS_LABELS: Record<string, string> = {
+  tidak_dibuka: "Tidak Dibuka",
   belum_divalidasi: "Belum Divalidasi",
   sudah_divalidasi: "Sudah Divalidasi",
   diedit: "Diedit",
@@ -180,10 +181,10 @@ async function generateSubjectSessionHistoryExcel(
       ...(columns.status ? [{ header: "Status", value: (session: StaffSubjectSessionListItem) => STATUS_LABELS[session.status] ?? session.status, width: 20, kind: "status" as const }] : []),
       ...(columns.topic ? [{ header: "Topik", value: (session: StaffSubjectSessionListItem) => session.topic, width: 38 }] : []),
       ...(columns.hisa ? [
-        { header: "H", value: (session: StaffSubjectSessionListItem) => session.hadir, width: 8, kind: "attendance" as const },
-        { header: "I", value: (session: StaffSubjectSessionListItem) => session.izin, width: 8, kind: "attendance" as const },
-        { header: "S", value: (session: StaffSubjectSessionListItem) => session.sakit, width: 8, kind: "attendance" as const },
-        { header: "A", value: (session: StaffSubjectSessionListItem) => session.alfa, width: 8, kind: "attendance" as const },
+        { header: "H", value: (session: StaffSubjectSessionListItem) => session.is_recorded ? session.hadir : "", width: 8, kind: "attendance" as const },
+        { header: "I", value: (session: StaffSubjectSessionListItem) => session.is_recorded ? session.izin : "", width: 8, kind: "attendance" as const },
+        { header: "S", value: (session: StaffSubjectSessionListItem) => session.is_recorded ? session.sakit : "", width: 8, kind: "attendance" as const },
+        { header: "A", value: (session: StaffSubjectSessionListItem) => session.is_recorded ? session.alfa : "", width: 8, kind: "attendance" as const },
       ] : []),
     ],
   });
@@ -237,7 +238,7 @@ async function generateSubjectSessionHistoryPdf(
     if (columns.status) row.push(STATUS_LABELS[session.status] ?? session.status);
     if (columns.topic) row.push(session.topic || "-");
     if (columns.hisa) {
-      row.push(...[session.hadir, session.izin, session.sakit, session.alfa].map((value) => ({
+      row.push(...(session.is_recorded ? [session.hadir, session.izin, session.sakit, session.alfa] : ["-", "-", "-", "-"]).map((value) => ({
         content: String(value),
         styles: { halign: "center" },
       })));

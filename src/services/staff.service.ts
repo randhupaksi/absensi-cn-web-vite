@@ -18,6 +18,7 @@ import type {
   StaffTeacherMe,
   StaffSubjectAssignment,
   StaffSubjectCurrentSession,
+  StaffSubjectScheduleDayStatus,
   StaffSubjectAttendanceOverview,
   StaffSubjectAttendanceRecord,
   StaffSubjectValidationPayload,
@@ -354,6 +355,17 @@ export async function getTeacherSubjectCurrentSession(hari: string, jam: string)
       { params: { hari, jam } },
     );
     return response.data.data ?? null;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function getTeacherSubjectScheduleDayStatus() {
+  try {
+    const response = await apiClient.get<ApiEnvelope<StaffSubjectScheduleDayStatus>>(
+      "/teacher/subject/schedule-day-status",
+    );
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
