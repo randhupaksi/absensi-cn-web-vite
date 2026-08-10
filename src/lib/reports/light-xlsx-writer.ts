@@ -464,8 +464,21 @@ function createDataSheet<Row>(definition: ExcelReportDefinition<Row>) {
   [19, 25, 25, 23, 29, 8, 21].forEach((height, index) => sheet.heights.set(index + 1, height));
   definition.columns.forEach((column, index) => setCell(sheet, headerRow, index + 1, column.header, { font: { size: 10, bold: true, color: COLORS.white }, fill: COLORS.emerald800, border: { bottom: side("medium", COLORS.emerald500), right: side("thin", "2A8069") }, alignment: { vertical: "center", horizontal: "center", wrapText: true } }));
   sheet.heights.set(headerRow, 32);
+  let nextRow = headerRow + 1;
+  let previousGroup = "";
   definition.rows.forEach((row, rowIndex) => {
-    const excelRow = headerRow + rowIndex + 1;
+    const group = definition.groupBy?.(row) ?? "";
+    if (definition.groupBy && group !== previousGroup) {
+      if (nextRow > headerRow + 1) nextRow += 1;
+      merge(sheet, nextRow, 1, nextRow, columnCount);
+      setCell(sheet, nextRow, 1, group.toUpperCase(), { font: { size: 9, bold: true, color: COLORS.emerald800 }, fill: COLORS.emerald50, border: { bottom: side("medium", COLORS.emerald200) }, alignment: { vertical: "center", horizontal: "left" } });
+      setRangeStyle(sheet, nextRow, nextRow, 1, columnCount, { fill: COLORS.emerald50, border: { bottom: side("medium", COLORS.emerald200) } });
+      sheet.heights.set(nextRow, 24);
+      nextRow += 1;
+      previousGroup = group;
+    }
+    const excelRow = nextRow;
+    nextRow += 1;
     definition.columns.forEach((column, columnIndex) => {
       const value = column.value(row, rowIndex); const tone = column.kind === "attendance" ? attendanceColor(column.header) : column.kind === "status" ? statusColor(String(value ?? "").trim().toLowerCase()) : undefined;
       setCell(sheet, excelRow, columnIndex + 1, normalize(value), { font: { size: 10, color: tone?.text ?? COLORS.slate700, bold: Boolean(tone) }, fill: tone?.fill ?? (rowIndex % 2 === 0 ? COLORS.white : COLORS.slate50), border: dataBorder(columnIndex === 0, columnIndex === columnCount - 1, rowIndex === definition.rows.length - 1), alignment: { vertical: "center", horizontal: tone || column.kind === "number" || column.kind === "attendance" ? "center" : "left", wrapText: true }, numberFormat: value instanceof Date ? column.numberFormat ?? "dd mmm yyyy" : typeof value === "number" ? column.numberFormat ?? "#,##0" : undefined });
@@ -473,8 +486,8 @@ function createDataSheet<Row>(definition: ExcelReportDefinition<Row>) {
     sheet.heights.set(excelRow, 25);
   });
   addDataTotalRow(sheet, definition, headerRow);
-  const lastRow = Math.max(headerRow, headerRow + definition.rows.length);
-  if (definition.showColumnFilters !== false) sheet.filter = cellAddress(headerRow, 1) + ":" + cellAddress(lastRow, columnCount);
+  const lastRow = Math.max(headerRow, nextRow - 1);
+  if (definition.showColumnFilters !== false && !definition.groupBy) sheet.filter = cellAddress(headerRow, 1) + ":" + cellAddress(lastRow, columnCount);
   return sheet;
 }
 

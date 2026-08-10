@@ -1,7 +1,9 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { BackButton } from "@/components/ui/back-button";
+import { Button } from "@/components/ui/button";
 import { AppLink as Link } from "@/components/router/app-link";
+import dynamic from "@/lib/dynamic";
 import {
   getTeacherSubjectAssignments,
   getTeacherSubjectCurrentSession,
@@ -11,7 +13,7 @@ import type { StaffSubjectAssignment } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { ArrowUpRight, BookOpenCheck, CalendarDays, CalendarOff, Clock3, GraduationCap, Layers3, Users } from "lucide-react";
+import { ArrowUpRight, BookOpenCheck, CalendarDays, CalendarOff, Clock3, GraduationCap, Layers3, Printer, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { RadixSelectField } from "@/components/ui/radix-select";
 
@@ -19,6 +21,11 @@ const HARI_LABEL: Record<string, string> = {
   senin: "Senin", selasa: "Selasa", rabu: "Rabu", kamis: "Kamis",
   jumat: "Jumat", sabtu: "Sabtu", minggu: "Minggu",
 };
+
+const SubjectScheduleReportModal = dynamic(
+  () => import("@/features/reports/subject/schedule-report-modal").then((module) => module.SubjectScheduleReportModal),
+  { ssr: false },
+);
 
 type ScheduleTicket = {
   id: string;
@@ -36,6 +43,7 @@ type ScheduleTicket = {
 export function MapelSchedulePage() {
   const [dayFilter, setDayFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const now = new Date();
   const today = format(now, "yyyy-MM-dd");
   const currentDay = getDayKey(now);
@@ -96,7 +104,7 @@ export function MapelSchedulePage() {
 
   return (
     <WalasShell>
-      {() => assignmentsQuery.isLoading && !assignmentsQuery.data ? (
+      {(session) => assignmentsQuery.isLoading && !assignmentsQuery.data ? (
         <SchedulePageSkeleton />
       ) : assignmentsQuery.error ? (
         <section className="rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
@@ -145,21 +153,32 @@ export function MapelSchedulePage() {
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">Agenda 7 Hari</p>
                   <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-slate-950">Ticket jadwal mapel</h3>
                 </div>
-                <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:w-auto sm:min-w-[440px]">
-                  <RadixSelectField
-                    value={dayFilter}
-                    onValueChange={setDayFilter}
-                    options={[{ value: "all", label: "Semua hari" }, ...dayFilterOptions]}
-                    placeholder="Filter hari"
-                    triggerClassName="h-14 rounded-[22px] pl-4"
-                  />
-                  <RadixSelectField
-                    value={classFilter}
-                    onValueChange={setClassFilter}
-                    options={[{ value: "all", label: "Semua kelas" }, ...classFilterOptions]}
-                    placeholder="Filter kelas"
-                    triggerClassName="h-14 rounded-[22px] pl-4"
-                  />
+                <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+                  <Button
+                    type="button"
+                    disabled={tickets.length === 0}
+                    onClick={() => setReportModalOpen(true)}
+                    className="h-11 w-full rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800 hover:!shadow-none focus:!border-emerald-700 focus:!bg-emerald-700 focus:!text-white focus:!ring-emerald-300/70 active:!bg-emerald-800 sm:w-auto"
+                  >
+                    <Printer className="size-4" />
+                    Export Jadwal
+                  </Button>
+                  <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:min-w-[440px]">
+                    <RadixSelectField
+                      value={dayFilter}
+                      onValueChange={setDayFilter}
+                      options={[{ value: "all", label: "Semua hari" }, ...dayFilterOptions]}
+                      placeholder="Filter hari"
+                      triggerClassName="h-14 rounded-[22px] pl-4"
+                    />
+                    <RadixSelectField
+                      value={classFilter}
+                      onValueChange={setClassFilter}
+                      options={[{ value: "all", label: "Semua kelas" }, ...classFilterOptions]}
+                      placeholder="Filter kelas"
+                      triggerClassName="h-14 rounded-[22px] pl-4"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -228,6 +247,17 @@ export function MapelSchedulePage() {
               )}
             </section>
           )}
+
+          {reportModalOpen ? (
+            <SubjectScheduleReportModal
+              open={reportModalOpen}
+              onOpenChange={setReportModalOpen}
+              teacherName={session.user.name}
+              assignments={activeAssignments}
+              dayFilter={dayFilter}
+              classFilter={classFilter}
+            />
+          ) : null}
         </div>
       )}
     </WalasShell>

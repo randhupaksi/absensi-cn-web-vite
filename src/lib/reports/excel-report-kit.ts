@@ -29,6 +29,7 @@ export type ExcelReportDefinition<Row> = {
   showColumnFilters?: boolean;
   includeStatisticsSheet?: boolean;
   footerLabel?: string;
+  groupBy?: (row: Row) => string;
 };
 
 const MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

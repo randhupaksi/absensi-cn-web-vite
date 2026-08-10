@@ -109,7 +109,7 @@ export function StaffSidebar({
                   key={item.label}
                   href={item.href}
                   onClick={onClose}
-                  className={`group flex items-center gap-3 rounded-[22px] px-3 py-3.5 transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:bg-emerald-950/35 active:duration-75 ${
+                  className={`group flex items-center gap-3 rounded-[22px] px-3 py-3.5 transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:bg-white/20 active:duration-75 ${
                     isActive
                       ? "bg-white/16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                       : "text-white/78 hover:bg-white/10 hover:text-white"
