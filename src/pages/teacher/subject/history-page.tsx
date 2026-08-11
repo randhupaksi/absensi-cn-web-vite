@@ -25,7 +25,7 @@ import dynamic from "@/lib/dynamic";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { ArrowUpRight, BookOpenCheck, CalendarClock, CalendarDays, Eye, FilePenLine, History, Printer } from "lucide-react";
+import { ArrowUpRight, BookOpen, BookOpenCheck, CalendarClock, CalendarDays, Clock3, Eye, FilePenLine, History, Printer, Users } from "lucide-react";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useRouter, useSearchParams } from "@/lib/router";
 import { useEffect, useState } from "react";
@@ -490,10 +490,11 @@ export function MapelHistoryPage() {
             <SubjectSessionHistoryReportModal
               open={reportModalOpen}
               onOpenChange={setReportModalOpen}
-              assignment={selectedAssignment}
-              sessions={sessions}
+              assignments={assignments}
+              selectedAssignmentId={selectedAssignmentId}
+              dateFrom={dateFromStr}
+              dateTo={dateToStr}
               periodeLabel={periodeLabel}
-              statusLabel={statusLabel}
             />
           ) : null}
 
@@ -504,8 +505,9 @@ export function MapelHistoryPage() {
               title="Buka sesi untuk review"
               description="Sesi yang terlewat tetap bisa dilengkapi dan ditinjau sebelum disahkan."
               icon={FilePenLine}
+              className="sm:!max-w-[640px] [&_[data-modal-scroll-area]]:!flex-none [&_[data-modal-scroll-area]]:!overflow-visible [&_[data-modal-scroll-area]]:!pb-0 [&_[data-modal-scroll-area]+div]:!pt-2 [&_[data-modal-scroll-area]+div]:!pb-3"
               footer={
-                <div className={premiumModalActionsClassName}>
+                <div className={`${premiumModalActionsClassName} !mt-2 !pt-3`}>
                   <Button
                     type="button"
                     variant="outline"
@@ -528,18 +530,50 @@ export function MapelHistoryPage() {
                 </div>
               }
             >
-              <div className="rounded-[1.35rem] border border-amber-200 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950">
-                <p className="font-semibold">{formatDisplayDate(lateReviewTarget.session.tanggal)}</p>
-                <p>{HARI_LABEL[lateReviewTarget.session.hari] ?? lateReviewTarget.session.hari} · {lateReviewTarget.session.jam_mulai}–{lateReviewTarget.session.jam_selesai}</p>
-                <p className="mt-3 text-amber-800">
-                  Status awalnya akan menjadi <span className="font-semibold">Belum Divalidasi</span> dan diberi penanda <span className="font-semibold">Dibuka terlambat</span>. Data belum masuk rekap resmi sampai guru memilih “Validasi & Tutup”.
-                </p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <ReviewSessionDetail icon={BookOpen} label="Mata pelajaran" value={selectedAssignment?.subject_name ?? "Mapel belum tersedia"} />
+                  <ReviewSessionDetail icon={Users} label="Kelas" value={lateReviewTarget.session.class_name || "Kelas belum tersedia"} />
+                  <ReviewSessionDetail icon={CalendarDays} label="Tanggal" value={formatDisplayDate(lateReviewTarget.session.tanggal)} />
+                  <ReviewSessionDetail
+                    icon={Clock3}
+                    label="Jadwal"
+                    value={`${HARI_LABEL[lateReviewTarget.session.hari] ?? lateReviewTarget.session.hari} · ${lateReviewTarget.session.jam_mulai}–${lateReviewTarget.session.jam_selesai}`}
+                  />
+                </div>
+
+                <div className="rounded-[1.2rem] border border-amber-200 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950">
+                  <p className="font-semibold">Review sesi yang terlewat</p>
+                  <p className="mt-1 text-amber-800">
+                    Sesi akan dibuka dengan status <span className="font-semibold">Belum Divalidasi</span> dan penanda <span className="font-semibold">Dibuka terlambat</span>. Data belum masuk rekap resmi sampai guru memilih “Validasi & Tutup”.
+                  </p>
+                </div>
               </div>
             </PremiumModal>
           ) : null}
         </>
       )}
     </WalasShell>
+  );
+}
+
+function ReviewSessionDetail({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof BookOpen;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-[1.15rem] border border-emerald-100/80 bg-white/80 px-3.5 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
+      <div className="flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-slate-400">
+        <Icon className="size-3.5 text-emerald-600" />
+        {label}
+      </div>
+      <p className="mt-1.5 text-sm font-semibold leading-5 text-slate-800">{value}</p>
+    </div>
   );
 }
 

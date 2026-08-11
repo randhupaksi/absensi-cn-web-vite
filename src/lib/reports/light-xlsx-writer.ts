@@ -140,7 +140,16 @@ class SharedStrings {
 export function createStyledXlsx<Row>(definition: ExcelReportDefinition<Row>) {
   const sheets = [
     createSummarySheet(definition),
-    createDataSheet(definition),
+    definition.includeDataSheet === false ? undefined : createDataSheet(definition),
+    ...(definition.additionalSheets ?? []).map((item) => createDataSheet({
+      ...definition,
+      dataSheetName: item.name,
+      rows: item.rows,
+      columns: item.columns,
+      showColumnFilters: item.showColumnFilters,
+      includeDataSheet: true,
+      additionalSheets: undefined,
+    })),
     ...(definition.includeStatisticsSheet === false ? [] : [createStatisticsSheet(definition)]),
   ].filter((sheet): sheet is Sheet => Boolean(sheet));
 

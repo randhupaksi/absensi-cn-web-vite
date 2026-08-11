@@ -148,22 +148,13 @@ export function MapelSchedulePage() {
             </section>
           ) : (
             <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] sm:p-6">
-              <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+              <div className="mb-6 space-y-4">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">Agenda 7 Hari</p>
                   <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-slate-950">Ticket jadwal mapel</h3>
                 </div>
-                <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
-                  <Button
-                    type="button"
-                    disabled={tickets.length === 0}
-                    onClick={() => setReportModalOpen(true)}
-                    className="h-11 w-full rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800 hover:!shadow-none focus:!border-emerald-700 focus:!bg-emerald-700 focus:!text-white focus:!ring-emerald-300/70 active:!bg-emerald-800 sm:w-auto"
-                  >
-                    <Printer className="size-4" />
-                    Export Jadwal
-                  </Button>
-                  <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:min-w-[440px]">
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="grid w-full min-w-0 flex-1 grid-cols-2 gap-3 sm:min-w-[440px]">
                     <RadixSelectField
                       value={dayFilter}
                       onValueChange={setDayFilter}
@@ -179,6 +170,15 @@ export function MapelSchedulePage() {
                       triggerClassName="h-14 rounded-[22px] pl-4"
                     />
                   </div>
+                  <Button
+                    type="button"
+                    disabled={tickets.length === 0}
+                    onClick={() => setReportModalOpen(true)}
+                    className="h-14 w-full shrink-0 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800 hover:!shadow-none focus:!border-emerald-700 focus:!bg-emerald-700 focus:!text-white focus:!ring-emerald-300/70 active:!bg-emerald-800 sm:w-auto"
+                  >
+                    <Printer className="size-4" />
+                    Export Jadwal
+                  </Button>
                 </div>
               </div>
 

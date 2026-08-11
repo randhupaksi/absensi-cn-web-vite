@@ -30,6 +30,13 @@ export type ExcelReportDefinition<Row> = {
   includeStatisticsSheet?: boolean;
   footerLabel?: string;
   groupBy?: (row: Row) => string;
+  includeDataSheet?: boolean;
+  additionalSheets?: Array<{
+    name: string;
+    rows: Row[];
+    columns: Array<ExcelReportColumn<Row>>;
+    showColumnFilters?: boolean;
+  }>;
 };
 
 const MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
