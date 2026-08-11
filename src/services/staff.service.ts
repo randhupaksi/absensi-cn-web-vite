@@ -18,6 +18,8 @@ import type {
   StaffTeacherMe,
   StaffSubjectAssignment,
   StaffSubjectCurrentSession,
+  StaffOpenLateSubjectSessionPayload,
+  StaffSubjectSessionDraftPayload,
   StaffSubjectScheduleDayStatus,
   StaffSubjectAttendanceOverview,
   StaffSubjectAttendanceRecord,
@@ -371,6 +373,18 @@ export async function getTeacherSubjectScheduleDayStatus() {
   }
 }
 
+export async function openTeacherSubjectSessionLate(payload: StaffOpenLateSubjectSessionPayload) {
+  try {
+    const response = await apiClient.post<ApiEnvelope<StaffSubjectCurrentSession>>(
+      "/teacher/subject/sessions/open-late",
+      payload,
+    );
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
 export async function getTeacherSubjectAttendance(sessionId: string) {
   try {
     const response = await apiClient.get<ApiEnvelope<StaffSubjectAttendanceOverview>>(
@@ -388,6 +402,21 @@ export async function updateTeacherSubjectSessionDetails(sessionId: string, payl
     const response = await apiClient.put<ApiEnvelope<StaffSubjectCurrentSession>>(`/teacher/subject/sessions/${sessionId}/details`, payload);
     return response.data.data;
   } catch (error) { throw new Error(getErrorMessage(error)); }
+}
+
+export async function saveTeacherSubjectSessionDraft(
+  sessionId: string,
+  payload: StaffSubjectSessionDraftPayload,
+) {
+  try {
+    const response = await apiClient.put<ApiEnvelope<StaffSubjectCurrentSession>>(
+      `/teacher/subject/sessions/${sessionId}/draft`,
+      payload,
+    );
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function submitTeacherSubjectValidation(payload: StaffSubjectValidationPayload) {

@@ -304,6 +304,7 @@ export type StaffSubjectCurrentSession = {
   closed_at?: string;
   divalidasi_oleh?: string;
   divalidasi_at?: string;
+  opened_late: boolean;
 };
 
 export type StaffSubjectScheduleDayStatus = {
@@ -334,12 +335,26 @@ export type StaffSubjectAttendanceOverview = {
 
 export type StaffSubjectValidationPayload = {
   session_id: string;
+  topic?: string;
+  notes?: string;
   overrides: {
     student_id: string;
     status: string;
     keterangan: string;
     foto_url: string;
   }[];
+};
+
+export type StaffSubjectSessionDraftPayload = {
+  topic: string;
+  notes: string;
+  overrides: StaffSubjectValidationPayload["overrides"];
+};
+
+export type StaffOpenLateSubjectSessionPayload = {
+  assignment_id: string;
+  schedule_id: string;
+  tanggal: string;
 };
 
 export type StaffSubjectOverridePayload = {
@@ -386,6 +401,8 @@ export type StaffSubjectSessionListItem = {
   closed_at?: string;
   divalidasi_oleh?: string;
   divalidasi_at?: string;
+  can_open_late: boolean;
+  opened_late: boolean;
   hadir: number;
   izin: number;
   sakit: number;

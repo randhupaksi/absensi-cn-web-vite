@@ -22,8 +22,8 @@ import {
   getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
   overrideTeacherSubjectAttendance,
+  saveTeacherSubjectSessionDraft,
   submitTeacherSubjectValidation,
-  updateTeacherSubjectSessionDetails,
 } from "@/services/staff.service";
 import type { StaffSubjectAttendanceRecord } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -119,21 +119,9 @@ export function MapelSessionPage() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["subject-current-session"] });
     queryClient.invalidateQueries({ queryKey: ["subject-attendance-overview"] });
+    queryClient.invalidateQueries({ queryKey: ["subject-sessions"] });
+    queryClient.invalidateQueries({ queryKey: ["teacher-subject-current-session-selection"] });
   };
-
-  const validateMutation = useMutation({
-    mutationFn: () =>
-      submitTeacherSubjectValidation({
-        session_id: sessionId!,
-        overrides: Object.entries(pendingOverrides).map(([student_id, status]) => ({
-          student_id,
-          status,
-          keterangan: "",
-          foto_url: "",
-        })),
-      }),
-    onSuccess: () => { setPendingOverrides({}); invalidate(); },
-  });
 
   const koreksiMutation = useMutation({
     mutationFn: () =>
@@ -157,16 +145,54 @@ export function MapelSessionPage() {
   const records = useMemo(() => overviewQuery.data?.records ?? [], [overviewQuery.data?.records]);
   const isValidated = session?.status === "sudah_divalidasi" || session?.status === "diedit";
 
+  const buildOverrides = () =>
+    records.flatMap((record) => {
+      const status = pendingOverrides[record.student_id] ?? record.status_mapel;
+      if (status === record.status_pagi) return [];
+
+      return [{
+        student_id: record.student_id,
+        status,
+        keterangan: "",
+        foto_url: "",
+      }];
+    });
+
+  const draftMutation = useMutation({
+    mutationFn: () =>
+      saveTeacherSubjectSessionDraft(sessionId!, {
+        topic,
+        notes: sessionNotes,
+        overrides: buildOverrides(),
+      }),
+    onSuccess: () => {
+      setPendingOverrides({});
+      toast.success("Draft sesi berhasil disimpan. Sesi belum masuk rekap resmi.");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const validateMutation = useMutation({
+    mutationFn: () =>
+      submitTeacherSubjectValidation({
+        session_id: sessionId!,
+        topic,
+        notes: sessionNotes,
+        overrides: buildOverrides(),
+      }),
+    onSuccess: () => {
+      setPendingOverrides({});
+      toast.success("Sesi berhasil divalidasi dan masuk rekap resmi.");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   useEffect(() => {
     setTopic(session?.topic ?? "");
     setSessionNotes(session?.notes ?? "");
   }, [session?.session_id, session?.notes, session?.topic]);
-
-  const detailsMutation = useMutation({
-    mutationFn: () => updateTeacherSubjectSessionDetails(sessionId!, { topic, notes: sessionNotes }),
-    onSuccess: () => { toast.success("Detail pertemuan berhasil disimpan."); invalidate(); },
-    onError: (error: Error) => toast.error(error.message),
-  });
 
   const stats = useMemo(() => {
     const statuses = records.map((r) => pendingOverrides[r.student_id] ?? r.status_mapel);
@@ -215,13 +241,18 @@ export function MapelSessionPage() {
                     {session.jam_mulai}–{session.jam_selesai} · {session.tanggal}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                   <SessionStatusBadge status={session.status} />
+                  {session.opened_late ? (
+                    <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                      Dibuka terlambat
+                    </span>
+                  ) : null}
                   {!isValidated && (
                     <button
                       type="button"
                       onClick={() => validateMutation.mutate()}
-                      disabled={validateMutation.isPending}
+                      disabled={validateMutation.isPending || draftMutation.isPending}
                       className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-700 disabled:opacity-60"
                     >
                       {validateMutation.isPending ? (
@@ -229,7 +260,7 @@ export function MapelSessionPage() {
                       ) : (
                         <Send className="size-4" />
                       )}
-                      Validasi
+                      Validasi & Tutup
                     </button>
                   )}
                 </div>
@@ -271,11 +302,11 @@ export function MapelSessionPage() {
                 <Button
                   type="button"
                   className="h-14 w-full shrink-0 rounded-[1.25rem] bg-emerald-700 px-6 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 lg:w-auto"
-                  disabled={isValidated || detailsMutation.isPending}
-                  onClick={() => detailsMutation.mutate()}
+                  disabled={isValidated || draftMutation.isPending || validateMutation.isPending}
+                  onClick={() => draftMutation.mutate()}
                 >
                   <Save className="size-4" />
-                  {detailsMutation.isPending ? "Menyimpan..." : "Simpan Detail"}
+                  {draftMutation.isPending ? "Menyimpan..." : "Simpan Draft"}
                 </Button>
               </section>
               {/* KPI row */}

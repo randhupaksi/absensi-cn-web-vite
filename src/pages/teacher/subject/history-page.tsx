@@ -4,7 +4,13 @@ import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { actionIconButtonClass, DataTablePagination, usePagination } from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
+import { AsyncButton } from "@/components/ui/async-button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  PremiumModal,
+  premiumModalActionsClassName,
+  premiumModalSubmitButtonClassName,
+} from "@/components/modals/premium-modal";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
@@ -12,16 +18,19 @@ import {
   getTeacherSubjectCurrentSession,
   getTeacherSubjectScheduleDayStatus,
   getTeacherSubjectSessions,
+  openTeacherSubjectSessionLate,
 } from "@/services/staff.service";
+import type { StaffSubjectSessionListItem } from "@/types/staff";
 import dynamic from "@/lib/dynamic";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { ArrowUpRight, BookOpenCheck, CalendarClock, CalendarDays, Eye, History, Printer } from "lucide-react";
+import { ArrowUpRight, BookOpenCheck, CalendarClock, CalendarDays, Eye, FilePenLine, History, Printer } from "lucide-react";
 import { AppLink as Link } from "@/components/router/app-link";
-import { useSearchParams } from "@/lib/router";
+import { useRouter, useSearchParams } from "@/lib/router";
 import { useEffect, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
+import { toast } from "sonner";
 
 const SubjectSessionHistoryReportModal = dynamic(
   () =>
@@ -56,8 +65,15 @@ const EMPTY_SESSIONS: Awaited<ReturnType<typeof getTeacherSubjectSessions>>["ses
 
 type DateFilterMode = "single" | "range";
 
+type LateReviewTarget = {
+  assignmentId: string;
+  session: StaffSubjectSessionListItem;
+};
+
 export function MapelHistoryPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const defaultAssignment = searchParams.get("assignment_id") ?? "";
 
   const [selectedAssignmentId, setSelectedAssignmentId] = useState(defaultAssignment);
@@ -68,6 +84,7 @@ export function MapelHistoryPage() {
   const [rangeDateFrom, setRangeDateFrom] = useState<Date | undefined>(undefined);
   const [rangeDateTo, setRangeDateTo] = useState<Date | undefined>(undefined);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [lateReviewTarget, setLateReviewTarget] = useState<LateReviewTarget | null>(null);
 
   const dateFromStr = dateFilterMode === "single"
     ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
@@ -160,6 +177,23 @@ export function MapelHistoryPage() {
     value: a.id,
     label: `${a.subject_name} - ${a.classes.map((item) => item.name).join(", ") || "Belum ada kelas"}`,
   }));
+
+  const openLateMutation = useMutation({
+    mutationFn: (target: LateReviewTarget) =>
+      openTeacherSubjectSessionLate({
+        assignment_id: target.assignmentId,
+        schedule_id: target.session.schedule_id,
+        tanggal: target.session.tanggal,
+      }),
+    onSuccess: (session) => {
+      queryClient.invalidateQueries({ queryKey: ["subject-sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["teacher-subject-current-session-selection"] });
+      setLateReviewTarget(null);
+      toast.success("Sesi dibuka untuk review. Simpan draft sebelum melakukan validasi final.");
+      router.push(`/dashboard/teacher/subject/session?session_id=${session.session_id}`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   return (
     <WalasShell>
@@ -331,9 +365,16 @@ export function MapelHistoryPage() {
                           <HistoryMetric value={sess.sakit} cls="text-sky-700 bg-sky-50" />
                           <HistoryMetric value={sess.alfa} cls="text-rose-700 bg-rose-50" />
                           <td className="py-3 pr-4 text-center">
-                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.cls}`}>
-                              {statusInfo.label}
-                            </span>
+                            <div className="flex flex-wrap justify-center gap-1.5">
+                              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.cls}`}>
+                                {statusInfo.label}
+                              </span>
+                              {sess.opened_late ? (
+                                <span className="inline-flex rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700">
+                                  Dibuka terlambat
+                                </span>
+                              ) : null}
+                            </div>
                           </td>
                           <td className="py-3 text-center">
                             {sess.is_recorded ? (
@@ -345,6 +386,16 @@ export function MapelHistoryPage() {
                               >
                                 <Eye className="size-4" />
                               </Link>
+                            ) : sess.can_open_late ? (
+                              <button
+                                type="button"
+                                onClick={() => setLateReviewTarget({ assignmentId: selectedAssignmentId, session: sess })}
+                                aria-label={`Buka sesi ${formatDisplayDate(sess.tanggal)} untuk review`}
+                                title="Buka untuk review terlambat"
+                                className={`inline-flex items-center justify-center ${actionIconButtonClass("sky")}`}
+                              >
+                                <FilePenLine className="size-4" />
+                              </button>
                             ) : (
                               <span title="Sesi tidak dibuka, sehingga tidak ada detail presensi." className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-full bg-slate-100 text-slate-300">
                                 <Eye className="size-4" />
@@ -393,6 +444,11 @@ export function MapelHistoryPage() {
                           <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${statusInfo.cls}`}>
                             {statusInfo.label}
                           </span>
+                          {sess.opened_late ? (
+                            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-semibold text-orange-700">
+                              Dibuka terlambat
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                       <div className="mt-4 flex items-center justify-between gap-3">
@@ -406,6 +462,16 @@ export function MapelHistoryPage() {
                           >
                             <Eye className="size-4" />
                           </Link>
+                        ) : sess.can_open_late ? (
+                          <button
+                            type="button"
+                            onClick={() => setLateReviewTarget({ assignmentId: selectedAssignmentId, session: sess })}
+                            aria-label={`Buka sesi ${formatDisplayDate(sess.tanggal)} untuk review`}
+                            title="Buka untuk review terlambat"
+                            className={`inline-flex shrink-0 items-center justify-center ${actionIconButtonClass("sky")}`}
+                          >
+                            <FilePenLine className="size-4" />
+                          </button>
                         ) : (
                           <span title="Sesi tidak dibuka, sehingga tidak ada detail presensi." className="inline-flex size-9 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-slate-100 text-slate-300">
                             <Eye className="size-4" />
@@ -429,6 +495,47 @@ export function MapelHistoryPage() {
               periodeLabel={periodeLabel}
               statusLabel={statusLabel}
             />
+          ) : null}
+
+          {lateReviewTarget ? (
+            <PremiumModal
+              open={Boolean(lateReviewTarget)}
+              onOpenChange={(open) => !open && !openLateMutation.isPending && setLateReviewTarget(null)}
+              title="Buka sesi untuk review"
+              description="Sesi yang terlewat tetap bisa dilengkapi dan ditinjau sebelum disahkan."
+              icon={FilePenLine}
+              footer={
+                <div className={premiumModalActionsClassName}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={openLateMutation.isPending}
+                    onClick={() => setLateReviewTarget(null)}
+                    className="h-12 rounded-[1.1rem]"
+                  >
+                    Batal
+                  </Button>
+                  <AsyncButton
+                    type="button"
+                    isPending={openLateMutation.isPending}
+                    pendingLabel="Membuka..."
+                    icon={FilePenLine}
+                    onClick={() => openLateMutation.mutate(lateReviewTarget)}
+                    className={premiumModalSubmitButtonClassName}
+                  >
+                    Buka untuk Review
+                  </AsyncButton>
+                </div>
+              }
+            >
+              <div className="rounded-[1.35rem] border border-amber-200 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950">
+                <p className="font-semibold">{formatDisplayDate(lateReviewTarget.session.tanggal)}</p>
+                <p>{HARI_LABEL[lateReviewTarget.session.hari] ?? lateReviewTarget.session.hari} · {lateReviewTarget.session.jam_mulai}–{lateReviewTarget.session.jam_selesai}</p>
+                <p className="mt-3 text-amber-800">
+                  Status awalnya akan menjadi <span className="font-semibold">Belum Divalidasi</span> dan diberi penanda <span className="font-semibold">Dibuka terlambat</span>. Data belum masuk rekap resmi sampai guru memilih “Validasi & Tutup”.
+                </p>
+              </div>
+            </PremiumModal>
           ) : null}
         </>
       )}
