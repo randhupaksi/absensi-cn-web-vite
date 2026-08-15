@@ -21,7 +21,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import type { StaffBKStudentDetail } from "@/types/staff";
 import {
   BadgeCheck,
@@ -51,9 +55,15 @@ function MiniStatCard({
           : "border-rose-200 bg-rose-100/90";
 
   return (
-    <div className={`rounded-[20px] border px-4 py-4 shadow-[0_14px_28px_rgba(15,23,42,0.08)] ${className}`}>
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">{value}</p>
+    <div
+      className={`rounded-[20px] border px-4 py-4 shadow-[0_14px_28px_rgba(15,23,42,0.08)] ${className}`}
+    >
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">
+        {label}
+      </p>
+      <p className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+        {value}
+      </p>
     </div>
   );
 }
@@ -105,7 +115,11 @@ export function StudentDetailModal({
       className="sm:!max-w-[1040px]"
     >
       {errorMessage ? (
-        <EmptyState icon={ShieldAlert} title="Detail belum bisa dimuat" description={errorMessage} />
+        <EmptyState
+          icon={ShieldAlert}
+          title="Detail belum bisa dimuat"
+          description={errorMessage}
+        />
       ) : isLoading || !detail || !student ? (
         <ModalContentSkeleton fields={8} />
       ) : (
@@ -140,20 +154,44 @@ export function StudentDetailModal({
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <MiniStatCard label="Hadir" value={detail.attendance_summary.present} tone="success" />
-              <MiniStatCard label="Izin" value={detail.attendance_summary.permission} tone="permission" />
-              <MiniStatCard label="Sakit" value={detail.attendance_summary.sick} tone="sick" />
-              <MiniStatCard label="Alfa" value={detail.attendance_summary.alpha} tone="danger" />
+              <MiniStatCard
+                label="Hadir"
+                value={detail.attendance_summary.present}
+                tone="success"
+              />
+              <MiniStatCard
+                label="Izin"
+                value={detail.attendance_summary.permission}
+                tone="permission"
+              />
+              <MiniStatCard
+                label="Sakit"
+                value={detail.attendance_summary.sick}
+                tone="sick"
+              />
+              <MiniStatCard
+                label="Alfa"
+                value={detail.attendance_summary.alpha}
+                tone="danger"
+              />
             </div>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-3">
             <DetailListCard title="Riwayat Absensi" icon={BadgeCheck}>
               {detail.recent_attendance.length === 0 ? (
-                <EmptyState icon={BadgeCheck} title="Belum ada absensi" description="Riwayat absensi siswa akan tampil di sini." compact />
+                <EmptyState
+                  icon={BadgeCheck}
+                  title="Belum ada absensi"
+                  description="Riwayat absensi siswa akan tampil di sini."
+                  compact
+                />
               ) : (
                 detail.recent_attendance.slice(0, 6).map((record) => (
-                  <div key={record.id} className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3">
+                  <div
+                    key={record.id}
+                    className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">
@@ -172,14 +210,26 @@ export function StudentDetailModal({
 
             <DetailListCard title="Pengajuan" icon={ShieldAlert}>
               {detail.recent_submissions.length === 0 ? (
-                <EmptyState icon={ShieldAlert} title="Belum ada pengajuan" description="Izin atau sakit siswa akan tampil di sini." compact />
+                <EmptyState
+                  icon={ShieldAlert}
+                  title="Belum ada pengajuan"
+                  description="Izin atau sakit siswa akan tampil di sini."
+                  compact
+                />
               ) : (
                 detail.recent_submissions.slice(0, 6).map((item) => (
-                  <div key={item.id} className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3">
+                  <div
+                    key={item.id}
+                    className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{item.type}</p>
-                        <p className="line-clamp-1 text-xs text-slate-500">{item.reason}</p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {item.type}
+                        </p>
+                        <p className="line-clamp-1 text-xs text-slate-500">
+                          {item.reason}
+                        </p>
                       </div>
                       <SubmissionStatusPill status={item.status} />
                     </div>
@@ -190,12 +240,24 @@ export function StudentDetailModal({
 
             <DetailListCard title="Catatan BK" icon={BookHeart}>
               {detail.counseling_notes.length === 0 ? (
-                <EmptyState icon={BookHeart} title="Belum ada catatan" description="Catatan pembinaan siswa akan tampil di sini." compact />
+                <EmptyState
+                  icon={BookHeart}
+                  title="Belum ada catatan"
+                  description="Catatan pembinaan siswa akan tampil di sini."
+                  compact
+                />
               ) : (
                 detail.counseling_notes.slice(0, 6).map((note) => (
-                  <div key={note.id} className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3">
-                    <p className="text-sm font-semibold text-slate-900">{note.title}</p>
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{note.note}</p>
+                  <div
+                    key={note.id}
+                    className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
+                  >
+                    <p className="text-sm font-semibold text-slate-900">
+                      {note.title}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                      {note.note}
+                    </p>
                   </div>
                 ))
               )}
@@ -252,7 +314,9 @@ export function CounselingNoteCreateModal({
           <FieldError message={errors.title} />
         </div>
         <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Catatan pembinaan</label>
+          <label className={premiumModalLabelClassName}>
+            Catatan pembinaan
+          </label>
           <p className={premiumModalHelperClassName}>
             Tulis ringkasan observasi, tindak lanjut, atau rencana komunikasi.
           </p>

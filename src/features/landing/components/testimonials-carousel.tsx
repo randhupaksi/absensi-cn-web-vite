@@ -35,18 +35,25 @@ export function TestimonialsCarousel({
     });
   };
 
-  const visibleTestimonials = Array.from({ length: visibleCount }, (_, offset) => {
-    return testimonials[(index + offset) % testimonials.length];
-  });
+  const visibleTestimonials = Array.from(
+    { length: visibleCount },
+    (_, offset) => {
+      return testimonials[(index + offset) % testimonials.length];
+    },
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[0.36fr_0.64fr] lg:items-start xl:grid-cols-[0.34fr_0.66fr]">
       <div className="space-y-5">
         <div className="space-y-2">
-          <p className={`${styles.landingAccentText} text-[11px] font-semibold uppercase tracking-[0.34em]`}>
+          <p
+            className={`${styles.landingAccentText} text-[11px] font-semibold uppercase tracking-[0.34em]`}
+          >
             Penilaian
           </p>
-          <h3 className={`${styles.landingInkText} max-w-[420px] text-[2.1rem] font-bold leading-[1.08] tracking-[-0.04em] md:text-[3.05rem]`}>
+          <h3
+            className={`${styles.landingInkText} max-w-[420px] text-[2.1rem] font-bold leading-[1.08] tracking-[-0.04em] md:text-[3.05rem]`}
+          >
             Yang Dikatakan
             <br />
             <span className={`${styles.landingAccentText} inline-block pr-1`}>
@@ -91,12 +98,16 @@ export function TestimonialsCarousel({
               key={`${index}-${testimonial.name}-${testimonial.role}`}
               className={`${styles.landingReviewCard} relative min-h-[190px] overflow-hidden p-4`}
             >
-              <div className={`${styles.landingReviewQuote} absolute right-4 top-4 rounded-full p-1.5`}>
+              <div
+                className={`${styles.landingReviewQuote} absolute right-4 top-4 rounded-full p-1.5`}
+              >
                 <FaQuoteRight className="size-3.5" />
               </div>
 
               <div className="flex items-center gap-2.5">
-                <div className={`${styles.landingAvatarBadge} flex size-9 items-center justify-center rounded-full text-xs font-bold`}>
+                <div
+                  className={`${styles.landingAvatarBadge} flex size-9 items-center justify-center rounded-full text-xs font-bold`}
+                >
                   {testimonial.name
                     .split(" ")
                     .map((segment) => segment[0])
@@ -104,14 +115,22 @@ export function TestimonialsCarousel({
                     .slice(0, 2)}
                 </div>
                 <div>
-                  <p className={`${styles.landingInkText} text-[12px] font-bold`}>{testimonial.name}</p>
-                  <p className={`${styles.landingAccentText} text-[10px] font-semibold uppercase tracking-[0.16em]`}>
+                  <p
+                    className={`${styles.landingInkText} text-[12px] font-bold`}
+                  >
+                    {testimonial.name}
+                  </p>
+                  <p
+                    className={`${styles.landingAccentText} text-[10px] font-semibold uppercase tracking-[0.16em]`}
+                  >
                     {testimonial.role}
                   </p>
                 </div>
               </div>
 
-              <p className={`${styles.landingMutedText} mt-4 text-[12px] leading-7`}>
+              <p
+                className={`${styles.landingMutedText} mt-4 text-[12px] leading-7`}
+              >
                 {testimonial.body}
               </p>
             </article>

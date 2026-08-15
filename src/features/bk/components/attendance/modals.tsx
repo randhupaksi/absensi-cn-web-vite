@@ -29,10 +29,22 @@ import {
 } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
-import type { StaffAttendanceRecord, StaffAttendanceReviewPayload } from "@/types/staff";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
+import type {
+  StaffAttendanceRecord,
+  StaffAttendanceReviewPayload,
+} from "@/types/staff";
 import { id as localeID } from "date-fns/locale";
-import { ArrowUpRight, BadgeCheck, CalendarClock, Image as ImageIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  CalendarClock,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 export const reviewStatusOptions = [
@@ -61,9 +73,13 @@ export function AttendanceDateButton({
             <CalendarClock className="size-4" />
           </span>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Tanggal</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+              Tanggal
+            </p>
             <p className="text-sm font-medium text-slate-700">
-              {selectedDate ? formatFriendlyDate(selectedDate) : "Pilih tanggal"}
+              {selectedDate
+                ? formatFriendlyDate(selectedDate)
+                : "Pilih tanggal"}
             </p>
           </div>
           <ArrowUpRight className="size-4 text-emerald-700" />
@@ -74,12 +90,17 @@ export function AttendanceDateButton({
         className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
       >
         <PopoverHeader className="px-2 pt-1 pb-2">
-          <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal absensi</PopoverTitle>
+          <PopoverTitle className="text-sm font-semibold text-slate-900">
+            Pilih tanggal absensi
+          </PopoverTitle>
         </PopoverHeader>
         <Calendar
           mode="single"
           selected={selectedDate}
-          onSelect={(date) => { onSelectDate(date); setOpen(false); }}
+          onSelect={(date) => {
+            onSelectDate(date);
+            setOpen(false);
+          }}
           locale={localeID}
           buttonVariant="ghost"
         />
@@ -103,12 +124,19 @@ export function AttendanceReviewModal({
   const [verificationNote, setVerificationNote] = useState(
     record.verification_note || record.notes || "",
   );
-  const [errors, setErrors] = useState<FieldErrors<"status" | "verification_note">>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<"status" | "verification_note">
+  >({});
 
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "verification_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
-    validateRequired(nextErrors, "verification_note", verificationNote, "Catatan tinjauan BK");
+    validateRequired(
+      nextErrors,
+      "verification_note",
+      verificationNote,
+      "Catatan tinjauan BK",
+    );
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
     onSubmit({ status, verification_note: verificationNote });
@@ -125,16 +153,23 @@ export function AttendanceReviewModal({
     >
       <div className="grid gap-5">
         <div className="rounded-[22px] border border-emerald-100/70 bg-white/92 p-4">
-          <p className="text-base font-semibold text-slate-900">{record.student_name}</p>
-          <p className="mt-1 text-sm text-slate-500">{record.nis} - {record.class_name}</p>
+          <p className="text-base font-semibold text-slate-900">
+            {record.student_name}
+          </p>
           <p className="mt-1 text-sm text-slate-500">
-            {formatFriendlyDate(record.attendance_date)} - {formatCheckInTime(record.check_in_at)}
+            {record.nis} - {record.class_name}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {formatFriendlyDate(record.attendance_date)} -{" "}
+            {formatCheckInTime(record.check_in_at)}
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Status setelah koreksi</label>
+            <label className={premiumModalLabelClassName}>
+              Status setelah koreksi
+            </label>
             <RadixSelectField
               value={status}
               onValueChange={setStatus}
@@ -145,16 +180,24 @@ export function AttendanceReviewModal({
             <FieldError message={errors.status} />
           </div>
           <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Riwayat koreksi</label>
+            <label className={premiumModalLabelClassName}>
+              Riwayat koreksi
+            </label>
             <div className="flex h-12 items-center rounded-[18px] border border-emerald-100/80 bg-white/90 px-4 text-sm text-slate-600">
-              {record.verified_at ? "Sudah pernah dikoreksi" : "Belum ada koreksi guru"}
+              {record.verified_at
+                ? "Sudah pernah dikoreksi"
+                : "Belum ada koreksi guru"}
             </div>
           </div>
         </div>
 
         <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Catatan koreksi BK</label>
-          <p className={premiumModalHelperClassName}>Catatan ini membantu membaca alasan perubahan status.</p>
+          <label className={premiumModalLabelClassName}>
+            Catatan koreksi BK
+          </label>
+          <p className={premiumModalHelperClassName}>
+            Catatan ini membantu membaca alasan perubahan status.
+          </p>
           <Textarea
             value={verificationNote}
             onChange={(event) => setVerificationNote(event.target.value)}
@@ -194,7 +237,9 @@ export function AttendanceProofModal({
   record: StaffAttendanceRecord | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const photoUrl = record?.photo_url ? normalizeAttachmentUrl(record.photo_url) : undefined;
+  const photoUrl = record?.photo_url
+    ? normalizeAttachmentUrl(record.photo_url)
+    : undefined;
 
   return (
     <PremiumModal
@@ -210,12 +255,15 @@ export function AttendanceProofModal({
           <div className="rounded-[22px] border border-emerald-100/70 bg-white/92 p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-base font-semibold text-slate-900">{record.student_name}</p>
+                <p className="text-base font-semibold text-slate-900">
+                  {record.student_name}
+                </p>
                 <p className="text-sm text-slate-500">
                   {record.nis} • {record.class_name}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {formatFriendlyDate(record.attendance_date)} • {formatCheckInTime(record.check_in_at)}
+                  {formatFriendlyDate(record.attendance_date)} •{" "}
+                  {formatCheckInTime(record.check_in_at)}
                 </p>
               </div>
               <AttendanceStatusPill status={record.status} />
@@ -237,7 +285,10 @@ export function AttendanceProofModal({
                 compact
               />
             )}
-            <AttendanceLocationEvidence evidence={record} className="mt-4 px-1 pb-1" />
+            <AttendanceLocationEvidence
+              evidence={record}
+              className="mt-4 px-1 pb-1"
+            />
           </div>
         </div>
       ) : null}

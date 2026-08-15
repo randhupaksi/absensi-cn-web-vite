@@ -13,7 +13,11 @@ import { Button } from "@/components/ui/button";
 import { ComboboxField } from "@/components/ui/combobox-field";
 import { FieldError } from "@/components/ui/field-error";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import type { StaffCounselingNote } from "@/types/staff";
 import { BookHeart, Edit3, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -37,16 +41,21 @@ export function CounselingDetailModal({
       {note ? (
         <div className="grid gap-5">
           <div className={`${premiumModalSurfaceClassName} p-5`}>
-            <p className="text-base font-semibold text-slate-900">{note.student_name}</p>
+            <p className="text-base font-semibold text-slate-900">
+              {note.student_name}
+            </p>
             <p className="mt-1 text-sm text-slate-500">
               {note.nis} - {note.class_name || "Kelas belum tersedia"}
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              Dibuat oleh {note.created_by_name || "-"} pada {formatDateTime(note.created_at)}
+              Dibuat oleh {note.created_by_name || "-"} pada{" "}
+              {formatDateTime(note.created_at)}
             </p>
           </div>
           <div className={`${premiumModalSurfaceClassName} p-5`}>
-            <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{note.note}</p>
+            <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">
+              {note.note}
+            </p>
           </div>
         </div>
       ) : null}
@@ -64,16 +73,27 @@ export function CounselingFormModal({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  students: Array<{ id: string; name: string; nis: string; class_name?: string }>;
+  students: Array<{
+    id: string;
+    name: string;
+    nis: string;
+    class_name?: string;
+  }>;
   note?: StaffCounselingNote | null;
-  onSubmit: (payload: { student_id: string; title: string; note: string }) => void;
+  onSubmit: (payload: {
+    student_id: string;
+    title: string;
+    note: string;
+  }) => void;
   isPending: boolean;
 }) {
   const isEditing = Boolean(note);
   const [studentId, setStudentId] = useState(note?.student_id ?? "");
   const [title, setTitle] = useState(note?.title ?? "");
   const [body, setBody] = useState(note?.note ?? "");
-  const [errors, setErrors] = useState<FieldErrors<"student_id" | "title" | "note">>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<"student_id" | "title" | "note">
+  >({});
 
   useEffect(() => {
     if (!open) return;
@@ -134,8 +154,12 @@ export function CounselingFormModal({
           </div>
         </div>
         <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Catatan pembinaan</label>
-          <p className={premiumModalHelperClassName}>Tuliskan observasi, tindak lanjut, atau rekomendasi BK.</p>
+          <label className={premiumModalLabelClassName}>
+            Catatan pembinaan
+          </label>
+          <p className={premiumModalHelperClassName}>
+            Tuliskan observasi, tindak lanjut, atau rekomendasi BK.
+          </p>
           <Textarea
             value={body}
             onChange={(event) => setBody(event.target.value)}
@@ -159,7 +183,11 @@ export function CounselingFormModal({
             disabled={isPending}
             onClick={handleSubmit}
           >
-            {isPending ? "Menyimpan..." : note ? "Update Catatan" : "Simpan Catatan"}
+            {isPending
+              ? "Menyimpan..."
+              : note
+                ? "Update Catatan"
+                : "Simpan Catatan"}
           </Button>
         </div>
       </div>

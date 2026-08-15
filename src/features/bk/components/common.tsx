@@ -7,11 +7,19 @@ import { format, parseISO } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loading-system";
 
-export const classFilterOptions = (classes: Array<{ class_id: string; class_name: string; school_unit_code?: string }>) => [
+export const classFilterOptions = (
+  classes: Array<{
+    class_id: string;
+    class_name: string;
+    school_unit_code?: string;
+  }>,
+) => [
   { value: "Semua", label: "Semua kelas" },
   ...classes.map((item) => ({
     value: item.class_id,
-    label: item.school_unit_code ? `[${item.school_unit_code}] ${item.class_name}` : item.class_name,
+    label: item.school_unit_code
+      ? `[${item.school_unit_code}] ${item.class_name}`
+      : item.class_name,
   })),
 ];
 
@@ -67,7 +75,13 @@ export function formatGender(gender?: string) {
   }
 }
 
-export function AttendanceStatusPill({ status, compact = false }: { status: string; compact?: boolean }) {
+export function AttendanceStatusPill({
+  status,
+  compact = false,
+}: {
+  status: string;
+  compact?: boolean;
+}) {
   const normalized = status.toLowerCase();
   let className = "border-slate-200 bg-slate-100 text-slate-600";
 
@@ -81,10 +95,17 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
     className = "border-violet-200 bg-violet-50 text-violet-700";
   }
 
-  const compactLabel: Record<string, string> = { hadir: "H", izin: "I", sakit: "S", alfa: "A" };
+  const compactLabel: Record<string, string> = {
+    hadir: "H",
+    izin: "I",
+    sakit: "S",
+    alfa: "A",
+  };
   return (
     <Badge className={className} title={formatDisplayLabel(status)}>
-      {compact ? compactLabel[normalized] ?? formatDisplayLabel(status) : formatDisplayLabel(status)}
+      {compact
+        ? (compactLabel[normalized] ?? formatDisplayLabel(status))
+        : formatDisplayLabel(status)}
     </Badge>
   );
 }
@@ -139,6 +160,12 @@ export function isImageAttachment(attachment: string) {
   return /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(attachment);
 }
 
-export function TableSkeleton({ columns, rows = 6 }: { columns: number; rows?: number }) {
+export function TableSkeleton({
+  columns,
+  rows = 6,
+}: {
+  columns: number;
+  rows?: number;
+}) {
   return <DetailedTableSkeleton columns={columns} rows={rows} embedded />;
 }
