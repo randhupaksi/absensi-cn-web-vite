@@ -1,5 +1,6 @@
 import { AppImage as Image } from "@/components/media/app-image";
 import { AppLink as Link } from "@/components/router/app-link";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import type { IconType } from "react-icons";
 import { FiPhone } from "react-icons/fi";
@@ -787,6 +788,14 @@ export default function HomePage() {
               Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi
               Membumi · All rights reserved.
             </p>
+            <Button
+              nativeButton={false}
+              render={<a href="/randhu" />}
+              className="group mt-4 inline-flex touch-manipulation items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/8 px-4 py-2 text-xs font-semibold tracking-wide text-emerald-200 shadow-[0_8px_24px_rgba(16,185,129,0.08)] transition-[transform,background-color,border-color,color] duration-250 ease-out hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-emerald-300/15 hover:text-white hover:shadow-none active:translate-y-px active:scale-[0.92] active:duration-75 active:border-emerald-400/70 active:bg-[#0d4f40] active:text-emerald-50 active:shadow-none focus:translate-y-px focus:scale-[0.92] focus:border-emerald-400/70 focus:bg-[#0d4f40] focus:text-emerald-50 focus:shadow-none focus-visible:outline-none focus-visible:ring-0"
+            >
+              Meet the developer
+              <FaArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Button>
           </div>
         </div>
       </footer>

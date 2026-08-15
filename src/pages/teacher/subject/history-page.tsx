@@ -331,8 +331,8 @@ export function MapelHistoryPage() {
                   Export Laporan
                 </Button>
               </div>
-              <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_2fr]">
-                <div>
+              <div className="grid min-w-0 items-start gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,1.5fr)_minmax(10rem,12rem)_minmax(11rem,13rem)_minmax(18rem,1.15fr)]">
+                <div className="min-w-0">
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                     Mata Pelajaran
                   </label>
@@ -341,10 +341,11 @@ export function MapelHistoryPage() {
                     onValueChange={setSelectedAssignmentId}
                     placeholder="Pilih mata pelajaran"
                     options={assignmentOptions}
+                    triggerClassName="min-w-0"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                     Status
                   </label>
@@ -353,10 +354,11 @@ export function MapelHistoryPage() {
                     onValueChange={setStatusFilter}
                     placeholder="Semua status"
                     options={STATUS_OPTIONS}
+                    triggerClassName="min-w-0"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                     Mode Tanggal
                   </label>
@@ -367,7 +369,7 @@ export function MapelHistoryPage() {
                 </div>
 
                 {dateFilterMode === "single" ? (
-                  <div>
+                  <div className="min-w-0">
                     <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                       Tanggal Tertentu
                     </label>
@@ -378,8 +380,8 @@ export function MapelHistoryPage() {
                     />
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
+                  <div className="grid min-w-0 grid-cols-2 gap-2">
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                         Dari
                       </label>
@@ -389,7 +391,7 @@ export function MapelHistoryPage() {
                         placeholder="Dari"
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                         Sampai
                       </label>
@@ -1297,7 +1299,7 @@ function DatePickerButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={<Button type="button" variant="outline" />}
-        className="h-14 w-full justify-start rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-3 text-left shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)]"
+        className="h-14 w-full min-w-0 justify-start overflow-hidden rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-2 text-left shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] sm:px-3"
       >
         <div className="flex items-center gap-2 min-w-0">
           <CalendarDays className="size-4 shrink-0 text-emerald-600" />

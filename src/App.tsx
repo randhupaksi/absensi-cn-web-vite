@@ -152,6 +152,11 @@ const DevFixLogPage = lazy(() =>
     default: module.DevFixLogPage,
   })),
 );
+const RandhuPage = lazy(() =>
+  import("@/pages/randhu/randhu-page").then((module) => ({
+    default: module.RandhuPage,
+  })),
+);
 
 function PageBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -261,6 +266,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomeRoute />} />
           <Route path="/deveran" element={<DevFixLogPage />} />
+          <Route path="/randhu" element={<RandhuPage />} />
           <Route
             path="/login"
             element={<Navigate replace to="/login/student" />}

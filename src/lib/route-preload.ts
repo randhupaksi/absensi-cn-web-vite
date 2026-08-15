@@ -2,6 +2,7 @@ type RoutePreloader = () => Promise<unknown>;
 
 const routePreloaders: Record<string, RoutePreloader> = {
   "/": () => import("@/pages/home/home-page"),
+  "/randhu": () => import("@/pages/randhu/randhu-page"),
   "/login/student": () => import("@/pages/auth/login-page"),
   "/login/staff": () => import("@/pages/auth/login-page"),
   "/dashboard/admin": () => import("@/pages/admin/dashboard-page"),
