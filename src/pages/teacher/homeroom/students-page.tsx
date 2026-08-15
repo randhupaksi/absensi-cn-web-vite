@@ -49,7 +49,10 @@ import {
 import { useDeferredValue, useMemo, useState } from "react";
 
 const WalasSiswaReportModal = dynamic(
-  () => import("@/features/reports/homeroom/students-report-modal").then((module) => module.WalasSiswaReportModal),
+  () =>
+    import("@/features/reports/homeroom/students-report-modal").then(
+      (module) => module.WalasSiswaReportModal,
+    ),
   { ssr: false },
 );
 
@@ -70,13 +73,16 @@ const emptyHomeroom: StaffHomeroomContext = {
   is_active: false,
 };
 
-const emptyStudents: Awaited<ReturnType<typeof getTeacherHomeroomStudents>> = [];
+const emptyStudents: Awaited<ReturnType<typeof getTeacherHomeroomStudents>> =
+  [];
 
 export function WalasStudentsPage() {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    null,
+  );
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const homeroomQuery = useQuery({
@@ -119,7 +125,8 @@ export function WalasStudentsPage() {
     });
   }, [normalizedQuery, statusFilter, students]);
 
-  const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(filteredStudents);
+  const { pageItems: pageStudents, pagination: studentsPagination } =
+    usePagination(filteredStudents);
 
   const studentMetrics = useMemo(() => {
     let activeStudents = 0;
@@ -135,7 +142,8 @@ export function WalasStudentsPage() {
     return { activeStudents, studentsNeedingAttention, totalAlphaCount };
   }, [students]);
 
-  const tableErrorMessage = homeroomQuery.error?.message ?? studentsQuery.error?.message;
+  const tableErrorMessage =
+    homeroomQuery.error?.message ?? studentsQuery.error?.message;
 
   return (
     <WalasShell>
@@ -159,8 +167,8 @@ export function WalasStudentsPage() {
                     </h2>
                     <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
                       Pantau daftar siswa walas, lihat ringkasan kehadiran, dan
-                      buka detail siswa langsung dari satu tabel operasional yang
-                      lebih fokus.
+                      buka detail siswa langsung dari satu tabel operasional
+                      yang lebih fokus.
                     </p>
                   </div>
                 </div>
@@ -175,7 +183,8 @@ export function WalasStudentsPage() {
                         {homeroom.class_name || "Belum ada kelas walas"}
                       </p>
                       <p className="text-xs leading-5 text-slate-500">
-                        {homeroom.school_year_name || "Tahun ajaran belum tersedia"}
+                        {homeroom.school_year_name ||
+                          "Tahun ajaran belum tersedia"}
                       </p>
                     </div>
                   </div>
@@ -211,11 +220,16 @@ export function WalasStudentsPage() {
 
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <div className="text-xs font-medium text-slate-400">
-                  {studentMetrics.totalAlphaCount} catatan alfa tercatat untuk siswa kelas ini
+                  {studentMetrics.totalAlphaCount} catatan alfa tercatat untuk
+                  siswa kelas ini
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                  <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, atau NISN" />
+                  <SearchFilterBar
+                    value={query}
+                    onChange={setQuery}
+                    placeholder="Cari siswa, NIS, atau NISN"
+                  />
 
                   <div className="w-full sm:w-[210px]">
                     <RadixSelectField
@@ -252,9 +266,7 @@ export function WalasStudentsPage() {
               </div>
             ) : null}
 
-            <div
-              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
-            >
+            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80">
               {studentsQuery.isLoading || homeroomQuery.isLoading ? (
                 <div className="overflow-x-auto">
                   <LoadingTable columnCount={9} />
@@ -270,13 +282,23 @@ export function WalasStudentsPage() {
                 </div>
               ) : (
                 <>
-                <div className="hidden overflow-x-auto md:block">
-                  <DataTable>
-                    <DataTableHeadRow
-                      labels={["Siswa", "NIS/NISN", "Jenis Kelamin", "Status", "H", "I", "S", "A", "Aksi"]}
-                      centerLabels={["Status", "H", "I", "S", "A"]}
-                    />
-                    <DataTableBody>
+                  <div className="hidden overflow-x-auto md:block">
+                    <DataTable>
+                      <DataTableHeadRow
+                        labels={[
+                          "Siswa",
+                          "NIS/NISN",
+                          "Jenis Kelamin",
+                          "Status",
+                          "H",
+                          "I",
+                          "S",
+                          "A",
+                          "Aksi",
+                        ]}
+                        centerLabels={["Status", "H", "I", "S", "A"]}
+                      />
+                      <DataTableBody>
                         {pageStudents.map((student) => (
                           <DataTableRow key={student.id}>
                             <DataTableCell>
@@ -292,7 +314,9 @@ export function WalasStudentsPage() {
                               </div>
                             </DataTableCell>
                             <DataTableCell>
-                              <p className="font-medium text-slate-800">{student.nis}</p>
+                              <p className="font-medium text-slate-800">
+                                {student.nis}
+                              </p>
                               <p>{student.nisn || "-"}</p>
                             </DataTableCell>
                             <DataTableCell>
@@ -332,7 +356,9 @@ export function WalasStudentsPage() {
                               <div className="flex justify-center">
                                 <ActionIconButton
                                   tone="emerald"
-                                  onClick={() => setSelectedStudentId(student.id)}
+                                  onClick={() =>
+                                    setSelectedStudentId(student.id)
+                                  }
                                   ariaLabel={`Lihat detail ${student.name}`}
                                 >
                                   <Eye className="size-4" />
@@ -341,47 +367,71 @@ export function WalasStudentsPage() {
                             </DataTableCell>
                           </DataTableRow>
                         ))}
-                    </DataTableBody>
-                  </DataTable>
-                </div>
-                <MobileDataList>
-                  {pageStudents.map((student) => (
-                    <MobileDataCard key={student.id}>
-                      <MobileDataHeader
-                        leading={
-                          <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
-                            {getInitials(student.name)}
-                          </span>
-                        }
-                        title={student.name}
-                        badge={<StatusPill isActive={student.is_active} />}
-                      />
-                      <div className="mt-4 grid gap-3">
-                        <MobileDataField label="NIS" value={student.nis} />
-                        <MobileDataField label="NISN" value={student.nisn || "-"} />
-                        <MobileDataField label="Jenis Kelamin" value={formatGender(student.gender)} />
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <AttendanceMetricPill label="Hadir" value={student.present_count} tone="success" />
-                        <AttendanceMetricPill label="Izin" value={student.permission_count} tone="info" />
-                        <AttendanceMetricPill label="Sakit" value={student.sick_count} tone="violet" />
-                        <AttendanceMetricPill label="Alfa" value={student.alpha_count} tone="danger" />
-                      </div>
-                      <MobileDataFooter>
-                        <ActionIconButton
-                          tone="emerald"
-                          onClick={() => setSelectedStudentId(student.id)}
-                          ariaLabel={`Lihat detail ${student.name}`}
-                        >
-                          <Eye className="size-4" />
-                        </ActionIconButton>
-                      </MobileDataFooter>
-                    </MobileDataCard>
-                  ))}
-                </MobileDataList>
+                      </DataTableBody>
+                    </DataTable>
+                  </div>
+                  <MobileDataList>
+                    {pageStudents.map((student) => (
+                      <MobileDataCard key={student.id}>
+                        <MobileDataHeader
+                          leading={
+                            <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
+                              {getInitials(student.name)}
+                            </span>
+                          }
+                          title={student.name}
+                          badge={<StatusPill isActive={student.is_active} />}
+                        />
+                        <div className="mt-4 grid gap-3">
+                          <MobileDataField label="NIS" value={student.nis} />
+                          <MobileDataField
+                            label="NISN"
+                            value={student.nisn || "-"}
+                          />
+                          <MobileDataField
+                            label="Jenis Kelamin"
+                            value={formatGender(student.gender)}
+                          />
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <AttendanceMetricPill
+                            label="Hadir"
+                            value={student.present_count}
+                            tone="success"
+                          />
+                          <AttendanceMetricPill
+                            label="Izin"
+                            value={student.permission_count}
+                            tone="info"
+                          />
+                          <AttendanceMetricPill
+                            label="Sakit"
+                            value={student.sick_count}
+                            tone="violet"
+                          />
+                          <AttendanceMetricPill
+                            label="Alfa"
+                            value={student.alpha_count}
+                            tone="danger"
+                          />
+                        </div>
+                        <MobileDataFooter>
+                          <ActionIconButton
+                            tone="emerald"
+                            onClick={() => setSelectedStudentId(student.id)}
+                            ariaLabel={`Lihat detail ${student.name}`}
+                          >
+                            <Eye className="size-4" />
+                          </ActionIconButton>
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
                 </>
               )}
-              {!studentsQuery.isLoading && !homeroomQuery.isLoading && filteredStudents.length > 0 ? (
+              {!studentsQuery.isLoading &&
+              !homeroomQuery.isLoading &&
+              filteredStudents.length > 0 ? (
                 <DataTablePagination {...studentsPagination} />
               ) : null}
             </div>

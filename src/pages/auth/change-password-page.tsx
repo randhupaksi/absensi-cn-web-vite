@@ -4,12 +4,20 @@ import { BackButton } from "@/components/ui/back-button";
 import { clearAuthSession, getAuthSession } from "@/lib/auth";
 import { KeyRound, Sparkles } from "lucide-react";
 
-const commonFirstNames = new Set(["ahmad", "mohammad", "muh", "muhamad", "muhammad"]);
+const commonFirstNames = new Set([
+  "ahmad",
+  "mohammad",
+  "muh",
+  "muhamad",
+  "muhammad",
+]);
 
 function formatAccountName(name?: string) {
   const nameParts = name?.trim().split(/\s+/).filter(Boolean) ?? [];
-  const preferredName = commonFirstNames.has(nameParts[0]?.toLocaleLowerCase("id-ID"))
-    ? nameParts[1] ?? nameParts[0]
+  const preferredName = commonFirstNames.has(
+    nameParts[0]?.toLocaleLowerCase("id-ID"),
+  )
+    ? (nameParts[1] ?? nameParts[0])
     : nameParts[0];
   if (!preferredName) return "Pengguna";
 
@@ -21,7 +29,8 @@ export function ChangePasswordPage() {
   const account = getAuthSession()?.user;
   const accountName = formatAccountName(account?.name);
   const accountLabel = account?.role === "TEACHER" ? "guru" : "siswa";
-  const loginPath = account?.role === "TEACHER" ? "/login/staff" : "/login/student";
+  const loginPath =
+    account?.role === "TEACHER" ? "/login/staff" : "/login/student";
 
   return (
     <main className="relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e5f6ed_34%,#d7eee2_70%,#edf8f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]">
@@ -41,10 +50,15 @@ export function ChangePasswordPage() {
                 <KeyRound className="size-5" />
               </span>
               <div className="min-w-0">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-700">Keamanan akun {accountLabel}</p>
-                <h1 className="mt-1.5 text-[1.38rem] font-semibold tracking-[-0.03em] text-slate-950 sm:text-[1.55rem]">Buat Password Pribadimu</h1>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                  Keamanan akun {accountLabel}
+                </p>
+                <h1 className="mt-1.5 text-[1.38rem] font-semibold tracking-[-0.03em] text-slate-950 sm:text-[1.55rem]">
+                  Buat Password Pribadimu
+                </h1>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Hai, {accountName}. Password awal dari sekolah hanya digunakan sekali untuk mengaktifkan akunmu.
+                  Hai, {accountName}. Password awal dari sekolah hanya digunakan
+                  sekali untuk mengaktifkan akunmu.
                 </p>
               </div>
             </div>
@@ -53,7 +67,9 @@ export function ChangePasswordPage() {
           <div className="px-5 py-5 sm:px-7 sm:py-6">
             <div className="mb-5 flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50 px-3.5 py-2 text-xs font-medium text-amber-800">
               <Sparkles className="size-3.5 shrink-0" />
-              <span>Langkah ini wajib diselesaikan sebelum lanjut lebih dalam.</span>
+              <span>
+                Langkah ini wajib diselesaikan sebelum lanjut lebih dalam.
+              </span>
             </div>
             <ChangePasswordForm />
           </div>

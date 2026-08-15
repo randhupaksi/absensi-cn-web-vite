@@ -8,11 +8,15 @@ import {
   getAdminSchoolUnits,
   getAdminSchoolYears,
 } from "@/services/admin.service";
-import type { AdminClass, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
+import type {
+  AdminClass,
+  AdminMajor,
+  AdminSchoolUnit,
+  AdminSchoolYear,
+} from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
 
 export function AdminClassesPage() {
-
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
     queryFn: () => getAdminClasses(),

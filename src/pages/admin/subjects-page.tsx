@@ -15,33 +15,68 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 export function AdminSubjectsPage() {
-  const subjectsQuery = useQuery({ queryKey: ["admin-subjects"], queryFn: () => getAdminSubjects() });
-  const schedulesQuery = useQuery({ queryKey: ["admin-subject-schedules"], queryFn: () => getAdminSubjectSchedules() });
-  const assignmentsQuery = useQuery({ queryKey: ["admin-teacher-subject-assignments"], queryFn: () => getAdminTeacherSubjectAssignments() });
-  const teachersQuery = useQuery({ queryKey: ["admin-teacher-profiles"], queryFn: getAdminTeacherProfiles });
-  const classesQuery = useQuery({ queryKey: ["admin-classes"], queryFn: () => getAdminClasses() });
-  const schoolYearsQuery = useQuery({ queryKey: ["admin-school-years"], queryFn: getAdminSchoolYears });
-	const programsQuery = useQuery({ queryKey: ["admin-majors"], queryFn: () => getAdminMajors() });
-	const overridesQuery = useQuery({ queryKey: ["admin-schedule-overrides"], queryFn: () => getAdminScheduleOverrides() });
+  const subjectsQuery = useQuery({
+    queryKey: ["admin-subjects"],
+    queryFn: () => getAdminSubjects(),
+  });
+  const schedulesQuery = useQuery({
+    queryKey: ["admin-subject-schedules"],
+    queryFn: () => getAdminSubjectSchedules(),
+  });
+  const assignmentsQuery = useQuery({
+    queryKey: ["admin-teacher-subject-assignments"],
+    queryFn: () => getAdminTeacherSubjectAssignments(),
+  });
+  const teachersQuery = useQuery({
+    queryKey: ["admin-teacher-profiles"],
+    queryFn: getAdminTeacherProfiles,
+  });
+  const classesQuery = useQuery({
+    queryKey: ["admin-classes"],
+    queryFn: () => getAdminClasses(),
+  });
+  const schoolYearsQuery = useQuery({
+    queryKey: ["admin-school-years"],
+    queryFn: getAdminSchoolYears,
+  });
+  const programsQuery = useQuery({
+    queryKey: ["admin-majors"],
+    queryFn: () => getAdminMajors(),
+  });
+  const overridesQuery = useQuery({
+    queryKey: ["admin-schedule-overrides"],
+    queryFn: () => getAdminScheduleOverrides(),
+  });
 
-  const queries = [subjectsQuery, schedulesQuery, assignmentsQuery, teachersQuery, classesQuery, schoolYearsQuery, programsQuery, overridesQuery];
+  const queries = [
+    subjectsQuery,
+    schedulesQuery,
+    assignmentsQuery,
+    teachersQuery,
+    classesQuery,
+    schoolYearsQuery,
+    programsQuery,
+    overridesQuery,
+  ];
 
   return (
     <AdminShell>
-      {() => (<>
-        <SubjectManagementSection
-          subjects={subjectsQuery.data ?? []}
-          schedules={schedulesQuery.data ?? []}
-          assignments={assignmentsQuery.data ?? []}
-          teachers={teachersQuery.data ?? []}
-          classes={classesQuery.data ?? []}
-          schoolYears={schoolYearsQuery.data ?? []}
-		  programs={programsQuery.data ?? []}
-		  overrides={overridesQuery.data ?? []}
-          isLoading={queries.some((query) => query.isLoading)}
-          errorMessage={queries.find((query) => query.error)?.error?.message}
-        />
-	  </>)}
+      {() => (
+        <>
+          <SubjectManagementSection
+            subjects={subjectsQuery.data ?? []}
+            schedules={schedulesQuery.data ?? []}
+            assignments={assignmentsQuery.data ?? []}
+            teachers={teachersQuery.data ?? []}
+            classes={classesQuery.data ?? []}
+            schoolYears={schoolYearsQuery.data ?? []}
+            programs={programsQuery.data ?? []}
+            overrides={overridesQuery.data ?? []}
+            isLoading={queries.some((query) => query.isLoading)}
+            errorMessage={queries.find((query) => query.error)?.error?.message}
+          />
+        </>
+      )}
     </AdminShell>
   );
 }

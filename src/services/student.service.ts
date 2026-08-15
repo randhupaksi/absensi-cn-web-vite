@@ -23,9 +23,8 @@ function getErrorMessage(error: unknown) {
 
 export async function getStudentDashboard() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StudentDashboard>>(
-      "/student/dashboard",
-    );
+    const response =
+      await apiClient.get<ApiEnvelope<StudentDashboard>>("/student/dashboard");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -34,7 +33,8 @@ export async function getStudentDashboard() {
 
 export async function getStudentToday() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StudentToday>>("/student/today");
+    const response =
+      await apiClient.get<ApiEnvelope<StudentToday>>("/student/today");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -43,9 +43,8 @@ export async function getStudentToday() {
 
 export async function getStudentHistory() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StudentHistory>>(
-      "/student/history",
-    );
+    const response =
+      await apiClient.get<ApiEnvelope<StudentHistory>>("/student/history");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -54,9 +53,8 @@ export async function getStudentHistory() {
 
 export async function getStudentProfile() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StudentProfile>>(
-      "/student/profile",
-    );
+    const response =
+      await apiClient.get<ApiEnvelope<StudentProfile>>("/student/profile");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -88,10 +86,16 @@ export async function submitStudentDailyReport(
         formData.append("location_latitude", String(payload.location.latitude));
       }
       if (payload.location.longitude !== undefined) {
-        formData.append("location_longitude", String(payload.location.longitude));
+        formData.append(
+          "location_longitude",
+          String(payload.location.longitude),
+        );
       }
       if (payload.location.accuracy_meters !== undefined) {
-        formData.append("location_accuracy_meters", String(payload.location.accuracy_meters));
+        formData.append(
+          "location_accuracy_meters",
+          String(payload.location.accuracy_meters),
+        );
       }
       if (payload.location.captured_at) {
         formData.append("location_captured_at", payload.location.captured_at);
@@ -107,7 +111,9 @@ export async function submitStudentDailyReport(
           },
           onUploadProgress: (event) => {
             if (!event.total) return;
-            onUploadProgress?.(Math.min(95, (event.loaded / event.total) * 100));
+            onUploadProgress?.(
+              Math.min(95, (event.loaded / event.total) * 100),
+            );
           },
         },
       );

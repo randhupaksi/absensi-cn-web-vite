@@ -46,29 +46,34 @@ const attendanceSteps = [
   {
     eyebrow: "01 / SIAPKAN",
     title: "Masuk ke dalam halaman login",
-    description: "Gunakan akun siswa yang sudah terdaftar untuk membuka halaman absensi hari ini.",
+    description:
+      "Gunakan akun siswa yang sudah terdaftar untuk membuka halaman absensi hari ini.",
     detail: "Semua informasi kelas dan tahun ajaran sudah tersambung otomatis.",
     icon: FaUserCheck,
   },
   {
     eyebrow: "02 / BUKTI",
     title: "Ambil foto kehadiran",
-    description: "Ambil foto dari kamera perangkat sebagai bukti kehadiran di sekolah.",
+    description:
+      "Ambil foto dari kamera perangkat sebagai bukti kehadiran di sekolah.",
     detail: "Foto akan dikompres otomatis agar proses pengiriman tetap ringan.",
     icon: FaCameraRetro,
   },
   {
     eyebrow: "03 / LOKASI",
     title: "Rekam lokasi saat ini",
-    description: "Izinkan lokasi agar sistem dapat mencocokkan posisi dengan radius sekolah.",
-    detail: "Lokasi hanya digunakan untuk membantu validasi absensi saat dikirim.",
+    description:
+      "Izinkan lokasi agar sistem dapat mencocokkan posisi dengan radius sekolah.",
+    detail:
+      "Lokasi hanya digunakan untuk membantu validasi absensi saat dikirim.",
     icon: FaMapMarkerAlt,
   },
   {
     eyebrow: "04 / KIRIM",
     title: "Kirim untuk divalidasi",
     description: "Periksa kembali data, lalu kirim absensi.",
-    detail: "Status pengajuan dapat dipantau kembali melalui dashboard dan riwayat.",
+    detail:
+      "Status pengajuan dapat dipantau kembali melalui dashboard dan riwayat.",
     icon: FaCheckCircle,
   },
 ] as const;
@@ -135,7 +140,11 @@ const majorImagePositions = {
 
 const contactLinks = [
   { icon: FaGlobe, label: "Website", href: "https://smk.citranegara.sch.id/" },
-  { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/smkcitranegaradepok/" },
+  {
+    icon: FaInstagram,
+    label: "Instagram",
+    href: "https://www.instagram.com/smkcitranegaradepok/",
+  },
   { icon: FiPhone, label: "Telepon (021) 77201052", href: "tel:+622177201052" },
   { icon: FaWhatsapp, label: "WhatsApp", href: "https://wa.me/6281325269477" },
 ] as const;
@@ -161,8 +170,12 @@ export default function HomePage() {
     ]
       .map((className) => `.${className}`)
       .join(", ");
-    const revealTargets = Array.from(document.querySelectorAll<HTMLElement>(revealSelector));
-    const revealOrder = new Map(revealTargets.map((target, index) => [target, index]));
+    const revealTargets = Array.from(
+      document.querySelectorAll<HTMLElement>(revealSelector),
+    );
+    const revealOrder = new Map(
+      revealTargets.map((target, index) => [target, index]),
+    );
     const observer = new IntersectionObserver(
       (entries) => {
         entries
@@ -170,18 +183,23 @@ export default function HomePage() {
             const revealThreshold = Number(
               (entry.target as HTMLElement).dataset.revealThreshold ?? 0.14,
             );
-            return entry.isIntersecting && entry.intersectionRatio >= revealThreshold;
+            return (
+              entry.isIntersecting && entry.intersectionRatio >= revealThreshold
+            );
           })
           .sort((first, second) => {
-            return (revealOrder.get(first.target as HTMLElement) ?? 0) - (revealOrder.get(second.target as HTMLElement) ?? 0);
+            return (
+              (revealOrder.get(first.target as HTMLElement) ?? 0) -
+              (revealOrder.get(second.target as HTMLElement) ?? 0)
+            );
           })
           .forEach((entry) => {
-          const revealThreshold = Number(
-            (entry.target as HTMLElement).dataset.revealThreshold ?? 0.14,
-          );
-          if (entry.intersectionRatio < revealThreshold) return;
-          entry.target.setAttribute("data-scroll-revealed", "true");
-          observer.unobserve(entry.target);
+            const revealThreshold = Number(
+              (entry.target as HTMLElement).dataset.revealThreshold ?? 0.14,
+            );
+            if (entry.intersectionRatio < revealThreshold) return;
+            entry.target.setAttribute("data-scroll-revealed", "true");
+            observer.unobserve(entry.target);
           });
       },
       { threshold: [0.14, 0.18, 0.2, 0.25] },
@@ -195,8 +213,12 @@ export default function HomePage() {
     <main className={`${styles.landingPage} min-h-screen`}>
       <section className="w-full">
         <div className="space-y-7 pb-0">
-          <div className={`${styles.landingHeroShell} relative overflow-hidden`}>
-            <div className={`${styles.landingHeroViewport} relative overflow-hidden`}>
+          <div
+            className={`${styles.landingHeroShell} relative overflow-hidden`}
+          >
+            <div
+              className={`${styles.landingHeroViewport} relative overflow-hidden`}
+            >
               <Image
                 src="/images/optimized/cn-hero.jpg"
                 srcSet="/images/optimized/cn-panel.jpg 960w, /images/optimized/cn-hero.jpg 1920w"
@@ -206,30 +228,46 @@ export default function HomePage() {
                 sizes="100vw"
                 className={`${styles.landingHeroImage} object-cover`}
               />
-              <div className={`${styles.landingHeroOverlay} ${styles.landingOverlayReveal} absolute inset-0`} />
+              <div
+                className={`${styles.landingHeroOverlay} ${styles.landingOverlayReveal} absolute inset-0`}
+              />
               <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-emerald-950/70 via-emerald-950/18 to-transparent" />
-              <div className={`${styles.landingHeroViewport} relative z-10 mx-auto flex w-full max-w-[1480px] items-center px-6 py-16 md:px-10 xl:px-14`}>
+              <div
+                className={`${styles.landingHeroViewport} relative z-10 mx-auto flex w-full max-w-[1480px] items-center px-6 py-16 md:px-10 xl:px-14`}
+              >
                 <div className="mx-auto max-w-[960px] space-y-6 text-center">
-                  <div className={`${styles.landingReveal} ${styles.landingHeroBadgeReveal} inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-100 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl`}>
+                  <div
+                    className={`${styles.landingReveal} ${styles.landingHeroBadgeReveal} inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-100 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl`}
+                  >
                     <FaCameraRetro className="size-3.5 text-emerald-300" />
                     Portal Absensi Citra Negara
                   </div>
 
                   <div className="space-y-4">
-                    <p className={`${styles.landingReveal} ${styles.landingHeroEyebrowReveal} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}>
+                    <p
+                      className={`${styles.landingReveal} ${styles.landingHeroEyebrowReveal} font-heading text-[1.25rem] font-semibold italic text-white/88 md:text-[1.6rem]`}
+                    >
                       Citra Negara Attendance System
                     </p>
-                    <h1 className={`${styles.landingReveal} ${styles.landingHeroTitleReveal} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}>
+                    <h1
+                      className={`${styles.landingReveal} ${styles.landingHeroTitleReveal} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}
+                    >
                       Satu langkah hadir,
-                      <span className={`${styles.landingHeroTitle} block`}>Satu sistem untuk semua</span>
+                      <span className={`${styles.landingHeroTitle} block`}>
+                        Satu sistem untuk semua
+                      </span>
                     </h1>
-                    <p className={`${styles.landingReveal} ${styles.landingHeroDescriptionReveal} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}>
-                      Satu sistem untuk absensi yang lebih tertib, pemantauan yang lebih cepat,
-                      dan pengelolaan data yang lebih mudah.
+                    <p
+                      className={`${styles.landingReveal} ${styles.landingHeroDescriptionReveal} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}
+                    >
+                      Satu sistem untuk absensi yang lebih tertib, pemantauan
+                      yang lebih cepat, dan pengelolaan data yang lebih mudah.
                     </p>
                   </div>
 
-                  <div className={`${styles.landingReveal} ${styles.landingHeroCtaReveal} flex justify-center`}>
+                  <div
+                    className={`${styles.landingReveal} ${styles.landingHeroCtaReveal} flex justify-center`}
+                  >
                     <Link
                       href="/login/student"
                       className={`${styles.landingCtaButton} group inline-flex h-14 items-center justify-center gap-3 rounded-full px-6 text-sm font-semibold transition hover:-translate-y-0.5 hover:bg-emerald-50`}
@@ -238,13 +276,14 @@ export default function HomePage() {
                       <FaArrowRight className="size-3.5 transition group-hover:translate-x-1" />
                     </Link>
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
 
-          <div className={`${styles.landingPageShell} mx-auto w-full max-w-[1480px] md:px-6 xl:px-10`}>
+          <div
+            className={`${styles.landingPageShell} mx-auto w-full max-w-[1480px] md:px-6 xl:px-10`}
+          >
             <div className="px-5 py-7 md:px-8 md:py-9 xl:px-10">
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
                 {highlightChips.map(({ label, icon: Icon }, index) => (
@@ -253,7 +292,9 @@ export default function HomePage() {
                     className={`${styles.landingChip} ${styles.landingReveal} flex items-center gap-2 px-4 py-3 text-sm font-medium`}
                     style={{ animationDelay: `${40 + index * 45}ms` }}
                   >
-                    <span className={`${styles.landingChipIcon} flex size-7 shrink-0 items-center justify-center rounded-full`}>
+                    <span
+                      className={`${styles.landingChipIcon} flex size-7 shrink-0 items-center justify-center rounded-full`}
+                    >
                       <Icon className="size-3.5" />
                     </span>
                     <span>{label}</span>
@@ -262,8 +303,12 @@ export default function HomePage() {
               </div>
 
               <div className="mt-9 grid items-center gap-8 lg:grid-cols-[0.82fr_1.18fr] xl:gap-12">
-                <div className={`${styles.landingRevealLeft} relative mx-auto w-full max-w-[420px]`}>
-                  <div className={`${styles.landingPanelImage} relative h-[320px] overflow-hidden`}>
+                <div
+                  className={`${styles.landingRevealLeft} relative mx-auto w-full max-w-[420px]`}
+                >
+                  <div
+                    className={`${styles.landingPanelImage} relative h-[320px] overflow-hidden`}
+                  >
                     <Image
                       src="/images/optimized/side-look-cn-panel.jpg"
                       alt="Area Sekolah Citra Negara"
@@ -271,27 +316,44 @@ export default function HomePage() {
                       sizes="(min-width: 1024px) 420px, 92vw"
                       className="object-cover object-left"
                     />
-                    <div className={`${styles.landingImageSoftOverlay} absolute inset-0`} />
+                    <div
+                      className={`${styles.landingImageSoftOverlay} absolute inset-0`}
+                    />
                   </div>
 
-                  <div className={`${styles.landingFloatCard} ${styles.landingFloatReveal} absolute bottom-5 right-[-6px] px-4 py-3`}>
+                  <div
+                    className={`${styles.landingFloatCard} ${styles.landingFloatReveal} absolute bottom-5 right-[-6px] px-4 py-3`}
+                  >
                     <div className="flex items-center gap-3">
-                      <span className={`${styles.landingAccentText} flex size-9 items-center justify-center rounded-full bg-emerald-50`}>
+                      <span
+                        className={`${styles.landingAccentText} flex size-9 items-center justify-center rounded-full bg-emerald-50`}
+                      >
                         <FaSchool className="size-4" />
                       </span>
                       <div>
-                        <p className={`${styles.landingAccentStrong} text-sm font-bold`}>Sekolah</p>
-                        <p className={`${styles.landingAccentStrong} text-sm font-bold`}>Unggulan</p>
+                        <p
+                          className={`${styles.landingAccentStrong} text-sm font-bold`}
+                        >
+                          Sekolah
+                        </p>
+                        <p
+                          className={`${styles.landingAccentStrong} text-sm font-bold`}
+                        >
+                          Unggulan
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className={`${styles.landingRevealRight} min-w-0 w-full space-y-5`}>
+                <div
+                  className={`${styles.landingRevealRight} min-w-0 w-full space-y-5`}
+                >
                   <div className="space-y-3">
-                    <h2 className={`${styles.landingInkText} w-full max-w-full overflow-visible break-words whitespace-normal font-heading text-[clamp(1.5rem,7.4vw,1.875rem)] font-bold leading-[1.12] tracking-tight [text-wrap:balance] md:text-[2.8rem]`}>
-                      Keistimewaan Website
-                      Absensi Sekolah Citra Negara
+                    <h2
+                      className={`${styles.landingInkText} w-full max-w-full overflow-visible break-words whitespace-normal font-heading text-[clamp(1.5rem,7.4vw,1.875rem)] font-bold leading-[1.12] tracking-tight [text-wrap:balance] md:text-[2.8rem]`}
+                    >
+                      Keistimewaan Website Absensi Sekolah Citra Negara
                     </h2>
                   </div>
 
@@ -302,7 +364,9 @@ export default function HomePage() {
                         className={`${styles.landingReveal} flex items-start gap-3`}
                         style={{ animationDelay: `${60 + index * 55}ms` }}
                       >
-                        <span className={`${styles.landingAccentText} mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-50`}>
+                        <span
+                          className={`${styles.landingAccentText} mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-50`}
+                        >
                           {index === 0 ? (
                             <FaHeartbeat className="size-4" />
                           ) : index === 1 ? (
@@ -313,7 +377,9 @@ export default function HomePage() {
                             <FaCheckCircle className="size-4" />
                           )}
                         </span>
-                        <p className={`${styles.landingMutedText} pt-1 text-base font-medium md:text-lg`}>
+                        <p
+                          className={`${styles.landingMutedText} pt-1 text-base font-medium md:text-lg`}
+                        >
                           {point}
                         </p>
                       </div>
@@ -333,21 +399,46 @@ export default function HomePage() {
                   className={`${styles.landingStepsIntroReveal} flex w-full flex-col justify-center`}
                   data-reveal-threshold="0.2"
                 >
-                  <div className={`${styles.landingMajorBadge} inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em]`}>
+                  <div
+                    className={`${styles.landingMajorBadge} inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em]`}
+                  >
                     <FaCameraRetro className="size-3" />
                     Panduan siswa
                   </div>
-                  <h2 id="attendance-steps-title" className={`${styles.landingInkText} mt-5 w-full max-w-none whitespace-nowrap font-heading text-[1.95rem] font-bold leading-[1.08] tracking-[-0.055em] md:max-w-[480px] md:whitespace-normal md:text-[3.35rem]`}>
+                  <h2
+                    id="attendance-steps-title"
+                    className={`${styles.landingInkText} mt-5 w-full max-w-none whitespace-nowrap font-heading text-[1.95rem] font-bold leading-[1.08] tracking-[-0.055em] md:max-w-[480px] md:whitespace-normal md:text-[3.35rem]`}
+                  >
                     Absen masuk
-                    <span className={`${styles.landingHeroTitle} inline md:block`}> tanpa ragu.</span>
+                    <span
+                      className={`${styles.landingHeroTitle} inline md:block`}
+                    >
+                      {" "}
+                      tanpa ragu.
+                    </span>
                   </h2>
-                  <p className={`${styles.landingMutedText} mt-5 w-full max-w-none text-sm leading-7 md:max-w-[430px] md:text-base`}>
-                    Ikuti alur singkat ini agar bukti, lokasi, dan status kehadiranmu tercatat dengan jelas di sistem sekolah.
+                  <p
+                    className={`${styles.landingMutedText} mt-5 w-full max-w-none text-sm leading-7 md:max-w-[430px] md:text-base`}
+                  >
+                    Ikuti alur singkat ini agar bukti, lokasi, dan status
+                    kehadiranmu tercatat dengan jelas di sistem sekolah.
                   </p>
-                  <div className={`${styles.landingStepsDetail} mt-8 flex w-full max-w-none items-start gap-3 px-4 py-3 md:max-w-[440px]`}>
-                    <FaMapMarkerAlt className={`${styles.landingStepIcon} mt-0.5 size-4 shrink-0`} />
-                    <p className={`${styles.landingMutedText} text-xs leading-5`}>
-                      <span className={`${styles.landingInkText} font-semibold`}>Lokasi dan bukti tercatat.</span> Pastikan izin kamera serta lokasi aktif sebelum mengirim absensi.
+                  <div
+                    className={`${styles.landingStepsDetail} mt-8 flex w-full max-w-none items-start gap-3 px-4 py-3 md:max-w-[440px]`}
+                  >
+                    <FaMapMarkerAlt
+                      className={`${styles.landingStepIcon} mt-0.5 size-4 shrink-0`}
+                    />
+                    <p
+                      className={`${styles.landingMutedText} text-xs leading-5`}
+                    >
+                      <span
+                        className={`${styles.landingInkText} font-semibold`}
+                      >
+                        Lokasi dan bukti tercatat.
+                      </span>{" "}
+                      Pastikan izin kamera serta lokasi aktif sebelum mengirim
+                      absensi.
                     </p>
                   </div>
                 </div>
@@ -368,13 +459,29 @@ export default function HomePage() {
                           data-reveal-threshold="0.25"
                           style={{ animationDelay: `${140 + index * 90}ms` }}
                         >
-                          <span className={`${styles.landingStepNumber} flex size-11 shrink-0 items-center justify-center rounded-2xl transition duration-300`}>
+                          <span
+                            className={`${styles.landingStepNumber} flex size-11 shrink-0 items-center justify-center rounded-2xl transition duration-300`}
+                          >
                             <StepIcon className="size-5" />
                           </span>
                           <span className="min-w-0 flex-1">
-                            <span className={`${styles.landingStepEyebrow} block text-[10px] font-bold uppercase tracking-[0.2em]`}>0{index + 1} <span className="mx-1 opacity-40">/</span> {step.eyebrow.split(" / ")[1]}</span>
-                            <span className={`${styles.landingStepTitle} mt-2 block font-heading text-xl font-bold tracking-tight md:text-2xl`}>{step.title}</span>
-                            <span className={`${styles.landingStepDescription} mt-1 block max-w-[570px] text-xs leading-6 md:text-sm`}>{step.description}</span>
+                            <span
+                              className={`${styles.landingStepEyebrow} block text-[10px] font-bold uppercase tracking-[0.2em]`}
+                            >
+                              0{index + 1}{" "}
+                              <span className="mx-1 opacity-40">/</span>{" "}
+                              {step.eyebrow.split(" / ")[1]}
+                            </span>
+                            <span
+                              className={`${styles.landingStepTitle} mt-2 block font-heading text-xl font-bold tracking-tight md:text-2xl`}
+                            >
+                              {step.title}
+                            </span>
+                            <span
+                              className={`${styles.landingStepDescription} mt-1 block max-w-[570px] text-xs leading-6 md:text-sm`}
+                            >
+                              {step.description}
+                            </span>
                           </span>
                         </div>
                       );
@@ -390,67 +497,92 @@ export default function HomePage() {
                 data-reveal-threshold="0.16"
                 style={{ animationDelay: "100ms", animationDuration: "1000ms" }}
               >
-                <div className={`${styles.landingMajorBadge} inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}>
+                <div
+                  className={`${styles.landingMajorBadge} inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}
+                >
                   <FaStar className="size-3.5" />
                   Jurusan Unggulan
                 </div>
-                <h2 className={`${styles.landingInkText} mt-4 text-[1.75rem] font-bold tracking-tight md:text-[2.25rem]`}>
+                <h2
+                  className={`${styles.landingInkText} mt-4 text-[1.75rem] font-bold tracking-tight md:text-[2.25rem]`}
+                >
                   Jurusan yang Terpantau Sistem
                 </h2>
-                <p className={`${styles.landingMutedText} mx-auto mt-3 max-w-[620px] text-sm leading-7 md:text-base`}>
-                  Setiap jurusan terhubung dalam satu sistem absensi yang praktis dan informatif.
+                <p
+                  className={`${styles.landingMutedText} mx-auto mt-3 max-w-[620px] text-sm leading-7 md:text-base`}
+                >
+                  Setiap jurusan terhubung dalam satu sistem absensi yang
+                  praktis dan informatif.
                 </p>
               </div>
 
               <div className="mx-auto mt-10 grid max-w-[1280px] gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-                {majors.map((major, index) => (
+                {majors.map((major, index) =>
                   (() => {
-                    const MajorIcon = majorIcons[major.name as keyof typeof majorIcons] as IconType;
-                    const majorImage = majorImages[major.name as keyof typeof majorImages];
+                    const MajorIcon = majorIcons[
+                      major.name as keyof typeof majorIcons
+                    ] as IconType;
+                    const majorImage =
+                      majorImages[major.name as keyof typeof majorImages];
                     const majorImagePosition =
-                      majorImagePositions[major.name as keyof typeof majorImagePositions];
+                      majorImagePositions[
+                        major.name as keyof typeof majorImagePositions
+                      ];
 
                     return (
-                  <article
-                    key={major.name}
-                    className={`${styles.landingMajorCard} ${styles.landingReveal} group relative mx-auto w-full max-w-[310px] overflow-hidden transition duration-500 hover:-translate-y-2`}
-                    style={{ animationDelay: `${260 + index * 80}ms`, animationDuration: "650ms" }}
-                  >
-                    <div className="relative h-[340px]">
-                      <Image
-                        src={majorImage}
-                        alt={`Jurusan ${major.name} di Sekolah Citra Negara`}
-                        fill
-                        sizes="(min-width: 1024px) 310px, (min-width: 640px) 45vw, 86vw"
-                        className={`object-cover ${majorImagePosition} transition duration-700 group-hover:scale-110 group-hover:rotate-[0.6deg]`}
-                      />
-                      <div className={`${styles.landingMajorOverlay} absolute inset-0`} />
-                      <div className="absolute inset-x-0 top-0 p-4">
-                        <div className="flex items-center justify-between">
-                          <span className={`${styles.landingMajorTopBadge} inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em]`}>
-                            {major.label}
-                          </span>
-                          <span className={`${styles.landingMajorIconBadge} inline-flex size-10 items-center justify-center rounded-full transition duration-300 group-hover:bg-emerald-500/85`}>
-                            <MajorIcon className="size-4" />
-                          </span>
+                      <article
+                        key={major.name}
+                        className={`${styles.landingMajorCard} ${styles.landingReveal} group relative mx-auto w-full max-w-[310px] overflow-hidden transition duration-500 hover:-translate-y-2`}
+                        style={{
+                          animationDelay: `${260 + index * 80}ms`,
+                          animationDuration: "650ms",
+                        }}
+                      >
+                        <div className="relative h-[340px]">
+                          <Image
+                            src={majorImage}
+                            alt={`Jurusan ${major.name} di Sekolah Citra Negara`}
+                            fill
+                            sizes="(min-width: 1024px) 310px, (min-width: 640px) 45vw, 86vw"
+                            className={`object-cover ${majorImagePosition} transition duration-700 group-hover:scale-110 group-hover:rotate-[0.6deg]`}
+                          />
+                          <div
+                            className={`${styles.landingMajorOverlay} absolute inset-0`}
+                          />
+                          <div className="absolute inset-x-0 top-0 p-4">
+                            <div className="flex items-center justify-between">
+                              <span
+                                className={`${styles.landingMajorTopBadge} inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em]`}
+                              >
+                                {major.label}
+                              </span>
+                              <span
+                                className={`${styles.landingMajorIconBadge} inline-flex size-10 items-center justify-center rounded-full transition duration-300 group-hover:bg-emerald-500/85`}
+                              >
+                                <MajorIcon className="size-4" />
+                              </span>
+                            </div>
+                          </div>
+                          <div className="absolute inset-x-0 bottom-0 p-4">
+                            <div
+                              className={`${styles.landingMajorPanel} px-5 py-4`}
+                            >
+                              <p className="text-left text-[1.28rem] font-semibold tracking-tight text-white">
+                                {major.name}
+                              </p>
+                              <p className="mt-1 text-left text-[12px] leading-6 text-white/72">
+                                {major.detail}
+                              </p>
+                            </div>
+                          </div>
+                          <div
+                            className={`${styles.landingMajorDivider} pointer-events-none absolute inset-x-6 bottom-[92px] h-px`}
+                          />
                         </div>
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <div className={`${styles.landingMajorPanel} px-5 py-4`}>
-                          <p className="text-left text-[1.28rem] font-semibold tracking-tight text-white">
-                            {major.name}
-                          </p>
-                          <p className="mt-1 text-left text-[12px] leading-6 text-white/72">
-                            {major.detail}
-                          </p>
-                        </div>
-                      </div>
-                      <div className={`${styles.landingMajorDivider} pointer-events-none absolute inset-x-6 bottom-[92px] h-px`} />
-                    </div>
-                  </article>
+                      </article>
                     );
-                  })()
-                ))}
+                  })(),
+                )}
               </div>
             </div>
 
@@ -464,11 +596,19 @@ export default function HomePage() {
                 <div className="absolute bottom-[-90px] left-[46%] h-[220px] w-[220px] rounded-full bg-teal-200/10 blur-3xl" />
 
                 <div className="relative grid items-center gap-8 lg:grid-cols-[0.86fr_1.14fr]">
-                  <div className={`${styles.landingRevealLeft} relative mx-auto w-full max-w-[390px]`}>
-                    <div className={`${styles.landingCtaImageFrame} absolute -left-4 -top-4 h-24 w-24 rounded-[28px]`} />
-                    <div className={`${styles.landingCtaImageFrame} absolute -bottom-4 -right-4 h-24 w-24 rounded-[28px]`} />
+                  <div
+                    className={`${styles.landingRevealLeft} relative mx-auto w-full max-w-[390px]`}
+                  >
+                    <div
+                      className={`${styles.landingCtaImageFrame} absolute -left-4 -top-4 h-24 w-24 rounded-[28px]`}
+                    />
+                    <div
+                      className={`${styles.landingCtaImageFrame} absolute -bottom-4 -right-4 h-24 w-24 rounded-[28px]`}
+                    />
                     <div className="absolute -bottom-5 -right-5 h-28 w-28 rounded-full bg-emerald-300/18 blur-2xl" />
-                    <div className={`${styles.landingCtaImage} relative h-[220px] overflow-hidden md:h-[278px]`}>
+                    <div
+                      className={`${styles.landingCtaImage} relative h-[220px] overflow-hidden md:h-[278px]`}
+                    >
                       <Image
                         src="/images/optimized/coridor-cn-panel.jpg"
                         alt="Area sekolah untuk akses aplikasi absensi"
@@ -476,23 +616,34 @@ export default function HomePage() {
                         sizes="(min-width: 1024px) 390px, 92vw"
                         className="object-cover object-center transition duration-700 hover:scale-105"
                       />
-                      <div className={`${styles.landingCtaImageOverlay} absolute inset-0`} />
+                      <div
+                        className={`${styles.landingCtaImageOverlay} absolute inset-0`}
+                      />
                     </div>
                   </div>
 
                   <div className="relative mx-auto w-full max-w-[260px] text-center sm:mx-0 sm:max-w-[640px] sm:text-left">
-                    <div className={`${styles.landingReveal} ${styles.landingCtaBadgeReveal} ${styles.landingCtaBadge} inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}>
+                    <div
+                      className={`${styles.landingReveal} ${styles.landingCtaBadgeReveal} ${styles.landingCtaBadge} inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em]`}
+                    >
                       Portal Absensi
                     </div>
-                    <h2 className={`${styles.landingReveal} ${styles.landingCtaTitleReveal} mx-auto mt-5 max-w-[580px] text-[1.7rem] font-bold leading-[1.06] tracking-tight text-white sm:mx-0 sm:text-[2rem] md:text-[3.2rem]`}>
+                    <h2
+                      className={`${styles.landingReveal} ${styles.landingCtaTitleReveal} mx-auto mt-5 max-w-[580px] text-[1.7rem] font-bold leading-[1.06] tracking-tight text-white sm:mx-0 sm:text-[2rem] md:text-[3.2rem]`}
+                    >
                       Lakukan Absensi Siswa Di Sini
                     </h2>
-                    <p className={`${styles.landingReveal} ${styles.landingCtaDescriptionReveal} mx-auto mt-4 max-w-[500px] text-sm leading-7 text-white/80 sm:mx-0 md:text-base`}>
+                    <p
+                      className={`${styles.landingReveal} ${styles.landingCtaDescriptionReveal} mx-auto mt-4 max-w-[500px] text-sm leading-7 text-white/80 sm:mx-0 md:text-base`}
+                    >
                       Silahkan login untuk melakukan tugas sesuai keinginan Anda
-                      dengan pengalaman yang lebih cepat, rapi, dan terintegrasi.
+                      dengan pengalaman yang lebih cepat, rapi, dan
+                      terintegrasi.
                     </p>
 
-                    <div className={`${styles.landingReveal} ${styles.landingCtaActionsReveal} mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-start`}>
+                    <div
+                      className={`${styles.landingReveal} ${styles.landingCtaActionsReveal} mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-start`}
+                    >
                       <Link
                         href="/login/student"
                         className={`${styles.landingCtaButton} group inline-flex h-14 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-0 text-sm font-semibold transition hover:-translate-y-0.5`}
@@ -500,8 +651,12 @@ export default function HomePage() {
                         Masuk Siswa
                         <FaArrowRight className="size-4 transition group-hover:translate-x-0.5" />
                       </Link>
-                      <div className={`${styles.landingCtaPill} hidden h-14 w-full max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-0 text-sm sm:inline-flex sm:w-fit`}>
-                        <span className={`${styles.landingCtaPillIcon} flex size-8 items-center justify-center rounded-full`}>
+                      <div
+                        className={`${styles.landingCtaPill} hidden h-14 w-full max-w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-0 text-sm sm:inline-flex sm:w-fit`}
+                      >
+                        <span
+                          className={`${styles.landingCtaPillIcon} flex size-8 items-center justify-center rounded-full`}
+                        >
                           <FaCheckCircle className="size-4" />
                         </span>
                         Siap untuk siswa, walas, BK, dan admin
@@ -515,14 +670,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className={`${styles.landingFooterShell} relative mt-10 overflow-hidden px-4 pb-8 pt-10 text-white sm:px-6 md:px-8 md:pb-10 md:pt-10`}>
+      <footer
+        className={`${styles.landingFooterShell} relative mt-10 overflow-hidden px-4 pb-8 pt-10 text-white sm:px-6 md:px-8 md:pb-10 md:pt-10`}
+      >
         <div className="absolute left-[8%] top-12 h-24 w-24 rounded-full bg-emerald-400/10 blur-3xl" />
         <div className="absolute right-[10%] top-16 h-28 w-28 rounded-full bg-teal-300/8 blur-3xl" />
         <div className="mx-auto max-w-[1480px]">
           <div
             className={`${styles.landingFooterGlass} grid min-w-0 max-w-full gap-8 overflow-hidden rounded-[28px] px-6 py-8 sm:px-8 sm:py-10 md:rounded-b-[36px] lg:grid-cols-[1.1fr_0.9fr_0.8fr] lg:items-start`}
           >
-            <div className={styles.landingReveal} data-reveal-threshold="0.12" style={{ animationDelay: "0ms", animationDuration: "650ms" }}>
+            <div
+              className={styles.landingReveal}
+              data-reveal-threshold="0.12"
+              style={{ animationDelay: "0ms", animationDuration: "650ms" }}
+            >
               <div className="inline-flex items-center gap-3">
                 <div className="flex size-14 shrink-0 items-center justify-center sm:size-16">
                   <Image
@@ -534,7 +695,9 @@ export default function HomePage() {
                   />
                 </div>
                 <div>
-                  <p className={`${styles.landingFooterKicker} text-[10px] font-semibold uppercase tracking-[0.26em] sm:text-xs sm:tracking-[0.28em]`}>
+                  <p
+                    className={`${styles.landingFooterKicker} text-[10px] font-semibold uppercase tracking-[0.26em] sm:text-xs sm:tracking-[0.28em]`}
+                  >
                     Absensi Siswa
                   </p>
                   <h3 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">
@@ -548,8 +711,14 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className={styles.landingReveal} data-reveal-threshold="0.12" style={{ animationDelay: "90ms", animationDuration: "650ms" }}>
-              <p className={`${styles.landingFooterKicker} text-xs font-semibold uppercase tracking-[0.24em] sm:text-sm`}>
+            <div
+              className={styles.landingReveal}
+              data-reveal-threshold="0.12"
+              style={{ animationDelay: "90ms", animationDuration: "650ms" }}
+            >
+              <p
+                className={`${styles.landingFooterKicker} text-xs font-semibold uppercase tracking-[0.24em] sm:text-sm`}
+              >
                 Nilai Utama
               </p>
               <div className="mt-5 grid gap-3">
@@ -558,8 +727,13 @@ export default function HomePage() {
                   "Siap dipakai multi peran sekolah",
                   "Desain bersih, cepat, dan terintegrasi",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 text-sm text-white/72">
-                    <span className={`${styles.landingFooterCheck} flex size-6 shrink-0 items-center justify-center rounded-full`}>
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 text-sm text-white/72"
+                  >
+                    <span
+                      className={`${styles.landingFooterCheck} flex size-6 shrink-0 items-center justify-center rounded-full`}
+                    >
                       <FaCheckCircle className="size-3.5" />
                     </span>
                     <span>{item}</span>
@@ -568,8 +742,14 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className={styles.landingReveal} data-reveal-threshold="0.12" style={{ animationDelay: "180ms", animationDuration: "650ms" }}>
-              <p className={`${styles.landingFooterKicker} text-xs font-semibold uppercase tracking-[0.24em] sm:text-sm`}>
+            <div
+              className={styles.landingReveal}
+              data-reveal-threshold="0.12"
+              style={{ animationDelay: "180ms", animationDuration: "650ms" }}
+            >
+              <p
+                className={`${styles.landingFooterKicker} text-xs font-semibold uppercase tracking-[0.24em] sm:text-sm`}
+              >
                 Hubungi
               </p>
               <div className="mt-5 flex items-center gap-3">
@@ -579,7 +759,11 @@ export default function HomePage() {
                     href={href}
                     aria-label={label}
                     target={href.startsWith("http") ? "_blank" : undefined}
-                    rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    rel={
+                      href.startsWith("http")
+                        ? "noopener noreferrer"
+                        : undefined
+                    }
                     className={`${styles.landingFooterContact} inline-flex size-11 items-center justify-center rounded-2xl transition hover:-translate-y-0.5`}
                   >
                     <Icon className="size-4.5" />
@@ -599,7 +783,10 @@ export default function HomePage() {
             data-reveal-threshold="0.08"
             style={{ animationDelay: "270ms", animationDuration: "750ms" }}
           >
-            <p>Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.</p>
+            <p>
+              Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi
+              Membumi · All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

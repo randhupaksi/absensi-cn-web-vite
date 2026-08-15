@@ -45,25 +45,38 @@ type ApiEnvelope<T> = {
 
 export async function getAdminSchoolHolidays() {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminSchoolHoliday[]>>("/admin/school-holidays");
+    const response = await apiClient.get<ApiEnvelope<AdminSchoolHoliday[]>>(
+      "/admin/school-holidays",
+    );
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function createAdminSchoolHoliday(payload: AdminSchoolHolidayPayload) {
+export async function createAdminSchoolHoliday(
+  payload: AdminSchoolHolidayPayload,
+) {
   try {
-    const response = await apiClient.post<ApiEnvelope<AdminSchoolHoliday>>("/admin/school-holidays", payload);
+    const response = await apiClient.post<ApiEnvelope<AdminSchoolHoliday>>(
+      "/admin/school-holidays",
+      payload,
+    );
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function updateAdminSchoolHoliday(id: string, payload: AdminSchoolHolidayPayload) {
+export async function updateAdminSchoolHoliday(
+  id: string,
+  payload: AdminSchoolHolidayPayload,
+) {
   try {
-    const response = await apiClient.patch<ApiEnvelope<AdminSchoolHoliday>>(`/admin/school-holidays/${id}`, payload);
+    const response = await apiClient.patch<ApiEnvelope<AdminSchoolHoliday>>(
+      `/admin/school-holidays/${id}`,
+      payload,
+    );
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -97,7 +110,8 @@ export async function getAdminDashboard() {
 
 export async function getAdminUsers() {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminUser[]>>("/admin/users");
+    const response =
+      await apiClient.get<ApiEnvelope<AdminUser[]>>("/admin/users");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -115,12 +129,13 @@ export async function getAdminTeacherProfiles() {
   }
 }
 
-export async function getAdminTeacherSubjectAssignments(params: Record<string, string> = {}) {
+export async function getAdminTeacherSubjectAssignments(
+  params: Record<string, string> = {},
+) {
   try {
-    const response =
-      await apiClient.get<ApiEnvelope<AdminTeacherSubjectAssignment[]>>(
-        "/admin/teacher-subject-assignments", { params },
-      );
+    const response = await apiClient.get<
+      ApiEnvelope<AdminTeacherSubjectAssignment[]>
+    >("/admin/teacher-subject-assignments", { params });
     return response.data.data.map(withNormalizedSchedules);
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -130,25 +145,30 @@ export async function getAdminTeacherSubjectAssignments(params: Record<string, s
 // Backend returns `schedules: null` (not `[]`) for assignments with no schedule
 // slots yet, since it serializes a nil Go slice. Normalize here so callers can
 // safely rely on the declared `AdminTeacherSubjectAssignment.schedules` array type.
-function withNormalizedSchedules(assignment: AdminTeacherSubjectAssignment): AdminTeacherSubjectAssignment {
+function withNormalizedSchedules(
+  assignment: AdminTeacherSubjectAssignment,
+): AdminTeacherSubjectAssignment {
   return { ...assignment, schedules: assignment.schedules ?? [] };
 }
 
 export async function getAdminHomeroomAssignments() {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminHomeroomAssignment[]>>(
-      "/admin/homeroom-assignments",
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<AdminHomeroomAssignment[]>
+    >("/admin/homeroom-assignments");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function getAdminSubjects(params: { scope?: string; major_id?: string } = {}) {
+export async function getAdminSubjects(
+  params: { scope?: string; major_id?: string } = {},
+) {
   try {
     const response = await apiClient.get<ApiEnvelope<AdminSubject[]>>(
-      "/admin/subjects", { params },
+      "/admin/subjects",
+      { params },
     );
     return response.data.data;
   } catch (error) {
@@ -156,12 +176,13 @@ export async function getAdminSubjects(params: { scope?: string; major_id?: stri
   }
 }
 
-export async function getAdminSubjectSchedules(filters: AdminSubjectScheduleFilters = {}) {
+export async function getAdminSubjectSchedules(
+  filters: AdminSubjectScheduleFilters = {},
+) {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminSubjectScheduleOverview[]>>(
-      "/admin/subject-schedules",
-      { params: filters },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<AdminSubjectScheduleOverview[]>
+    >("/admin/subject-schedules", { params: filters });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -180,7 +201,10 @@ export async function createAdminSubject(payload: AdminSubjectPayload) {
   }
 }
 
-export async function updateAdminSubject(id: string, payload: AdminSubjectPayload) {
+export async function updateAdminSubject(
+  id: string,
+  payload: AdminSubjectPayload,
+) {
   try {
     const response = await apiClient.patch<ApiEnvelope<AdminSubject>>(
       `/admin/subjects/${id}`,
@@ -200,10 +224,13 @@ export async function deleteAdminSubject(id: string) {
   }
 }
 
-export async function getAdminMajors(params: { school_unit_id?: string; program_type?: string } = {}) {
+export async function getAdminMajors(
+  params: { school_unit_id?: string; program_type?: string } = {},
+) {
   try {
     const response = await apiClient.get<ApiEnvelope<AdminMajor[]>>(
-      "/admin/majors", { params },
+      "/admin/majors",
+      { params },
     );
     return response.data.data;
   } catch (error) {
@@ -211,10 +238,17 @@ export async function getAdminMajors(params: { school_unit_id?: string; program_
   }
 }
 
-export async function getAdminClasses(params: { school_unit_id?: string; major_id?: string; school_year_id?: string } = {}) {
+export async function getAdminClasses(
+  params: {
+    school_unit_id?: string;
+    major_id?: string;
+    school_year_id?: string;
+  } = {},
+) {
   try {
     const response = await apiClient.get<ApiEnvelope<AdminClass[]>>(
-      "/admin/classes", { params },
+      "/admin/classes",
+      { params },
     );
     return response.data.data;
   } catch (error) {
@@ -270,9 +304,8 @@ export async function getAdminSchoolYears() {
 
 export async function getAdminStudents() {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminStudent[]>>(
-      "/admin/students",
-    );
+    const response =
+      await apiClient.get<ApiEnvelope<AdminStudent[]>>("/admin/students");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -313,7 +346,9 @@ export async function createAdminUser(payload: AdminUserPayload) {
   }
 }
 
-export async function createAdminTeacherAccount(payload: AdminTeacherAccountPayload) {
+export async function createAdminTeacherAccount(
+  payload: AdminTeacherAccountPayload,
+) {
   try {
     const response = await apiClient.post<ApiEnvelope<AdminTeacherProfile>>(
       "/admin/teacher-accounts",
@@ -450,87 +485,158 @@ export async function deleteAdminTeacherSubjectAssignment(id: string) {
 
 export async function getAdminSchoolUnits() {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminSchoolUnit[]>>("/admin/school-units");
+    const response = await apiClient.get<ApiEnvelope<AdminSchoolUnit[]>>(
+      "/admin/school-units",
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function createAdminSchoolUnit(payload: AdminSchoolUnitPayload) {
   try {
-    const response = await apiClient.post<ApiEnvelope<AdminSchoolUnit>>("/admin/school-units", payload);
+    const response = await apiClient.post<ApiEnvelope<AdminSchoolUnit>>(
+      "/admin/school-units",
+      payload,
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
-export async function updateAdminSchoolUnit(id: string, payload: AdminSchoolUnitPayload) {
+export async function updateAdminSchoolUnit(
+  id: string,
+  payload: AdminSchoolUnitPayload,
+) {
   try {
-    const response = await apiClient.patch<ApiEnvelope<AdminSchoolUnit>>(`/admin/school-units/${id}`, payload);
+    const response = await apiClient.patch<ApiEnvelope<AdminSchoolUnit>>(
+      `/admin/school-units/${id}`,
+      payload,
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function deleteAdminSchoolUnit(id: string) {
-  try { await apiClient.delete(`/admin/school-units/${id}`); }
-  catch (error) { throw new Error(getErrorMessage(error)); }
+  try {
+    await apiClient.delete(`/admin/school-units/${id}`);
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function createAdminMajor(payload: AdminMajorPayload) {
   try {
-    const response = await apiClient.post<ApiEnvelope<AdminMajor>>("/admin/majors", payload);
+    const response = await apiClient.post<ApiEnvelope<AdminMajor>>(
+      "/admin/majors",
+      payload,
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function updateAdminMajor(id: string, payload: AdminMajorPayload) {
   try {
-    const response = await apiClient.patch<ApiEnvelope<AdminMajor>>(`/admin/majors/${id}`, payload);
+    const response = await apiClient.patch<ApiEnvelope<AdminMajor>>(
+      `/admin/majors/${id}`,
+      payload,
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function deleteAdminMajor(id: string) {
-  try { await apiClient.delete(`/admin/majors/${id}`); }
-  catch (error) { throw new Error(getErrorMessage(error)); }
+  try {
+    await apiClient.delete(`/admin/majors/${id}`);
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
-export async function getAdminScheduleOverrides(params: { schedule_id?: string } = {}) {
+export async function getAdminScheduleOverrides(
+  params: { schedule_id?: string } = {},
+) {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminScheduleOverride[]>>("/admin/schedule-overrides", { params });
+    const response = await apiClient.get<ApiEnvelope<AdminScheduleOverride[]>>(
+      "/admin/schedule-overrides",
+      { params },
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
-export async function createAdminScheduleOverride(payload: AdminScheduleOverridePayload) {
+export async function createAdminScheduleOverride(
+  payload: AdminScheduleOverridePayload,
+) {
   try {
-    const response = await apiClient.post<ApiEnvelope<AdminScheduleOverride>>("/admin/schedule-overrides", payload);
+    const response = await apiClient.post<ApiEnvelope<AdminScheduleOverride>>(
+      "/admin/schedule-overrides",
+      payload,
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
-export async function updateAdminScheduleOverride(id: string, payload: AdminScheduleOverridePayload) {
+export async function updateAdminScheduleOverride(
+  id: string,
+  payload: AdminScheduleOverridePayload,
+) {
   try {
-    const response = await apiClient.patch<ApiEnvelope<AdminScheduleOverride>>(`/admin/schedule-overrides/${id}`, payload);
+    const response = await apiClient.patch<ApiEnvelope<AdminScheduleOverride>>(
+      `/admin/schedule-overrides/${id}`,
+      payload,
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function deleteAdminScheduleOverride(id: string) {
-  try { await apiClient.delete(`/admin/schedule-overrides/${id}`); }
-  catch (error) { throw new Error(getErrorMessage(error)); }
+  try {
+    await apiClient.delete(`/admin/schedule-overrides/${id}`);
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function getAdminBKUnitScopes(userId?: string) {
   try {
-    const response = await apiClient.get<ApiEnvelope<AdminBKUnitScope[]>>("/admin/bk-unit-scopes", { params: userId ? { user_id: userId } : {} });
+    const response = await apiClient.get<ApiEnvelope<AdminBKUnitScope[]>>(
+      "/admin/bk-unit-scopes",
+      { params: userId ? { user_id: userId } : {} },
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
-export async function replaceAdminBKUnitScopes(userId: string, schoolUnitIds: string[]) {
+export async function replaceAdminBKUnitScopes(
+  userId: string,
+  schoolUnitIds: string[],
+) {
   try {
-    const response = await apiClient.put<ApiEnvelope<AdminBKUnitScope[]>>(`/admin/bk-unit-scopes/${userId}`, { school_unit_ids: schoolUnitIds });
+    const response = await apiClient.put<ApiEnvelope<AdminBKUnitScope[]>>(
+      `/admin/bk-unit-scopes/${userId}`,
+      { school_unit_ids: schoolUnitIds },
+    );
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function updateAdminHomeroomAssignment(
@@ -538,10 +644,9 @@ export async function updateAdminHomeroomAssignment(
   payload: AdminHomeroomAssignmentPayload,
 ) {
   try {
-    const response = await apiClient.patch<ApiEnvelope<AdminHomeroomAssignment>>(
-      `/admin/homeroom-assignments/${id}`,
-      payload,
-    );
+    const response = await apiClient.patch<
+      ApiEnvelope<AdminHomeroomAssignment>
+    >(`/admin/homeroom-assignments/${id}`, payload);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -556,7 +661,10 @@ export async function deleteAdminHomeroomAssignment(id: string) {
   }
 }
 
-export async function updateAdminStudent(id: string, payload: AdminStudentPayload) {
+export async function updateAdminStudent(
+  id: string,
+  payload: AdminStudentPayload,
+) {
   try {
     const response = await apiClient.patch<ApiEnvelope<AdminStudent>>(
       `/admin/students/${id}`,
@@ -626,7 +734,9 @@ export function downloadAdminImportTemplate(type: "guru" | "siswa") {
     .get(`/admin/import/template/${type}`, { responseType: "blob" })
     .then((response) => {
       const filename =
-        type === "guru" ? "template_import_guru.xlsx" : "template_import_siswa.xlsx";
+        type === "guru"
+          ? "template_import_guru.xlsx"
+          : "template_import_siswa.xlsx";
       downloadBlob(new Blob([response.data]), filename);
     })
     .catch((error) => {

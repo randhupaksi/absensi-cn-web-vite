@@ -19,7 +19,6 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 
 export function AdminStudentsPage() {
-
   const studentsQuery = useQuery({
     queryKey: ["admin-students"],
     queryFn: getAdminStudents,
@@ -42,8 +41,10 @@ export function AdminStudentsPage() {
   });
 
   const students: AdminStudent[] = studentsQuery.data ?? [];
-  const memberships: AdminStudentClassMembership[] = membershipsQuery.data ?? [];
-  const attendanceRules: AdminAttendanceRule[] = attendanceRulesQuery.data ?? [];
+  const memberships: AdminStudentClassMembership[] =
+    membershipsQuery.data ?? [];
+  const attendanceRules: AdminAttendanceRule[] =
+    attendanceRulesQuery.data ?? [];
   const classes: AdminClass[] = classesQuery.data ?? [];
   const schoolYears: AdminSchoolYear[] = schoolYearsQuery.data ?? [];
 

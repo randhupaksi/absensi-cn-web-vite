@@ -42,10 +42,9 @@ export async function login(payload: LoginSchema) {
 
 export async function changeInitialPassword(payload: ChangePasswordPayload) {
   try {
-    const response = await apiClient.post<ApiEnvelope<{ must_change_password: false }>>(
-      "/auth/change-password",
-      payload,
-    );
+    const response = await apiClient.post<
+      ApiEnvelope<{ must_change_password: false }>
+    >("/auth/change-password", payload);
     return response.data.data;
   } catch (error) {
     throw new Error(getUserErrorMessage(error, "login"));

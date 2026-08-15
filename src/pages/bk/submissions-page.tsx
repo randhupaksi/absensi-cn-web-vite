@@ -44,9 +44,16 @@ import {
 } from "@/components/modals/premium-modal";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { getBKSubmissionsOverview, reviewBKSubmission } from "@/services/staff.service";
+import {
+  getBKSubmissionsOverview,
+  reviewBKSubmission,
+} from "@/services/staff.service";
 import type { StaffSubmission } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -65,7 +72,10 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const BKPengajuanReportModal = dynamic(
-  () => import("@/features/reports/bk/submissions-report-modal").then((module) => module.BKPengajuanReportModal),
+  () =>
+    import("@/features/reports/bk/submissions-report-modal").then(
+      (module) => module.BKPengajuanReportModal,
+    ),
   { ssr: false },
 );
 
@@ -95,12 +105,22 @@ export function BKSubmissionsPage() {
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [typeFilter, setTypeFilter] = useState("Semua");
   const [classFilter, setClassFilter] = useState("Semua");
-  const [detailTarget, setDetailTarget] = useState<StaffSubmission | null>(null);
-  const [reviewTarget, setReviewTarget] = useState<StaffSubmission | null>(null);
+  const [detailTarget, setDetailTarget] = useState<StaffSubmission | null>(
+    null,
+  );
+  const [reviewTarget, setReviewTarget] = useState<StaffSubmission | null>(
+    null,
+  );
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const overviewQuery = useQuery({
-    queryKey: ["bk-submissions-overview", statusFilter, typeFilter, classFilter, debouncedQuery],
+    queryKey: [
+      "bk-submissions-overview",
+      statusFilter,
+      typeFilter,
+      classFilter,
+      debouncedQuery,
+    ],
     queryFn: () =>
       getBKSubmissionsOverview({
         status: statusFilter === "Semua" ? "" : statusFilter,
@@ -118,7 +138,9 @@ export function BKSubmissionsPage() {
     },
     onSuccess: () => {
       toast.success("Tanggapan pengajuan berhasil disimpan.");
-      void queryClient.invalidateQueries({ queryKey: ["bk-submissions-overview"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["bk-submissions-overview"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["bk-dashboard"] });
       setReviewTarget(null);
     },
@@ -134,7 +156,8 @@ export function BKSubmissionsPage() {
     with_attachment: 0,
   };
   const records = useMemo(() => overview?.records ?? [], [overview?.records]);
-  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
+  const { pageItems: pageRecords, pagination: recordsPagination } =
+    usePagination(records);
   const classes = overview?.classes ?? [];
 
   const kpiCards = [
@@ -181,7 +204,12 @@ export function BKSubmissionsPage() {
             <BkPageHero
               badge="Halaman Pengajuan BK"
               title="Pemantauan Pengajuan"
-              description={<>Tinjau izin dan sakit lintas kelas beserta bukti pendukungnya dari meja kerja BK.</>}
+              description={
+                <>
+                  Tinjau izin dan sakit lintas kelas beserta bukti pendukungnya
+                  dari meja kerja BK.
+                </>
+              }
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
             />
@@ -189,99 +217,188 @@ export function BKSubmissionsPage() {
             <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <div className="w-full sm:w-[220px]">
-                  <RadixSelectField value={classFilter} onValueChange={setClassFilter} options={classFilterOptions(classes)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." triggerClassName="h-14 rounded-[22px] pl-4" />
+                  <RadixSelectField
+                    value={classFilter}
+                    onValueChange={setClassFilter}
+                    options={classFilterOptions(classes)}
+                    placeholder="Pilih kelas"
+                    searchable
+                    searchPlaceholder="Cari kelas..."
+                    emptyText="Kelas tidak ditemukan."
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
                 </div>
                 <div className="w-full sm:w-[210px]">
-                  <RadixSelectField value={statusFilter} onValueChange={setStatusFilter} options={submissionStatusOptions} placeholder="Pilih status" triggerClassName="h-14 rounded-[22px] pl-4" />
+                  <RadixSelectField
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
+                    options={submissionStatusOptions}
+                    placeholder="Pilih status"
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
                 </div>
                 <div className="w-full sm:w-[210px]">
-                  <RadixSelectField value={typeFilter} onValueChange={setTypeFilter} options={submissionTypeOptions} placeholder="Pilih tipe" triggerClassName="h-14 rounded-[22px] pl-4" />
+                  <RadixSelectField
+                    value={typeFilter}
+                    onValueChange={setTypeFilter}
+                    options={submissionTypeOptions}
+                    placeholder="Pilih tipe"
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, alasan, tipe" />
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari siswa, NIS, alasan, tipe"
+                />
               </div>
             </div>
 
-            <div
-              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
-            >
+            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92">
               {overviewQuery.isLoading ? (
                 <TableSkeleton columns={7} />
               ) : overviewQuery.error ? (
                 <div className="p-5">
-                  <EmptyState icon={ShieldAlert} title="Pengajuan BK belum bisa dimuat" description={overviewQuery.error.message} />
+                  <EmptyState
+                    icon={ShieldAlert}
+                    title="Pengajuan BK belum bisa dimuat"
+                    description={overviewQuery.error.message}
+                  />
                 </div>
               ) : records.length === 0 ? (
                 <div className="p-5">
-                  <EmptyState icon={FileSearch} title="Belum ada pengajuan" description="Ubah filter untuk melihat pengajuan siswa lintas kelas." />
+                  <EmptyState
+                    icon={FileSearch}
+                    title="Belum ada pengajuan"
+                    description="Ubah filter untuk melihat pengajuan siswa lintas kelas."
+                  />
                 </div>
               ) : (
                 <>
-                <div className="hidden overflow-x-auto md:block">
-                  <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Pengajuan", "Kelas", "Waktu", "Status", "Lampiran", "Aksi"]} />
-                    <DataTableBody>
-                      {pageRecords.map((record) => (
-                        <DataTableRow key={record.id}>
-                          <DataTableCell>
-                            <p className="font-semibold text-slate-900">{record.student_name}</p>
-                            <p className="text-xs text-slate-500">{record.nis}</p>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <div className="space-y-2">
-                              <SubmissionTypePill type={record.type} />
-                              <p className="line-clamp-2 max-w-[280px] text-xs leading-5 text-slate-500">{record.reason}</p>
-                            </div>
-                          </DataTableCell>
-                          <DataTableCell>{record.class_name || "-"}</DataTableCell>
-                          <DataTableCell>{formatDateTime(record.created_at)}</DataTableCell>
-                          <DataTableCell className="text-center"><SubmissionStatusPill status={record.status} /></DataTableCell>
-                          <DataTableCell className="text-center">
-                            {record.attachment ? (
-                              <span className="text-xs font-medium text-emerald-700">Tersedia</span>
-                            ) : (
-                              <span className="text-xs text-slate-400">Tidak ada</span>
-                            )}
-                          </DataTableCell>
-                          <DataTableCell>
-                            <div className="flex items-center justify-center gap-2">
-                              <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
-                              <IconAction icon={PencilLine} onClick={() => setReviewTarget(record)} tone="sky" />
-                            </div>
-                          </DataTableCell>
-                        </DataTableRow>
-                      ))}
-                    </DataTableBody>
-                  </DataTable>
-                </div>
-                <MobileDataList>
-                  {pageRecords.map((record) => (
-                    <MobileDataCard key={record.id}>
-                      <MobileDataHeader
-                        title={record.student_name}
-                        subtitle={`${record.nis} - ${record.class_name || "-"}`}
-                        badge={<SubmissionStatusPill status={record.status} />}
+                  <div className="hidden overflow-x-auto md:block">
+                    <DataTable>
+                      <DataTableHeadRow
+                        labels={[
+                          "Siswa",
+                          "Pengajuan",
+                          "Kelas",
+                          "Waktu",
+                          "Status",
+                          "Lampiran",
+                          "Aksi",
+                        ]}
                       />
-                      <div className="mt-4 grid gap-3">
-                        <MobileDataField label="Tipe" value={<SubmissionTypePill type={record.type} />} />
-                        <MobileDataField label="Waktu" value={formatDateTime(record.created_at)} />
-                      </div>
-                      <MobileDataSection label="Alasan">
-                        <p className="text-sm leading-6 text-slate-600">{record.reason}</p>
-                      </MobileDataSection>
-                      <MobileDataFooter>
-                        {record.attachment ? <span className="px-2 text-xs font-medium text-emerald-700">Lampiran tersedia</span> : null}
-                        <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
-                        <IconAction icon={PencilLine} onClick={() => setReviewTarget(record)} tone="sky" />
-                      </MobileDataFooter>
-                    </MobileDataCard>
-                  ))}
-                </MobileDataList>
+                      <DataTableBody>
+                        {pageRecords.map((record) => (
+                          <DataTableRow key={record.id}>
+                            <DataTableCell>
+                              <p className="font-semibold text-slate-900">
+                                {record.student_name}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {record.nis}
+                              </p>
+                            </DataTableCell>
+                            <DataTableCell>
+                              <div className="space-y-2">
+                                <SubmissionTypePill type={record.type} />
+                                <p className="line-clamp-2 max-w-[280px] text-xs leading-5 text-slate-500">
+                                  {record.reason}
+                                </p>
+                              </div>
+                            </DataTableCell>
+                            <DataTableCell>
+                              {record.class_name || "-"}
+                            </DataTableCell>
+                            <DataTableCell>
+                              {formatDateTime(record.created_at)}
+                            </DataTableCell>
+                            <DataTableCell className="text-center">
+                              <SubmissionStatusPill status={record.status} />
+                            </DataTableCell>
+                            <DataTableCell className="text-center">
+                              {record.attachment ? (
+                                <span className="text-xs font-medium text-emerald-700">
+                                  Tersedia
+                                </span>
+                              ) : (
+                                <span className="text-xs text-slate-400">
+                                  Tidak ada
+                                </span>
+                              )}
+                            </DataTableCell>
+                            <DataTableCell>
+                              <div className="flex items-center justify-center gap-2">
+                                <IconAction
+                                  icon={Eye}
+                                  onClick={() => setDetailTarget(record)}
+                                  tone="emerald"
+                                />
+                                <IconAction
+                                  icon={PencilLine}
+                                  onClick={() => setReviewTarget(record)}
+                                  tone="sky"
+                                />
+                              </div>
+                            </DataTableCell>
+                          </DataTableRow>
+                        ))}
+                      </DataTableBody>
+                    </DataTable>
+                  </div>
+                  <MobileDataList>
+                    {pageRecords.map((record) => (
+                      <MobileDataCard key={record.id}>
+                        <MobileDataHeader
+                          title={record.student_name}
+                          subtitle={`${record.nis} - ${record.class_name || "-"}`}
+                          badge={
+                            <SubmissionStatusPill status={record.status} />
+                          }
+                        />
+                        <div className="mt-4 grid gap-3">
+                          <MobileDataField
+                            label="Tipe"
+                            value={<SubmissionTypePill type={record.type} />}
+                          />
+                          <MobileDataField
+                            label="Waktu"
+                            value={formatDateTime(record.created_at)}
+                          />
+                        </div>
+                        <MobileDataSection label="Alasan">
+                          <p className="text-sm leading-6 text-slate-600">
+                            {record.reason}
+                          </p>
+                        </MobileDataSection>
+                        <MobileDataFooter>
+                          {record.attachment ? (
+                            <span className="px-2 text-xs font-medium text-emerald-700">
+                              Lampiran tersedia
+                            </span>
+                          ) : null}
+                          <IconAction
+                            icon={Eye}
+                            onClick={() => setDetailTarget(record)}
+                            tone="emerald"
+                          />
+                          <IconAction
+                            icon={PencilLine}
+                            onClick={() => setReviewTarget(record)}
+                            tone="sky"
+                          />
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
                 </>
               )}
-              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+              {!overviewQuery.isLoading &&
+              !overviewQuery.error &&
+              records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
             </div>
@@ -295,7 +412,10 @@ export function BKSubmissionsPage() {
             />
           )}
 
-          <SubmissionDetailModal submission={detailTarget} onOpenChange={(open) => !open && setDetailTarget(null)} />
+          <SubmissionDetailModal
+            submission={detailTarget}
+            onOpenChange={(open) => !open && setDetailTarget(null)}
+          />
           {reviewTarget ? (
             <SubmissionReviewModal
               key={reviewTarget.id}
@@ -311,12 +431,20 @@ export function BKSubmissionsPage() {
   );
 }
 
-function SubmissionDetailModal({ submission, onOpenChange }: { submission: StaffSubmission | null; onOpenChange: (open: boolean) => void }) {
+function SubmissionDetailModal({
+  submission,
+  onOpenChange,
+}: {
+  submission: StaffSubmission | null;
+  onOpenChange: (open: boolean) => void;
+}) {
   return (
     <PremiumModal
       open={Boolean(submission)}
       onOpenChange={onOpenChange}
-      title={submission ? `Detail ${submission.student_name}` : "Detail Pengajuan"}
+      title={
+        submission ? `Detail ${submission.student_name}` : "Detail Pengajuan"
+      }
       description="Lihat alasan, lampiran, status, dan catatan review pengajuan siswa."
       icon={Eye}
       className="sm:!max-w-[920px]"
@@ -326,29 +454,49 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
           <div className="grid gap-4">
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-xl font-semibold tracking-normal text-slate-950">{submission.student_name}</h3>
+                <h3 className="text-xl font-semibold tracking-normal text-slate-950">
+                  {submission.student_name}
+                </h3>
                 <SubmissionStatusPill status={submission.status} />
                 <SubmissionTypePill type={submission.type} />
               </div>
-              <p className="mt-2 text-sm text-slate-500">{submission.nis} - {submission.class_name || "Kelas belum tersedia"}</p>
-              <p className="mt-2 text-sm text-slate-500">Dibuat {formatDateTime(submission.created_at)}</p>
+              <p className="mt-2 text-sm text-slate-500">
+                {submission.nis} -{" "}
+                {submission.class_name || "Kelas belum tersedia"}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Dibuat {formatDateTime(submission.created_at)}
+              </p>
             </div>
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-base font-semibold text-slate-900">Alasan Pengajuan</p>
+                <p className="text-base font-semibold text-slate-900">
+                  Alasan Pengajuan
+                </p>
                 <ClipboardCheck className="size-4.5 text-emerald-600" />
               </div>
-              <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{submission.reason}</p>
+              <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">
+                {submission.reason}
+              </p>
             </div>
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-base font-semibold text-slate-900">Catatan Tinjauan</p>
+                <p className="text-base font-semibold text-slate-900">
+                  Catatan Tinjauan
+                </p>
                 <ShieldCheck className="size-4.5 text-emerald-600" />
               </div>
               {submission.review_note ? (
-                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{submission.review_note}</p>
+                <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">
+                  {submission.review_note}
+                </p>
               ) : (
-                <EmptyState icon={ClipboardCheck} title="Belum ada catatan review" description="Catatan BK akan tampil setelah pengajuan ditinjau." compact />
+                <EmptyState
+                  icon={ClipboardCheck}
+                  title="Belum ada catatan review"
+                  description="Catatan BK akan tampil setelah pengajuan ditinjau."
+                  compact
+                />
               )}
             </div>
           </div>
@@ -356,7 +504,9 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
           <div className="grid gap-4">
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-base font-semibold text-slate-900">Lampiran</p>
+                <p className="text-base font-semibold text-slate-900">
+                  Lampiran
+                </p>
                 <FileImage className="size-4.5 text-emerald-600" />
               </div>
               {submission.attachment ? (
@@ -371,12 +521,22 @@ function SubmissionDetailModal({ submission, onOpenChange }: { submission: Staff
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-3 text-center text-sm text-slate-500">Pratinjau langsung hanya tersedia untuk gambar.</p>
+                  <p className="mt-3 text-center text-sm text-slate-500">
+                    Pratinjau langsung hanya tersedia untuk gambar.
+                  </p>
                 )
               ) : (
-                <EmptyState icon={FileImage} title="Tidak ada lampiran" description="Siswa belum mengunggah bukti pendukung." compact />
+                <EmptyState
+                  icon={FileImage}
+                  title="Tidak ada lampiran"
+                  description="Siswa belum mengunggah bukti pendukung."
+                  compact
+                />
               )}
-              <AttendanceLocationEvidence evidence={submission} className="mt-4" />
+              <AttendanceLocationEvidence
+                evidence={submission}
+                className="mt-4"
+              />
             </div>
           </div>
         </div>
@@ -396,14 +556,23 @@ function SubmissionReviewModal({
   onSubmit: (payload: { status: string; review_note: string }) => void;
   isPending: boolean;
 }) {
-  const [status, setStatus] = useState(normalizeSubmissionStatus(submission.status));
+  const [status, setStatus] = useState(
+    normalizeSubmissionStatus(submission.status),
+  );
   const [reviewNote, setReviewNote] = useState(submission.review_note || "");
-  const [errors, setErrors] = useState<FieldErrors<"status" | "review_note">>({});
+  const [errors, setErrors] = useState<FieldErrors<"status" | "review_note">>(
+    {},
+  );
 
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "review_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
-    validateRequired(nextErrors, "review_note", reviewNote, "Catatan tanggapan");
+    validateRequired(
+      nextErrors,
+      "review_note",
+      reviewNote,
+      "Catatan tanggapan",
+    );
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
     onSubmit({ status, review_note: reviewNote });
@@ -413,45 +582,92 @@ function SubmissionReviewModal({
     <PremiumModal
       open
       onOpenChange={onOpenChange}
-      title={submission ? `Tinjau ${submission.student_name}` : "Tinjau Pengajuan"}
+      title={
+        submission ? `Tinjau ${submission.student_name}` : "Tinjau Pengajuan"
+      }
       description="Berikan keputusan dan tanggapan BK untuk pengajuan siswa."
       icon={PencilLine}
       className="sm:!max-w-[760px]"
     >
       <div className="grid gap-5">
-          <div className={`${premiumModalSurfaceClassName} p-4`}>
-            <p className="text-base font-semibold text-slate-900">{submission.student_name}</p>
-            <p className="mt-1 text-sm text-slate-500">{submission.nis} - {submission.class_name || "-"}</p>
-          </div>
-          <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Status final</label>
-            <RadixSelectField value={status} onValueChange={setStatus} options={reviewStatusOptions} placeholder="Pilih status akhir" triggerClassName="h-12 rounded-[18px]" />
-            <FieldError message={errors.status} />
-          </div>
-          <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Catatan tanggapan</label>
-            <p className={premiumModalHelperClassName}>Catatan ini tersimpan di riwayat review pengajuan siswa.</p>
-            <Textarea value={reviewNote} onChange={(event) => setReviewNote(event.target.value)} placeholder="Tulis tanggapan BK" className="min-h-[140px] rounded-[20px]" />
-            <FieldError message={errors.review_note} />
-          </div>
-          <div className={premiumModalActionsClassName}>
-            <Button type="button" variant="outline" className="h-12 rounded-[18px] px-5" onClick={() => onOpenChange(false)}>Batal</Button>
-            <Button type="button" className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white hover:bg-emerald-800" disabled={isPending} onClick={handleSubmit}>
-              {isPending ? "Menyimpan..." : "Simpan Tanggapan"}
-            </Button>
-          </div>
+        <div className={`${premiumModalSurfaceClassName} p-4`}>
+          <p className="text-base font-semibold text-slate-900">
+            {submission.student_name}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {submission.nis} - {submission.class_name || "-"}
+          </p>
+        </div>
+        <div className={premiumModalFieldClassName}>
+          <label className={premiumModalLabelClassName}>Status final</label>
+          <RadixSelectField
+            value={status}
+            onValueChange={setStatus}
+            options={reviewStatusOptions}
+            placeholder="Pilih status akhir"
+            triggerClassName="h-12 rounded-[18px]"
+          />
+          <FieldError message={errors.status} />
+        </div>
+        <div className={premiumModalFieldClassName}>
+          <label className={premiumModalLabelClassName}>
+            Catatan tanggapan
+          </label>
+          <p className={premiumModalHelperClassName}>
+            Catatan ini tersimpan di riwayat review pengajuan siswa.
+          </p>
+          <Textarea
+            value={reviewNote}
+            onChange={(event) => setReviewNote(event.target.value)}
+            placeholder="Tulis tanggapan BK"
+            className="min-h-[140px] rounded-[20px]"
+          />
+          <FieldError message={errors.review_note} />
+        </div>
+        <div className={premiumModalActionsClassName}>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12 rounded-[18px] px-5"
+            onClick={() => onOpenChange(false)}
+          >
+            Batal
+          </Button>
+          <Button
+            type="button"
+            className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white hover:bg-emerald-800"
+            disabled={isPending}
+            onClick={handleSubmit}
+          >
+            {isPending ? "Menyimpan..." : "Simpan Tanggapan"}
+          </Button>
+        </div>
       </div>
     </PremiumModal>
   );
 }
 
-function IconAction({ icon: Icon, onClick, tone }: { icon: typeof Eye; onClick: () => void; tone: "emerald" | "sky" }) {
+function IconAction({
+  icon: Icon,
+  onClick,
+  tone,
+}: {
+  icon: typeof Eye;
+  onClick: () => void;
+  tone: "emerald" | "sky";
+}) {
   const className =
     tone === "emerald"
       ? "border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
       : "border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700";
   return (
-    <Button type="button" variant="ghost" size="icon" className={`size-10 rounded-2xl ${className}`} onClick={onClick}>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className={`size-10 rounded-2xl ${className}`}
+      onClick={onClick}
+    >
       <Icon className="size-4.5" />
     </Button>
   );

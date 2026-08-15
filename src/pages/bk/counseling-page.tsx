@@ -59,7 +59,10 @@ import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const BKKonselingReportModal = dynamic(
-  () => import("@/features/reports/bk/counseling-report-modal").then((module) => module.BKKonselingReportModal),
+  () =>
+    import("@/features/reports/bk/counseling-report-modal").then(
+      (module) => module.BKKonselingReportModal,
+    ),
   { ssr: false },
 );
 
@@ -69,14 +72,25 @@ export function BKCounselingPage() {
   const debouncedQuery = useDebouncedValue(query);
   const [classFilter, setClassFilter] = useState("Semua");
   const [studentFilter, setStudentFilter] = useState("Semua");
-  const [detailTarget, setDetailTarget] = useState<StaffCounselingNote | null>(null);
-  const [editTarget, setEditTarget] = useState<StaffCounselingNote | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<StaffCounselingNote | null>(null);
+  const [detailTarget, setDetailTarget] = useState<StaffCounselingNote | null>(
+    null,
+  );
+  const [editTarget, setEditTarget] = useState<StaffCounselingNote | null>(
+    null,
+  );
+  const [deleteTarget, setDeleteTarget] = useState<StaffCounselingNote | null>(
+    null,
+  );
   const [createOpen, setCreateOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const overviewQuery = useQuery({
-    queryKey: ["bk-counseling-overview", classFilter, studentFilter, debouncedQuery],
+    queryKey: [
+      "bk-counseling-overview",
+      classFilter,
+      studentFilter,
+      debouncedQuery,
+    ],
     queryFn: () =>
       getBKCounselingOverview({
         class_id: classFilter === "Semua" ? "" : classFilter,
@@ -94,9 +108,13 @@ export function BKCounselingPage() {
     recent_week_notes: 0,
   };
   const records = overview?.records ?? [];
-  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
+  const { pageItems: pageRecords, pagination: recordsPagination } =
+    usePagination(records);
   const classes = overview?.classes ?? [];
-  const students = useMemo(() => overview?.students ?? [], [overview?.students]);
+  const students = useMemo(
+    () => overview?.students ?? [],
+    [overview?.students],
+  );
 
   const studentOptions = useMemo(
     () => [
@@ -197,7 +215,12 @@ export function BKCounselingPage() {
             <BkPageHero
               badge="Halaman Konseling BK"
               title="Catatan Konseling"
-              description={<>Kelola catatan pembinaan, tindak lanjut, dan histori konseling siswa lintas kelas.</>}
+              description={
+                <>
+                  Kelola catatan pembinaan, tindak lanjut, dan histori konseling
+                  siswa lintas kelas.
+                </>
+              }
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
             />
@@ -232,94 +255,173 @@ export function BKCounselingPage() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, judul, catatan" />
-                <AddButton label="Catatan Konseling" onClick={() => setCreateOpen(true)} />
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari siswa, NIS, judul, catatan"
+                />
+                <AddButton
+                  label="Catatan Konseling"
+                  onClick={() => setCreateOpen(true)}
+                />
               </div>
             </div>
 
-            <div
-              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92"
-            >
+            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/92">
               {overviewQuery.isLoading ? (
                 <TableSkeleton columns={6} />
               ) : overviewQuery.error ? (
                 <div className="p-5">
-                  <EmptyState icon={ShieldAlert} title="Catatan BK belum bisa dimuat" description={overviewQuery.error.message} />
+                  <EmptyState
+                    icon={ShieldAlert}
+                    title="Catatan BK belum bisa dimuat"
+                    description={overviewQuery.error.message}
+                  />
                 </div>
               ) : records.length === 0 ? (
                 <div className="p-5">
-                  <EmptyState icon={BookHeart} title="Belum ada catatan konseling" description="Tambah catatan BK atau ubah filter untuk melihat histori pembinaan." />
+                  <EmptyState
+                    icon={BookHeart}
+                    title="Belum ada catatan konseling"
+                    description="Tambah catatan BK atau ubah filter untuk melihat histori pembinaan."
+                  />
                 </div>
               ) : (
                 <>
-                <div className="hidden overflow-x-auto md:block">
-                  <DataTable>
-                    <DataTableHeadRow labels={["Siswa", "Catatan", "Kelas", "Dibuat Oleh", "Waktu", "Aksi"]} />
-                    <DataTableBody>
-                      {pageRecords.map((record) => (
-                        <DataTableRow key={record.id}>
-                          <DataTableCell>
-                            <div className="flex items-center gap-3">
-                              <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-sm font-semibold text-emerald-800">
-                                {getInitials(record.student_name)}
-                              </span>
-                              <div>
-                                <p className="font-semibold text-slate-900">{record.student_name}</p>
-                                <p className="text-xs text-slate-500">{record.nis}</p>
-                              </div>
-                            </div>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <p className="font-semibold text-slate-900">{record.title}</p>
-                            <p className="line-clamp-2 max-w-[360px] text-sm leading-6 text-slate-500">{record.note}</p>
-                          </DataTableCell>
-                          <DataTableCell>{record.class_name || "-"}</DataTableCell>
-                          <DataTableCell>{record.created_by_name || "-"}</DataTableCell>
-                          <DataTableCell>{formatDateTime(record.created_at)}</DataTableCell>
-                          <DataTableCell>
-                            <div className="flex items-center justify-center gap-2">
-                              <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
-                              <IconAction icon={Edit3} onClick={() => setEditTarget(record)} tone="sky" />
-                              <IconAction icon={Trash2} onClick={() => setDeleteTarget(record)} tone="rose" disabled={deleteMutation.isPending} />
-                            </div>
-                          </DataTableCell>
-                        </DataTableRow>
-                      ))}
-                    </DataTableBody>
-                  </DataTable>
-                </div>
-                <MobileDataList>
-                  {pageRecords.map((record) => (
-                    <MobileDataCard key={record.id}>
-                      <MobileDataHeader
-                        leading={
-                          <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-sm font-semibold text-emerald-800">
-                            {getInitials(record.student_name)}
-                          </span>
-                        }
-                        title={record.student_name}
-                        subtitle={record.nis}
-                        badge={<span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">BK</span>}
+                  <div className="hidden overflow-x-auto md:block">
+                    <DataTable>
+                      <DataTableHeadRow
+                        labels={[
+                          "Siswa",
+                          "Catatan",
+                          "Kelas",
+                          "Dibuat Oleh",
+                          "Waktu",
+                          "Aksi",
+                        ]}
                       />
-                      <MobileDataSection label={record.title}>
-                        <p className="text-sm leading-6 text-slate-600">{record.note}</p>
-                      </MobileDataSection>
-                      <div className="mt-4 grid gap-3">
-                        <MobileDataField label="Kelas" value={record.class_name || "-"} />
-                        <MobileDataField label="Dibuat Oleh" value={record.created_by_name || "-"} />
-                        <MobileDataField label="Waktu" value={formatDateTime(record.created_at)} />
-                      </div>
-                      <MobileDataFooter>
-                        <IconAction icon={Eye} onClick={() => setDetailTarget(record)} tone="emerald" />
-                        <IconAction icon={Edit3} onClick={() => setEditTarget(record)} tone="sky" />
-                        <IconAction icon={Trash2} onClick={() => setDeleteTarget(record)} tone="rose" disabled={deleteMutation.isPending} />
-                      </MobileDataFooter>
-                    </MobileDataCard>
-                  ))}
-                </MobileDataList>
+                      <DataTableBody>
+                        {pageRecords.map((record) => (
+                          <DataTableRow key={record.id}>
+                            <DataTableCell>
+                              <div className="flex items-center gap-3">
+                                <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-sm font-semibold text-emerald-800">
+                                  {getInitials(record.student_name)}
+                                </span>
+                                <div>
+                                  <p className="font-semibold text-slate-900">
+                                    {record.student_name}
+                                  </p>
+                                  <p className="text-xs text-slate-500">
+                                    {record.nis}
+                                  </p>
+                                </div>
+                              </div>
+                            </DataTableCell>
+                            <DataTableCell>
+                              <p className="font-semibold text-slate-900">
+                                {record.title}
+                              </p>
+                              <p className="line-clamp-2 max-w-[360px] text-sm leading-6 text-slate-500">
+                                {record.note}
+                              </p>
+                            </DataTableCell>
+                            <DataTableCell>
+                              {record.class_name || "-"}
+                            </DataTableCell>
+                            <DataTableCell>
+                              {record.created_by_name || "-"}
+                            </DataTableCell>
+                            <DataTableCell>
+                              {formatDateTime(record.created_at)}
+                            </DataTableCell>
+                            <DataTableCell>
+                              <div className="flex items-center justify-center gap-2">
+                                <IconAction
+                                  icon={Eye}
+                                  onClick={() => setDetailTarget(record)}
+                                  tone="emerald"
+                                />
+                                <IconAction
+                                  icon={Edit3}
+                                  onClick={() => setEditTarget(record)}
+                                  tone="sky"
+                                />
+                                <IconAction
+                                  icon={Trash2}
+                                  onClick={() => setDeleteTarget(record)}
+                                  tone="rose"
+                                  disabled={deleteMutation.isPending}
+                                />
+                              </div>
+                            </DataTableCell>
+                          </DataTableRow>
+                        ))}
+                      </DataTableBody>
+                    </DataTable>
+                  </div>
+                  <MobileDataList>
+                    {pageRecords.map((record) => (
+                      <MobileDataCard key={record.id}>
+                        <MobileDataHeader
+                          leading={
+                            <span className="flex size-10 items-center justify-center rounded-[16px] bg-emerald-50 text-sm font-semibold text-emerald-800">
+                              {getInitials(record.student_name)}
+                            </span>
+                          }
+                          title={record.student_name}
+                          subtitle={record.nis}
+                          badge={
+                            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                              BK
+                            </span>
+                          }
+                        />
+                        <MobileDataSection label={record.title}>
+                          <p className="text-sm leading-6 text-slate-600">
+                            {record.note}
+                          </p>
+                        </MobileDataSection>
+                        <div className="mt-4 grid gap-3">
+                          <MobileDataField
+                            label="Kelas"
+                            value={record.class_name || "-"}
+                          />
+                          <MobileDataField
+                            label="Dibuat Oleh"
+                            value={record.created_by_name || "-"}
+                          />
+                          <MobileDataField
+                            label="Waktu"
+                            value={formatDateTime(record.created_at)}
+                          />
+                        </div>
+                        <MobileDataFooter>
+                          <IconAction
+                            icon={Eye}
+                            onClick={() => setDetailTarget(record)}
+                            tone="emerald"
+                          />
+                          <IconAction
+                            icon={Edit3}
+                            onClick={() => setEditTarget(record)}
+                            tone="sky"
+                          />
+                          <IconAction
+                            icon={Trash2}
+                            onClick={() => setDeleteTarget(record)}
+                            tone="rose"
+                            disabled={deleteMutation.isPending}
+                          />
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
                 </>
               )}
-              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+              {!overviewQuery.isLoading &&
+              !overviewQuery.error &&
+              records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
             </div>
@@ -360,7 +462,12 @@ export function BKCounselingPage() {
               students={students}
               note={editTarget}
               isPending={updateMutation.isPending}
-              onSubmit={(payload) => updateMutation.mutate({ title: payload.title, note: payload.note })}
+              onSubmit={(payload) =>
+                updateMutation.mutate({
+                  title: payload.title,
+                  note: payload.note,
+                })
+              }
             />
           ) : null}
           <DeleteConfirmationModal
@@ -386,7 +493,17 @@ export function BKCounselingPage() {
   );
 }
 
-function IconAction({ icon: Icon, onClick, tone, disabled }: { icon: typeof Eye; onClick: () => void; tone: "emerald" | "sky" | "rose"; disabled?: boolean }) {
+function IconAction({
+  icon: Icon,
+  onClick,
+  tone,
+  disabled,
+}: {
+  icon: typeof Eye;
+  onClick: () => void;
+  tone: "emerald" | "sky" | "rose";
+  disabled?: boolean;
+}) {
   const className =
     tone === "emerald"
       ? "border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
@@ -394,13 +511,22 @@ function IconAction({ icon: Icon, onClick, tone, disabled }: { icon: typeof Eye;
         ? "border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
         : "border-rose-100 text-rose-700 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700";
   return (
-    <Button type="button" variant="ghost" size="icon" className={`size-10 rounded-2xl ${className}`} onClick={onClick} disabled={disabled}>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className={`size-10 rounded-2xl ${className}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
       <Icon className="size-4.5" />
     </Button>
   );
 }
 
-async function invalidateBKCounseling(queryClient: ReturnType<typeof useQueryClient>) {
+async function invalidateBKCounseling(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ["bk-counseling-overview"] }),
     queryClient.invalidateQueries({ queryKey: ["bk-students-overview"] }),

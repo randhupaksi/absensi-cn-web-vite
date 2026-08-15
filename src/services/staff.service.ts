@@ -54,9 +54,10 @@ export async function getTeacherHomeroomDashboard() {
 
 export async function getTeacherHomeroom() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffHomeroomContext>>(
-      "/teacher/homeroom",
-    );
+    const response =
+      await apiClient.get<ApiEnvelope<StaffHomeroomContext>>(
+        "/teacher/homeroom",
+      );
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -76,9 +77,9 @@ export async function getTeacherHomeroomStudents() {
 
 export async function getTeacherHomeroomStudentDetail(studentId: string) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffHomeroomStudentDetail>>(
-      `/teacher/homeroom/students/${studentId}`,
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffHomeroomStudentDetail>
+    >(`/teacher/homeroom/students/${studentId}`);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -93,12 +94,11 @@ export async function getTeacherHomeroomAttendanceOverview(params: {
   query?: string;
 }) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffHomeroomAttendanceOverview>>(
-      "/teacher/homeroom/attendance-overview",
-      {
-        params,
-      },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffHomeroomAttendanceOverview>
+    >("/teacher/homeroom/attendance-overview", {
+      params,
+    });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -126,12 +126,11 @@ export async function getTeacherHomeroomSubmissionsOverview(params: {
   query?: string;
 }) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffHomeroomSubmissionOverview>>(
-      "/teacher/homeroom/submissions-overview",
-      {
-        params,
-      },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffHomeroomSubmissionOverview>
+    >("/teacher/homeroom/submissions-overview", {
+      params,
+    });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -158,7 +157,8 @@ export async function reviewTeacherHomeroomSubmission(
 
 export async function getBKDashboard() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffBKDashboard>>("/bk/dashboard");
+    const response =
+      await apiClient.get<ApiEnvelope<StaffBKDashboard>>("/bk/dashboard");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -199,10 +199,9 @@ export async function getBKAttendanceOverview(params: {
   query?: string;
 }) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffBKAttendanceOverview>>(
-      "/bk/attendance-overview",
-      { params },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffBKAttendanceOverview>
+    >("/bk/attendance-overview", { params });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -230,10 +229,9 @@ export async function getBKCounselingOverview(params: {
   query?: string;
 }) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffBKCounselingOverview>>(
-      "/bk/counseling-overview",
-      { params },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffBKCounselingOverview>
+    >("/bk/counseling-overview", { params });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -294,10 +292,9 @@ export async function getBKSubmissionsOverview(params: {
   query?: string;
 }) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffBKSubmissionOverview>>(
-      "/bk/submissions-overview",
-      { params },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffBKSubmissionOverview>
+    >("/bk/submissions-overview", { params });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -326,7 +323,8 @@ export async function reviewBKSubmission(
 
 export async function getTeacherMe() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffTeacherMe>>("/teacher/me");
+    const response =
+      await apiClient.get<ApiEnvelope<StaffTeacherMe>>("/teacher/me");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -350,12 +348,14 @@ export async function getTeacherSubjectAssignments() {
   }
 }
 
-export async function getTeacherSubjectCurrentSession(hari: string, jam: string) {
+export async function getTeacherSubjectCurrentSession(
+  hari: string,
+  jam: string,
+) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffSubjectCurrentSession | null>>(
-      "/teacher/subject/current-session",
-      { params: { hari, jam } },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffSubjectCurrentSession | null>
+    >("/teacher/subject/current-session", { params: { hari, jam } });
     return response.data.data ?? null;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -364,21 +364,22 @@ export async function getTeacherSubjectCurrentSession(hari: string, jam: string)
 
 export async function getTeacherSubjectScheduleDayStatus() {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffSubjectScheduleDayStatus>>(
-      "/teacher/subject/schedule-day-status",
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffSubjectScheduleDayStatus>
+    >("/teacher/subject/schedule-day-status");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function openTeacherSubjectSessionLate(payload: StaffOpenLateSubjectSessionPayload) {
+export async function openTeacherSubjectSessionLate(
+  payload: StaffOpenLateSubjectSessionPayload,
+) {
   try {
-    const response = await apiClient.post<ApiEnvelope<StaffSubjectCurrentSession>>(
-      "/teacher/subject/sessions/open-late",
-      payload,
-    );
+    const response = await apiClient.post<
+      ApiEnvelope<StaffSubjectCurrentSession>
+    >("/teacher/subject/sessions/open-late", payload);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -387,21 +388,27 @@ export async function openTeacherSubjectSessionLate(payload: StaffOpenLateSubjec
 
 export async function getTeacherSubjectAttendance(sessionId: string) {
   try {
-    const response = await apiClient.get<ApiEnvelope<StaffSubjectAttendanceOverview>>(
-      "/teacher/subject/attendance",
-      { params: { session_id: sessionId } },
-    );
+    const response = await apiClient.get<
+      ApiEnvelope<StaffSubjectAttendanceOverview>
+    >("/teacher/subject/attendance", { params: { session_id: sessionId } });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function updateTeacherSubjectSessionDetails(sessionId: string, payload: { topic: string; notes: string }) {
+export async function updateTeacherSubjectSessionDetails(
+  sessionId: string,
+  payload: { topic: string; notes: string },
+) {
   try {
-    const response = await apiClient.put<ApiEnvelope<StaffSubjectCurrentSession>>(`/teacher/subject/sessions/${sessionId}/details`, payload);
+    const response = await apiClient.put<
+      ApiEnvelope<StaffSubjectCurrentSession>
+    >(`/teacher/subject/sessions/${sessionId}/details`, payload);
     return response.data.data;
-  } catch (error) { throw new Error(getErrorMessage(error)); }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
 export async function saveTeacherSubjectSessionDraft(
@@ -409,34 +416,35 @@ export async function saveTeacherSubjectSessionDraft(
   payload: StaffSubjectSessionDraftPayload,
 ) {
   try {
-    const response = await apiClient.put<ApiEnvelope<StaffSubjectCurrentSession>>(
-      `/teacher/subject/sessions/${sessionId}/draft`,
-      payload,
-    );
+    const response = await apiClient.put<
+      ApiEnvelope<StaffSubjectCurrentSession>
+    >(`/teacher/subject/sessions/${sessionId}/draft`, payload);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function submitTeacherSubjectValidation(payload: StaffSubjectValidationPayload) {
+export async function submitTeacherSubjectValidation(
+  payload: StaffSubjectValidationPayload,
+) {
   try {
-    const response = await apiClient.post<ApiEnvelope<StaffSubjectCurrentSession>>(
-      "/teacher/subject/attendance/validate",
-      payload,
-    );
+    const response = await apiClient.post<
+      ApiEnvelope<StaffSubjectCurrentSession>
+    >("/teacher/subject/attendance/validate", payload);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 }
 
-export async function overrideTeacherSubjectAttendance(payload: StaffSubjectOverridePayload) {
+export async function overrideTeacherSubjectAttendance(
+  payload: StaffSubjectOverridePayload,
+) {
   try {
-    const response = await apiClient.put<ApiEnvelope<StaffSubjectAttendanceRecord>>(
-      "/teacher/subject/attendance/override",
-      payload,
-    );
+    const response = await apiClient.put<
+      ApiEnvelope<StaffSubjectAttendanceRecord>
+    >("/teacher/subject/attendance/override", payload);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));

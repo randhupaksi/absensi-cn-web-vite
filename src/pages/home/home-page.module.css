@@ -56,7 +56,8 @@
 }
 
 .landingHeroEyebrowReveal[data-scroll-revealed="true"] {
-  animation: landingHeroEyebrowIn 900ms cubic-bezier(0.19, 1, 0.22, 1) 220ms both;
+  animation: landingHeroEyebrowIn 900ms cubic-bezier(0.19, 1, 0.22, 1) 220ms
+    both;
 }
 
 .landingHeroTitleReveal[data-scroll-revealed="true"] {
@@ -64,7 +65,8 @@
 }
 
 .landingHeroDescriptionReveal[data-scroll-revealed="true"] {
-  animation: landingHeroDescriptionIn 900ms cubic-bezier(0.19, 1, 0.22, 1) 620ms both;
+  animation: landingHeroDescriptionIn 900ms cubic-bezier(0.19, 1, 0.22, 1) 620ms
+    both;
 }
 
 .landingHeroCtaReveal[data-scroll-revealed="true"] {
@@ -90,7 +92,8 @@
 }
 
 .landingCtaDescriptionReveal[data-scroll-revealed="true"] {
-  animation: landingCtaDescriptionIn 650ms cubic-bezier(0.19, 1, 0.22, 1) 400ms both;
+  animation: landingCtaDescriptionIn 650ms cubic-bezier(0.19, 1, 0.22, 1) 400ms
+    both;
 }
 
 .landingCtaActionsReveal[data-scroll-revealed="true"] {
@@ -192,7 +195,12 @@
 .landingStepsSection {
   border-top: 1px solid var(--landing-border-soft);
   border-bottom: 1px solid var(--landing-border-soft);
-  background: linear-gradient(90deg, rgba(236, 253, 245, 0.34), rgba(255, 255, 255, 0.2) 52%, rgba(240, 253, 250, 0.32));
+  background: linear-gradient(
+    90deg,
+    rgba(236, 253, 245, 0.34),
+    rgba(255, 255, 255, 0.2) 52%,
+    rgba(240, 253, 250, 0.32)
+  );
 }
 
 .landingStepsSectionReveal {
@@ -252,7 +260,8 @@
 }
 
 .landingStepsTimelineReveal[data-scroll-revealed="true"] {
-  animation: landingStepsTimelineIn 3300ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
+  animation: landingStepsTimelineIn 3300ms cubic-bezier(0.22, 1, 0.36, 1) 180ms
+    both;
 }
 
 .landingStepItem {
@@ -381,9 +390,21 @@
 
 .landingCtaGlow {
   background:
-    radial-gradient(circle at top left, rgba(110, 231, 183, 0.1), transparent 24%),
-    radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.08), transparent 16%),
-    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.08), transparent 22%);
+    radial-gradient(
+      circle at top left,
+      rgba(110, 231, 183, 0.1),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 78% 18%,
+      rgba(255, 255, 255, 0.08),
+      transparent 16%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(16, 185, 129, 0.08),
+      transparent 22%
+    );
 }
 
 .landingCtaImageFrame {
@@ -433,7 +454,11 @@
 @media (max-width: 640px) {
   .landingFooterShell {
     background:
-      radial-gradient(circle at 50% -8%, rgba(110, 231, 183, 0.12), transparent 32%),
+      radial-gradient(
+        circle at 50% -8%,
+        rgba(110, 231, 183, 0.12),
+        transparent 32%
+      ),
       linear-gradient(180deg, #102620 0%, #0d221d 42%, #0a1c18 100%);
   }
 }
@@ -504,28 +529,58 @@
 }
 
 @keyframes landingHeroBadgeIn {
-  from { opacity: 0; transform: translateY(-14px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes landingHeroEyebrowIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes landingHeroTitleIn {
-  from { opacity: 0; transform: translateY(30px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes landingHeroDescriptionIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes landingHeroCtaIn {
-  from { opacity: 0; transform: translateY(22px) scale(0.94); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes landingCtaFrameIn {
@@ -542,23 +597,47 @@
 }
 
 @keyframes landingCtaBadgeIn {
-  from { opacity: 0; transform: translateY(-10px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes landingCtaTitleIn {
-  from { opacity: 0; transform: translateY(24px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes landingCtaDescriptionIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes landingCtaActionsIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes landingRevealLeft {

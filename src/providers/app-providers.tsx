@@ -1,10 +1,16 @@
 "use client";
 
-import { appCreditLongStatement, appCreditSummary, appCredits } from "@/lib/config/credits";
+import {
+  appCreditLongStatement,
+  appCreditSummary,
+  appCredits,
+} from "@/lib/config/credits";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { lazy, ReactNode, Suspense, useEffect, useState } from "react";
 
-const Toaster = lazy(() => import("sonner").then((module) => ({ default: module.Toaster })));
+const Toaster = lazy(() =>
+  import("sonner").then((module) => ({ default: module.Toaster })),
+);
 
 type AppProvidersProps = {
   children: ReactNode;
@@ -19,7 +25,8 @@ export function AppProviders({ children }: AppProvidersProps) {
             staleTime: 60_000,
             gcTime: 15 * 60 * 1000,
             retry: 1,
-            retryDelay: (attempt) => Math.min(1_000 * 2 ** attempt, 8_000) + Math.random() * 1_500,
+            retryDelay: (attempt) =>
+              Math.min(1_000 * 2 ** attempt, 8_000) + Math.random() * 1_500,
             refetchOnWindowFocus: false,
             refetchOnReconnect: true,
           },

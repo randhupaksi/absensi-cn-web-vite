@@ -27,7 +27,11 @@ import {
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import { compressUploadImage } from "@/lib/images/compress-upload-image";
 import {
   calculateDistanceMeters,
@@ -64,12 +68,23 @@ import { AppLink as Link } from "@/components/router/app-link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StudentDashboardSkeleton } from "@/components/loading/loading-system";
-import { ProcessStatus, type ProcessStep } from "@/components/loading/process-status";
+import {
+  ProcessStatus,
+  type ProcessStep,
+} from "@/components/loading/process-status";
 
 const reportTypeOptions = [
   { value: "HADIR", label: "Hadir", description: "Absensi masuk sekolah" },
-  { value: "SAKIT", label: "Sakit", description: "Lampirkan bukti atau surat sakit" },
-  { value: "IZIN", label: "Izin", description: "Lampirkan bukti izin atau keterangan" },
+  {
+    value: "SAKIT",
+    label: "Sakit",
+    description: "Lampirkan bukti atau surat sakit",
+  },
+  {
+    value: "IZIN",
+    label: "Izin",
+    description: "Lampirkan bukti izin atau keterangan",
+  },
 ];
 
 export function StudentDashboardPage() {
@@ -84,13 +99,19 @@ export function StudentDashboardPage() {
   const [reportType, setReportType] =
     useState<StudentDailyReportPayload["type"]>("HADIR");
   const [reason, setReason] = useState("");
-  const [errors, setErrors] = useState<FieldErrors<"photo" | "type" | "reason">>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<"photo" | "type" | "reason">
+  >({});
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [locationState, setLocationState] = useState<"idle" | "loading" | "complete">("idle");
-  const [locationResult, setLocationResult] = useState<AttendanceLocationCaptureResult | null>(null);
-  const [evidenceRecord, setEvidenceRecord] = useState<StaffAttendanceRecord | null>(null);
+  const [locationState, setLocationState] = useState<
+    "idle" | "loading" | "complete"
+  >("idle");
+  const [locationResult, setLocationResult] =
+    useState<AttendanceLocationCaptureResult | null>(null);
+  const [evidenceRecord, setEvidenceRecord] =
+    useState<StaffAttendanceRecord | null>(null);
   const [greetingNow, setGreetingNow] = useState(() => new Date());
   const greetingRowRef = useRef<HTMLDivElement | null>(null);
   const greetingTextRef = useRef<HTMLSpanElement | null>(null);
@@ -151,7 +172,9 @@ export function StudentDashboardPage() {
       const greetingTop = greetingText.getBoundingClientRect().top;
       const dateTop = greetingDate.getBoundingClientRect().top;
       const nextInline = Math.abs(greetingTop - dateTop) < 2;
-      setGreetingIsInline((current) => (current === nextInline ? current : nextInline));
+      setGreetingIsInline((current) =>
+        current === nextInline ? current : nextInline,
+      );
     };
 
     updateInlineState();
@@ -171,7 +194,12 @@ export function StudentDashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!modalOpen || typeof navigator === "undefined" || !navigator.permissions) return;
+    if (
+      !modalOpen ||
+      typeof navigator === "undefined" ||
+      !navigator.permissions
+    )
+      return;
 
     let cancelled = false;
     let permissionStatus: PermissionStatus | null = null;
@@ -183,7 +211,11 @@ export function StudentDashboardPage() {
         if (cancelled) return;
         permissionStatus = status;
         permissionChangeHandler = () => {
-          if (!cancelled && status.state === "granted" && locationState !== "loading") {
+          if (
+            !cancelled &&
+            status.state === "granted" &&
+            locationState !== "loading"
+          ) {
             void refreshAttendanceLocation();
           }
         };
@@ -191,7 +223,7 @@ export function StudentDashboardPage() {
       })
       .catch(() => {
         // Safari versions without a usable Permissions API still support the
-      // explicit retry button and visibility fallback below.
+        // explicit retry button and visibility fallback below.
       });
 
     const handleVisibilityChange = () => {
@@ -221,14 +253,18 @@ export function StudentDashboardPage() {
   const canSubmit = Boolean(today?.can_submit);
   const isHoliday = today?.is_school_day === false;
   const alreadySubmitted = Boolean(today?.attendance && !today.can_submit);
-  const isWindowClosed = !isHoliday && !canSubmit && !alreadySubmitted && (() => {
-    if (!today?.current_time || !today?.window.late_until) return false;
-    const serverNow = new Date(today.current_time);
-    const [h, m, s] = today.window.late_until.split(":").map(Number);
-    const lateUntil = new Date(serverNow);
-    lateUntil.setHours(h, m, s ?? 0, 0);
-    return serverNow > lateUntil;
-  })();
+  const isWindowClosed =
+    !isHoliday &&
+    !canSubmit &&
+    !alreadySubmitted &&
+    (() => {
+      if (!today?.current_time || !today?.window.late_until) return false;
+      const serverNow = new Date(today.current_time);
+      const [h, m, s] = today.window.late_until.split(":").map(Number);
+      const lateUntil = new Date(serverNow);
+      lateUntil.setHours(h, m, s ?? 0, 0);
+      return serverNow > lateUntil;
+    })();
   const greeting = getDashboardGreeting(greetingNow);
 
   function resetCaptureState() {
@@ -311,7 +347,12 @@ export function StudentDashboardPage() {
     validateRequired(nextErrors, "photo", photoFile, "Foto absensi siswa");
     validateRequired(nextErrors, "type", reportType, "Keterangan");
     if (reportType === "IZIN" || reportType === "SAKIT") {
-      validateRequired(nextErrors, "reason", reason, `Alasan ${reportType === "SAKIT" ? "sakit" : "izin"}`);
+      validateRequired(
+        nextErrors,
+        "reason",
+        reason,
+        `Alasan ${reportType === "SAKIT" ? "sakit" : "izin"}`,
+      );
     }
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors) || !photoFile) return;
@@ -344,7 +385,8 @@ export function StudentDashboardPage() {
       state:
         locationState === "loading"
           ? "active"
-          : locationState === "complete" && locationResult?.outcome === "captured"
+          : locationState === "complete" &&
+              locationResult?.outcome === "captured"
             ? "complete"
             : locationState === "complete"
               ? "error"
@@ -370,386 +412,463 @@ export function StudentDashboardPage() {
 
   return (
     <StudentShell>
-      {(session) => dashboardQuery.isLoading && !dashboard ? (
-        <StudentDashboardSkeleton />
-      ) : (
-        <div className="space-y-5">
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="absolute left-0 top-0 size-px opacity-0"
-            onChange={(event) => void handlePhotoPicked(event.target.files?.[0])}
-          />
+      {(session) =>
+        dashboardQuery.isLoading && !dashboard ? (
+          <StudentDashboardSkeleton />
+        ) : (
+          <div className="space-y-5">
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="absolute left-0 top-0 size-px opacity-0"
+              onChange={(event) =>
+                void handlePhotoPicked(event.target.files?.[0])
+              }
+            />
 
-          <section id="status-absensi-hari-ini" className="scroll-mt-5 overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]">
-            <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
-                <div className="space-y-4">
-                  <div ref={greetingRowRef} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-emerald-50/85">
-                    <span ref={greetingTextRef} className="font-semibold text-white">
-                      {greeting.label}, {formatPersonName(today?.profile.name ?? session.user.name).split(" ")[0] || "Siswa"}!
+            <section
+              id="status-absensi-hari-ini"
+              className="scroll-mt-5 overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]"
+            >
+              <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
+                  <div className="space-y-4">
+                    <div
+                      ref={greetingRowRef}
+                      className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-emerald-50/85"
+                    >
+                      <span
+                        ref={greetingTextRef}
+                        className="font-semibold text-white"
+                      >
+                        {greeting.label},{" "}
+                        {formatPersonName(
+                          today?.profile.name ?? session.user.name,
+                        ).split(" ")[0] || "Siswa"}
+                        !
+                      </span>
+                      {greetingIsInline ? (
+                        <span className="size-1 shrink-0 rounded-full bg-emerald-200" />
+                      ) : null}
+                      <span
+                        ref={greetingDateRef}
+                        className="inline-flex items-center gap-1.5 text-white/75"
+                      >
+                        <CalendarDays className="size-3.5" />
+                        {formatDashboardGreetingDate(greetingNow)}
+                      </span>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-50">
+                      <ClipboardCheck className="size-3.5" />
+                      Portal Absensi Siswa
                     </span>
-                    {greetingIsInline ? <span className="size-1 shrink-0 rounded-full bg-emerald-200" /> : null}
-                    <span ref={greetingDateRef} className="inline-flex items-center gap-1.5 text-white/75"><CalendarDays className="size-3.5" />{formatDashboardGreetingDate(greetingNow)}</span>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-50">
-                    <ClipboardCheck className="size-3.5" />
-                    Portal Absensi Siswa
-                  </span>
-                  <div className="max-w-2xl space-y-3">
-                    <h1 className="text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[3.2rem]">
-                      {alreadySubmitted
-                        ? "Absensi hari ini sudah terkirim."
-                        : isHoliday
-                          ? "Hari ini libur."
-                          : isWindowClosed
-                          ? "Kamu tidak hadir hari ini."
-                          : "Ambil foto dan kirim absensi hari ini."}
-                    </h1>
-                    <p className="max-w-xl text-base leading-7 text-emerald-50/82">
-                      {today?.message ??
-                        "Buka kamera, ambil foto, lalu pilih keterangan hadir, sakit, atau izin."}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <Button
-                    type="button"
-                    onClick={handleStartAttendance}
-                    disabled={!canSubmit || dashboardQuery.isLoading || isPreparingPhoto}
-                    className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:bg-emerald-50 hover:shadow-[0_20px_38px_rgba(2,44,34,0.24)] active:translate-y-0 active:scale-[0.98] active:!border-emerald-300 active:!bg-emerald-50 active:!text-emerald-800 active:!shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_14px_28px_rgba(16,185,129,0.18)] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
-                  >
-                    {isPreparingPhoto ? (
-                      <TimerReset className="size-5" />
-                    ) : canSubmit ? (
-                      <Camera className="size-5" />
-                    ) : isHoliday ? (
-                      <TimerReset className="size-5" />
-                    ) : isWindowClosed ? (
-                      <ShieldAlert className="size-5" />
-                    ) : (
-                      <TimerReset className="size-5" />
-                    )}
-                    {isPreparingPhoto
-                      ? "Menyiapkan Foto..."
-                      : canSubmit
-                        ? "Absen Hari Ini"
-                        : isHoliday
-                          ? "Hari Libur"
-                        : isWindowClosed
-                          ? "Waktu Absensi Sudah Habis"
-                          : "Cooldown Sampai Besok"}
-                  </Button>
-                  <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
-                    {isHoliday
-                      ? today?.holiday_type === "WEEKEND"
-                        ? "Sabtu dan Minggu adalah hari libur. Tidak ada absensi dan tidak ada status alfa."
-                        : `${today?.holiday_name ?? "Tanggal ini"} tercatat sebagai hari libur sekolah. Tidak ada absensi dan tidak ada status alfa.`
-                      : <>Batas hadir {formatClock(today?.window.on_time_until)} WIB. Absensi ditutup pukul {formatClock(today?.window.late_until)} WIB.</>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid items-start gap-4">
-                <div className="rounded-[1.5rem] border border-slate-200/80 bg-white/86 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
-                  <div className="relative">
-                    <div className="min-w-0 w-full">
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
-                        Status Hari Ini
+                    <div className="max-w-2xl space-y-3">
+                      <h1 className="text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[3.2rem]">
+                        {alreadySubmitted
+                          ? "Absensi hari ini sudah terkirim."
+                          : isHoliday
+                            ? "Hari ini libur."
+                            : isWindowClosed
+                              ? "Kamu tidak hadir hari ini."
+                              : "Ambil foto dan kirim absensi hari ini."}
+                      </h1>
+                      <p className="max-w-xl text-base leading-7 text-emerald-50/82">
+                        {today?.message ??
+                          "Buka kamera, ambil foto, lalu pilih keterangan hadir, sakit, atau izin."}
                       </p>
-                      <h2 className="mt-3 text-xl font-semibold leading-tight text-slate-950 sm:text-2xl">
-                        {today?.attendance
-                          ? "Sudah Terekam"
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Button
+                      type="button"
+                      onClick={handleStartAttendance}
+                      disabled={
+                        !canSubmit ||
+                        dashboardQuery.isLoading ||
+                        isPreparingPhoto
+                      }
+                      className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:bg-emerald-50 hover:shadow-[0_20px_38px_rgba(2,44,34,0.24)] active:translate-y-0 active:scale-[0.98] active:!border-emerald-300 active:!bg-emerald-50 active:!text-emerald-800 active:!shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_14px_28px_rgba(16,185,129,0.18)] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
+                    >
+                      {isPreparingPhoto ? (
+                        <TimerReset className="size-5" />
+                      ) : canSubmit ? (
+                        <Camera className="size-5" />
+                      ) : isHoliday ? (
+                        <TimerReset className="size-5" />
+                      ) : isWindowClosed ? (
+                        <ShieldAlert className="size-5" />
+                      ) : (
+                        <TimerReset className="size-5" />
+                      )}
+                      {isPreparingPhoto
+                        ? "Menyiapkan Foto..."
+                        : canSubmit
+                          ? "Absen Hari Ini"
                           : isHoliday
                             ? "Hari Libur"
-                          : isWindowClosed
-                            ? "Tidak Hadir"
-                            : "Belum Ada Data"}
-                      </h2>
-                    </div>
-                    {today?.attendance ? (
-                      <span className="absolute right-0 top-0">
-                        <StudentStatusPill status={today.attendance.status} />
-                      </span>
-                    ) : isHoliday ? (
-                      <span className="absolute right-0 top-0 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
-                        Libur
-                      </span>
-                    ) : isWindowClosed ? (
-                      <span className="absolute right-0 top-0">
-                        <StudentStatusPill status="alfa" />
-                      </span>
-                    ) : (
-                      <span className="absolute right-0 top-0 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                        Menunggu
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <InfoTile
-                      icon={UserRound}
-                      label="Nama"
-                      value={formatPersonName(today?.profile.name) || "-"}
-                      tone="profile"
-                    />
-                    <InfoTile
-                      icon={School}
-                      label="Kelas"
-                      value={today?.profile.class_name ?? "-"}
-                      tone="class"
-                    />
-                    <InfoTile
-                      icon={LogIn}
-                      label="Absen Masuk"
-                      value={formatStudentTime(today?.attendance?.check_in_at)}
-                      tone="checkin"
-                    />
-                    <InfoTile
-                      icon={BadgeCheck}
-                      label="Validasi"
-                      value={isHoliday ? "Tidak diperlukan" : today?.attendance?.verified_at ? "Sudah direview" : "Menunggu"}
-                      tone={isHoliday ? "pending" : today?.attendance?.verified_at ? "success" : "pending"}
-                    />
-                  </div>
-                </div>
-
-                <div className="rounded-[1.5rem] border border-emerald-200/70 bg-emerald-50/70 p-5">
-                  <div className="flex items-center gap-3">
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_12px_24px_rgba(16,185,129,0.24)]">
-                      <ShieldCheck className="size-5" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-slate-950">Terkoneksi Walas dan BK</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">
-                        Absensi, izin, dan sakit langsung masuk ke antrian validasi.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
-            <KpiCard
-              label="Total Absen"
-              value={String(stats?.total_attendance ?? 0)}
-              icon={History}
-              accentClass="bg-emerald-100 text-emerald-700"
-            />
-            <KpiCard
-              label="Hadir"
-              value={String(stats?.present ?? 0)}
-              icon={CheckCircle2}
-              accentClass="bg-sky-100 text-sky-700"
-            />
-            <KpiCard
-              label="Alfa"
-              value={String(stats?.alpha ?? 0)}
-              icon={ShieldAlert}
-              accentClass="bg-rose-100 text-rose-700"
-            />
-            <KpiCard
-              label="Pengajuan"
-              value={String(stats?.pending_requests ?? 0)}
-              icon={FileText}
-              accentClass="bg-rose-100 text-rose-700"
-            />
-          </section>
-
-          <section className="grid items-start gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-            <div className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-950">Histori Terbaru</h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Rekap absensi terakhir yang sudah masuk sistem.
-                  </p>
-                </div>
-                <Link
-                  href="/dashboard/siswa/history"
-                  className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:shadow-[0_10px_22px_rgba(16,185,129,0.12)]"
-                >
-                  Lihat
-                  <ArrowUpRight className="size-4" />
-                </Link>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {(dashboard?.recent_attendance ?? []).length > 0 ? (
-                  (dashboard?.recent_attendance ?? []).slice(0, 5).map((record) => (
-                    <div
-                      key={record.id}
-                      className="flex flex-col gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div>
-                        <p className="font-semibold text-slate-950">
-                          {formatStudentDate(record.attendance_date)}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-500">
-                          Absen Masuk {formatStudentTime(record.check_in_at)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <StudentStatusPill status={record.status} />
-                        {record.photo_url ? (
-                          <button
-                            type="button"
-                            onClick={() => setEvidenceRecord(record)}
-                            className="inline-flex size-9 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
-                            aria-label="Buka foto absensi"
-                          >
-                            <FileImage className="size-4" />
-                          </button>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState
-                    icon={History}
-                    title="Belum ada histori"
-                    description="Data absensi akan tampil setelah kamu mengirim absensi."
-                    tone="notice"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-950">Notification Center</h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Informasi validasi dan pengajuan terbaru.
-                  </p>
-                </div>
-                <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
-                  <Bell className="size-5" />
-                </span>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {(dashboard?.notifications ?? []).map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                        <Bell className="size-4" />
-                      </span>
-                      <div>
-                        <p className="font-semibold text-slate-950">{item.title}</p>
-                        <p className="mt-1 text-sm leading-6 text-slate-500">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {(dashboard?.recent_submissions ?? []).slice(0, 2).map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-[1.2rem] border border-slate-200/75 bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <StudentSubmissionPill value={item.type} />
-                      <StudentSubmissionPill value={item.status} />
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-slate-500">{item.reason}</p>
-                    <p className="mt-2 text-xs font-medium text-slate-400">
-                      {formatStudentDateTime(item.created_at)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <PremiumModal
-            open={modalOpen}
-            onOpenChange={(open) => {
-              setModalOpen(open);
-              if (!open) resetCaptureState();
-            }}
-            disablePointerDismissal
-            title="Foto Absensi Siswa"
-            description="Periksa foto, pilih keterangan, lalu kirim agar walas dapat melakukan validasi."
-            icon={ImageUp}
-            className="sm:!max-w-[760px]"
-            footer={
-              <ModalActions
-                isPending={submitMutation.isPending || locationState === "loading"}
-                className="!mt-0 !pt-0 before:hidden"
-                onCancel={() => {
-                  setModalOpen(false);
-                  resetCaptureState();
-                }}
-                onSubmit={handleSubmit}
-                submitLabel={
-                  locationState === "loading" ? "Membaca Lokasi..." : "Kirim Absensi"
-                }
-              />
-            }
-          >
-            <div className="space-y-5">
-              <ProcessStatus
-                steps={attendanceProcessSteps}
-                progress={submitMutation.isPending ? uploadProgress : undefined}
-              />
-              <div className={premiumModalSurfaceClassName}>
-                <div className="space-y-5 p-4 sm:p-5">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-emerald-700/75">
-                          Bukti kehadiran
-                        </p>
-                        <p className="mt-1 text-[0.92rem] font-semibold text-slate-800">
-                          Foto absensi siswa
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[0.68rem] font-semibold text-emerald-700">
-                        <BadgeCheck className="size-3.5" />
-                        Privasi foto terjaga
-                      </span>
-                    </div>
-                    <div className="overflow-hidden rounded-[1.35rem] border border-emerald-200/70 bg-slate-950 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
-                      {photoPreview ? (
-                        <img
-                          src={photoPreview}
-                          alt="Preview foto absensi siswa"
-                          className="h-[300px] w-full object-cover sm:h-[350px]"
-                        />
+                            : isWindowClosed
+                              ? "Waktu Absensi Sudah Habis"
+                              : "Cooldown Sampai Besok"}
+                    </Button>
+                    <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
+                      {isHoliday ? (
+                        today?.holiday_type === "WEEKEND" ? (
+                          "Sabtu dan Minggu adalah hari libur. Tidak ada absensi dan tidak ada status alfa."
+                        ) : (
+                          `${today?.holiday_name ?? "Tanggal ini"} tercatat sebagai hari libur sekolah. Tidak ada absensi dan tidak ada status alfa.`
+                        )
                       ) : (
-                        <div className="flex h-[300px] items-center justify-center text-slate-300 sm:h-[350px]">
-                          Foto belum tersedia
-                        </div>
+                        <>
+                          Batas hadir {formatClock(today?.window.on_time_until)}{" "}
+                          WIB. Absensi ditutup pukul{" "}
+                          {formatClock(today?.window.late_until)} WIB.
+                        </>
                       )}
                     </div>
-                    <FieldError message={errors.photo} />
-                    <p className="text-xs leading-5 text-slate-500">
-                      Foto otomatis dikompres sebelum dikirim agar upload tetap ringan.
-                    </p>
+                  </div>
+                </div>
+
+                <div className="grid items-start gap-4">
+                  <div className="rounded-[1.5rem] border border-slate-200/80 bg-white/86 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
+                    <div className="relative">
+                      <div className="min-w-0 w-full">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+                          Status Hari Ini
+                        </p>
+                        <h2 className="mt-3 text-xl font-semibold leading-tight text-slate-950 sm:text-2xl">
+                          {today?.attendance
+                            ? "Sudah Terekam"
+                            : isHoliday
+                              ? "Hari Libur"
+                              : isWindowClosed
+                                ? "Tidak Hadir"
+                                : "Belum Ada Data"}
+                        </h2>
+                      </div>
+                      {today?.attendance ? (
+                        <span className="absolute right-0 top-0">
+                          <StudentStatusPill status={today.attendance.status} />
+                        </span>
+                      ) : isHoliday ? (
+                        <span className="absolute right-0 top-0 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                          Libur
+                        </span>
+                      ) : isWindowClosed ? (
+                        <span className="absolute right-0 top-0">
+                          <StudentStatusPill status="alfa" />
+                        </span>
+                      ) : (
+                        <span className="absolute right-0 top-0 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                          Menunggu
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      <InfoTile
+                        icon={UserRound}
+                        label="Nama"
+                        value={formatPersonName(today?.profile.name) || "-"}
+                        tone="profile"
+                      />
+                      <InfoTile
+                        icon={School}
+                        label="Kelas"
+                        value={today?.profile.class_name ?? "-"}
+                        tone="class"
+                      />
+                      <InfoTile
+                        icon={LogIn}
+                        label="Absen Masuk"
+                        value={formatStudentTime(
+                          today?.attendance?.check_in_at,
+                        )}
+                        tone="checkin"
+                      />
+                      <InfoTile
+                        icon={BadgeCheck}
+                        label="Validasi"
+                        value={
+                          isHoliday
+                            ? "Tidak diperlukan"
+                            : today?.attendance?.verified_at
+                              ? "Sudah direview"
+                              : "Menunggu"
+                        }
+                        tone={
+                          isHoliday
+                            ? "pending"
+                            : today?.attendance?.verified_at
+                              ? "success"
+                              : "pending"
+                        }
+                      />
+                    </div>
                   </div>
 
-                  <AttendanceLocationEvidence
-                    className="border-t border-slate-200/75 pt-6"
+                  <div className="rounded-[1.5rem] border border-emerald-200/70 bg-emerald-50/70 p-5">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_12px_24px_rgba(16,185,129,0.24)]">
+                        <ShieldCheck className="size-5" />
+                      </span>
+                      <div>
+                        <p className="font-semibold text-slate-950">
+                          Terkoneksi Walas dan BK
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          Absensi, izin, dan sakit langsung masuk ke antrian
+                          validasi.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+              <KpiCard
+                label="Total Absen"
+                value={String(stats?.total_attendance ?? 0)}
+                icon={History}
+                accentClass="bg-emerald-100 text-emerald-700"
+              />
+              <KpiCard
+                label="Hadir"
+                value={String(stats?.present ?? 0)}
+                icon={CheckCircle2}
+                accentClass="bg-sky-100 text-sky-700"
+              />
+              <KpiCard
+                label="Alfa"
+                value={String(stats?.alpha ?? 0)}
+                icon={ShieldAlert}
+                accentClass="bg-rose-100 text-rose-700"
+              />
+              <KpiCard
+                label="Pengajuan"
+                value={String(stats?.pending_requests ?? 0)}
+                icon={FileText}
+                accentClass="bg-rose-100 text-rose-700"
+              />
+            </section>
+
+            <section className="grid items-start gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+              <div className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-950">
+                      Histori Terbaru
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Rekap absensi terakhir yang sudah masuk sistem.
+                    </p>
+                  </div>
+                  <Link
+                    href="/dashboard/siswa/history"
+                    className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:shadow-[0_10px_22px_rgba(16,185,129,0.12)]"
+                  >
+                    Lihat
+                    <ArrowUpRight className="size-4" />
+                  </Link>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {(dashboard?.recent_attendance ?? []).length > 0 ? (
+                    (dashboard?.recent_attendance ?? [])
+                      .slice(0, 5)
+                      .map((record) => (
+                        <div
+                          key={record.id}
+                          className="flex flex-col gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div>
+                            <p className="font-semibold text-slate-950">
+                              {formatStudentDate(record.attendance_date)}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-500">
+                              Absen Masuk{" "}
+                              {formatStudentTime(record.check_in_at)}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <StudentStatusPill status={record.status} />
+                            {record.photo_url ? (
+                              <button
+                                type="button"
+                                onClick={() => setEvidenceRecord(record)}
+                                className="inline-flex size-9 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
+                                aria-label="Buka foto absensi"
+                              >
+                                <FileImage className="size-4" />
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <EmptyState
+                      icon={History}
+                      title="Belum ada histori"
+                      description="Data absensi akan tampil setelah kamu mengirim absensi."
+                      tone="notice"
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-[1.8rem] border border-white/80 bg-white/88 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.08)]">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-950">
+                      Notification Center
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Informasi validasi dan pengajuan terbaru.
+                    </p>
+                  </div>
+                  <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                    <Bell className="size-5" />
+                  </span>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {(dashboard?.notifications ?? []).map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                          <Bell className="size-4" />
+                        </span>
+                        <div>
+                          <p className="font-semibold text-slate-950">
+                            {item.title}
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-slate-500">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {(dashboard?.recent_submissions ?? [])
+                    .slice(0, 2)
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-[1.2rem] border border-slate-200/75 bg-white p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <StudentSubmissionPill value={item.type} />
+                          <StudentSubmissionPill value={item.status} />
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-slate-500">
+                          {item.reason}
+                        </p>
+                        <p className="mt-2 text-xs font-medium text-slate-400">
+                          {formatStudentDateTime(item.created_at)}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </section>
+
+            <PremiumModal
+              open={modalOpen}
+              onOpenChange={(open) => {
+                setModalOpen(open);
+                if (!open) resetCaptureState();
+              }}
+              disablePointerDismissal
+              title="Foto Absensi Siswa"
+              description="Periksa foto, pilih keterangan, lalu kirim agar walas dapat melakukan validasi."
+              icon={ImageUp}
+              className="sm:!max-w-[760px]"
+              footer={
+                <ModalActions
+                  isPending={
+                    submitMutation.isPending || locationState === "loading"
+                  }
+                  className="!mt-0 !pt-0 before:hidden"
+                  onCancel={() => {
+                    setModalOpen(false);
+                    resetCaptureState();
+                  }}
+                  onSubmit={handleSubmit}
+                  submitLabel={
+                    locationState === "loading"
+                      ? "Membaca Lokasi..."
+                      : "Kirim Absensi"
+                  }
+                />
+              }
+            >
+              <div className="space-y-5">
+                <ProcessStatus
+                  steps={attendanceProcessSteps}
+                  progress={
+                    submitMutation.isPending ? uploadProgress : undefined
+                  }
+                />
+                <div className={premiumModalSurfaceClassName}>
+                  <div className="space-y-5 p-4 sm:p-5">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-emerald-700/75">
+                            Bukti kehadiran
+                          </p>
+                          <p className="mt-1 text-[0.92rem] font-semibold text-slate-800">
+                            Foto absensi siswa
+                          </p>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[0.68rem] font-semibold text-emerald-700">
+                          <BadgeCheck className="size-3.5" />
+                          Privasi foto terjaga
+                        </span>
+                      </div>
+                      <div className="overflow-hidden rounded-[1.35rem] border border-emerald-200/70 bg-slate-950 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
+                        {photoPreview ? (
+                          <img
+                            src={photoPreview}
+                            alt="Preview foto absensi siswa"
+                            className="h-[300px] w-full object-cover sm:h-[350px]"
+                          />
+                        ) : (
+                          <div className="flex h-[300px] items-center justify-center text-slate-300 sm:h-[350px]">
+                            Foto belum tersedia
+                          </div>
+                        )}
+                      </div>
+                      <FieldError message={errors.photo} />
+                      <p className="text-xs leading-5 text-slate-500">
+                        Foto otomatis dikompres sebelum dikirim agar upload
+                        tetap ringan.
+                      </p>
+                    </div>
+
+                    <AttendanceLocationEvidence
+                      className="border-t border-slate-200/75 pt-6"
                       evidence={
                         locationResult
                           ? {
-                              location_latitude: locationResult.capture.latitude,
-                              location_longitude: locationResult.capture.longitude,
-                              location_accuracy_meters: locationResult.capture.accuracy_meters,
+                              location_latitude:
+                                locationResult.capture.latitude,
+                              location_longitude:
+                                locationResult.capture.longitude,
+                              location_accuracy_meters:
+                                locationResult.capture.accuracy_meters,
                               location_distance_meters:
                                 locationResult.capture.latitude !== undefined &&
-                                locationResult.capture.longitude !== undefined &&
+                                locationResult.capture.longitude !==
+                                  undefined &&
                                 today?.location_policy?.configured &&
                                 today.location_policy.latitude !== undefined &&
                                 today.location_policy.longitude !== undefined
@@ -760,87 +879,93 @@ export function StudentDashboardPage() {
                                       today.location_policy.longitude,
                                     )
                                   : undefined,
-                            location_captured_at: locationResult.capture.captured_at,
-                            location_status:
-                              locationResult.outcome === "captured"
-                                ? "captured_unverified"
-                                : locationResult.outcome,
-                          }
-                        : {}
-                    }
-                    isLoading={locationState === "loading"}
-                    message={
-                      locationResult?.outcome === "captured" && today?.location_policy?.configured
-                        ? "Lokasi siap dihitung terhadap radius sekolah saat absensi dikirim."
-                        : locationResult?.message
-                    }
-                    onRetry={() => void refreshAttendanceLocation()}
-                  />
+                              location_captured_at:
+                                locationResult.capture.captured_at,
+                              location_status:
+                                locationResult.outcome === "captured"
+                                  ? "captured_unverified"
+                                  : locationResult.outcome,
+                            }
+                          : {}
+                      }
+                      isLoading={locationState === "loading"}
+                      message={
+                        locationResult?.outcome === "captured" &&
+                        today?.location_policy?.configured
+                          ? "Lokasi siap dihitung terhadap radius sekolah saat absensi dikirim."
+                          : locationResult?.message
+                      }
+                      onRetry={() => void refreshAttendanceLocation()}
+                    />
 
-                  <div className="space-y-4 border-t border-slate-200/75 pt-5">
-                    <div className={premiumModalFieldClassName}>
-                      <div>
-                        <label className={premiumModalLabelClassName}>Keterangan</label>
-                        <p className={premiumModalHelperClassName}>
-                          Pilih status kehadiran untuk pengajuan hari ini.
-                        </p>
-                      </div>
-                      <RadixSelectField
-                        value={reportType}
-                        onValueChange={(value) =>
-                          setReportType(value as StudentDailyReportPayload["type"])
-                        }
-                        placeholder="Pilih keterangan"
-                        options={reportTypeOptions}
-                      />
-                      <FieldError message={errors.type} />
-                    </div>
-
-                    {reportType === "IZIN" || reportType === "SAKIT" ? (
+                    <div className="space-y-4 border-t border-slate-200/75 pt-5">
                       <div className={premiumModalFieldClassName}>
-                        <label className={premiumModalLabelClassName}>
-                          Alasan {reportType === "SAKIT" ? "Sakit" : "Izin"}
-                        </label>
-                        <p className={premiumModalHelperClassName}>
-                          Keterangan ini akan dibaca oleh walas dan BK.
-                        </p>
-                        <Textarea
-                          value={reason}
-                          onChange={(event) => setReason(event.target.value)}
-                          placeholder="Tuliskan keterangan singkat dan jelas"
-                          className="min-h-[130px] resize-none"
+                        <div>
+                          <label className={premiumModalLabelClassName}>
+                            Keterangan
+                          </label>
+                          <p className={premiumModalHelperClassName}>
+                            Pilih status kehadiran untuk pengajuan hari ini.
+                          </p>
+                        </div>
+                        <RadixSelectField
+                          value={reportType}
+                          onValueChange={(value) =>
+                            setReportType(
+                              value as StudentDailyReportPayload["type"],
+                            )
+                          }
+                          placeholder="Pilih keterangan"
+                          options={reportTypeOptions}
                         />
-                        <FieldError message={errors.reason} />
+                        <FieldError message={errors.type} />
                       </div>
-                    ) : (
-                      <div className="rounded-[1.1rem] border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800">
-                        Untuk status hadir, foto akan langsung masuk sebagai data absensi
-                        dan menunggu validasi walas.
-                      </div>
-                    )}
+
+                      {reportType === "IZIN" || reportType === "SAKIT" ? (
+                        <div className={premiumModalFieldClassName}>
+                          <label className={premiumModalLabelClassName}>
+                            Alasan {reportType === "SAKIT" ? "Sakit" : "Izin"}
+                          </label>
+                          <p className={premiumModalHelperClassName}>
+                            Keterangan ini akan dibaca oleh walas dan BK.
+                          </p>
+                          <Textarea
+                            value={reason}
+                            onChange={(event) => setReason(event.target.value)}
+                            placeholder="Tuliskan keterangan singkat dan jelas"
+                            className="min-h-[130px] resize-none"
+                          />
+                          <FieldError message={errors.reason} />
+                        </div>
+                      ) : (
+                        <div className="rounded-[1.1rem] border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800">
+                          Untuk status hadir, foto akan langsung masuk sebagai
+                          data absensi dan menunggu validasi walas.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
+            </PremiumModal>
 
-            </div>
-          </PremiumModal>
-
-          <AttendanceEvidenceModal
-            record={evidenceRecord}
-            onOpenChange={(open) => !open && setEvidenceRecord(null)}
-          />
-
-          {cameraModalOpen ? (
-            <CameraCaptureModal
-              onCapture={(file) => {
-                setCameraModalOpen(false);
-                void handlePhotoPicked(file);
-              }}
-              onClose={() => setCameraModalOpen(false)}
+            <AttendanceEvidenceModal
+              record={evidenceRecord}
+              onOpenChange={(open) => !open && setEvidenceRecord(null)}
             />
-          ) : null}
-        </div>
-      )}
+
+            {cameraModalOpen ? (
+              <CameraCaptureModal
+                onCapture={(file) => {
+                  setCameraModalOpen(false);
+                  void handlePhotoPicked(file);
+                }}
+                onClose={() => setCameraModalOpen(false)}
+              />
+            ) : null}
+          </div>
+        )
+      }
     </StudentShell>
   );
 }
@@ -866,7 +991,9 @@ function InfoTile({
 
   return (
     <div className="flex min-w-0 items-center gap-3 rounded-[1.15rem] border border-slate-200/75 bg-white/72 px-3.5 py-3.5 shadow-[0_8px_20px_rgba(15,23,42,0.035)]">
-      <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${toneClassName}`}>
+      <span
+        className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${toneClassName}`}
+      >
         <Icon className="size-[1.1rem]" />
       </span>
       <div className="min-w-0">
@@ -899,6 +1026,7 @@ function isMobileDevice(): boolean {
   if (typeof navigator === "undefined") return false;
   return (
     /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches)
+    (typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches)
   );
 }

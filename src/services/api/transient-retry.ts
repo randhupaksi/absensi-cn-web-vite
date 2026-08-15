@@ -21,7 +21,9 @@ export async function retryTransientRequest<T>(
     }
   }
 
-  throw lastError instanceof Error ? lastError : new Error("Permintaan tidak dapat diproses.");
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Permintaan tidak dapat diproses.");
 }
 
 function isRetryableRequestError(error: unknown) {

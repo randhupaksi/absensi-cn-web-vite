@@ -35,7 +35,10 @@ import {
   getTeacherHomeroomSubmissionsOverview,
   reviewTeacherHomeroomSubmission,
 } from "@/services/staff.service";
-import type { StaffHomeroomSubmissionOverview, StaffSubmission } from "@/types/staff";
+import type {
+  StaffHomeroomSubmissionOverview,
+  StaffSubmission,
+} from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BadgeCheck,
@@ -54,7 +57,10 @@ import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const WalasPengajuanReportModal = dynamic(
-  () => import("@/features/reports/homeroom/submissions-report-modal").then((module) => module.WalasPengajuanReportModal),
+  () =>
+    import("@/features/reports/homeroom/submissions-report-modal").then(
+      (module) => module.WalasPengajuanReportModal,
+    ),
   { ssr: false },
 );
 
@@ -97,12 +103,21 @@ export function WalasSubmissionsPage() {
   const debouncedQuery = useDebouncedValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [typeFilter, setTypeFilter] = useState("Semua");
-  const [detailTarget, setDetailTarget] = useState<StaffSubmission | null>(null);
-  const [reviewTarget, setReviewTarget] = useState<StaffSubmission | null>(null);
+  const [detailTarget, setDetailTarget] = useState<StaffSubmission | null>(
+    null,
+  );
+  const [reviewTarget, setReviewTarget] = useState<StaffSubmission | null>(
+    null,
+  );
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const overviewQuery = useQuery({
-    queryKey: ["teacher-homeroom-submissions-overview", statusFilter, typeFilter, debouncedQuery],
+    queryKey: [
+      "teacher-homeroom-submissions-overview",
+      statusFilter,
+      typeFilter,
+      debouncedQuery,
+    ],
     queryFn: () =>
       getTeacherHomeroomSubmissionsOverview({
         status: statusFilter === "Semua" ? "" : statusFilter,
@@ -137,7 +152,8 @@ export function WalasSubmissionsPage() {
   const overview = overviewQuery.data ?? emptyOverview;
   const counts = overview.counts;
   const records = overview.records ?? [];
-  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
+  const { pageItems: pageRecords, pagination: recordsPagination } =
+    usePagination(records);
 
   const kpiCards = [
     {
@@ -205,10 +221,12 @@ export function WalasSubmissionsPage() {
                     </span>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-slate-800">
-                        {overview.homeroom.class_name || "Belum ada kelas walas"}
+                        {overview.homeroom.class_name ||
+                          "Belum ada kelas walas"}
                       </p>
                       <p className="text-xs leading-5 text-slate-500">
-                        {overview.homeroom.school_year_name || "Tahun ajaran belum tersedia"}
+                        {overview.homeroom.school_year_name ||
+                          "Tahun ajaran belum tersedia"}
                       </p>
                     </div>
                   </div>
@@ -228,7 +246,8 @@ export function WalasSubmissionsPage() {
               </div>
 
               <div className="text-xs font-medium text-slate-400">
-                {counts.pending} pengajuan masih menunggu review dan {counts.with_attachment} pengajuan membawa lampiran siswa
+                {counts.pending} pengajuan masih menunggu review dan{" "}
+                {counts.with_attachment} pengajuan membawa lampiran siswa
               </div>
             </div>
 
@@ -266,12 +285,14 @@ export function WalasSubmissionsPage() {
                 </Button>
               </div>
 
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, alasan, tipe" />
+              <SearchFilterBar
+                value={query}
+                onChange={setQuery}
+                placeholder="Cari siswa, NIS, alasan, tipe"
+              />
             </div>
 
-            <div
-              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
-            >
+            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80">
               <div className="overflow-x-auto bg-white/92">
                 {overviewQuery.isLoading ? (
                   <SubmissionTableSkeleton />
@@ -293,122 +314,161 @@ export function WalasSubmissionsPage() {
                   </div>
                 ) : (
                   <>
-                  <div className="hidden md:block">
-                  <DataTable>
-                    <DataTableHeadRow
-                      labels={["Siswa", "Pengajuan", "Waktu", "Status", "Lampiran", "Catatan", "Aksi"]}
-                      centerLabels={["Status"]}
-                    />
-                    <DataTableBody>
-                      {pageRecords.map((record) => (
-                        <DataTableRow key={record.id}>
-                          <DataTableCell>
-                            <div className="space-y-1">
-                              <p className="font-semibold text-slate-900">{record.student_name}</p>
-                              <p className="text-xs text-slate-500">
-                                {record.nis} • {record.class_name || "Kelas belum tersambung"}
-                              </p>
-                            </div>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <div className="space-y-2">
-                              <SubmissionTypePill type={record.type} />
-                              <p className="line-clamp-2 max-w-[280px] text-xs leading-5 text-slate-500">
-                                {record.reason}
-                              </p>
-                            </div>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <div className="space-y-1">
-                              <p className="font-medium text-slate-800">
-                                {formatDate(record.created_at)}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {formatDateTime(record.updated_at)}
-                              </p>
-                            </div>
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <SubmissionStatusPill status={record.status} />
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            {record.attachment ? (
-                              <span className="text-xs font-medium text-emerald-700">Tersedia</span>
-                            ) : (
-                              <span className="text-xs text-slate-400">Tidak ada</span>
-                            )}
-                          </DataTableCell>
-                          <DataTableCell>
-                            <p className="line-clamp-2 max-w-[260px] text-sm leading-6 text-slate-500">
-                              {record.review_note || "Belum ada tanggapan walas"}
-                            </p>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <div className="flex items-center justify-center gap-2">
-                              <ActionIconButton
-                                tone="emerald"
-                                onClick={() => setDetailTarget(record)}
-                                ariaLabel={`Lihat detail pengajuan ${record.student_name}`}
-                              >
-                                <Eye className="size-4.5" />
-                              </ActionIconButton>
-                              <ActionIconButton
-                                tone="sky"
-                                onClick={() => setReviewTarget(record)}
-                                ariaLabel={`Tinjau pengajuan ${record.student_name}`}
-                              >
-                                <PencilLine className="size-4.5" />
-                              </ActionIconButton>
-                            </div>
-                          </DataTableCell>
-                        </DataTableRow>
-                      ))}
-                    </DataTableBody>
-                  </DataTable>
-                  </div>
-                  <MobileDataList>
-                    {pageRecords.map((record) => (
-                      <MobileDataCard key={record.id}>
-                        <MobileDataHeader
-                          title={record.student_name}
-                          subtitle={`${record.nis} - ${record.class_name || "Kelas belum tersambung"}`}
-                          badge={<SubmissionStatusPill status={record.status} />}
+                    <div className="hidden md:block">
+                      <DataTable>
+                        <DataTableHeadRow
+                          labels={[
+                            "Siswa",
+                            "Pengajuan",
+                            "Waktu",
+                            "Status",
+                            "Lampiran",
+                            "Catatan",
+                            "Aksi",
+                          ]}
+                          centerLabels={["Status"]}
                         />
-                        <div className="mt-4 grid gap-3">
-                          <MobileDataField label="Tipe" value={<SubmissionTypePill type={record.type} />} />
-                          <MobileDataField label="Tanggal" value={formatDate(record.created_at)} />
-                          <MobileDataField label="Diperbarui" value={formatDateTime(record.updated_at)} />
-                        </div>
-                        <MobileDataSection label="Alasan">
-                          <p className="text-sm leading-6 text-slate-600">{record.reason}</p>
-                        </MobileDataSection>
-                        <MobileDataSection label="Catatan Walas">
-                          <p className="text-sm leading-6 text-slate-600">{record.review_note || "Belum ada tanggapan walas"}</p>
-                        </MobileDataSection>
-                        <MobileDataFooter>
-                          {record.attachment ? <span className="px-2 text-xs font-medium text-emerald-700">Lampiran tersedia</span> : null}
-                          <ActionIconButton
-                            tone="emerald"
-                            onClick={() => setDetailTarget(record)}
-                            ariaLabel={`Lihat detail pengajuan ${record.student_name}`}
-                          >
-                            <Eye className="size-4.5" />
-                          </ActionIconButton>
-                          <ActionIconButton
-                            tone="sky"
-                            onClick={() => setReviewTarget(record)}
-                            ariaLabel={`Tinjau pengajuan ${record.student_name}`}
-                          >
-                            <PencilLine className="size-4.5" />
-                          </ActionIconButton>
-                        </MobileDataFooter>
-                      </MobileDataCard>
-                    ))}
-                  </MobileDataList>
+                        <DataTableBody>
+                          {pageRecords.map((record) => (
+                            <DataTableRow key={record.id}>
+                              <DataTableCell>
+                                <div className="space-y-1">
+                                  <p className="font-semibold text-slate-900">
+                                    {record.student_name}
+                                  </p>
+                                  <p className="text-xs text-slate-500">
+                                    {record.nis} •{" "}
+                                    {record.class_name ||
+                                      "Kelas belum tersambung"}
+                                  </p>
+                                </div>
+                              </DataTableCell>
+                              <DataTableCell>
+                                <div className="space-y-2">
+                                  <SubmissionTypePill type={record.type} />
+                                  <p className="line-clamp-2 max-w-[280px] text-xs leading-5 text-slate-500">
+                                    {record.reason}
+                                  </p>
+                                </div>
+                              </DataTableCell>
+                              <DataTableCell>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-slate-800">
+                                    {formatDate(record.created_at)}
+                                  </p>
+                                  <p className="text-xs text-slate-500">
+                                    {formatDateTime(record.updated_at)}
+                                  </p>
+                                </div>
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                <SubmissionStatusPill status={record.status} />
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                {record.attachment ? (
+                                  <span className="text-xs font-medium text-emerald-700">
+                                    Tersedia
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-slate-400">
+                                    Tidak ada
+                                  </span>
+                                )}
+                              </DataTableCell>
+                              <DataTableCell>
+                                <p className="line-clamp-2 max-w-[260px] text-sm leading-6 text-slate-500">
+                                  {record.review_note ||
+                                    "Belum ada tanggapan walas"}
+                                </p>
+                              </DataTableCell>
+                              <DataTableCell>
+                                <div className="flex items-center justify-center gap-2">
+                                  <ActionIconButton
+                                    tone="emerald"
+                                    onClick={() => setDetailTarget(record)}
+                                    ariaLabel={`Lihat detail pengajuan ${record.student_name}`}
+                                  >
+                                    <Eye className="size-4.5" />
+                                  </ActionIconButton>
+                                  <ActionIconButton
+                                    tone="sky"
+                                    onClick={() => setReviewTarget(record)}
+                                    ariaLabel={`Tinjau pengajuan ${record.student_name}`}
+                                  >
+                                    <PencilLine className="size-4.5" />
+                                  </ActionIconButton>
+                                </div>
+                              </DataTableCell>
+                            </DataTableRow>
+                          ))}
+                        </DataTableBody>
+                      </DataTable>
+                    </div>
+                    <MobileDataList>
+                      {pageRecords.map((record) => (
+                        <MobileDataCard key={record.id}>
+                          <MobileDataHeader
+                            title={record.student_name}
+                            subtitle={`${record.nis} - ${record.class_name || "Kelas belum tersambung"}`}
+                            badge={
+                              <SubmissionStatusPill status={record.status} />
+                            }
+                          />
+                          <div className="mt-4 grid gap-3">
+                            <MobileDataField
+                              label="Tipe"
+                              value={<SubmissionTypePill type={record.type} />}
+                            />
+                            <MobileDataField
+                              label="Tanggal"
+                              value={formatDate(record.created_at)}
+                            />
+                            <MobileDataField
+                              label="Diperbarui"
+                              value={formatDateTime(record.updated_at)}
+                            />
+                          </div>
+                          <MobileDataSection label="Alasan">
+                            <p className="text-sm leading-6 text-slate-600">
+                              {record.reason}
+                            </p>
+                          </MobileDataSection>
+                          <MobileDataSection label="Catatan Walas">
+                            <p className="text-sm leading-6 text-slate-600">
+                              {record.review_note ||
+                                "Belum ada tanggapan walas"}
+                            </p>
+                          </MobileDataSection>
+                          <MobileDataFooter>
+                            {record.attachment ? (
+                              <span className="px-2 text-xs font-medium text-emerald-700">
+                                Lampiran tersedia
+                              </span>
+                            ) : null}
+                            <ActionIconButton
+                              tone="emerald"
+                              onClick={() => setDetailTarget(record)}
+                              ariaLabel={`Lihat detail pengajuan ${record.student_name}`}
+                            >
+                              <Eye className="size-4.5" />
+                            </ActionIconButton>
+                            <ActionIconButton
+                              tone="sky"
+                              onClick={() => setReviewTarget(record)}
+                              ariaLabel={`Tinjau pengajuan ${record.student_name}`}
+                            >
+                              <PencilLine className="size-4.5" />
+                            </ActionIconButton>
+                          </MobileDataFooter>
+                        </MobileDataCard>
+                      ))}
+                    </MobileDataList>
                   </>
                 )}
               </div>
-              {!overviewQuery.isLoading && !overviewQuery.error && records.length > 0 ? (
+              {!overviewQuery.isLoading &&
+              !overviewQuery.error &&
+              records.length > 0 ? (
                 <DataTablePagination {...recordsPagination} />
               ) : null}
             </div>

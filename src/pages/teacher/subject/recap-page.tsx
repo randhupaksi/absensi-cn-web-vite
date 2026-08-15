@@ -11,7 +11,11 @@ import {
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   getTeacherSubjectAssignments,
@@ -22,12 +26,21 @@ import type { StaffSubjectRecapStudentRow } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { BookOpenCheck, CalendarDays, ChartColumnBig, LoaderCircle, Printer } from "lucide-react";
+import {
+  BookOpenCheck,
+  CalendarDays,
+  ChartColumnBig,
+  LoaderCircle,
+  Printer,
+} from "lucide-react";
 import { useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const SubjectRecapReportModal = dynamic(
-  () => import("@/features/reports/subject/subject-recap-report-modal").then((module) => module.SubjectRecapReportModal),
+  () =>
+    import("@/features/reports/subject/subject-recap-report-modal").then(
+      (module) => module.SubjectRecapReportModal,
+    ),
   { ssr: false },
 );
 
@@ -35,18 +48,32 @@ type DateFilterMode = "single" | "range";
 
 export function MapelRecapPage() {
   const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
-  const [dateFilterMode, setDateFilterMode] = useState<DateFilterMode | null>(null);
+  const [dateFilterMode, setDateFilterMode] = useState<DateFilterMode | null>(
+    null,
+  );
   const [singleDate, setSingleDate] = useState<Date | undefined>(undefined);
-  const [rangeDateFrom, setRangeDateFrom] = useState<Date | undefined>(undefined);
+  const [rangeDateFrom, setRangeDateFrom] = useState<Date | undefined>(
+    undefined,
+  );
   const [rangeDateTo, setRangeDateTo] = useState<Date | undefined>(undefined);
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
-  const dateFromStr = dateFilterMode === "single"
-    ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
-    : dateFilterMode === "range" && rangeDateFrom ? format(rangeDateFrom, "yyyy-MM-dd") : "";
-  const dateToStr = dateFilterMode === "single"
-    ? singleDate ? format(singleDate, "yyyy-MM-dd") : ""
-    : dateFilterMode === "range" && rangeDateTo ? format(rangeDateTo, "yyyy-MM-dd") : "";
+  const dateFromStr =
+    dateFilterMode === "single"
+      ? singleDate
+        ? format(singleDate, "yyyy-MM-dd")
+        : ""
+      : dateFilterMode === "range" && rangeDateFrom
+        ? format(rangeDateFrom, "yyyy-MM-dd")
+        : "";
+  const dateToStr =
+    dateFilterMode === "single"
+      ? singleDate
+        ? format(singleDate, "yyyy-MM-dd")
+        : ""
+      : dateFilterMode === "range" && rangeDateTo
+        ? format(rangeDateTo, "yyyy-MM-dd")
+        : "";
 
   const assignmentsQuery = useQuery({
     queryKey: ["teacher-subject-assignments"],
@@ -70,254 +97,407 @@ export function MapelRecapPage() {
   });
 
   const recap = recapQuery.data;
-  const { pageItems: pagedStudents, pagination: studentsPagination } = usePagination(recap?.students ?? [], 10);
-  const periodeLabel = buildPeriodLabel(dateFromStr, dateToStr, recap?.period_start, recap?.period_end);
+  const { pageItems: pagedStudents, pagination: studentsPagination } =
+    usePagination(recap?.students ?? [], 10);
+  const periodeLabel = buildPeriodLabel(
+    dateFromStr,
+    dateToStr,
+    recap?.period_start,
+    recap?.period_end,
+  );
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
     label: `${a.subject_name} - ${a.class_name} (${a.school_year_name})`,
   }));
 
-  const filterStep = !selectedAssignmentId ? 1 : dateFilterMode === null ? 2 : 3;
-  const filterStepTitle = filterStep === 1
-    ? "Mulai dari mata pelajaran"
-    : filterStep === 2
-      ? "Pilih mode tanggal"
-      : "Tentukan tanggal rekap";
-  const filterStepDescription = filterStep === 1
-    ? "Pilih mapel tujuan untuk membuka rekap kehadiran siswa."
-    : filterStep === 2
-      ? "Tentukan apakah rekap berdasarkan satu tanggal atau rentang tanggal."
-      : "Atur tanggal untuk mempersempit data yang ingin kamu lihat.";
+  const filterStep = !selectedAssignmentId
+    ? 1
+    : dateFilterMode === null
+      ? 2
+      : 3;
+  const filterStepTitle =
+    filterStep === 1
+      ? "Mulai dari mata pelajaran"
+      : filterStep === 2
+        ? "Pilih mode tanggal"
+        : "Tentukan tanggal rekap";
+  const filterStepDescription =
+    filterStep === 1
+      ? "Pilih mapel tujuan untuk membuka rekap kehadiran siswa."
+      : filterStep === 2
+        ? "Tentukan apakah rekap berdasarkan satu tanggal atau rentang tanggal."
+        : "Atur tanggal untuk mempersempit data yang ingin kamu lihat.";
 
   return (
     <WalasShell>
-      {() => (
-        assignmentsQuery.isLoading && !assignmentsQuery.data
-      ) ? (
-        <HistoryPageSkeleton />
-      ) : (
-        <>
-          {/* Filter */}
-          <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-lg font-semibold text-slate-950">Filter Rekap</p>
-              <Button
-                type="button"
-                disabled={!recap || recap.students.length === 0 || recapQuery.isLoading}
-                onClick={() => setReportModalOpen(true)}
-                className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800"
-              >
-                <Printer className="size-4" />
-                Export Laporan
-              </Button>
-            </div>
-            <div className="mb-5 flex items-center gap-3 rounded-[20px] border border-emerald-100 bg-emerald-50/55 px-4 py-3.5">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-[13px] bg-emerald-600 text-sm font-bold text-white shadow-[0_8px_18px_rgba(5,150,105,0.18)]">{filterStep}</span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-emerald-950">{filterStepTitle}</p>
-                <p className="mt-0.5 text-xs leading-5 text-emerald-800/75">{filterStepDescription}</p>
+      {() =>
+        assignmentsQuery.isLoading && !assignmentsQuery.data ? (
+          <HistoryPageSkeleton />
+        ) : (
+          <>
+            {/* Filter */}
+            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-lg font-semibold text-slate-950">
+                  Filter Rekap
+                </p>
+                <Button
+                  type="button"
+                  disabled={
+                    !recap ||
+                    recap.students.length === 0 ||
+                    recapQuery.isLoading
+                  }
+                  onClick={() => setReportModalOpen(true)}
+                  className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800"
+                >
+                  <Printer className="size-4" />
+                  Export Laporan
+                </Button>
               </div>
-            </div>
-            <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">
-              <div className="sm:col-span-2 lg:col-span-1">
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <label className="block text-xs font-semibold text-slate-600">1. Mata Pelajaran</label>
-                  <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Wajib</span>
+              <div className="mb-5 flex items-center gap-3 rounded-[20px] border border-emerald-100 bg-emerald-50/55 px-4 py-3.5">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-[13px] bg-emerald-600 text-sm font-bold text-white shadow-[0_8px_18px_rgba(5,150,105,0.18)]">
+                  {filterStep}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-emerald-950">
+                    {filterStepTitle}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-5 text-emerald-800/75">
+                    {filterStepDescription}
+                  </p>
                 </div>
-                <RadixSelectField
-                  value={selectedAssignmentId}
-                  onValueChange={(value) => {
-                    setSelectedAssignmentId(value);
-                    setDateFilterMode(null);
-                    setSingleDate(undefined);
-                    setRangeDateFrom(undefined);
-                    setRangeDateTo(undefined);
-                  }}
-                  placeholder="Pilih mata pelajaran"
-                  options={assignmentOptions}
-                />
               </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600">2. Mode Tanggal</label>
-                <DateFilterModeSwitch value={dateFilterMode} onChange={setDateFilterMode} />
-              </div>
-              {dateFilterMode === "single" ? (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">3. Tanggal Tertentu</label>
-                  <DatePickerButton
-                    value={singleDate}
-                    onChange={setSingleDate}
-                    placeholder="Pilih tanggal"
+              <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <label className="block text-xs font-semibold text-slate-600">
+                      1. Mata Pelajaran
+                    </label>
+                    <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                      Wajib
+                    </span>
+                  </div>
+                  <RadixSelectField
+                    value={selectedAssignmentId}
+                    onValueChange={(value) => {
+                      setSelectedAssignmentId(value);
+                      setDateFilterMode(null);
+                      setSingleDate(undefined);
+                      setRangeDateFrom(undefined);
+                      setRangeDateTo(undefined);
+                    }}
+                    placeholder="Pilih mata pelajaran"
+                    options={assignmentOptions}
                   />
                 </div>
-              ) : dateFilterMode === "range" ? (
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">3. Dari</label>
-                    <DatePickerButton
-                      value={rangeDateFrom}
-                      onChange={setRangeDateFrom}
-                      placeholder="Dari"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">Sampai</label>
-                    <DatePickerButton
-                      value={rangeDateTo}
-                      onChange={setRangeDateTo}
-                      placeholder="Sampai"
-                    />
-                  </div>
-                </div>
-              ) : null}
-            </div>
-            {dateFilterMode === "range" && !dateFromStr && !dateToStr ? (
-              <p className="mt-3 text-sm text-slate-500">
-                Tanpa tanggal terpilih, sistem menampilkan semua data pada periode{" "}
-                <span className="font-medium text-emerald-700">{periodeLabel}</span>.
-              </p>
-            ) : null}
-          </section>
-
-          {/* Recap table */}
-          {!selectedAssignmentId ? (
-            <section className="rounded-[32px] border border-dashed border-slate-200 bg-white/45 p-6">
-              <EmptyState icon={ChartColumnBig} title="Rekap siap ditampilkan" description="Pilih mata pelajaran pada langkah pertama untuk melihat data kehadiran siswa." />
-            </section>
-          ) : dateFilterMode === null ? (
-            <section className="rounded-[32px] border border-dashed border-emerald-200 bg-emerald-50/25 p-6">
-              <EmptyState icon={CalendarDays} title="Pilih mode tanggal" description="Gunakan switch langkah 2 untuk melanjutkan ke pengaturan tanggal rekap." />
-            </section>
-          ) : recapQuery.isLoading && !recapQuery.data ? (
-            <section className="flex min-h-56 items-center justify-center rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-              <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
-                <LoaderCircle className="size-5 animate-spin text-emerald-600" />
-                Memuat rekap mata pelajaran...
-              </div>
-            </section>
-          ) : recapQuery.error ? (
-            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-              <EmptyState icon={ChartColumnBig} title="Rekap belum bisa dimuat" description={recapQuery.error.message} />
-            </section>
-          ) : recap ? (
-            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-              <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xl font-semibold text-slate-950">
-	                    {recap.assignment.subject_name} - {recap.assignment.classes.length} kelas
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {recap.assignment.school_year_name} ·{" "}
-                    <span className="font-medium text-emerald-700">{recap.total_pertemuan} pertemuan</span>
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Periode: <span className="font-medium text-emerald-700">{periodeLabel}</span>
-                  </p>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                    2. Mode Tanggal
+                  </label>
+                  <DateFilterModeSwitch
+                    value={dateFilterMode}
+                    onChange={setDateFilterMode}
+                  />
                 </div>
+                {dateFilterMode === "single" ? (
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                      3. Tanggal Tertentu
+                    </label>
+                    <DatePickerButton
+                      value={singleDate}
+                      onChange={setSingleDate}
+                      placeholder="Pilih tanggal"
+                    />
+                  </div>
+                ) : dateFilterMode === "range" ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                        3. Dari
+                      </label>
+                      <DatePickerButton
+                        value={rangeDateFrom}
+                        onChange={setRangeDateFrom}
+                        placeholder="Dari"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                        Sampai
+                      </label>
+                      <DatePickerButton
+                        value={rangeDateTo}
+                        onChange={setRangeDateTo}
+                        placeholder="Sampai"
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
+              {dateFilterMode === "range" && !dateFromStr && !dateToStr ? (
+                <p className="mt-3 text-sm text-slate-500">
+                  Tanpa tanggal terpilih, sistem menampilkan semua data pada
+                  periode{" "}
+                  <span className="font-medium text-emerald-700">
+                    {periodeLabel}
+                  </span>
+                  .
+                </p>
+              ) : null}
+            </section>
 
-              {recap.students.length === 0 ? (
-                <EmptyState icon={BookOpenCheck} title="Belum ada data pertemuan" description="Belum ada sesi yang divalidasi dalam rentang tanggal ini." />
-              ) : (
-                <>
-                <div className="hidden overflow-x-auto md:block">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        <th className="pb-3 pr-4">Siswa</th>
-                        <th className="pb-3 pr-4">NIS</th>
-                        <th className="pb-3 pr-4 text-center text-emerald-600">Hadir</th>
-                        <th className="pb-3 pr-4 text-center text-sky-600">Izin</th>
-                        <th className="pb-3 pr-4 text-center text-violet-600">Sakit</th>
-                        <th className="pb-3 pr-4 text-center text-rose-600">Alfa</th>
-                        <th className="pb-3 text-center text-emerald-700">Persentase Hadir</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {pagedStudents.map((s, i) => (
-                        <tr
-                          key={s.student_id}
-                          className="content-enter-up-4"
-                          style={{ animationDelay: `${i * 20}ms` }}
-                        >
-                          <td className="py-3 pr-4 font-medium text-slate-900">{s.student_name}</td>
-                          <td className="py-3 pr-4 text-slate-500">{s.nis}</td>
-                          <RecapCell value={s.hadir} cls="text-emerald-700 bg-emerald-50" />
-                          <RecapCell value={s.izin} cls="text-sky-700 bg-sky-50" />
-                          <RecapCell value={s.sakit} cls="text-violet-700 bg-violet-50" />
-                          <RecapCell value={s.alfa} cls="text-rose-700 bg-rose-50" />
-                          <AttendancePercentageCell hadir={s.hadir} totalPertemuan={recap.total_pertemuan} />
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="border-t-2 border-slate-100">
-                        <td colSpan={2} className="py-3 text-xs font-semibold text-slate-500">
-                          Total ({recap.students.length} siswa)
-                        </td>
-                        <SumCell rows={recap.students} field="hadir" cls="text-emerald-700" />
-                        <SumCell rows={recap.students} field="izin" cls="text-sky-700" />
-                        <SumCell rows={recap.students} field="sakit" cls="text-violet-700" />
-                        <SumCell rows={recap.students} field="alfa" cls="text-rose-700" />
-                        <TotalAttendancePercentageCell rows={recap.students} totalPertemuan={recap.total_pertemuan} />
-                      </tr>
-                    </tfoot>
-                  </table>
+            {/* Recap table */}
+            {!selectedAssignmentId ? (
+              <section className="rounded-[32px] border border-dashed border-slate-200 bg-white/45 p-6">
+                <EmptyState
+                  icon={ChartColumnBig}
+                  title="Rekap siap ditampilkan"
+                  description="Pilih mata pelajaran pada langkah pertama untuk melihat data kehadiran siswa."
+                />
+              </section>
+            ) : dateFilterMode === null ? (
+              <section className="rounded-[32px] border border-dashed border-emerald-200 bg-emerald-50/25 p-6">
+                <EmptyState
+                  icon={CalendarDays}
+                  title="Pilih mode tanggal"
+                  description="Gunakan switch langkah 2 untuk melanjutkan ke pengaturan tanggal rekap."
+                />
+              </section>
+            ) : recapQuery.isLoading && !recapQuery.data ? (
+              <section className="flex min-h-56 items-center justify-center rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+                <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
+                  <LoaderCircle className="size-5 animate-spin text-emerald-600" />
+                  Memuat rekap mata pelajaran...
                 </div>
-                <MobileDataList>
-                  {pagedStudents.map((s) => (
-                    <MobileDataCard key={s.student_id}>
-                      <MobileDataHeader title={s.student_name} subtitle={s.nis} />
-                      <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
-                        <RecapMetric label="Hadir" value={s.hadir} cls="text-emerald-700 bg-emerald-50" />
-                        <RecapMetric label="Izin" value={s.izin} cls="text-sky-700 bg-sky-50" />
-                        <RecapMetric label="Sakit" value={s.sakit} cls="text-violet-700 bg-violet-50" />
-                        <RecapMetric label="Alfa" value={s.alfa} cls="text-rose-700 bg-rose-50" />
-                        <RecapPercentageMetric hadir={s.hadir} totalPertemuan={recap.total_pertemuan} />
-                      </div>
-                    </MobileDataCard>
-                  ))}
-                </MobileDataList>
-                <DataTablePagination {...studentsPagination} />
-                </>
-              )}
-            </section>
-          ) : (
-            <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-              <EmptyState icon={BookOpenCheck} title="Belum ada data rekap" description="Pilih filter lain atau pastikan seed sesi mapel sudah berjalan." />
-            </section>
-          )}
+              </section>
+            ) : recapQuery.error ? (
+              <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+                <EmptyState
+                  icon={ChartColumnBig}
+                  title="Rekap belum bisa dimuat"
+                  description={recapQuery.error.message}
+                />
+              </section>
+            ) : recap ? (
+              <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+                <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xl font-semibold text-slate-950">
+                      {recap.assignment.subject_name} -{" "}
+                      {recap.assignment.classes.length} kelas
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {recap.assignment.school_year_name} ·{" "}
+                      <span className="font-medium text-emerald-700">
+                        {recap.total_pertemuan} pertemuan
+                      </span>
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Periode:{" "}
+                      <span className="font-medium text-emerald-700">
+                        {periodeLabel}
+                      </span>
+                    </p>
+                  </div>
+                </div>
 
-          {reportModalOpen ? (
-            <SubjectRecapReportModal
-              open={reportModalOpen}
-              onOpenChange={setReportModalOpen}
-              recap={recap}
-              periodeLabel={periodeLabel}
-            />
-          ) : null}
-        </>
-      )}
+                {recap.students.length === 0 ? (
+                  <EmptyState
+                    icon={BookOpenCheck}
+                    title="Belum ada data pertemuan"
+                    description="Belum ada sesi yang divalidasi dalam rentang tanggal ini."
+                  />
+                ) : (
+                  <>
+                    <div className="hidden overflow-x-auto md:block">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            <th className="pb-3 pr-4">Siswa</th>
+                            <th className="pb-3 pr-4">NIS</th>
+                            <th className="pb-3 pr-4 text-center text-emerald-600">
+                              Hadir
+                            </th>
+                            <th className="pb-3 pr-4 text-center text-sky-600">
+                              Izin
+                            </th>
+                            <th className="pb-3 pr-4 text-center text-violet-600">
+                              Sakit
+                            </th>
+                            <th className="pb-3 pr-4 text-center text-rose-600">
+                              Alfa
+                            </th>
+                            <th className="pb-3 text-center text-emerald-700">
+                              Persentase Hadir
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                          {pagedStudents.map((s, i) => (
+                            <tr
+                              key={s.student_id}
+                              className="content-enter-up-4"
+                              style={{ animationDelay: `${i * 20}ms` }}
+                            >
+                              <td className="py-3 pr-4 font-medium text-slate-900">
+                                {s.student_name}
+                              </td>
+                              <td className="py-3 pr-4 text-slate-500">
+                                {s.nis}
+                              </td>
+                              <RecapCell
+                                value={s.hadir}
+                                cls="text-emerald-700 bg-emerald-50"
+                              />
+                              <RecapCell
+                                value={s.izin}
+                                cls="text-sky-700 bg-sky-50"
+                              />
+                              <RecapCell
+                                value={s.sakit}
+                                cls="text-violet-700 bg-violet-50"
+                              />
+                              <RecapCell
+                                value={s.alfa}
+                                cls="text-rose-700 bg-rose-50"
+                              />
+                              <AttendancePercentageCell
+                                hadir={s.hadir}
+                                totalPertemuan={recap.total_pertemuan}
+                              />
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t-2 border-slate-100">
+                            <td
+                              colSpan={2}
+                              className="py-3 text-xs font-semibold text-slate-500"
+                            >
+                              Total ({recap.students.length} siswa)
+                            </td>
+                            <SumCell
+                              rows={recap.students}
+                              field="hadir"
+                              cls="text-emerald-700"
+                            />
+                            <SumCell
+                              rows={recap.students}
+                              field="izin"
+                              cls="text-sky-700"
+                            />
+                            <SumCell
+                              rows={recap.students}
+                              field="sakit"
+                              cls="text-violet-700"
+                            />
+                            <SumCell
+                              rows={recap.students}
+                              field="alfa"
+                              cls="text-rose-700"
+                            />
+                            <TotalAttendancePercentageCell
+                              rows={recap.students}
+                              totalPertemuan={recap.total_pertemuan}
+                            />
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <MobileDataList>
+                      {pagedStudents.map((s) => (
+                        <MobileDataCard key={s.student_id}>
+                          <MobileDataHeader
+                            title={s.student_name}
+                            subtitle={s.nis}
+                          />
+                          <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
+                            <RecapMetric
+                              label="Hadir"
+                              value={s.hadir}
+                              cls="text-emerald-700 bg-emerald-50"
+                            />
+                            <RecapMetric
+                              label="Izin"
+                              value={s.izin}
+                              cls="text-sky-700 bg-sky-50"
+                            />
+                            <RecapMetric
+                              label="Sakit"
+                              value={s.sakit}
+                              cls="text-violet-700 bg-violet-50"
+                            />
+                            <RecapMetric
+                              label="Alfa"
+                              value={s.alfa}
+                              cls="text-rose-700 bg-rose-50"
+                            />
+                            <RecapPercentageMetric
+                              hadir={s.hadir}
+                              totalPertemuan={recap.total_pertemuan}
+                            />
+                          </div>
+                        </MobileDataCard>
+                      ))}
+                    </MobileDataList>
+                    <DataTablePagination {...studentsPagination} />
+                  </>
+                )}
+              </section>
+            ) : (
+              <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+                <EmptyState
+                  icon={BookOpenCheck}
+                  title="Belum ada data rekap"
+                  description="Pilih filter lain atau pastikan seed sesi mapel sudah berjalan."
+                />
+              </section>
+            )}
+
+            {reportModalOpen ? (
+              <SubjectRecapReportModal
+                open={reportModalOpen}
+                onOpenChange={setReportModalOpen}
+                recap={recap}
+                periodeLabel={periodeLabel}
+              />
+            ) : null}
+          </>
+        )
+      }
     </WalasShell>
   );
 }
 
-function buildPeriodLabel(from: string, to: string, periodStart?: string, periodEnd?: string) {
+function buildPeriodLabel(
+  from: string,
+  to: string,
+  periodStart?: string,
+  periodEnd?: string,
+) {
   if (from && to && from === to) return `Tanggal ${formatReportDate(from)}`;
   if (from && to) return `${formatReportDate(from)} - ${formatReportDate(to)}`;
   if (from) return `Mulai ${formatReportDate(from)}`;
   if (to) return `Sampai ${formatReportDate(to)}`;
 
-  if (periodStart && periodEnd && periodStart === periodEnd) return `Tanggal ${formatReportDate(periodStart)}`;
-  if (periodStart && periodEnd) return `${formatReportDate(periodStart)} - ${formatReportDate(periodEnd)}`;
+  if (periodStart && periodEnd && periodStart === periodEnd)
+    return `Tanggal ${formatReportDate(periodStart)}`;
+  if (periodStart && periodEnd)
+    return `${formatReportDate(periodStart)} - ${formatReportDate(periodEnd)}`;
   return "Belum ada tanggal tercatat";
 }
 
 function formatReportDate(value: string) {
   const date = new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function DatePickerButton({
@@ -338,8 +518,12 @@ function DatePickerButton({
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <CalendarDays className="size-4 shrink-0 text-emerald-600" />
-          <span className={`truncate text-sm font-medium ${value ? "text-slate-700" : "text-slate-400"}`}>
-            {value ? format(value, "d MMM yyyy", { locale: localeID }) : placeholder}
+          <span
+            className={`truncate text-sm font-medium ${value ? "text-slate-700" : "text-slate-400"}`}
+          >
+            {value
+              ? format(value, "d MMM yyyy", { locale: localeID })
+              : placeholder}
           </span>
         </div>
       </PopoverTrigger>
@@ -350,7 +534,10 @@ function DatePickerButton({
         <Calendar
           mode="single"
           selected={value}
-          onSelect={(date) => { onChange(date); setOpen(false); }}
+          onSelect={(date) => {
+            onChange(date);
+            setOpen(false);
+          }}
           locale={localeID}
           buttonVariant="ghost"
         />
@@ -373,7 +560,9 @@ function DateFilterModeSwitch({
         variant="ghost"
         onClick={() => onChange("single")}
         className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
-          value === "single" ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
+          value === "single"
+            ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
+            : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
         }`}
       >
         Tanggal
@@ -383,7 +572,9 @@ function DateFilterModeSwitch({
         variant="ghost"
         onClick={() => onChange("range")}
         className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
-          value === "range" ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
+          value === "range"
+            ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
+            : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
         }`}
       >
         Rentang
@@ -396,7 +587,11 @@ function RecapCell({ value, cls }: { value: number; cls: string }) {
   return (
     <td className="py-3 pr-4 text-center">
       {value > 0 ? (
-        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>{value}</span>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
+        >
+          {value}
+        </span>
       ) : (
         <span className="text-xs text-slate-300">-</span>
       )}
@@ -404,38 +599,92 @@ function RecapCell({ value, cls }: { value: number; cls: string }) {
   );
 }
 
-function RecapMetric({ label, value, cls }: { label: string; value: number; cls: string }) {
+function RecapMetric({
+  label,
+  value,
+  cls,
+}: {
+  label: string;
+  value: number;
+  cls: string;
+}) {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white/70 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
-      <span className={`mt-2 inline-flex min-w-8 justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${value > 0 ? cls : "bg-slate-50 text-slate-300"}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+        {label}
+      </p>
+      <span
+        className={`mt-2 inline-flex min-w-8 justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${value > 0 ? cls : "bg-slate-50 text-slate-300"}`}
+      >
         {value}
       </span>
     </div>
   );
 }
 
-function RecapPercentageMetric({ hadir, totalPertemuan }: { hadir: number; totalPertemuan: number }) {
+function RecapPercentageMetric({
+  hadir,
+  totalPertemuan,
+}: {
+  hadir: number;
+  totalPertemuan: number;
+}) {
   return (
     <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">% Hadir</p>
-      <p className="mt-2 text-sm font-bold text-emerald-700">{formatAttendancePercentage(hadir, totalPertemuan)}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+        % Hadir
+      </p>
+      <p className="mt-2 text-sm font-bold text-emerald-700">
+        {formatAttendancePercentage(hadir, totalPertemuan)}
+      </p>
     </div>
   );
 }
 
-function SumCell({ rows, field, cls }: { rows: StaffSubjectRecapStudentRow[]; field: keyof StaffSubjectRecapStudentRow; cls: string }) {
+function SumCell({
+  rows,
+  field,
+  cls,
+}: {
+  rows: StaffSubjectRecapStudentRow[];
+  field: keyof StaffSubjectRecapStudentRow;
+  cls: string;
+}) {
   const total = rows.reduce((sum, r) => sum + (r[field] as number), 0);
-  return <td className={`py-3 pr-4 text-center text-xs font-bold ${cls}`}>{total}</td>;
+  return (
+    <td className={`py-3 pr-4 text-center text-xs font-bold ${cls}`}>
+      {total}
+    </td>
+  );
 }
 
-function AttendancePercentageCell({ hadir, totalPertemuan }: { hadir: number; totalPertemuan: number }) {
-  return <td className="py-3 text-center text-xs font-bold text-emerald-700">{formatAttendancePercentage(hadir, totalPertemuan)}</td>;
+function AttendancePercentageCell({
+  hadir,
+  totalPertemuan,
+}: {
+  hadir: number;
+  totalPertemuan: number;
+}) {
+  return (
+    <td className="py-3 text-center text-xs font-bold text-emerald-700">
+      {formatAttendancePercentage(hadir, totalPertemuan)}
+    </td>
+  );
 }
 
-function TotalAttendancePercentageCell({ rows, totalPertemuan }: { rows: StaffSubjectRecapStudentRow[]; totalPertemuan: number }) {
+function TotalAttendancePercentageCell({
+  rows,
+  totalPertemuan,
+}: {
+  rows: StaffSubjectRecapStudentRow[];
+  totalPertemuan: number;
+}) {
   const totalHadir = rows.reduce((sum, row) => sum + row.hadir, 0);
-  return <td className="py-3 text-center text-xs font-bold text-emerald-700">{formatAttendancePercentage(totalHadir, totalPertemuan * rows.length)}</td>;
+  return (
+    <td className="py-3 text-center text-xs font-bold text-emerald-700">
+      {formatAttendancePercentage(totalHadir, totalPertemuan * rows.length)}
+    </td>
+  );
 }
 
 function formatAttendancePercentage(hadir: number, total: number) {

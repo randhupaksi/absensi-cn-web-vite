@@ -7,7 +7,6 @@ import type { AdminUser } from "@/types/admin";
 import { useQuery } from "@tanstack/react-query";
 
 export function AdminUsersPage() {
-
   const usersQuery = useQuery({
     queryKey: ["admin-users"],
     queryFn: getAdminUsers,

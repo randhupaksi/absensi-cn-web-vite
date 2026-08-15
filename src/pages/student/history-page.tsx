@@ -29,7 +29,11 @@ import {
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { getStudentHistory } from "@/services/student.service";
 import type { StaffAttendanceRecord } from "@/types/staff";
-import type { StudentProfile, StudentStats, StudentSubmission } from "@/types/student";
+import type {
+  StudentProfile,
+  StudentStats,
+  StudentSubmission,
+} from "@/types/student";
 import { useQuery } from "@tanstack/react-query";
 import {
   CalendarCheck,
@@ -54,8 +58,8 @@ const statusOptions = [
   { value: "alfa", label: "Alfa" },
 ];
 
-const StudentHistoryReportModal = dynamic(
-  () => import("@/features/reports/student/student-history-report-modal").then(
+const StudentHistoryReportModal = dynamic(() =>
+  import("@/features/reports/student/student-history-report-modal").then(
     (module) => module.StudentHistoryReportModal,
   ),
 );
@@ -78,8 +82,10 @@ export function StudentHistoryPage() {
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [activeTab, setActiveTab] = useState<StudentHistoryTab>("overview");
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [attendanceEvidence, setAttendanceEvidence] = useState<StaffAttendanceRecord | null>(null);
-  const [submissionEvidence, setSubmissionEvidence] = useState<StudentSubmission | null>(null);
+  const [attendanceEvidence, setAttendanceEvidence] =
+    useState<StaffAttendanceRecord | null>(null);
+  const [submissionEvidence, setSubmissionEvidence] =
+    useState<StudentSubmission | null>(null);
 
   const historyQuery = useQuery({
     queryKey: ["student-history"],
@@ -121,7 +127,8 @@ export function StudentHistoryPage() {
     return [...attendanceItems, ...submissionItems]
       .filter((item) => {
         const statusMatch =
-          statusFilter === "Semua" || item.status.toLowerCase() === statusFilter;
+          statusFilter === "Semua" ||
+          item.status.toLowerCase() === statusFilter;
         const queryMatch =
           normalizedQuery === "" ||
           item.title.toLowerCase().includes(normalizedQuery) ||
@@ -134,187 +141,219 @@ export function StudentHistoryPage() {
 
   return (
     <StudentShell>
-      {() => historyQuery.isLoading && !history ? (
-        <HistoryPageSkeleton />
-      ) : (
-        <div className="space-y-5">
-          <section className="rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div className="max-w-3xl">
-                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/78 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
-                  <History className="size-4" />
-                  Riwayat Absensi Siswa
-                </span>
-                <h1 className="mt-7 text-[2.45rem] font-semibold leading-tight tracking-[-0.04em] text-slate-950">
-                  Histori Absen
-                </h1>
-                <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600">
-                  Riwayat absensi, izin, sakit, bukti foto, dan hasil validasi walas
-                  dalam satu tempat.
-                </p>
-              </div>
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
-                <div className="w-full rounded-[1.4rem] border border-slate-200 bg-white/82 px-5 py-4 shadow-[0_18px_44px_rgba(15,23,42,0.06)] sm:w-auto sm:min-w-[220px]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                    Kelas Aktif
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950">
-                    {history?.profile.class_name ?? "-"}
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    {history?.profile.school_year_name ?? "-"}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setReportModalOpen(true)}
-                  disabled={(history?.attendance.length ?? 0) === 0}
-                  className="h-14 min-w-0 w-full gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] px-3 text-xs font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(220,252,231,1)_100%)] hover:text-emerald-950 sm:w-auto sm:gap-2 sm:px-5 sm:text-sm"
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
-                    <Printer className="size-4" />
+      {() =>
+        historyQuery.isLoading && !history ? (
+          <HistoryPageSkeleton />
+        ) : (
+          <div className="space-y-5">
+            <section className="rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-3xl">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/78 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
+                    <History className="size-4" />
+                    Riwayat Absensi Siswa
                   </span>
-                  Export Laporan
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-7 grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
-              <KpiCard
-                label="Total Absensi"
-                value={String(stats?.total_attendance ?? 0)}
-                icon={CalendarCheck}
-                accentClass="bg-emerald-100 text-emerald-700"
-              />
-              <KpiCard
-                label="Hadir"
-                value={String(stats?.present ?? 0)}
-                icon={CheckCircle2}
-                accentClass="bg-sky-100 text-sky-700"
-              />
-              <KpiCard
-                label="Alfa"
-                value={String(stats?.alpha ?? 0)}
-                icon={ShieldAlert}
-                accentClass="bg-amber-100 text-amber-700"
-              />
-              <KpiCard
-                label="Izin Sakit"
-                value={String((stats?.permission ?? 0) + (stats?.sick ?? 0))}
-                icon={FileText}
-                accentClass="bg-rose-100 text-rose-700"
-              />
-            </div>
-          </section>
-
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as StudentHistoryTab)} className="gap-0">
-            <SectionTabSwitch
-              hugContent
-              tabs={[
-                { value: "overview", label: "Ringkasan", icon: LayoutPanelTop },
-                { value: "history", label: "Histori Absensi", icon: List },
-              ]}
-            />
-
-            <TabsContent value="overview" className="mt-5">
-              <StudentHistoryOverview
-                profile={history?.profile}
-                stats={stats}
-                attendanceRate={attendanceRate}
-                monthlySummary={monthlySummary}
-              />
-            </TabsContent>
-
-            <TabsContent value="history" className="mt-5">
-          <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">Daftar Aktivitas</p>
-                <p className="mt-1 text-xs text-slate-500">Cari dan filter riwayat absensi kamu.</p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                <div className="w-full shrink-0 sm:w-[220px]">
-                  <RadixSelectField
-                    value={statusFilter}
-                    onValueChange={setStatusFilter}
-                    placeholder="Semua status"
-                    options={statusOptions}
-                    triggerClassName="min-w-0"
-                  />
+                  <h1 className="mt-7 text-[2.45rem] font-semibold leading-tight tracking-[-0.04em] text-slate-950">
+                    Histori Absen
+                  </h1>
+                  <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600">
+                    Riwayat absensi, izin, sakit, bukti foto, dan hasil validasi
+                    walas dalam satu tempat.
+                  </p>
                 </div>
-                <SearchFilterBar
-                  value={query}
-                  onChange={setQuery}
-                  placeholder="Cari status, catatan, tanggal"
-                  className="sm:min-w-[360px] xl:min-w-[430px]"
-                />
-              </div>
-            </div>
-
-            {records.length > 0 ? (
-              <>
-              <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block">
-                <div className="min-w-[560px]">
-                  <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 bg-emerald-50 px-5 py-4 text-sm font-semibold text-slate-700">
-                    <span>Aktivitas</span>
-                    <span>Waktu</span>
-                    <span>Status</span>
-                    <span>Validasi</span>
-                    <span className="text-center">Bukti</span>
+                <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+                  <div className="w-full rounded-[1.4rem] border border-slate-200 bg-white/82 px-5 py-4 shadow-[0_18px_44px_rgba(15,23,42,0.06)] sm:w-auto sm:min-w-[220px]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                      Kelas Aktif
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-slate-950">
+                      {history?.profile.class_name ?? "-"}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {history?.profile.school_year_name ?? "-"}
+                    </p>
                   </div>
-                  {records.map((item) =>
-                    item.kind === "attendance" ? (
-                      <AttendanceRow key={item.id} record={item.record} onOpen={setAttendanceEvidence} />
-                    ) : (
-                      <SubmissionRow key={item.id} submission={item.submission} onOpen={setSubmissionEvidence} />
-                    ),
-                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setReportModalOpen(true)}
+                    disabled={(history?.attendance.length ?? 0) === 0}
+                    className="h-14 min-w-0 w-full gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] px-3 text-xs font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(220,252,231,1)_100%)] hover:text-emerald-950 sm:w-auto sm:gap-2 sm:px-5 sm:text-sm"
+                  >
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
+                      <Printer className="size-4" />
+                    </span>
+                    Export Laporan
+                  </Button>
                 </div>
               </div>
-              <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100">
-                <MobileDataList>
-                  {records.map((item) =>
-                    item.kind === "attendance" ? (
-                      <MobileAttendanceCard key={item.id} record={item.record} onOpen={setAttendanceEvidence} />
-                    ) : (
-                      <MobileSubmissionCard key={item.id} submission={item.submission} onOpen={setSubmissionEvidence} />
-                    ),
-                  )}
-                </MobileDataList>
-              </div>
-              </>
-            ) : (
-              <div className="mt-5 rounded-[1.45rem] border border-emerald-100 p-5">
-                <EmptyState
-                  icon={History}
-                  title="Histori belum ditemukan"
-                  description="Coba ubah filter atau lakukan absensi terlebih dahulu."
+
+              <div className="mt-7 grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+                <KpiCard
+                  label="Total Absensi"
+                  value={String(stats?.total_attendance ?? 0)}
+                  icon={CalendarCheck}
+                  accentClass="bg-emerald-100 text-emerald-700"
+                />
+                <KpiCard
+                  label="Hadir"
+                  value={String(stats?.present ?? 0)}
+                  icon={CheckCircle2}
+                  accentClass="bg-sky-100 text-sky-700"
+                />
+                <KpiCard
+                  label="Alfa"
+                  value={String(stats?.alpha ?? 0)}
+                  icon={ShieldAlert}
+                  accentClass="bg-amber-100 text-amber-700"
+                />
+                <KpiCard
+                  label="Izin Sakit"
+                  value={String((stats?.permission ?? 0) + (stats?.sick ?? 0))}
+                  icon={FileText}
+                  accentClass="bg-rose-100 text-rose-700"
                 />
               </div>
-            )}
-          </section>
-            </TabsContent>
-          </Tabs>
+            </section>
 
-          <AttendanceEvidenceModal
-            record={attendanceEvidence}
-            onOpenChange={(open) => !open && setAttendanceEvidence(null)}
-          />
-          <StudentSubmissionEvidenceModal
-            submission={submissionEvidence}
-            onOpenChange={(open) => !open && setSubmissionEvidence(null)}
-          />
-          <StudentHistoryReportModal
-            open={reportModalOpen}
-            onOpenChange={setReportModalOpen}
-            profile={history?.profile}
-            stats={stats}
-            attendance={history?.attendance ?? []}
-          />
-        </div>
-      )}
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as StudentHistoryTab)
+              }
+              className="gap-0"
+            >
+              <SectionTabSwitch
+                hugContent
+                tabs={[
+                  {
+                    value: "overview",
+                    label: "Ringkasan",
+                    icon: LayoutPanelTop,
+                  },
+                  { value: "history", label: "Histori Absensi", icon: List },
+                ]}
+              />
+
+              <TabsContent value="overview" className="mt-5">
+                <StudentHistoryOverview
+                  profile={history?.profile}
+                  stats={stats}
+                  attendanceRate={attendanceRate}
+                  monthlySummary={monthlySummary}
+                />
+              </TabsContent>
+
+              <TabsContent value="history" className="mt-5">
+                <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+                  <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        Daftar Aktivitas
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Cari dan filter riwayat absensi kamu.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                      <div className="w-full shrink-0 sm:w-[220px]">
+                        <RadixSelectField
+                          value={statusFilter}
+                          onValueChange={setStatusFilter}
+                          placeholder="Semua status"
+                          options={statusOptions}
+                          triggerClassName="min-w-0"
+                        />
+                      </div>
+                      <SearchFilterBar
+                        value={query}
+                        onChange={setQuery}
+                        placeholder="Cari status, catatan, tanggal"
+                        className="sm:min-w-[360px] xl:min-w-[430px]"
+                      />
+                    </div>
+                  </div>
+
+                  {records.length > 0 ? (
+                    <>
+                      <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block">
+                        <div className="min-w-[560px]">
+                          <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 bg-emerald-50 px-5 py-4 text-sm font-semibold text-slate-700">
+                            <span>Aktivitas</span>
+                            <span>Waktu</span>
+                            <span>Status</span>
+                            <span>Validasi</span>
+                            <span className="text-center">Bukti</span>
+                          </div>
+                          {records.map((item) =>
+                            item.kind === "attendance" ? (
+                              <AttendanceRow
+                                key={item.id}
+                                record={item.record}
+                                onOpen={setAttendanceEvidence}
+                              />
+                            ) : (
+                              <SubmissionRow
+                                key={item.id}
+                                submission={item.submission}
+                                onOpen={setSubmissionEvidence}
+                              />
+                            ),
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100">
+                        <MobileDataList>
+                          {records.map((item) =>
+                            item.kind === "attendance" ? (
+                              <MobileAttendanceCard
+                                key={item.id}
+                                record={item.record}
+                                onOpen={setAttendanceEvidence}
+                              />
+                            ) : (
+                              <MobileSubmissionCard
+                                key={item.id}
+                                submission={item.submission}
+                                onOpen={setSubmissionEvidence}
+                              />
+                            ),
+                          )}
+                        </MobileDataList>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-5 rounded-[1.45rem] border border-emerald-100 p-5">
+                      <EmptyState
+                        icon={History}
+                        title="Histori belum ditemukan"
+                        description="Coba ubah filter atau lakukan absensi terlebih dahulu."
+                      />
+                    </div>
+                  )}
+                </section>
+              </TabsContent>
+            </Tabs>
+
+            <AttendanceEvidenceModal
+              record={attendanceEvidence}
+              onOpenChange={(open) => !open && setAttendanceEvidence(null)}
+            />
+            <StudentSubmissionEvidenceModal
+              submission={submissionEvidence}
+              onOpenChange={(open) => !open && setSubmissionEvidence(null)}
+            />
+            <StudentHistoryReportModal
+              open={reportModalOpen}
+              onOpenChange={setReportModalOpen}
+              profile={history?.profile}
+              stats={stats}
+              attendance={history?.attendance ?? []}
+            />
+          </div>
+        )
+      }
     </StudentShell>
   );
 }
@@ -339,38 +378,73 @@ function StudentHistoryOverview({
               <LayoutPanelTop className="size-5" />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Profil laporan</p>
-              <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-slate-950">Data Siswa</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Profil laporan
+              </p>
+              <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+                Data Siswa
+              </h2>
             </div>
           </div>
 
           <div className="mt-5 grid gap-3 min-[420px]:grid-cols-2">
             <OverviewField label="Nama lengkap" value={profile?.name ?? "-"} />
             <OverviewField label="NIS" value={profile?.nis ?? "-"} />
-            <OverviewField label="Kelas aktif" value={profile?.class_name ?? "-"} />
-            <OverviewField label="Tahun ajaran" value={profile?.school_year_name ?? "-"} />
+            <OverviewField
+              label="Kelas aktif"
+              value={profile?.class_name ?? "-"}
+            />
+            <OverviewField
+              label="Tahun ajaran"
+              value={profile?.school_year_name ?? "-"}
+            />
           </div>
         </article>
 
         <article className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Kehadiran</p>
-              <p className="mt-3 text-5xl font-semibold tracking-[-0.06em] text-slate-950">{attendanceRate}%</p>
-              <p className="mt-2 text-sm leading-6 text-slate-500">Persentase hadir dari seluruh data absensi yang tercatat.</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Kehadiran
+              </p>
+              <p className="mt-3 text-5xl font-semibold tracking-[-0.06em] text-slate-950">
+                {attendanceRate}%
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Persentase hadir dari seluruh data absensi yang tercatat.
+              </p>
             </div>
             <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
               <ChartLine className="size-5" />
             </span>
           </div>
           <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full rounded-full bg-[linear-gradient(90deg,#059669,#34d399)] transition-[width] duration-500" style={{ width: `${attendanceRate}%` }} />
+            <div
+              className="h-full rounded-full bg-[linear-gradient(90deg,#059669,#34d399)] transition-[width] duration-500"
+              style={{ width: `${attendanceRate}%` }}
+            />
           </div>
           <div className="mt-5 grid grid-cols-4 gap-2 text-center">
-            <OverviewStat label="Hadir" value={stats?.present ?? 0} tone="text-emerald-700" />
-            <OverviewStat label="Izin" value={stats?.permission ?? 0} tone="text-sky-700" />
-            <OverviewStat label="Sakit" value={stats?.sick ?? 0} tone="text-violet-700" />
-            <OverviewStat label="Alfa" value={stats?.alpha ?? 0} tone="text-rose-700" />
+            <OverviewStat
+              label="Hadir"
+              value={stats?.present ?? 0}
+              tone="text-emerald-700"
+            />
+            <OverviewStat
+              label="Izin"
+              value={stats?.permission ?? 0}
+              tone="text-sky-700"
+            />
+            <OverviewStat
+              label="Sakit"
+              value={stats?.sick ?? 0}
+              tone="text-violet-700"
+            />
+            <OverviewStat
+              label="Alfa"
+              value={stats?.alpha ?? 0}
+              tone="text-rose-700"
+            />
           </div>
         </article>
       </section>
@@ -378,35 +452,76 @@ function StudentHistoryOverview({
       <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
         <div className="flex flex-col gap-2 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-slate-900">Ringkasan per bulan</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">Pantau pola kehadiran dari bulan ke bulan sebelum membuka histori lengkap.</p>
+            <p className="text-sm font-semibold text-slate-900">
+              Ringkasan per bulan
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Pantau pola kehadiran dari bulan ke bulan sebelum membuka histori
+              lengkap.
+            </p>
           </div>
-          <p className="text-xs font-medium text-emerald-700">{monthlySummary.length} periode tercatat</p>
+          <p className="text-xs font-medium text-emerald-700">
+            {monthlySummary.length} periode tercatat
+          </p>
         </div>
 
         {monthlySummary.length > 0 ? (
           <div className="mt-5 grid gap-3 min-[520px]:grid-cols-2 xl:grid-cols-3">
             {monthlySummary.map((month) => (
-              <article key={month.key} className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/72 p-4">
+              <article
+                key={month.key}
+                className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/72 p-4"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-slate-900">{month.label}</p>
-                    <p className="mt-1 text-xs text-slate-500">{month.total} data absensi</p>
+                    <p className="font-semibold text-slate-900">
+                      {month.label}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {month.total} data absensi
+                    </p>
                   </div>
-                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">{month.attendanceRate}% hadir</span>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    {month.attendanceRate}% hadir
+                  </span>
                 </div>
                 <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs">
-                  <OverviewStat label="H" value={month.present} tone="text-emerald-700" compact />
-                  <OverviewStat label="I" value={month.permission} tone="text-sky-700" compact />
-                  <OverviewStat label="S" value={month.sick} tone="text-violet-700" compact />
-                  <OverviewStat label="A" value={month.alpha} tone="text-rose-700" compact />
+                  <OverviewStat
+                    label="H"
+                    value={month.present}
+                    tone="text-emerald-700"
+                    compact
+                  />
+                  <OverviewStat
+                    label="I"
+                    value={month.permission}
+                    tone="text-sky-700"
+                    compact
+                  />
+                  <OverviewStat
+                    label="S"
+                    value={month.sick}
+                    tone="text-violet-700"
+                    compact
+                  />
+                  <OverviewStat
+                    label="A"
+                    value={month.alpha}
+                    tone="text-rose-700"
+                    compact
+                  />
                 </div>
               </article>
             ))}
           </div>
         ) : (
           <div className="mt-5">
-            <EmptyState icon={CalendarCheck} title="Belum ada ringkasan bulanan" description="Ringkasan akan terbentuk setelah histori absensi tersedia." compact />
+            <EmptyState
+              icon={CalendarCheck}
+              title="Belum ada ringkasan bulanan"
+              description="Ringkasan akan terbentuk setelah histori absensi tersedia."
+              compact
+            />
           </div>
         )}
       </section>
@@ -417,22 +532,46 @@ function StudentHistoryOverview({
 function OverviewField({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-[1.1rem] border border-white bg-white/84 px-3.5 py-3 shadow-[0_8px_18px_rgba(15,23,42,0.035)]">
-      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.15em] text-slate-400">{label}</p>
-      <p className="mt-1 truncate text-sm font-semibold text-slate-800">{value}</p>
+      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.15em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-sm font-semibold text-slate-800">
+        {value}
+      </p>
     </div>
   );
 }
 
-function OverviewStat({ label, value, tone, compact = false }: { label: string; value: number; tone: string; compact?: boolean }) {
+function OverviewStat({
+  label,
+  value,
+  tone,
+  compact = false,
+}: {
+  label: string;
+  value: number;
+  tone: string;
+  compact?: boolean;
+}) {
   return (
-    <div className={`rounded-[0.9rem] bg-white px-2 shadow-[0_6px_14px_rgba(15,23,42,0.03)] ${compact ? "py-2.5" : "py-3"}`}>
-      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+    <div
+      className={`rounded-[0.9rem] bg-white px-2 shadow-[0_6px_14px_rgba(15,23,42,0.03)] ${compact ? "py-2.5" : "py-3"}`}
+    >
+      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-slate-400">
+        {label}
+      </p>
       <p className={`mt-1 text-lg font-semibold ${tone}`}>{value}</p>
     </div>
   );
 }
 
-function AttendanceRow({ record, onOpen }: { record: StaffAttendanceRecord; onOpen: (record: StaffAttendanceRecord) => void }) {
+function AttendanceRow({
+  record,
+  onOpen,
+}: {
+  record: StaffAttendanceRecord;
+  onOpen: (record: StaffAttendanceRecord) => void;
+}) {
   return (
     <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
       <div>
@@ -445,7 +584,9 @@ function AttendanceRow({ record, onOpen }: { record: StaffAttendanceRecord; onOp
         <p className="font-medium text-slate-800">
           {formatStudentDate(record.attendance_date)}
         </p>
-        <p className="mt-1 text-slate-500">{formatStudentTime(record.check_in_at, "Tidak ada waktu")}</p>
+        <p className="mt-1 text-slate-500">
+          {formatStudentTime(record.check_in_at, "Tidak ada waktu")}
+        </p>
       </div>
       <div className="flex items-center">
         <StudentStatusPill status={record.status} />
@@ -480,7 +621,13 @@ function AttendanceRow({ record, onOpen }: { record: StaffAttendanceRecord; onOp
   );
 }
 
-function MobileAttendanceCard({ record, onOpen }: { record: StaffAttendanceRecord; onOpen: (record: StaffAttendanceRecord) => void }) {
+function MobileAttendanceCard({
+  record,
+  onOpen,
+}: {
+  record: StaffAttendanceRecord;
+  onOpen: (record: StaffAttendanceRecord) => void;
+}) {
   return (
     <MobileDataCard>
       <MobileDataHeader
@@ -489,7 +636,10 @@ function MobileAttendanceCard({ record, onOpen }: { record: StaffAttendanceRecor
         badge={<StudentStatusPill status={record.status} />}
       />
       <div className="mt-4 grid gap-3">
-        <MobileDataField label="Waktu" value={formatStudentTime(record.check_in_at, "Tidak ada waktu")} />
+        <MobileDataField
+          label="Waktu"
+          value={formatStudentTime(record.check_in_at, "Tidak ada waktu")}
+        />
         <MobileDataField
           label="Validasi"
           value={
@@ -523,7 +673,13 @@ function MobileAttendanceCard({ record, onOpen }: { record: StaffAttendanceRecor
   );
 }
 
-function SubmissionRow({ submission, onOpen }: { submission: StudentSubmission; onOpen: (submission: StudentSubmission) => void }) {
+function SubmissionRow({
+  submission,
+  onOpen,
+}: {
+  submission: StudentSubmission;
+  onOpen: (submission: StudentSubmission) => void;
+}) {
   return (
     <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
       <div>
@@ -565,7 +721,13 @@ function SubmissionRow({ submission, onOpen }: { submission: StudentSubmission; 
   );
 }
 
-function MobileSubmissionCard({ submission, onOpen }: { submission: StudentSubmission; onOpen: (submission: StudentSubmission) => void }) {
+function MobileSubmissionCard({
+  submission,
+  onOpen,
+}: {
+  submission: StudentSubmission;
+  onOpen: (submission: StudentSubmission) => void;
+}) {
   return (
     <MobileDataCard>
       <MobileDataHeader
@@ -574,8 +736,14 @@ function MobileSubmissionCard({ submission, onOpen }: { submission: StudentSubmi
         badge={<StudentSubmissionPill value={submission.status} />}
       />
       <div className="mt-4 grid gap-3">
-        <MobileDataField label="Tipe" value={<StudentSubmissionPill value={submission.type} />} />
-        <MobileDataField label="Validasi" value={submission.review_note || submission.reviewed_by_name || "-"} />
+        <MobileDataField
+          label="Tipe"
+          value={<StudentSubmissionPill value={submission.type} />}
+        />
+        <MobileDataField
+          label="Validasi"
+          value={submission.review_note || submission.reviewed_by_name || "-"}
+        />
       </div>
       <MobileDataSection label="Alasan">
         <p className="text-sm leading-6 text-slate-600">{submission.reason}</p>
@@ -597,8 +765,13 @@ function MobileSubmissionCard({ submission, onOpen }: { submission: StudentSubmi
   );
 }
 
-function getMonthlyAttendanceSummary(attendance: StaffAttendanceRecord[]): MonthlyAttendanceSummary[] {
-  const summaries = new Map<string, Omit<MonthlyAttendanceSummary, "label" | "attendanceRate">>();
+function getMonthlyAttendanceSummary(
+  attendance: StaffAttendanceRecord[],
+): MonthlyAttendanceSummary[] {
+  const summaries = new Map<
+    string,
+    Omit<MonthlyAttendanceSummary, "label" | "attendanceRate">
+  >();
 
   attendance.forEach((record) => {
     const key = record.attendance_date.slice(0, 7);
@@ -628,6 +801,8 @@ function getMonthlyAttendanceSummary(attendance: StaffAttendanceRecord[]): Month
         month: "long",
         year: "numeric",
       }),
-      attendanceRate: item.total ? Math.round((item.present / item.total) * 100) : 0,
+      attendanceRate: item.total
+        ? Math.round((item.present / item.total) * 100)
+        : 0,
     }));
 }

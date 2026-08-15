@@ -22,13 +22,21 @@ import type {
 } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { BadgeCheck, CheckCheck, NotebookText, ShieldAlert } from "lucide-react";
+import {
+  BadgeCheck,
+  CheckCheck,
+  NotebookText,
+  ShieldAlert,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const WalasAbsensiReportModal = dynamic(
-  () => import("@/features/reports/homeroom/attendance-report-modal").then((module) => module.WalasAbsensiReportModal),
+  () =>
+    import("@/features/reports/homeroom/attendance-report-modal").then(
+      (module) => module.WalasAbsensiReportModal,
+    ),
   { ssr: false },
 );
 
@@ -60,14 +68,24 @@ export function WalasAttendancePage() {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [reviewTarget, setReviewTarget] = useState<StaffAttendanceRecord | null>(null);
-  const [proofTarget, setProofTarget] = useState<StaffAttendanceRecord | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date(),
+  );
+  const [reviewTarget, setReviewTarget] =
+    useState<StaffAttendanceRecord | null>(null);
+  const [proofTarget, setProofTarget] = useState<StaffAttendanceRecord | null>(
+    null,
+  );
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const dateValue = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
   const overviewQuery = useQuery({
-    queryKey: ["teacher-homeroom-attendance-overview", dateValue, statusFilter, debouncedQuery],
+    queryKey: [
+      "teacher-homeroom-attendance-overview",
+      dateValue,
+      statusFilter,
+      debouncedQuery,
+    ],
     queryFn: () =>
       getTeacherHomeroomAttendanceOverview({
         date: dateValue,
@@ -87,9 +105,15 @@ export function WalasAttendancePage() {
     onSuccess: () => {
       toast.success("Status absensi berhasil diperbarui.");
       void Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["teacher-homeroom-attendance-overview"] }),
-        queryClient.invalidateQueries({ queryKey: ["teacher-homeroom-dashboard"] }),
-        queryClient.invalidateQueries({ queryKey: ["teacher-homeroom-students"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["teacher-homeroom-attendance-overview"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["teacher-homeroom-dashboard"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["teacher-homeroom-students"],
+        }),
       ]);
       setReviewTarget(null);
     },
@@ -101,24 +125,50 @@ export function WalasAttendancePage() {
     [overviewQuery.data],
   );
   const { summary, records } = overview;
-  const totalAttendance = summary.present + summary.permission + summary.sick + summary.alpha;
+  const totalAttendance =
+    summary.present + summary.permission + summary.sick + summary.alpha;
   const reviewMetrics = useMemo(() => {
     let reviewed = 0;
     let pending = 0;
 
     for (const record of records) {
       if (record.verified_at) reviewed += 1;
-      if (record.status.toLowerCase() === "alfa" && !record.verified_at) pending += 1;
+      if (record.status.toLowerCase() === "alfa" && !record.verified_at)
+        pending += 1;
     }
 
     return { reviewed, pending };
   }, [records]);
 
   const kpiCards: AttendanceKpi[] = [
-    { label: "Total Data", value: String(records.length), subtitle: "Absensi tanggal ini", icon: NotebookText, accentClass: "bg-emerald-100 text-emerald-700" },
-    { label: "Hadir Tepat Waktu", value: String(summary.present), subtitle: "Masuk tepat waktu", icon: BadgeCheck, accentClass: "bg-teal-100 text-teal-700" },
-    { label: "Alfa", value: String(reviewMetrics.pending), subtitle: "Perlu dicek saat absensi kelas", icon: ShieldAlert, accentClass: "bg-amber-100 text-amber-700" },
-    { label: "Sudah Dikoreksi", value: String(reviewMetrics.reviewed), subtitle: "Status pernah diperbarui walas", icon: CheckCheck, accentClass: "bg-sky-100 text-sky-700" },
+    {
+      label: "Total Data",
+      value: String(records.length),
+      subtitle: "Absensi tanggal ini",
+      icon: NotebookText,
+      accentClass: "bg-emerald-100 text-emerald-700",
+    },
+    {
+      label: "Hadir Tepat Waktu",
+      value: String(summary.present),
+      subtitle: "Masuk tepat waktu",
+      icon: BadgeCheck,
+      accentClass: "bg-teal-100 text-teal-700",
+    },
+    {
+      label: "Alfa",
+      value: String(reviewMetrics.pending),
+      subtitle: "Perlu dicek saat absensi kelas",
+      icon: ShieldAlert,
+      accentClass: "bg-amber-100 text-amber-700",
+    },
+    {
+      label: "Sudah Dikoreksi",
+      value: String(reviewMetrics.reviewed),
+      subtitle: "Status pernah diperbarui walas",
+      icon: CheckCheck,
+      accentClass: "bg-sky-100 text-sky-700",
+    },
   ];
 
   const sortedRecords = useMemo(() => {
@@ -161,7 +211,9 @@ export function WalasAttendancePage() {
             <AttendanceReviewModal
               key={reviewTarget.id}
               record={reviewTarget}
-              onOpenChange={(open) => { if (!open) setReviewTarget(null); }}
+              onOpenChange={(open) => {
+                if (!open) setReviewTarget(null);
+              }}
               onSubmit={(payload) => reviewMutation.mutate(payload)}
               isPending={reviewMutation.isPending}
             />
@@ -169,7 +221,9 @@ export function WalasAttendancePage() {
           {proofTarget && (
             <AttendanceProofModal
               record={proofTarget}
-              onOpenChange={(open) => { if (!open) setProofTarget(null); }}
+              onOpenChange={(open) => {
+                if (!open) setProofTarget(null);
+              }}
             />
           )}
           {reportModalOpen && (
@@ -185,7 +239,9 @@ export function WalasAttendancePage() {
   );
 }
 
-function normalizeOverview(overview: StaffHomeroomAttendanceOverview): StaffHomeroomAttendanceOverview {
+function normalizeOverview(
+  overview: StaffHomeroomAttendanceOverview,
+): StaffHomeroomAttendanceOverview {
   return {
     ...overview,
     summary: {

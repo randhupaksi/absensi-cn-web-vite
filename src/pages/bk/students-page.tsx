@@ -51,7 +51,10 @@ import { toast } from "sonner";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const BKSiswaReportModal = dynamic(
-  () => import("@/features/reports/bk/students-report-modal").then((module) => module.BKSiswaReportModal),
+  () =>
+    import("@/features/reports/bk/students-report-modal").then(
+      (module) => module.BKSiswaReportModal,
+    ),
   { ssr: false },
 );
 
@@ -69,7 +72,9 @@ export function BKStudentsPage() {
   const debouncedQuery = useDebouncedValue(query);
   const [classFilter, setClassFilter] = useState("Semua");
   const [riskFilter, setRiskFilter] = useState("Semua");
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    null,
+  );
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
@@ -99,7 +104,9 @@ export function BKStudentsPage() {
     onSuccess: () => {
       toast.success("Catatan BK berhasil dibuat.");
       void queryClient.invalidateQueries({ queryKey: ["bk-student-detail"] });
-      void queryClient.invalidateQueries({ queryKey: ["bk-students-overview"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["bk-students-overview"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["bk-dashboard"] });
       setNoteTargetId(null);
     },
@@ -115,7 +122,8 @@ export function BKStudentsPage() {
     with_counseling_notes: 0,
   };
   const students = overview?.students ?? [];
-  const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(students);
+  const { pageItems: pageStudents, pagination: studentsPagination } =
+    usePagination(students);
   const classes = overview?.classes ?? [];
 
   const kpiCards = [
@@ -162,7 +170,12 @@ export function BKStudentsPage() {
             <BkPageHero
               badge="Halaman Siswa BK"
               title="Pemantauan Siswa"
-              description={<>Pantau siswa lintas kelas, lihat pola alfa, dan buka catatan pembinaan dari satu tabel kerja BK.</>}
+              description={
+                <>
+                  Pantau siswa lintas kelas, lihat pola alfa, dan buka catatan
+                  pembinaan dari satu tabel kerja BK.
+                </>
+              }
               kpiCards={kpiCards}
               onOpenReport={() => setReportModalOpen(true)}
               kpiGridClassName="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-4"
@@ -194,13 +207,15 @@ export function BKStudentsPage() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, NIS, atau kelas" />
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari siswa, NIS, atau kelas"
+                />
               </div>
             </div>
 
-            <div
-              className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80"
-            >
+            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80">
               <div className="overflow-x-auto bg-white/92">
                 {overviewQuery.isLoading ? (
                   <TableSkeleton columns={9} />
@@ -222,141 +237,210 @@ export function BKStudentsPage() {
                   </div>
                 ) : (
                   <>
-                  <div className="hidden md:block">
-                  <DataTable>
-                    <DataTableHeadRow
-                      labels={["Siswa", "Kelas", "Identitas", "H", "I", "S", "A", "Status", "Aksi"]}
-                      centerLabels={["H", "I", "S", "A", "Status"]}
-                    />
-                    <DataTableBody>
+                    <div className="hidden md:block">
+                      <DataTable>
+                        <DataTableHeadRow
+                          labels={[
+                            "Siswa",
+                            "Kelas",
+                            "Identitas",
+                            "H",
+                            "I",
+                            "S",
+                            "A",
+                            "Status",
+                            "Aksi",
+                          ]}
+                          centerLabels={["H", "I", "S", "A", "Status"]}
+                        />
+                        <DataTableBody>
+                          {pageStudents.map((student) => (
+                            <DataTableRow key={student.id}>
+                              <DataTableCell>
+                                <div className="flex items-center gap-3">
+                                  <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
+                                    {getInitials(student.name)}
+                                  </span>
+                                  <div>
+                                    <p className="font-semibold text-slate-900">
+                                      {student.name}
+                                    </p>
+                                    <p className="text-xs text-slate-500">
+                                      {student.nis}
+                                    </p>
+                                  </div>
+                                </div>
+                              </DataTableCell>
+                              <DataTableCell>
+                                <p className="font-medium text-slate-800">
+                                  {student.class_name || "-"}
+                                </p>
+                                <p className="text-xs">
+                                  {student.school_year_name || "-"}
+                                </p>
+                              </DataTableCell>
+                              <DataTableCell>
+                                <p>{formatGender(student.gender)}</p>
+                                <p className="text-xs">{student.nisn || "-"}</p>
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                <CountBadge
+                                  value={student.present_count}
+                                  tone="success"
+                                />
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                <CountBadge
+                                  value={student.permission_count}
+                                  tone="info"
+                                />
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                <CountBadge
+                                  value={student.sick_count}
+                                  tone="violet"
+                                />
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                <CountBadge
+                                  value={student.alpha_count}
+                                  tone="danger"
+                                />
+                              </DataTableCell>
+                              <DataTableCell className="text-center">
+                                <StatusBadge active={student.is_active} />
+                              </DataTableCell>
+                              <DataTableCell>
+                                <div className="flex items-center justify-center gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
+                                    onClick={() =>
+                                      setSelectedStudentId(student.id)
+                                    }
+                                  >
+                                    <Eye className="size-4.5" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-10 rounded-2xl border border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                                    onClick={() => setNoteTargetId(student.id)}
+                                  >
+                                    <NotebookPen className="size-4.5" />
+                                  </Button>
+                                </div>
+                              </DataTableCell>
+                            </DataTableRow>
+                          ))}
+                        </DataTableBody>
+                      </DataTable>
+                    </div>
+                    <MobileDataList>
                       {pageStudents.map((student) => (
-                        <DataTableRow key={student.id}>
-                          <DataTableCell>
-                            <div className="flex items-center gap-3">
+                        <MobileDataCard key={student.id}>
+                          <MobileDataHeader
+                            leading={
                               <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
                                 {getInitials(student.name)}
                               </span>
-                              <div>
-                                <p className="font-semibold text-slate-900">{student.name}</p>
-                                <p className="text-xs text-slate-500">{student.nis}</p>
+                            }
+                            title={student.name}
+                            subtitle={student.nis}
+                            badge={<StatusBadge active={student.is_active} />}
+                          />
+                          <div className="mt-4 grid gap-3">
+                            <MobileDataField
+                              label="Kelas"
+                              value={student.class_name || "-"}
+                            />
+                            <MobileDataField
+                              label="Tahun Ajaran"
+                              value={student.school_year_name || "-"}
+                            />
+                            <MobileDataField
+                              label="Identitas"
+                              value={`${formatGender(student.gender)} - ${student.nisn || "-"}`}
+                            />
+                          </div>
+                          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                                Hadir
+                              </p>
+                              <div className="mt-1">
+                                <CountBadge
+                                  value={student.present_count}
+                                  tone="success"
+                                />
                               </div>
                             </div>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <p className="font-medium text-slate-800">
-                              {student.class_name || "-"}
-                            </p>
-                            <p className="text-xs">{student.school_year_name || "-"}</p>
-                          </DataTableCell>
-                          <DataTableCell>
-                            <p>{formatGender(student.gender)}</p>
-                            <p className="text-xs">{student.nisn || "-"}</p>
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <CountBadge value={student.present_count} tone="success" />
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <CountBadge value={student.permission_count} tone="info" />
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <CountBadge value={student.sick_count} tone="violet" />
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <CountBadge value={student.alpha_count} tone="danger" />
-                          </DataTableCell>
-                          <DataTableCell className="text-center">
-                            <StatusBadge active={student.is_active} />
-                          </DataTableCell>
-                          <DataTableCell>
-                            <div className="flex items-center justify-center gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
-                                onClick={() => setSelectedStudentId(student.id)}
-                              >
-                                <Eye className="size-4.5" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="size-10 rounded-2xl border border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                                onClick={() => setNoteTargetId(student.id)}
-                              >
-                                <NotebookPen className="size-4.5" />
-                              </Button>
+                            <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">
+                                Izin
+                              </p>
+                              <div className="mt-1">
+                                <CountBadge
+                                  value={student.permission_count}
+                                  tone="info"
+                                />
+                              </div>
                             </div>
-                          </DataTableCell>
-                        </DataTableRow>
+                            <div className="rounded-2xl border border-violet-100 bg-violet-50/70 p-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-700">
+                                Sakit
+                              </p>
+                              <div className="mt-1">
+                                <CountBadge
+                                  value={student.sick_count}
+                                  tone="violet"
+                                />
+                              </div>
+                            </div>
+                            <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-700">
+                                Alfa
+                              </p>
+                              <div className="mt-1">
+                                <CountBadge
+                                  value={student.alpha_count}
+                                  tone="danger"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <MobileDataFooter>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
+                              onClick={() => setSelectedStudentId(student.id)}
+                            >
+                              <Eye className="size-4.5" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-10 rounded-2xl border border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                              onClick={() => setNoteTargetId(student.id)}
+                            >
+                              <NotebookPen className="size-4.5" />
+                            </Button>
+                          </MobileDataFooter>
+                        </MobileDataCard>
                       ))}
-                    </DataTableBody>
-                  </DataTable>
-                  </div>
-                  <MobileDataList>
-                    {pageStudents.map((student) => (
-                      <MobileDataCard key={student.id}>
-                        <MobileDataHeader
-                          leading={
-                            <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800">
-                              {getInitials(student.name)}
-                            </span>
-                          }
-                          title={student.name}
-                          subtitle={student.nis}
-                          badge={<StatusBadge active={student.is_active} />}
-                        />
-                        <div className="mt-4 grid gap-3">
-                          <MobileDataField label="Kelas" value={student.class_name || "-"} />
-                          <MobileDataField label="Tahun Ajaran" value={student.school_year_name || "-"} />
-                          <MobileDataField label="Identitas" value={`${formatGender(student.gender)} - ${student.nisn || "-"}`} />
-                        </div>
-                        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">Hadir</p>
-                            <div className="mt-1"><CountBadge value={student.present_count} tone="success" /></div>
-                          </div>
-                          <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">Izin</p>
-                            <div className="mt-1"><CountBadge value={student.permission_count} tone="info" /></div>
-                          </div>
-                          <div className="rounded-2xl border border-violet-100 bg-violet-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-700">Sakit</p>
-                            <div className="mt-1"><CountBadge value={student.sick_count} tone="violet" /></div>
-                          </div>
-                          <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-700">Alfa</p>
-                            <div className="mt-1"><CountBadge value={student.alpha_count} tone="danger" /></div>
-                          </div>
-                        </div>
-                        <MobileDataFooter>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50"
-                            onClick={() => setSelectedStudentId(student.id)}
-                          >
-                            <Eye className="size-4.5" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-10 rounded-2xl border border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                            onClick={() => setNoteTargetId(student.id)}
-                          >
-                            <NotebookPen className="size-4.5" />
-                          </Button>
-                        </MobileDataFooter>
-                      </MobileDataCard>
-                    ))}
-                  </MobileDataList>
+                    </MobileDataList>
                   </>
                 )}
               </div>
-              {!overviewQuery.isLoading && !overviewQuery.error && students.length > 0 ? (
+              {!overviewQuery.isLoading &&
+              !overviewQuery.error &&
+              students.length > 0 ? (
                 <DataTablePagination {...studentsPagination} />
               ) : null}
             </div>
@@ -398,18 +482,30 @@ export function BKStudentsPage() {
   );
 }
 
-function CountBadge({ value, tone }: { value: number; tone: "success" | "warning" | "danger" | "info" | "violet" }) {
+function CountBadge({
+  value,
+  tone,
+}: {
+  value: number;
+  tone: "success" | "warning" | "danger" | "info" | "violet";
+}) {
   const className =
     tone === "success"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
       : tone === "warning"
-      ? "border-amber-200 bg-amber-50 text-amber-700"
-      : tone === "danger"
-        ? "border-rose-200 bg-rose-50 text-rose-700"
-        : tone === "violet"
-          ? "border-violet-200 bg-violet-50 text-violet-700"
-          : "border-sky-200 bg-sky-50 text-sky-700";
-  return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>{value}</span>;
+        ? "border-amber-200 bg-amber-50 text-amber-700"
+        : tone === "danger"
+          ? "border-rose-200 bg-rose-50 text-rose-700"
+          : tone === "violet"
+            ? "border-violet-200 bg-violet-50 text-violet-700"
+            : "border-sky-200 bg-sky-50 text-sky-700";
+  return (
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+    >
+      {value}
+    </span>
+  );
 }
 
 function StatusBadge({ active }: { active: boolean }) {
