@@ -15,7 +15,10 @@ type CameraCaptureModalProps = {
   onClose: () => void;
 };
 
-export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalProps) {
+export function CameraCaptureModal({
+  onCapture,
+  onClose,
+}: CameraCaptureModalProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -91,7 +94,9 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
   return (
     <PremiumModal
       open
-      onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) handleClose();
+      }}
       title="Ambil Foto Absensi"
       description="Arahkan kamera ke wajah kamu, lalu klik Ambil Foto."
       icon={Camera}
@@ -100,7 +105,9 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
         {cameraError ? (
           <div className="flex flex-col items-center gap-3 rounded-[1.3rem] border border-rose-200 bg-rose-50/60 p-6 text-center">
             <ShieldAlert className="size-8 text-rose-500" />
-            <p className="text-[0.88rem] font-medium text-rose-700">{cameraError}</p>
+            <p className="text-[0.88rem] font-medium text-rose-700">
+              {cameraError}
+            </p>
           </div>
         ) : (
           <div className="relative overflow-hidden rounded-[1.3rem] border border-emerald-200/70 bg-slate-950">
@@ -119,8 +126,12 @@ export function CameraCaptureModal({ onCapture, onClose }: CameraCaptureModalPro
                   <Camera className="size-5" />
                 </span>
                 <div className="relative">
-                  <p className="text-sm font-semibold text-white">Menyiapkan kamera</p>
-                  <p className="mt-1 text-xs text-slate-400">Browser sedang memeriksa izin dan perangkat kamera.</p>
+                  <p className="text-sm font-semibold text-white">
+                    Menyiapkan kamera
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Browser sedang memeriksa izin dan perangkat kamera.
+                  </p>
                 </div>
               </div>
             ) : null}

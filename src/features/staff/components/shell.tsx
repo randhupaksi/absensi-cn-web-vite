@@ -10,7 +10,13 @@ import {
 } from "@/lib/auth";
 import type { AuthSession, DashboardRole } from "@/types/auth";
 import { usePathname, useRouter } from "@/lib/router";
-import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { getTeacherMe } from "@/services/staff.service";
@@ -43,7 +49,11 @@ export function StaffShell({
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const session = useSyncExternalStore(subscribeAuthSession, getAuthSession, () => null);
+  const session = useSyncExternalStore(
+    subscribeAuthSession,
+    getAuthSession,
+    () => null,
+  );
 
   const teacherMeQuery = useQuery({
     queryKey: ["teacher-me"],
@@ -52,7 +62,8 @@ export function StaffShell({
     enabled: Boolean(session?.user.role === "TEACHER"),
   });
 
-  const isExpectedRole = session && canAccessDashboardRole(session.user, expectedRole);
+  const isExpectedRole =
+    session && canAccessDashboardRole(session.user, expectedRole);
   const visibleSidebarItems = useMemo(() => {
     if (!session || session.user.role !== "TEACHER") {
       return sidebarItems;
@@ -60,7 +71,8 @@ export function StaffShell({
 
     return buildTeacherWorkspaceSidebarItems({
       isHomeroomTeacher: teacherMeQuery.data?.is_homeroom_teacher ?? false,
-      hasSubjectAssignments: teacherMeQuery.data?.has_subject_assignments ?? false,
+      hasSubjectAssignments:
+        teacherMeQuery.data?.has_subject_assignments ?? false,
       hasBKScope: session.user.has_bk_scope,
     });
   }, [session, sidebarItems, teacherMeQuery.data]);

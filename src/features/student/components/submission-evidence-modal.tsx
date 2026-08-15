@@ -28,8 +28,12 @@ export function StudentSubmissionEvidenceModal({
         <div className="grid gap-4">
           <div className="flex flex-wrap items-start justify-between gap-4 rounded-[var(--radius-xl)] border border-emerald-100/70 bg-white p-4">
             <div>
-              <p className="font-semibold text-slate-900">{submission.student_name}</p>
-              <p className="mt-1 text-sm leading-6 text-slate-500">{submission.reason}</p>
+              <p className="font-semibold text-slate-900">
+                {submission.student_name}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                {submission.reason}
+              </p>
             </div>
             <div className="flex gap-2">
               <StudentSubmissionPill value={submission.type} />
@@ -52,7 +56,10 @@ export function StudentSubmissionEvidenceModal({
                 compact
               />
             )}
-            <AttendanceLocationEvidence evidence={submission} className="mt-4 px-1 pb-1" />
+            <AttendanceLocationEvidence
+              evidence={submission}
+              className="mt-4 px-1 pb-1"
+            />
           </div>
         </div>
       ) : null}

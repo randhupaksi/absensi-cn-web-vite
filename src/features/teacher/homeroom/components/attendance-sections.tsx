@@ -34,7 +34,10 @@ import {
 } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loading-system";
-import type { StaffAttendanceRecord, StaffHomeroomAttendanceOverview } from "@/types/staff";
+import type {
+  StaffAttendanceRecord,
+  StaffHomeroomAttendanceOverview,
+} from "@/types/staff";
 import { id as localeID } from "date-fns/locale";
 import {
   ArrowUpRight,
@@ -91,8 +94,9 @@ export function AttendanceHero({
                   Absensi Kelas
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Rekap absensi harian kelas walas, filter tanggal dan status, lalu tinjau data
-                  yang butuh tindak lanjut langsung dari satu tabel operasional yang lebih fokus.
+                  Rekap absensi harian kelas walas, filter tanggal dan status,
+                  lalu tinjau data yang butuh tindak lanjut langsung dari satu
+                  tabel operasional yang lebih fokus.
                 </p>
               </div>
             </div>
@@ -107,7 +111,8 @@ export function AttendanceHero({
                     {overview.homeroom.class_name || "Belum ada kelas walas"}
                   </p>
                   <p className="text-xs leading-5 text-slate-500">
-                    {overview.homeroom.school_year_name || "Tahun ajaran belum tersedia"}
+                    {overview.homeroom.school_year_name ||
+                      "Tahun ajaran belum tersedia"}
                   </p>
                 </div>
               </div>
@@ -123,8 +128,8 @@ export function AttendanceHero({
           </div>
 
           <div className="text-xs font-medium text-slate-400">
-            {totalAttendance} data tercatat dengan {pendingReviewCount} item perlu ditinjau pada{" "}
-            {formatFriendlyDate(overview.date)}
+            {totalAttendance} data tercatat dengan {pendingReviewCount} item
+            perlu ditinjau pada {formatFriendlyDate(overview.date)}
           </div>
         </div>
       </article>
@@ -163,7 +168,8 @@ export function AttendanceTableSection({
   onOpenProof,
   onOpenReview,
 }: AttendanceTableSectionProps) {
-  const { pageItems: pageRecords, pagination: recordsPagination } = usePagination(records);
+  const { pageItems: pageRecords, pagination: recordsPagination } =
+    usePagination(records);
 
   return (
     <section className="space-y-5">
@@ -175,7 +181,8 @@ export function AttendanceTableSection({
                 Tabel Absensi Harian
               </h3>
               <p className="text-sm text-slate-500">
-                Snapshot record absensi {overview.homeroom.class_name || "kelas walas"} pada{" "}
+                Snapshot record absensi{" "}
+                {overview.homeroom.class_name || "kelas walas"} pada{" "}
                 {formatFriendlyDate(overview.date)}.
               </p>
             </div>
@@ -195,7 +202,11 @@ export function AttendanceTableSection({
         <div className="mt-5 overflow-hidden rounded-[24px] border border-emerald-100/70 bg-white/88">
           {error ? (
             <div className="p-5">
-              <EmptyState icon={ShieldAlert} title="Data absensi belum bisa dimuat" description={error.message} />
+              <EmptyState
+                icon={ShieldAlert}
+                title="Data absensi belum bisa dimuat"
+                description={error.message}
+              />
             </div>
           ) : isLoading ? (
             <AttendanceTableSkeleton />
@@ -209,118 +220,169 @@ export function AttendanceTableSection({
             </div>
           ) : (
             <>
-            <div className="hidden overflow-x-auto md:block">
-              <DataTable>
-                <DataTableHeadRow
-                  labels={["Siswa", "Absen Masuk", "Status", "Koreksi", "Catatan", "Aksi"]}
-                  centerLabels={["Status", "Koreksi"]}
-                />
-                <DataTableBody>
-                  {pageRecords.map((record) => {
-                    const reviewedByBK = isReviewedByBK(record);
-                    return (
-                    <DataTableRow key={record.id}>
-                      <DataTableCell>
-                        <div className="space-y-1">
-                          <p className="font-semibold text-slate-900">{record.student_name}</p>
-                          <p className="text-xs text-slate-500">{record.nis} • {record.class_name}</p>
-                        </div>
-                      </DataTableCell>
-                      <DataTableCell>
-                        <div className="space-y-1">
-                          <p className="font-medium text-slate-800">{formatFriendlyDate(record.attendance_date)}</p>
-                          <p className="text-xs text-slate-500">{formatCheckInTime(record.check_in_at)}</p>
-                        </div>
-                      </DataTableCell>
-                      <DataTableCell className="text-center"><AttendanceStatusPill status={record.status} compact /></DataTableCell>
-                      <DataTableCell className="text-center"><ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} /></DataTableCell>
-                      <DataTableCell>
-                        <p className="line-clamp-2 max-w-[280px] text-sm leading-6 text-slate-500">
-                          {record.verification_note || record.notes || "Belum ada catatan"}
-                        </p>
-                      </DataTableCell>
-                      <DataTableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
-                            onClick={() => onOpenProof(record)}
-                            disabled={!record.photo_url}
-                            aria-label="Lihat bukti absensi"
-                          >
-                            <ImageIcon className="size-4.5" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
-                            onClick={() => onOpenReview(record)}
-                            disabled={reviewedByBK}
-                            aria-label="Koreksi status absensi"
-            title={reviewedByBK ? "Sudah dikoreksi BK" : "Koreksi status absensi"}
-                          >
-                            <BadgeCheck className="size-4.5" />
-                          </Button>
-                        </div>
-                      </DataTableCell>
-                    </DataTableRow>
-                  );
-                  })}
-                </DataTableBody>
-              </DataTable>
-            </div>
-            <MobileDataList>
-              {pageRecords.map((record) => {
-                const reviewedByBK = isReviewedByBK(record);
-                return (
-                <MobileDataCard key={record.id}>
-                  <MobileDataHeader
-                    title={record.student_name}
-                    subtitle={`${record.nis} - ${record.class_name}`}
-                    badge={<AttendanceStatusPill status={record.status} />}
+              <div className="hidden overflow-x-auto md:block">
+                <DataTable>
+                  <DataTableHeadRow
+                    labels={[
+                      "Siswa",
+                      "Absen Masuk",
+                      "Status",
+                      "Koreksi",
+                      "Catatan",
+                      "Aksi",
+                    ]}
+                    centerLabels={["Status", "Koreksi"]}
                   />
-                  <div className="mt-4 grid gap-3">
-                    <MobileDataField label="Tanggal" value={formatFriendlyDate(record.attendance_date)} />
-                    <MobileDataField label="Absen Masuk" value={formatCheckInTime(record.check_in_at)} />
-                    <MobileDataField label="Koreksi" value={<ReviewStatusPill reviewed={Boolean(record.verified_at)} reviewedByBK={reviewedByBK} />} />
-                  </div>
-                  <MobileDataSection label="Catatan">
-                    <p className="text-sm leading-6 text-slate-600">
-                      {record.verification_note || record.notes || "Belum ada catatan"}
-                    </p>
-                  </MobileDataSection>
-                  <MobileDataFooter>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
-                      onClick={() => onOpenProof(record)}
-                      disabled={!record.photo_url}
-                      aria-label="Lihat bukti absensi"
-                    >
-                      <ImageIcon className="size-4.5" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
-                      onClick={() => onOpenReview(record)}
-                      disabled={reviewedByBK}
-                      aria-label="Koreksi status absensi"
-                      title={reviewedByBK ? "Sudah dikoreksi BK" : "Koreksi status absensi"}
-                    >
-                      <BadgeCheck className="size-4.5" />
-                    </Button>
-                  </MobileDataFooter>
-                </MobileDataCard>
-              );
-              })}
-            </MobileDataList>
+                  <DataTableBody>
+                    {pageRecords.map((record) => {
+                      const reviewedByBK = isReviewedByBK(record);
+                      return (
+                        <DataTableRow key={record.id}>
+                          <DataTableCell>
+                            <div className="space-y-1">
+                              <p className="font-semibold text-slate-900">
+                                {record.student_name}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {record.nis} • {record.class_name}
+                              </p>
+                            </div>
+                          </DataTableCell>
+                          <DataTableCell>
+                            <div className="space-y-1">
+                              <p className="font-medium text-slate-800">
+                                {formatFriendlyDate(record.attendance_date)}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {formatCheckInTime(record.check_in_at)}
+                              </p>
+                            </div>
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
+                            <AttendanceStatusPill
+                              status={record.status}
+                              compact
+                            />
+                          </DataTableCell>
+                          <DataTableCell className="text-center">
+                            <ReviewStatusPill
+                              reviewed={Boolean(record.verified_at)}
+                              reviewedByBK={reviewedByBK}
+                            />
+                          </DataTableCell>
+                          <DataTableCell>
+                            <p className="line-clamp-2 max-w-[280px] text-sm leading-6 text-slate-500">
+                              {record.verification_note ||
+                                record.notes ||
+                                "Belum ada catatan"}
+                            </p>
+                          </DataTableCell>
+                          <DataTableCell>
+                            <div className="flex items-center justify-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                                onClick={() => onOpenProof(record)}
+                                disabled={!record.photo_url}
+                                aria-label="Lihat bukti absensi"
+                              >
+                                <ImageIcon className="size-4.5" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
+                                onClick={() => onOpenReview(record)}
+                                disabled={reviewedByBK}
+                                aria-label="Koreksi status absensi"
+                                title={
+                                  reviewedByBK
+                                    ? "Sudah dikoreksi BK"
+                                    : "Koreksi status absensi"
+                                }
+                              >
+                                <BadgeCheck className="size-4.5" />
+                              </Button>
+                            </div>
+                          </DataTableCell>
+                        </DataTableRow>
+                      );
+                    })}
+                  </DataTableBody>
+                </DataTable>
+              </div>
+              <MobileDataList>
+                {pageRecords.map((record) => {
+                  const reviewedByBK = isReviewedByBK(record);
+                  return (
+                    <MobileDataCard key={record.id}>
+                      <MobileDataHeader
+                        title={record.student_name}
+                        subtitle={`${record.nis} - ${record.class_name}`}
+                        badge={<AttendanceStatusPill status={record.status} />}
+                      />
+                      <div className="mt-4 grid gap-3">
+                        <MobileDataField
+                          label="Tanggal"
+                          value={formatFriendlyDate(record.attendance_date)}
+                        />
+                        <MobileDataField
+                          label="Absen Masuk"
+                          value={formatCheckInTime(record.check_in_at)}
+                        />
+                        <MobileDataField
+                          label="Koreksi"
+                          value={
+                            <ReviewStatusPill
+                              reviewed={Boolean(record.verified_at)}
+                              reviewedByBK={reviewedByBK}
+                            />
+                          }
+                        />
+                      </div>
+                      <MobileDataSection label="Catatan">
+                        <p className="text-sm leading-6 text-slate-600">
+                          {record.verification_note ||
+                            record.notes ||
+                            "Belum ada catatan"}
+                        </p>
+                      </MobileDataSection>
+                      <MobileDataFooter>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                          onClick={() => onOpenProof(record)}
+                          disabled={!record.photo_url}
+                          aria-label="Lihat bukti absensi"
+                        >
+                          <ImageIcon className="size-4.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-10 rounded-2xl border border-emerald-100 text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
+                          onClick={() => onOpenReview(record)}
+                          disabled={reviewedByBK}
+                          aria-label="Koreksi status absensi"
+                          title={
+                            reviewedByBK
+                              ? "Sudah dikoreksi BK"
+                              : "Koreksi status absensi"
+                          }
+                        >
+                          <BadgeCheck className="size-4.5" />
+                        </Button>
+                      </MobileDataFooter>
+                    </MobileDataCard>
+                  );
+                })}
+              </MobileDataList>
             </>
           )}
           {!error && !isLoading && records.length > 0 ? (
@@ -355,7 +417,10 @@ export function AttendanceFilterToolbar({
   return (
     <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <AttendanceDateButton selectedDate={selectedDate} onSelectDate={onDateChange} />
+        <AttendanceDateButton
+          selectedDate={selectedDate}
+          onSelectDate={onDateChange}
+        />
         <div className="w-full sm:w-[210px]">
           <RadixSelectField
             value={statusFilter}
@@ -376,7 +441,11 @@ export function AttendanceFilterToolbar({
           Export Laporan
         </Button>
       </div>
-      <SearchFilterBar value={query} onChange={onQueryChange} placeholder="Cari siswa, NIS, status, catatan" />
+      <SearchFilterBar
+        value={query}
+        onChange={onQueryChange}
+        placeholder="Cari siswa, NIS, status, catatan"
+      />
     </div>
   );
 }
@@ -384,16 +453,26 @@ export function AttendanceFilterToolbar({
 export function AttentionMonitoringPanel({
   items,
 }: {
-  items: Array<StaffHomeroomAttendanceOverview["summary"]["repeated_alpha"][number] & { tone: "ALFA" }>;
+  items: Array<
+    StaffHomeroomAttendanceOverview["summary"]["repeated_alpha"][number] & {
+      tone: "ALFA";
+    }
+  >;
 }) {
   return (
     <article className="rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,252,250,0.94)_100%)] p-5 shadow-[0_20px_48px_rgba(28,77,61,0.08)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-slate-950">Fokus Pemantauan</h3>
-          <p className="mt-1 text-sm text-slate-500">Sorotan siswa dengan alfa berulang pada tanggal terpilih.</p>
+          <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-slate-950">
+            Fokus Pemantauan
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Sorotan siswa dengan alfa berulang pada tanggal terpilih.
+          </p>
         </div>
-        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Prioritas</span>
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          Prioritas
+        </span>
       </div>
 
       <div className="mt-5 space-y-3">
@@ -412,13 +491,20 @@ export function AttentionMonitoringPanel({
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 space-y-1">
-                  <p className="font-semibold text-slate-900">{item.student_name}</p>
-                  <p className="text-sm text-slate-500">{item.nis} • {item.class_name}</p>
+                  <p className="font-semibold text-slate-900">
+                    {item.student_name}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {item.nis} • {item.class_name}
+                  </p>
                   <p className="text-sm leading-6 text-slate-500">
-                    Tercatat {item.occurrences} kali dengan pola yang perlu ditinjau wali kelas.
+                    Tercatat {item.occurrences} kali dengan pola yang perlu
+                    ditinjau wali kelas.
                   </p>
                 </div>
-                <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${item.tone === "ALFA" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}>
+                <span
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${item.tone === "ALFA" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}
+                >
                   {item.tone}
                 </span>
               </div>
@@ -430,7 +516,13 @@ export function AttentionMonitoringPanel({
   );
 }
 
-function AttendanceDateButton({ selectedDate, onSelectDate }: { selectedDate?: Date; onSelectDate: (date?: Date) => void }) {
+function AttendanceDateButton({
+  selectedDate,
+  onSelectDate,
+}: {
+  selectedDate?: Date;
+  onSelectDate: (date?: Date) => void;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -443,18 +535,34 @@ function AttendanceDateButton({ selectedDate, onSelectDate }: { selectedDate?: D
             <CalendarClock className="size-4" />
           </span>
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Tanggal</p>
-            <p className="truncate text-sm font-medium text-slate-700">{selectedDate ? formatFriendlyDate(selectedDate) : "Pilih tanggal"}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+              Tanggal
+            </p>
+            <p className="truncate text-sm font-medium text-slate-700">
+              {selectedDate
+                ? formatFriendlyDate(selectedDate)
+                : "Pilih tanggal"}
+            </p>
           </div>
           <ArrowUpRight className="ml-1 size-4 text-emerald-700" />
         </div>
       </PopoverTrigger>
-      <PopoverContent sideOffset={10} className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]">
-        <PopoverHeader className="px-2 pt-1 pb-2"><PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal absensi</PopoverTitle></PopoverHeader>
+      <PopoverContent
+        sideOffset={10}
+        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
+      >
+        <PopoverHeader className="px-2 pt-1 pb-2">
+          <PopoverTitle className="text-sm font-semibold text-slate-900">
+            Pilih tanggal absensi
+          </PopoverTitle>
+        </PopoverHeader>
         <Calendar
           mode="single"
           selected={selectedDate}
-          onSelect={(date) => { onSelectDate(date); setOpen(false); }}
+          onSelect={(date) => {
+            onSelectDate(date);
+            setOpen(false);
+          }}
           locale={localeID}
           buttonVariant="ghost"
         />
@@ -467,10 +575,22 @@ function isReviewedByBK(record: StaffAttendanceRecord) {
   return record.verified_by_role?.toUpperCase() === "BK";
 }
 
-function ReviewStatusPill({ reviewed, reviewedByBK = false }: { reviewed: boolean; reviewedByBK?: boolean }) {
+function ReviewStatusPill({
+  reviewed,
+  reviewedByBK = false,
+}: {
+  reviewed: boolean;
+  reviewedByBK?: boolean;
+}) {
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${reviewedByBK ? "border-sky-200 bg-sky-50 text-sky-700" : reviewed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
-      {reviewedByBK ? "Dikoreksi BK" : reviewed ? "Dikoreksi" : "Status otomatis"}
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${reviewedByBK ? "border-sky-200 bg-sky-50 text-sky-700" : reviewed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
+    >
+      {reviewedByBK
+        ? "Dikoreksi BK"
+        : reviewed
+          ? "Dikoreksi"
+          : "Status otomatis"}
     </span>
   );
 }

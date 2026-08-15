@@ -15,9 +15,16 @@ import { ProtectedApiImage } from "@/components/security/protected-api-asset";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import { formatDisplayLabel } from "@/lib/utils";
-import type { StaffAttendanceRecord, StaffAttendanceReviewPayload } from "@/types/staff";
+import type {
+  StaffAttendanceRecord,
+  StaffAttendanceReviewPayload,
+} from "@/types/staff";
 import { format, parseISO } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { BadgeCheck, ImageIcon } from "lucide-react";
@@ -35,7 +42,9 @@ export function formatFriendlyDate(value: string | Date) {
     const date = value instanceof Date ? value : parseISO(value);
     return format(date, "dd MMMM yyyy", { locale: localeID });
   } catch {
-    return typeof value === "string" ? value : format(value, "dd MMMM yyyy", { locale: localeID });
+    return typeof value === "string"
+      ? value
+      : format(value, "dd MMMM yyyy", { locale: localeID });
   }
 }
 
@@ -49,7 +58,13 @@ export function formatCheckInTime(value?: string) {
   }
 }
 
-export function AttendanceStatusPill({ status, compact = false }: { status: string; compact?: boolean }) {
+export function AttendanceStatusPill({
+  status,
+  compact = false,
+}: {
+  status: string;
+  compact?: boolean;
+}) {
   const normalized = status.toLowerCase();
   let className = "border-slate-200 bg-slate-100 text-slate-600";
 
@@ -63,10 +78,19 @@ export function AttendanceStatusPill({ status, compact = false }: { status: stri
     className = "border-violet-200 bg-violet-50 text-violet-700";
   }
 
-  const compactLabel: Record<string, string> = { hadir: "H", izin: "I", sakit: "S", alfa: "A" };
+  const compactLabel: Record<string, string> = {
+    hadir: "H",
+    izin: "I",
+    sakit: "S",
+    alfa: "A",
+  };
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
-      {compact ? compactLabel[normalized] ?? formatDisplayLabel(status) : formatDisplayLabel(status)}
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+    >
+      {compact
+        ? (compactLabel[normalized] ?? formatDisplayLabel(status))
+        : formatDisplayLabel(status)}
     </span>
   );
 }
@@ -86,18 +110,28 @@ export function AttendanceReviewModal({
   const [verificationNote, setVerificationNote] = useState(
     record?.verification_note || record?.notes || "",
   );
-  const [errors, setErrors] = useState<FieldErrors<"status" | "verification_note">>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<"status" | "verification_note">
+  >({});
   const isFinalPresent = status === "hadir";
 
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "verification_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
     if (!isFinalPresent) {
-      validateRequired(nextErrors, "verification_note", verificationNote, "Catatan tinjauan");
+      validateRequired(
+        nextErrors,
+        "verification_note",
+        verificationNote,
+        "Catatan tinjauan",
+      );
     }
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
-    onSubmit({ status, verification_note: isFinalPresent ? "" : verificationNote });
+    onSubmit({
+      status,
+      verification_note: isFinalPresent ? "" : verificationNote,
+    });
   };
 
   return (
@@ -114,12 +148,15 @@ export function AttendanceReviewModal({
           <div className="rounded-[22px] border border-emerald-100/70 bg-white/92 p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-base font-semibold text-slate-900">{record.student_name}</p>
+                <p className="text-base font-semibold text-slate-900">
+                  {record.student_name}
+                </p>
                 <p className="text-sm text-slate-500">
                   {record.nis} • {record.class_name}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {formatFriendlyDate(record.attendance_date)} • {formatCheckInTime(record.check_in_at)}
+                  {formatFriendlyDate(record.attendance_date)} •{" "}
+                  {formatCheckInTime(record.check_in_at)}
                 </p>
               </div>
               <AttendanceStatusPill status={record.status} />
@@ -128,7 +165,9 @@ export function AttendanceReviewModal({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className={premiumModalFieldClassName}>
-              <label className={premiumModalLabelClassName}>Status setelah koreksi</label>
+              <label className={premiumModalLabelClassName}>
+                Status setelah koreksi
+              </label>
               <RadixSelectField
                 value={status}
                 onValueChange={setStatus}
@@ -139,18 +178,25 @@ export function AttendanceReviewModal({
               <FieldError message={errors.status} />
             </div>
             <div className={premiumModalFieldClassName}>
-              <label className={premiumModalLabelClassName}>Riwayat koreksi</label>
+              <label className={premiumModalLabelClassName}>
+                Riwayat koreksi
+              </label>
               <div className="flex h-12 items-center rounded-[18px] border border-emerald-100/80 bg-white/90 px-4 text-sm text-slate-600">
-                {record.verified_at ? "Sudah pernah dikoreksi" : "Belum ada koreksi guru"}
+                {record.verified_at
+                  ? "Sudah pernah dikoreksi"
+                  : "Belum ada koreksi guru"}
               </div>
             </div>
           </div>
 
           {!isFinalPresent ? (
             <div className={premiumModalFieldClassName}>
-              <label className={premiumModalLabelClassName}>Catatan koreksi</label>
+              <label className={premiumModalLabelClassName}>
+                Catatan koreksi
+              </label>
               <p className={premiumModalHelperClassName}>
-                Catatan ini membantu walas dan BK memahami alasan perubahan status.
+                Catatan ini membantu walas dan BK memahami alasan perubahan
+                status.
               </p>
               <Textarea
                 value={verificationNote}
@@ -209,12 +255,15 @@ export function AttendanceProofModal({
           <div className="rounded-[22px] border border-emerald-100/70 bg-white/92 p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-base font-semibold text-slate-900">{record.student_name}</p>
+                <p className="text-base font-semibold text-slate-900">
+                  {record.student_name}
+                </p>
                 <p className="text-sm text-slate-500">
                   {record.nis} • {record.class_name}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {formatFriendlyDate(record.attendance_date)} • {formatCheckInTime(record.check_in_at)}
+                  {formatFriendlyDate(record.attendance_date)} •{" "}
+                  {formatCheckInTime(record.check_in_at)}
                 </p>
               </div>
               <AttendanceStatusPill status={record.status} />
@@ -236,7 +285,10 @@ export function AttendanceProofModal({
                 compact
               />
             )}
-            <AttendanceLocationEvidence evidence={record} className="mt-4 px-1 pb-1" />
+            <AttendanceLocationEvidence
+              evidence={record}
+              className="mt-4 px-1 pb-1"
+            />
           </div>
         </div>
       ) : null}

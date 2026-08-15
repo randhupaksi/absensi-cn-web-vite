@@ -5,8 +5,16 @@ import { PremiumModal } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayLabel } from "@/lib/utils";
 import type { StaffHomeroomStudentDetail } from "@/types/staff";
-import { BookOpenCheck, FileClock, TriangleAlert, UserRound } from "lucide-react";
-import { ModalContentSkeleton, TableSkeleton } from "@/components/loading/loading-system";
+import {
+  BookOpenCheck,
+  FileClock,
+  TriangleAlert,
+  UserRound,
+} from "lucide-react";
+import {
+  ModalContentSkeleton,
+  TableSkeleton,
+} from "@/components/loading/loading-system";
 
 export function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -74,9 +82,12 @@ function AttendanceStatusPill({ status }: { status: string }) {
   const normalizedStatus = status.toUpperCase();
   let className = "border-slate-200 bg-slate-100 text-slate-600";
 
-  if (normalizedStatus === "HADIR") className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  else if (normalizedStatus === "ALFA") className = "border-rose-200 bg-rose-50 text-rose-700";
-  else if (normalizedStatus === "SAKIT" || normalizedStatus === "IZIN") className = "border-sky-200 bg-sky-50 text-sky-700";
+  if (normalizedStatus === "HADIR")
+    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
+  else if (normalizedStatus === "ALFA")
+    className = "border-rose-200 bg-rose-50 text-rose-700";
+  else if (normalizedStatus === "SAKIT" || normalizedStatus === "IZIN")
+    className = "border-sky-200 bg-sky-50 text-sky-700";
 
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;
 }
@@ -85,8 +96,10 @@ function SubmissionStatusPill({ status }: { status: string }) {
   const normalizedStatus = status.toLowerCase();
   let className = "border-amber-200 bg-amber-50 text-amber-700";
 
-  if (normalizedStatus === "approved") className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  else if (normalizedStatus === "rejected") className = "border-rose-200 bg-rose-50 text-rose-700";
+  if (normalizedStatus === "approved")
+    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
+  else if (normalizedStatus === "rejected")
+    className = "border-rose-200 bg-rose-50 text-rose-700";
 
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;
 }
@@ -115,17 +128,30 @@ function AttendanceSummaryCard({
 
   return (
     <div className="rounded-[24px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(250,255,252,0.98)_0%,rgba(240,250,246,0.94)_100%)] p-4 shadow-[0_16px_30px_rgba(15,23,42,0.05)]">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Rekap Kehadiran</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        Rekap Kehadiran
+      </p>
       <div className="mt-3 grid grid-cols-4 divide-x divide-emerald-100">
         {metrics.map((item) => (
-          <div key={item.label} className="px-2 text-center first:pl-0 last:pr-0">
-            <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-400">{item.label}</p>
-            <p className={`mt-1 text-xl font-semibold tabular-nums ${item.className}`}>{item.value}</p>
+          <div
+            key={item.label}
+            className="px-2 text-center first:pl-0 last:pr-0"
+          >
+            <p className="text-[11px] font-semibold tracking-[0.14em] text-slate-400">
+              {item.label}
+            </p>
+            <p
+              className={`mt-1 text-xl font-semibold tabular-nums ${item.className}`}
+            >
+              {item.value}
+            </p>
           </div>
         ))}
       </div>
       <div className="mt-4 border-t border-emerald-100 pt-3 text-xs leading-5 text-slate-500">
-        <span className="font-semibold text-slate-700">Total {period?.total ?? fallbackTotal} catatan</span>
+        <span className="font-semibold text-slate-700">
+          Total {period?.total ?? fallbackTotal} catatan
+        </span>
         <span className="mx-1.5 text-slate-300">|</span>
         {formatAttendancePeriod(period?.from_date, period?.until_date)}
       </div>
@@ -190,7 +216,12 @@ export function StudentDetailModal({
                       <p>NISN: {student.nisn || "-"}</p>
                       <p>Gender: {formatGender(student.gender)}</p>
                       <p>Tahun ajaran: {student.school_year_name || "-"}</p>
-                      <p>Status kelas: {student.membership_status ? formatDisplayLabel(student.membership_status) : "-"}</p>
+                      <p>
+                        Status kelas:{" "}
+                        {student.membership_status
+                          ? formatDisplayLabel(student.membership_status)
+                          : "-"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -206,8 +237,12 @@ export function StudentDetailModal({
               <div className="rounded-[24px] border border-emerald-100/70 bg-white/94 p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-base font-semibold text-slate-900">Riwayat Kehadiran Terbaru</p>
-                    <p className="text-sm text-slate-500">Ringkasan absensi terakhir siswa di kelas walas</p>
+                    <p className="text-base font-semibold text-slate-900">
+                      Riwayat Kehadiran Terbaru
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      Ringkasan absensi terakhir siswa di kelas walas
+                    </p>
                   </div>
                   <BookOpenCheck className="size-4.5 text-emerald-600" />
                 </div>
@@ -220,24 +255,27 @@ export function StudentDetailModal({
                       compact
                     />
                   ) : (
-                    studentDetail.recent_attendance.slice(0, 6).map((record) => (
-                      <div
-                        key={record.id}
-                        className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-slate-900">
-                              {formatDate(record.attendance_date)}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              Absen Masuk: {formatDateTime(record.check_in_at)}
-                            </p>
+                    studentDetail.recent_attendance
+                      .slice(0, 6)
+                      .map((record) => (
+                        <div
+                          key={record.id}
+                          className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-slate-900">
+                                {formatDate(record.attendance_date)}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                Absen Masuk:{" "}
+                                {formatDateTime(record.check_in_at)}
+                              </p>
+                            </div>
+                            <AttendanceStatusPill status={record.status} />
                           </div>
-                          <AttendanceStatusPill status={record.status} />
                         </div>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               </div>
@@ -245,8 +283,12 @@ export function StudentDetailModal({
               <div className="rounded-[24px] border border-emerald-100/70 bg-white/94 p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-base font-semibold text-slate-900">Pengajuan Terbaru</p>
-                    <p className="text-sm text-slate-500">Izin dan sakit yang pernah diajukan siswa</p>
+                    <p className="text-base font-semibold text-slate-900">
+                      Pengajuan Terbaru
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      Izin dan sakit yang pernah diajukan siswa
+                    </p>
                   </div>
                   <FileClock className="size-4.5 text-emerald-600" />
                 </div>
@@ -259,24 +301,26 @@ export function StudentDetailModal({
                       compact
                     />
                   ) : (
-                    studentDetail.recent_submissions.slice(0, 6).map((submission) => (
-                      <div
-                        key={submission.id}
-                        className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-slate-900">
-                              {submission.type}
-                            </p>
-                            <p className="line-clamp-2 text-xs leading-5 text-slate-500">
-                              {submission.reason}
-                            </p>
+                    studentDetail.recent_submissions
+                      .slice(0, 6)
+                      .map((submission) => (
+                        <div
+                          key={submission.id}
+                          className="rounded-[18px] border border-slate-100 bg-slate-50/85 px-4 py-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-slate-900">
+                                {submission.type}
+                              </p>
+                              <p className="line-clamp-2 text-xs leading-5 text-slate-500">
+                                {submission.reason}
+                              </p>
+                            </div>
+                            <SubmissionStatusPill status={submission.status} />
                           </div>
-                          <SubmissionStatusPill status={submission.status} />
                         </div>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               </div>

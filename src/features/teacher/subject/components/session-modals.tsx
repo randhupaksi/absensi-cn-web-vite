@@ -73,7 +73,11 @@ export function KoreksiModal({
             onClick={onSubmit}
             disabled={!alasan.trim() || isPending}
           >
-            {isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            {isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
             {isPending ? "Menyimpan..." : "Simpan Koreksi"}
           </Button>
         </div>
@@ -110,7 +114,9 @@ export function KoreksiModal({
           />
         </div>
 
-        {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
+        {error ? (
+          <p className="text-sm font-medium text-rose-600">{error}</p>
+        ) : null}
       </div>
     </PremiumModal>
   );

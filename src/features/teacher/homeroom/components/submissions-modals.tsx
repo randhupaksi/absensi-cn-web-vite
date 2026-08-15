@@ -16,7 +16,11 @@ import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
 import { resolveApiAssetUrl } from "@/lib/config/site";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import { formatDisplayLabel } from "@/lib/utils";
 import type { StaffSubmission } from "@/types/staff";
 import {
@@ -73,11 +77,15 @@ export function normalizeSubmissionAttachment(attachment: string) {
 export function SubmissionTypePill({ type }: { type: string }) {
   const normalized = type.toUpperCase();
   let className = "border-slate-200 bg-slate-100 text-slate-600";
-  if (normalized === "IZIN") className = "border-sky-200 bg-sky-50 text-sky-700";
-  else if (normalized === "SAKIT") className = "border-rose-200 bg-rose-50 text-rose-700";
+  if (normalized === "IZIN")
+    className = "border-sky-200 bg-sky-50 text-sky-700";
+  else if (normalized === "SAKIT")
+    className = "border-rose-200 bg-rose-50 text-rose-700";
 
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+    >
       {formatDisplayLabel(type)}
     </span>
   );
@@ -86,12 +94,17 @@ export function SubmissionTypePill({ type }: { type: string }) {
 export function SubmissionStatusPill({ status }: { status: string }) {
   const normalized = normalizeSubmissionStatus(status);
   let className = "border-slate-200 bg-slate-100 text-slate-600";
-  if (normalized === "menunggu") className = "border-amber-200 bg-amber-50 text-amber-700";
-  else if (normalized === "diterima") className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  else if (normalized === "ditolak") className = "border-rose-200 bg-rose-50 text-rose-700";
+  if (normalized === "menunggu")
+    className = "border-amber-200 bg-amber-50 text-amber-700";
+  else if (normalized === "diterima")
+    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
+  else if (normalized === "ditolak")
+    className = "border-rose-200 bg-rose-50 text-rose-700";
 
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+    >
       {formatDisplayLabel(status)}
     </span>
   );
@@ -108,7 +121,9 @@ export function SubmissionDetailModal({
     <PremiumModal
       open={Boolean(submission)}
       onOpenChange={onOpenChange}
-      title={submission ? `Detail ${submission.student_name}` : "Detail Pengajuan"}
+      title={
+        submission ? `Detail ${submission.student_name}` : "Detail Pengajuan"
+      }
       description="Lihat alasan pengajuan, lampiran, dan riwayat tanggapan wali kelas secara lengkap."
       icon={Eye}
       className="sm:!max-w-[920px]"
@@ -127,10 +142,15 @@ export function SubmissionDetailModal({
                     <SubmissionTypePill type={submission.type} />
                   </div>
                   <p className="text-sm text-slate-500">
-                    {submission.nis} • {submission.class_name || "Kelas belum tersambung"}
+                    {submission.nis} •{" "}
+                    {submission.class_name || "Kelas belum tersambung"}
                   </p>
                 </div>
-                {submission.attachment ? <span className="text-xs font-medium text-emerald-700">Lampiran tersedia</span> : null}
+                {submission.attachment ? (
+                  <span className="text-xs font-medium text-emerald-700">
+                    Lampiran tersedia
+                  </span>
+                ) : null}
               </div>
 
               <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -144,8 +164,12 @@ export function SubmissionDetailModal({
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-base font-semibold text-slate-900">Alasan Pengajuan</p>
-                  <p className="text-sm text-slate-500">Pesan asli yang dikirim siswa</p>
+                  <p className="text-base font-semibold text-slate-900">
+                    Alasan Pengajuan
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Pesan asli yang dikirim siswa
+                  </p>
                 </div>
                 <ClipboardCheck className="size-4.5 text-emerald-600" />
               </div>
@@ -157,8 +181,12 @@ export function SubmissionDetailModal({
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-base font-semibold text-slate-900">Tanggapan Walas</p>
-                  <p className="text-sm text-slate-500">Catatan tinjauan terbaru</p>
+                  <p className="text-base font-semibold text-slate-900">
+                    Tanggapan Walas
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Catatan tinjauan terbaru
+                  </p>
                 </div>
                 <ShieldCheck className="size-4.5 text-emerald-600" />
               </div>
@@ -182,8 +210,12 @@ export function SubmissionDetailModal({
             <div className={`${premiumModalSurfaceClassName} p-5`}>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-base font-semibold text-slate-900">Lampiran</p>
-                  <p className="text-sm text-slate-500">Pratinjau bukti jika tersedia</p>
+                  <p className="text-base font-semibold text-slate-900">
+                    Lampiran
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Pratinjau bukti jika tersedia
+                  </p>
                 </div>
                 <FileImage className="size-4.5 text-emerald-600" />
               </div>
@@ -193,7 +225,9 @@ export function SubmissionDetailModal({
                   <div className="space-y-3">
                     <div className="overflow-hidden rounded-[20px] border border-emerald-100 bg-slate-50/80">
                       <ProtectedApiImage
-                        src={normalizeSubmissionAttachment(submission.attachment)}
+                        src={normalizeSubmissionAttachment(
+                          submission.attachment,
+                        )}
                         alt={`Lampiran ${submission.student_name}`}
                         className="h-[240px] w-full object-cover"
                       />
@@ -202,8 +236,12 @@ export function SubmissionDetailModal({
                 ) : (
                   <div className="rounded-[20px] border border-slate-200 bg-slate-50/80 p-5 text-center">
                     <FileImage className="mx-auto size-8 text-slate-400" />
-                    <p className="mt-3 text-sm font-medium text-slate-700">Lampiran tersedia</p>
-                    <p className="mt-1 text-sm text-slate-500">Pratinjau langsung hanya tersedia untuk gambar.</p>
+                    <p className="mt-3 text-sm font-medium text-slate-700">
+                      Lampiran tersedia
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Pratinjau langsung hanya tersedia untuk gambar.
+                    </p>
                   </div>
                 )
               ) : (
@@ -214,9 +252,11 @@ export function SubmissionDetailModal({
                   compact
                 />
               )}
-              <AttendanceLocationEvidence evidence={submission} className="mt-4" />
+              <AttendanceLocationEvidence
+                evidence={submission}
+                className="mt-4"
+              />
             </div>
-
           </div>
         </div>
       ) : null}
@@ -239,12 +279,19 @@ export function SubmissionReviewModal({
     submission ? normalizeSubmissionStatus(submission.status) : "menunggu",
   );
   const [reviewNote, setReviewNote] = useState(submission?.review_note || "");
-  const [errors, setErrors] = useState<FieldErrors<"status" | "review_note">>({});
+  const [errors, setErrors] = useState<FieldErrors<"status" | "review_note">>(
+    {},
+  );
 
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "review_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
-    validateRequired(nextErrors, "review_note", reviewNote, "Catatan tanggapan");
+    validateRequired(
+      nextErrors,
+      "review_note",
+      reviewNote,
+      "Catatan tanggapan",
+    );
     setErrors(nextErrors);
     if (hasFieldErrors(nextErrors)) return;
     onSubmit({ status, review_note: reviewNote });
@@ -254,7 +301,9 @@ export function SubmissionReviewModal({
     <PremiumModal
       open={Boolean(submission)}
       onOpenChange={onOpenChange}
-      title={submission ? `Tinjau ${submission.student_name}` : "Tinjau Pengajuan"}
+      title={
+        submission ? `Tinjau ${submission.student_name}` : "Tinjau Pengajuan"
+      }
       description="Berikan keputusan dan tanggapan wali kelas untuk pengajuan izin atau sakit."
       icon={PencilLine}
       className="sm:!max-w-[760px]"
@@ -264,9 +313,12 @@ export function SubmissionReviewModal({
           <div className={`${premiumModalSurfaceClassName} p-4`}>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-base font-semibold text-slate-900">{submission.student_name}</p>
+                <p className="text-base font-semibold text-slate-900">
+                  {submission.student_name}
+                </p>
                 <p className="text-sm text-slate-500">
-                  {submission.nis} • {submission.class_name || "Kelas belum tersambung"}
+                  {submission.nis} •{" "}
+                  {submission.class_name || "Kelas belum tersambung"}
                 </p>
                 <p className="text-sm text-slate-500">
                   Dibuat {formatDateTime(submission.created_at)}
@@ -294,15 +346,20 @@ export function SubmissionReviewModal({
             <div className={premiumModalFieldClassName}>
               <label className={premiumModalLabelClassName}>Lampiran</label>
               <div className="flex h-12 items-center rounded-[18px] border border-emerald-100/80 bg-white/90 px-4 text-sm text-slate-600">
-                {submission.attachment ? "Tersedia untuk ditinjau" : "Tidak ada lampiran"}
+                {submission.attachment
+                  ? "Tersedia untuk ditinjau"
+                  : "Tidak ada lampiran"}
               </div>
             </div>
           </div>
 
           <div className={premiumModalFieldClassName}>
-            <label className={premiumModalLabelClassName}>Catatan tanggapan</label>
+            <label className={premiumModalLabelClassName}>
+              Catatan tanggapan
+            </label>
             <p className={premiumModalHelperClassName}>
-              Catatan ini akan terlihat pada riwayat pengajuan siswa dan panel pemantauan walas.
+              Catatan ini akan terlihat pada riwayat pengajuan siswa dan panel
+              pemantauan walas.
             </p>
             <Textarea
               value={reviewNote}

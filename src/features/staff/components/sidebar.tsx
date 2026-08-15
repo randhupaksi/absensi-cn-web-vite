@@ -102,7 +102,8 @@ export function StaffSidebar({
           >
             {items.map((item) => {
               const Icon = item.icon;
-              const isActive = resolveStaffSidebarActivePath(activePath) === item.href;
+              const isActive =
+                resolveStaffSidebarActivePath(activePath) === item.href;
 
               return (
                 <Link
@@ -160,17 +161,33 @@ function resolveStaffSidebarActivePath(pathname: string) {
 export const adminSidebarItems = [
   { label: "Dashboard", href: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Guru", href: "/dashboard/admin/teachers", icon: GraduationCap },
-  { label: "Manajemen Mapel", href: "/dashboard/admin/subjects", icon: BookOpenCheck },
+  {
+    label: "Manajemen Mapel",
+    href: "/dashboard/admin/subjects",
+    icon: BookOpenCheck,
+  },
   { label: "Siswa", href: "/dashboard/admin/students", icon: Users },
-  { label: "Struktur Akademik", href: "/dashboard/admin/classes", icon: Building2 },
-  { label: "Kalender Libur", href: "/dashboard/admin/holidays", icon: CalendarDays },
+  {
+    label: "Struktur Akademik",
+    href: "/dashboard/admin/classes",
+    icon: Building2,
+  },
+  {
+    label: "Kalender Libur",
+    href: "/dashboard/admin/holidays",
+    icon: CalendarDays,
+  },
   { label: "Admin", href: "/dashboard/admin/admins", icon: ShieldCheck },
   { label: "Manajemen Peran", href: "/dashboard/admin/users", icon: UserCog },
 ] satisfies StaffSidebarItem[];
 
 export const walasSidebarItems = [
   { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
-  { label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students", icon: Users },
+  {
+    label: "Siswa Kelas",
+    href: "/dashboard/teacher/homeroom/students",
+    icon: Users,
+  },
   {
     label: "Absensi Kelas",
     href: "/dashboard/teacher/homeroom/attendance",
@@ -186,8 +203,16 @@ export const walasSidebarItems = [
 export const guruMapelSidebarItems = [
   // Daftar Hadir intentionally hidden from sidebar while the route remains available.
   // { label: "Daftar Hadir", href: "/dashboard/teacher/subject/session", icon: BookOpenCheck },
-  { label: "Sesi Mapel", href: "/dashboard/teacher/subject/history", icon: History },
-  { label: "Rekap Mapel", href: "/dashboard/teacher/subject/recap", icon: ChartColumnBig },
+  {
+    label: "Sesi Mapel",
+    href: "/dashboard/teacher/subject/history",
+    icon: History,
+  },
+  {
+    label: "Rekap Mapel",
+    href: "/dashboard/teacher/subject/recap",
+    icon: ChartColumnBig,
+  },
 ] satisfies StaffSidebarItem[];
 
 export function buildWalasSidebarItems(opts: {
@@ -198,16 +223,32 @@ export function buildWalasSidebarItems(opts: {
   if (opts.isHomeroomTeacher) {
     items.push(
       { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
-      { label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students", icon: Users },
-      { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardList },
-      { label: "Pengajuan", href: "/dashboard/teacher/homeroom/submissions", icon: FileClock },
+      {
+        label: "Siswa Kelas",
+        href: "/dashboard/teacher/homeroom/students",
+        icon: Users,
+      },
+      {
+        label: "Absensi Kelas",
+        href: "/dashboard/teacher/homeroom/attendance",
+        icon: ClipboardList,
+      },
+      {
+        label: "Pengajuan",
+        href: "/dashboard/teacher/homeroom/submissions",
+        icon: FileClock,
+      },
     );
   }
   if (opts.hasSubjectAssignments) {
     items.push(...guruMapelSidebarItems);
   }
   if (items.length === 0) {
-    items.push({ label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard });
+    items.push({
+      label: "Dashboard",
+      href: "/dashboard/teacher",
+      icon: LayoutDashboard,
+    });
   }
   return items;
 }
@@ -218,14 +259,30 @@ export function buildTeacherWorkspaceSidebarItems(opts: {
   hasBKScope: boolean;
 }): StaffSidebarItem[] {
   const items: StaffSidebarItem[] = [
-    { label: "Dashboard Guru", href: "/dashboard/teacher", icon: LayoutDashboard },
+    {
+      label: "Dashboard Guru",
+      href: "/dashboard/teacher",
+      icon: LayoutDashboard,
+    },
   ];
 
   if (opts.isHomeroomTeacher) {
     items.push(
-      { label: "Siswa Kelas", href: "/dashboard/teacher/homeroom/students", icon: Users },
-      { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardList },
-      { label: "Pengajuan Kelas", href: "/dashboard/teacher/homeroom/submissions", icon: FileClock },
+      {
+        label: "Siswa Kelas",
+        href: "/dashboard/teacher/homeroom/students",
+        icon: Users,
+      },
+      {
+        label: "Absensi Kelas",
+        href: "/dashboard/teacher/homeroom/attendance",
+        icon: ClipboardList,
+      },
+      {
+        label: "Pengajuan Kelas",
+        href: "/dashboard/teacher/homeroom/submissions",
+        icon: FileClock,
+      },
     );
   }
 
@@ -235,10 +292,26 @@ export function buildTeacherWorkspaceSidebarItems(opts: {
 
   if (opts.hasBKScope) {
     items.push(
-      { label: "Pemantauan Siswa", href: "/dashboard/teacher/bk/students", icon: Users },
-      { label: "Tinjauan Absensi", href: "/dashboard/teacher/bk/attendance", icon: BookOpenCheck },
-      { label: "Konseling", href: "/dashboard/teacher/bk/counseling", icon: FileClock },
-      { label: "Pengajuan BK", href: "/dashboard/teacher/bk/submissions", icon: ClipboardList },
+      {
+        label: "Pemantauan Siswa",
+        href: "/dashboard/teacher/bk/students",
+        icon: Users,
+      },
+      {
+        label: "Tinjauan Absensi",
+        href: "/dashboard/teacher/bk/attendance",
+        icon: BookOpenCheck,
+      },
+      {
+        label: "Konseling",
+        href: "/dashboard/teacher/bk/counseling",
+        icon: FileClock,
+      },
+      {
+        label: "Pengajuan BK",
+        href: "/dashboard/teacher/bk/submissions",
+        icon: ClipboardList,
+      },
     );
   }
 
@@ -248,13 +321,21 @@ export function buildTeacherWorkspaceSidebarItems(opts: {
 export const bkSidebarItems = [
   { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
   { label: "Siswa", href: "/dashboard/teacher/bk/students", icon: Users },
-  { label: "Absensi", href: "/dashboard/teacher/bk/attendance", icon: BookOpenCheck },
+  {
+    label: "Absensi",
+    href: "/dashboard/teacher/bk/attendance",
+    icon: BookOpenCheck,
+  },
   {
     label: "Konseling",
     href: "/dashboard/teacher/bk/counseling",
     icon: FileClock,
   },
-  { label: "Pengajuan", href: "/dashboard/teacher/bk/submissions", icon: ClipboardList },
+  {
+    label: "Pengajuan",
+    href: "/dashboard/teacher/bk/submissions",
+    icon: ClipboardList,
+  },
 ] satisfies StaffSidebarItem[];
 
 export const studentSidebarItems = [
