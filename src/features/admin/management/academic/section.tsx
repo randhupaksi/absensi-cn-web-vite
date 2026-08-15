@@ -65,7 +65,8 @@ type DeleteTarget = {
   kind: AcademicStructureTab;
 };
 
-const inputClass = "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm placeholder:text-slate-400";
+const inputClass =
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm placeholder:text-slate-400";
 
 export function AcademicStructureTabContent({
   activeTab,
@@ -78,8 +79,10 @@ export function AcademicStructureTabContent({
   const [editingUnit, setEditingUnit] = useState<AdminSchoolUnit | null>(null);
   const [editingMajor, setEditingMajor] = useState<AdminMajor | null>(null);
   const [deleting, setDeleting] = useState<DeleteTarget | null>(null);
-  const { pageItems: pageUnits, pagination: unitsPagination } = usePagination(units);
-  const { pageItems: pageMajors, pagination: majorsPagination } = usePagination(majors);
+  const { pageItems: pageUnits, pagination: unitsPagination } =
+    usePagination(units);
+  const { pageItems: pageMajors, pagination: majorsPagination } =
+    usePagination(majors);
   const isUnitsTab = activeTab === "units";
 
   useEffect(() => {
@@ -111,8 +114,13 @@ export function AcademicStructureTabContent({
     onError: errorToast,
   });
   const updateUnit = useMutation({
-    mutationFn: ({ id, values }: { id: string; values: SchoolUnitFormValues }) =>
-      updateAdminSchoolUnit(id, values),
+    mutationFn: ({
+      id,
+      values,
+    }: {
+      id: string;
+      values: SchoolUnitFormValues;
+    }) => updateAdminSchoolUnit(id, values),
     onSuccess: () => finish("Unit sekolah berhasil diperbarui."),
     onError: errorToast,
   });
@@ -139,7 +147,10 @@ export function AcademicStructureTabContent({
   });
 
   const isFormPending =
-    createUnit.isPending || updateUnit.isPending || createMajor.isPending || updateMajor.isPending;
+    createUnit.isPending ||
+    updateUnit.isPending ||
+    createMajor.isPending ||
+    updateMajor.isPending;
 
   return (
     <>
@@ -188,7 +199,11 @@ export function AcademicStructureTabContent({
                       <ActionButtons
                         onEdit={() => setEditingUnit(item)}
                         onDelete={() =>
-                          setDeleting({ id: item.id, label: item.name, kind: "units" })
+                          setDeleting({
+                            id: item.id,
+                            label: item.name,
+                            kind: "units",
+                          })
                         }
                         isDeletePending={removeUnit.isPending}
                       />
@@ -199,13 +214,19 @@ export function AcademicStructureTabContent({
             }
           >
             <DataTable>
-              <DataTableHeadRow labels={["Kode", "Nama", "Jenjang", "Status", "Aksi"]} />
+              <DataTableHeadRow
+                labels={["Kode", "Nama", "Jenjang", "Status", "Aksi"]}
+              />
               <DataTableBody>
                 {pageUnits.map((item) => (
                   <DataTableRow key={item.id}>
-                    <DataTableCell className="font-semibold">{item.code}</DataTableCell>
+                    <DataTableCell className="font-semibold">
+                      {item.code}
+                    </DataTableCell>
                     <DataTableCell>{item.name}</DataTableCell>
-                    <DataTableCell>{educationLevelLabel(item.education_level)}</DataTableCell>
+                    <DataTableCell>
+                      {educationLevelLabel(item.education_level)}
+                    </DataTableCell>
                     <DataTableCell>
                       <StatusBadge isActive={item.is_active} />
                     </DataTableCell>
@@ -213,7 +234,11 @@ export function AcademicStructureTabContent({
                       <ActionButtons
                         onEdit={() => setEditingUnit(item)}
                         onDelete={() =>
-                          setDeleting({ id: item.id, label: item.name, kind: "units" })
+                          setDeleting({
+                            id: item.id,
+                            label: item.name,
+                            kind: "units",
+                          })
                         }
                         isDeletePending={removeUnit.isPending}
                       />
@@ -263,7 +288,11 @@ export function AcademicStructureTabContent({
                       <ActionButtons
                         onEdit={() => setEditingMajor(item)}
                         onDelete={() =>
-                          setDeleting({ id: item.id, label: item.name, kind: "majors" })
+                          setDeleting({
+                            id: item.id,
+                            label: item.name,
+                            kind: "majors",
+                          })
                         }
                         isDeletePending={removeMajor.isPending}
                       />
@@ -274,11 +303,22 @@ export function AcademicStructureTabContent({
             }
           >
             <DataTable>
-              <DataTableHeadRow labels={["Kode", "Nama", "Unit", "Jenis Program", "Status", "Aksi"]} />
+              <DataTableHeadRow
+                labels={[
+                  "Kode",
+                  "Nama",
+                  "Unit",
+                  "Jenis Program",
+                  "Status",
+                  "Aksi",
+                ]}
+              />
               <DataTableBody>
                 {pageMajors.map((item) => (
                   <DataTableRow key={item.id}>
-                    <DataTableCell className="font-semibold">{item.code}</DataTableCell>
+                    <DataTableCell className="font-semibold">
+                      {item.code}
+                    </DataTableCell>
                     <DataTableCell>{item.name}</DataTableCell>
                     <DataTableCell>
                       <Badge
@@ -288,7 +328,9 @@ export function AcademicStructureTabContent({
                         {item.school_unit_code}
                       </Badge>
                     </DataTableCell>
-                    <DataTableCell>{programTypeLabel(item.program_type)}</DataTableCell>
+                    <DataTableCell>
+                      {programTypeLabel(item.program_type)}
+                    </DataTableCell>
                     <DataTableCell>
                       <StatusBadge isActive={item.is_active} />
                     </DataTableCell>
@@ -296,7 +338,11 @@ export function AcademicStructureTabContent({
                       <ActionButtons
                         onEdit={() => setEditingMajor(item)}
                         onDelete={() =>
-                          setDeleting({ id: item.id, label: item.name, kind: "majors" })
+                          setDeleting({
+                            id: item.id,
+                            label: item.name,
+                            kind: "majors",
+                          })
                         }
                         isDeletePending={removeMajor.isPending}
                       />
@@ -321,7 +367,9 @@ export function AcademicStructureTabContent({
             }
           }}
           onSubmit={(values) =>
-            editingUnit ? updateUnit.mutate({ id: editingUnit.id, values }) : createUnit.mutate(values)
+            editingUnit
+              ? updateUnit.mutate({ id: editingUnit.id, values })
+              : createUnit.mutate(values)
           }
         />
       ) : null}
@@ -403,10 +451,24 @@ function SchoolUnitModal({
         />
       }
     >
-      <form id="unit-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        id="unit-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <div className="grid gap-4 min-[480px]:grid-cols-2">
-          <InputField form={form} name="code" label="Kode Unit" placeholder="Contoh: SMK" />
-          <InputField form={form} name="name" label="Nama Unit" placeholder="Contoh: SMK Citra Negara" />
+          <InputField
+            form={form}
+            name="code"
+            label="Kode Unit"
+            placeholder="Contoh: SMK"
+          />
+          <InputField
+            form={form}
+            name="name"
+            label="Nama Unit"
+            placeholder="Contoh: SMK Citra Negara"
+          />
         </div>
         <SelectControl
           control={form.control}
@@ -472,18 +534,35 @@ function MajorModal({
         />
       }
     >
-      <form id="major-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        id="major-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <SelectControl
           control={form.control}
           name="school_unit_id"
           label="Unit Sekolah"
           options={units
             .filter((unit) => unit.is_active)
-            .map((unit) => ({ value: unit.id, label: `${unit.code} · ${unit.name}` }))}
+            .map((unit) => ({
+              value: unit.id,
+              label: `${unit.code} · ${unit.name}`,
+            }))}
         />
         <div className="grid gap-4 min-[480px]:grid-cols-2">
-          <InputField form={form} name="code" label="Kode Program" placeholder="Contoh: PPLG atau IPA" />
-          <InputField form={form} name="name" label="Nama Program" placeholder="Contoh: Pengembangan Perangkat Lunak dan Gim" />
+          <InputField
+            form={form}
+            name="code"
+            label="Kode Program"
+            placeholder="Contoh: PPLG atau IPA"
+          />
+          <InputField
+            form={form}
+            name="name"
+            label="Nama Program"
+            placeholder="Contoh: Pengembangan Perangkat Lunak dan Gim"
+          />
         </div>
         <SelectControl
           control={form.control}
@@ -524,8 +603,17 @@ function InputField<T extends SchoolUnitFormValues | ProgramFormValues>({
   return (
     <div className={premiumModalFieldClassName}>
       <label className={premiumModalLabelClassName}>{label}</label>
-      <Input className={inputClass} placeholder={placeholder} {...form.register(name as never)} />
-      <FieldError message={(form.formState.errors[name] as { message?: string } | undefined)?.message} />
+      <Input
+        className={inputClass}
+        placeholder={placeholder}
+        {...form.register(name as never)}
+      />
+      <FieldError
+        message={
+          (form.formState.errors[name] as { message?: string } | undefined)
+            ?.message
+        }
+      />
     </div>
   );
 }
@@ -549,8 +637,14 @@ function SelectControl<T extends SchoolUnitFormValues | ProgramFormValues>({
         name={name as never}
         render={({ field }) => (
           <RadixSelectField
-            value={typeof field.value === "boolean" ? String(field.value) : String(field.value ?? "")}
-            onValueChange={(value) => field.onChange(name === "is_active" ? value === "true" : value)}
+            value={
+              typeof field.value === "boolean"
+                ? String(field.value)
+                : String(field.value ?? "")
+            }
+            onValueChange={(value) =>
+              field.onChange(name === "is_active" ? value === "true" : value)
+            }
             placeholder={`Pilih ${label.toLowerCase()}`}
             options={options}
           />

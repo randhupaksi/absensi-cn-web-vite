@@ -1,6 +1,9 @@
 "use client";
 
-import { FieldGroup, ModalActions } from "@/features/admin/management/shared/section-ui";
+import {
+  FieldGroup,
+  ModalActions,
+} from "@/features/admin/management/shared/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";
 import { FieldError } from "@/components/ui/field-error";
@@ -18,9 +21,7 @@ import { useState } from "react";
 const INPUT_CN =
   "h-14 rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80";
 
-const CREATE_ROLE_OPTIONS = [
-  { value: "ADMIN", label: "ADMIN" },
-];
+const CREATE_ROLE_OPTIONS = [{ value: "ADMIN", label: "ADMIN" }];
 
 const EDIT_ROLE_OPTIONS = [
   { value: "ADMIN", label: "ADMIN" },
@@ -43,7 +44,8 @@ export function validateRoleUserForm(
   validateRequired(errors, "name", form.name, "Nama akun");
   validateRequired(errors, "role", form.role, "Peran");
   validateRequired(errors, "username", form.username, "Nama pengguna");
-  if (!isEdit) validateRequired(errors, "password", form.password, "Kata sandi masuk");
+  if (!isEdit)
+    validateRequired(errors, "password", form.password, "Kata sandi masuk");
   return errors;
 }
 
@@ -101,31 +103,74 @@ export function UserCreateModal({
   };
 
   return (
-    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Administrator" description="Buat akun administrator baru. Akun guru dibuat dari section Guru agar profil mengajar langsung lengkap." icon={UserCog}>
+    <PremiumModal
+      open={open}
+      onOpenChange={handleOpenChange}
+      title="Tambah Administrator"
+      description="Buat akun administrator baru. Akun guru dibuat dari section Guru agar profil mengajar langsung lengkap."
+      icon={UserCog}
+    >
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Akun">
-            <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Masukkan nama akun" className={INPUT_CN} />
+            <Input
+              value={form.name}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="Masukkan nama akun"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.name} />
           </FieldGroup>
           <FieldGroup label="Peran">
-            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih peran" options={CREATE_ROLE_OPTIONS} />
+            <RadixSelectField
+              value={form.role}
+              onValueChange={(v) =>
+                setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))
+              }
+              placeholder="Pilih peran"
+              options={CREATE_ROLE_OPTIONS}
+            />
             <FieldError message={errors.role} />
           </FieldGroup>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Username">
-            <Input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value, nis: "" }))} placeholder="Masukkan username" className={INPUT_CN} />
+            <Input
+              value={form.username}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  username: e.target.value,
+                  nis: "",
+                }))
+              }
+              placeholder="Masukkan username"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.username} />
           </FieldGroup>
           <FieldGroup label="Password Login">
-            <Input value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Masukkan password login" className={INPUT_CN} />
+            <Input
+              value={form.password}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+              placeholder="Masukkan password login"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.password} />
           </FieldGroup>
         </div>
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Peran" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => handleOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Simpan Peran"
+        />
       </div>
     </PremiumModal>
   );
@@ -167,31 +212,74 @@ export function UserEditModal({
   if (!user) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Peran Staf" description="Perbarui nama akun, peran, username, dan password bila memang perlu diganti." icon={FilePenLine}>
+    <PremiumModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Ubah Peran Staf"
+      description="Perbarui nama akun, peran, username, dan password bila memang perlu diganti."
+      icon={FilePenLine}
+    >
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Akun">
-            <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Masukkan nama akun" className={INPUT_CN} />
+            <Input
+              value={form.name}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="Masukkan nama akun"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.name} />
           </FieldGroup>
           <FieldGroup label="Peran">
-            <RadixSelectField value={form.role} onValueChange={(v) => setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))} placeholder="Pilih peran" options={EDIT_ROLE_OPTIONS} />
+            <RadixSelectField
+              value={form.role}
+              onValueChange={(v) =>
+                setForm((prev) => ({ ...prev, role: v as AdminUser["role"] }))
+              }
+              placeholder="Pilih peran"
+              options={EDIT_ROLE_OPTIONS}
+            />
             <FieldError message={errors.role} />
           </FieldGroup>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Username">
-            <Input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value, nis: "" }))} placeholder="Masukkan username" className={INPUT_CN} />
+            <Input
+              value={form.username}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  username: e.target.value,
+                  nis: "",
+                }))
+              }
+              placeholder="Masukkan username"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.username} />
           </FieldGroup>
           <FieldGroup label="Password Baru">
-            <Input value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Kosongkan jika tidak diubah" className={INPUT_CN} />
+            <Input
+              value={form.password}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+              placeholder="Kosongkan jika tidak diubah"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.password} />
           </FieldGroup>
         </div>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Peran" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Update Peran"
+        />
       </div>
     </PremiumModal>
   );

@@ -1,11 +1,17 @@
 "use client";
 
-import { FieldGroup, ModalActions } from "@/features/admin/management/shared/section-ui";
+import {
+  FieldGroup,
+  ModalActions,
+} from "@/features/admin/management/shared/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { bkScopeSchema, type BKScopeFormValues } from "@/lib/validations/bk-scope-schema";
+import {
+  bkScopeSchema,
+  type BKScopeFormValues,
+} from "@/lib/validations/bk-scope-schema";
 import type { AdminSchoolUnit, AdminTeacherProfile } from "@/types/admin";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserCog } from "lucide-react";
@@ -65,7 +71,11 @@ export function BKAssignmentModal({
               <RadixSelectField
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={teachers.length === 0 ? "Semua guru sudah ditempatkan sebagai BK" : "Pilih guru"}
+                placeholder={
+                  teachers.length === 0
+                    ? "Semua guru sudah ditempatkan sebagai BK"
+                    : "Pilih guru"
+                }
                 searchable
                 searchPlaceholder="Cari nama atau username guru..."
                 emptyText="Guru tidak ditemukan."
@@ -86,31 +96,37 @@ export function BKAssignmentModal({
             name="school_unit_ids"
             render={({ field }) => (
               <div className="grid gap-3 sm:grid-cols-2">
-                {units.filter((unit) => unit.is_active).map((unit) => {
-                  const selected = field.value.includes(unit.id);
-                  return (
-                    <label
-                      key={unit.id}
-                      className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-4 text-sm text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50/40"
-                    >
-                      <Checkbox
-                        checked={selected}
-                        onCheckedChange={(checked) =>
-                          field.onChange(
-                            checked
-                              ? [...field.value, unit.id]
-                              : field.value.filter((id) => id !== unit.id),
-                          )
-                        }
-                      />
-                      <span><b>{unit.code}</b> · {unit.name}</span>
-                    </label>
-                  );
-                })}
+                {units
+                  .filter((unit) => unit.is_active)
+                  .map((unit) => {
+                    const selected = field.value.includes(unit.id);
+                    return (
+                      <label
+                        key={unit.id}
+                        className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-4 text-sm text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50/40"
+                      >
+                        <Checkbox
+                          checked={selected}
+                          onCheckedChange={(checked) =>
+                            field.onChange(
+                              checked
+                                ? [...field.value, unit.id]
+                                : field.value.filter((id) => id !== unit.id),
+                            )
+                          }
+                        />
+                        <span>
+                          <b>{unit.code}</b> · {unit.name}
+                        </span>
+                      </label>
+                    );
+                  })}
               </div>
             )}
           />
-          <FieldError message={form.formState.errors.school_unit_ids?.message} />
+          <FieldError
+            message={form.formState.errors.school_unit_ids?.message}
+          />
         </FieldGroup>
 
         <ModalActions

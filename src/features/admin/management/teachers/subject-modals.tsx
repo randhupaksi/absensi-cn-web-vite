@@ -1,10 +1,17 @@
 "use client";
 
-import { FieldGroup, ModalActions } from "@/features/admin/management/shared/section-ui";
+import {
+  FieldGroup,
+  ModalActions,
+} from "@/features/admin/management/shared/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import { getClassDisplayName } from "@/lib/class-display-name";
 import type {
   AdminClass,
@@ -25,8 +32,18 @@ export function validateTeacherSubjectAssignmentForm(
   validateRequired(errors, "teacher_id", form.teacher_id, "Guru");
   validateRequired(errors, "subject_id", form.subject_id, "Mapel");
   validateRequired(errors, "class_id", form.class_id, "Kelas");
-  validateRequired(errors, "school_year_id", form.school_year_id, "Tahun ajaran");
-  validateRequired(errors, "is_active", String(form.is_active), "Status penugasan");
+  validateRequired(
+    errors,
+    "school_year_id",
+    form.school_year_id,
+    "Tahun ajaran",
+  );
+  validateRequired(
+    errors,
+    "is_active",
+    String(form.is_active),
+    "Status penugasan",
+  );
   return errors;
 }
 
@@ -53,7 +70,12 @@ const EMPTY_FORM: AdminTeacherSubjectAssignmentPayload = {
   schedules: [],
 };
 
-const EMPTY_SCHEDULE: AdminSubjectScheduleInput = { class_id: "", hari: "senin", jam_mulai: "", jam_selesai: "" };
+const EMPTY_SCHEDULE: AdminSubjectScheduleInput = {
+  class_id: "",
+  hari: "senin",
+  jam_mulai: "",
+  jam_selesai: "",
+};
 
 type SharedProps = {
   teacherProfiles: AdminTeacherProfile[];
@@ -73,7 +95,11 @@ function ScheduleRows({
 }) {
   const add = () => onChange([...rows, { ...EMPTY_SCHEDULE }]);
   const remove = (i: number) => onChange(rows.filter((_, idx) => idx !== i));
-  const update = (i: number, field: keyof AdminSubjectScheduleInput, value: string) =>
+  const update = (
+    i: number,
+    field: keyof AdminSubjectScheduleInput,
+    value: string,
+  ) =>
     onChange(rows.map((r, idx) => (idx === i ? { ...r, [field]: value } : r)));
 
   return (
@@ -87,7 +113,9 @@ function ScheduleRows({
               className="w-28 shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
             >
               {HARI_OPTIONS.map((h) => (
-                <option key={h.value} value={h.value}>{h.label}</option>
+                <option key={h.value} value={h.value}>
+                  {h.label}
+                </option>
               ))}
             </select>
             <input
@@ -138,8 +166,11 @@ export function TeacherSubjectAssignmentCreateModal({
   isPending,
   onSubmit,
 }: { open: boolean; onOpenChange: (open: boolean) => void } & SharedProps) {
-  const [form, setForm] = useState<AdminTeacherSubjectAssignmentPayload>(EMPTY_FORM);
-  const [errors, setErrors] = useState<FieldErrors<keyof AdminTeacherSubjectAssignmentPayload>>({});
+  const [form, setForm] =
+    useState<AdminTeacherSubjectAssignmentPayload>(EMPTY_FORM);
+  const [errors, setErrors] = useState<
+    FieldErrors<keyof AdminTeacherSubjectAssignmentPayload>
+  >({});
 
   const handleOpenChange = (nextOpen: boolean) => {
     onOpenChange(nextOpen);
@@ -155,7 +186,10 @@ export function TeacherSubjectAssignmentCreateModal({
     if (hasFieldErrors(nextErrors)) return;
     onSubmit({
       ...form,
-      schedules: form.schedules?.map((schedule) => ({ ...schedule, class_id: form.class_id })),
+      schedules: form.schedules?.map((schedule) => ({
+        ...schedule,
+        class_id: form.class_id,
+      })),
     });
   };
 
@@ -175,28 +209,71 @@ export function TeacherSubjectAssignmentCreateModal({
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Guru">
-            <RadixSelectField value={form.teacher_id} onValueChange={(v) => set("teacher_id", v)} placeholder="Pilih guru" searchable searchPlaceholder="Cari nama atau username guru..." emptyText="Guru tidak ditemukan." options={teacherProfiles.map((t) => ({ value: t.id, label: t.name, description: t.username || t.id }))} />
+            <RadixSelectField
+              value={form.teacher_id}
+              onValueChange={(v) => set("teacher_id", v)}
+              placeholder="Pilih guru"
+              searchable
+              searchPlaceholder="Cari nama atau username guru..."
+              emptyText="Guru tidak ditemukan."
+              options={teacherProfiles.map((t) => ({
+                value: t.id,
+                label: t.name,
+                description: t.username || t.id,
+              }))}
+            />
             <FieldError message={errors.teacher_id} />
           </FieldGroup>
           <FieldGroup label="Mapel">
-            <RadixSelectField value={form.subject_id} onValueChange={(v) => set("subject_id", v)} placeholder="Pilih mapel" options={subjects.map((s) => ({ value: s.id, label: s.name, description: s.code }))} />
+            <RadixSelectField
+              value={form.subject_id}
+              onValueChange={(v) => set("subject_id", v)}
+              placeholder="Pilih mapel"
+              options={subjects.map((s) => ({
+                value: s.id,
+                label: s.name,
+                description: s.code,
+              }))}
+            />
             <FieldError message={errors.subject_id} />
           </FieldGroup>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Kelas">
-            <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: getClassDisplayName(c), description: c.school_year_name }))} />
+            <RadixSelectField
+              value={form.class_id}
+              onValueChange={(v) => set("class_id", v)}
+              placeholder="Pilih kelas"
+              searchable
+              searchPlaceholder="Cari kelas..."
+              emptyText="Kelas tidak ditemukan."
+              options={classes.map((c) => ({
+                value: c.id,
+                label: getClassDisplayName(c),
+                description: c.school_year_name,
+              }))}
+            />
             <FieldError message={errors.class_id} />
           </FieldGroup>
           <FieldGroup label="Tahun Ajaran">
-            <RadixSelectField value={form.school_year_id} onValueChange={(v) => set("school_year_id", v)} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
+            <RadixSelectField
+              value={form.school_year_id}
+              onValueChange={(v) => set("school_year_id", v)}
+              placeholder="Pilih tahun ajaran"
+              options={schoolYears.map((y) => ({ value: y.id, label: y.name }))}
+            />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
         </div>
 
         <FieldGroup label="Status Penugasan">
-          <RadixSelectField value={String(form.is_active)} onValueChange={(v) => set("is_active", v === "true")} placeholder="Pilih status" options={ACTIVE_OPTIONS} />
+          <RadixSelectField
+            value={String(form.is_active)}
+            onValueChange={(v) => set("is_active", v === "true")}
+            placeholder="Pilih status"
+            options={ACTIVE_OPTIONS}
+          />
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
@@ -205,7 +282,12 @@ export function TeacherSubjectAssignmentCreateModal({
           onChange={(rows) => set("schedules", rows)}
         />
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Penugasan" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => handleOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Simpan Penugasan"
+        />
       </div>
     </PremiumModal>
   );
@@ -221,7 +303,11 @@ export function TeacherSubjectAssignmentEditModal({
   schoolYears,
   isPending,
   onSubmit,
-}: { assignment: AdminTeacherSubjectAssignment | null; open: boolean; onOpenChange: (open: boolean) => void } & SharedProps) {
+}: {
+  assignment: AdminTeacherSubjectAssignment | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+} & SharedProps) {
   const [form, setForm] = useState<AdminTeacherSubjectAssignmentPayload>(() =>
     assignment
       ? {
@@ -230,16 +316,21 @@ export function TeacherSubjectAssignmentEditModal({
           class_id: assignment.class_id,
           school_year_id: assignment.school_year_id,
           is_active: assignment.is_active,
-          schedules: assignment.schedules?.map(({ class_id, hari, jam_mulai, jam_selesai }) => ({
-            class_id: class_id || assignment.class_id,
-            hari,
-            jam_mulai,
-            jam_selesai,
-          })) ?? [],
+          schedules:
+            assignment.schedules?.map(
+              ({ class_id, hari, jam_mulai, jam_selesai }) => ({
+                class_id: class_id || assignment.class_id,
+                hari,
+                jam_mulai,
+                jam_selesai,
+              }),
+            ) ?? [],
         }
       : EMPTY_FORM,
   );
-  const [errors, setErrors] = useState<FieldErrors<keyof AdminTeacherSubjectAssignmentPayload>>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<keyof AdminTeacherSubjectAssignmentPayload>
+  >({});
 
   const handleSubmit = () => {
     const nextErrors = validateTeacherSubjectAssignmentForm(form);
@@ -247,7 +338,10 @@ export function TeacherSubjectAssignmentEditModal({
     if (hasFieldErrors(nextErrors)) return;
     onSubmit({
       ...form,
-      schedules: form.schedules?.map((schedule) => ({ ...schedule, class_id: form.class_id })),
+      schedules: form.schedules?.map((schedule) => ({
+        ...schedule,
+        class_id: form.class_id,
+      })),
     });
   };
 
@@ -259,32 +353,81 @@ export function TeacherSubjectAssignmentEditModal({
   if (!assignment) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Penugasan Mapel" description="Perbarui relasi guru, mapel, kelas, dan tahun ajaran sesuai kebutuhan." icon={BookOpen}>
+    <PremiumModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Ubah Penugasan Mapel"
+      description="Perbarui relasi guru, mapel, kelas, dan tahun ajaran sesuai kebutuhan."
+      icon={BookOpen}
+    >
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Guru">
-            <RadixSelectField value={form.teacher_id} onValueChange={(v) => set("teacher_id", v)} placeholder="Pilih guru" searchable searchPlaceholder="Cari nama atau username guru..." emptyText="Guru tidak ditemukan." options={teacherProfiles.map((t) => ({ value: t.id, label: t.name, description: t.username || t.id }))} />
+            <RadixSelectField
+              value={form.teacher_id}
+              onValueChange={(v) => set("teacher_id", v)}
+              placeholder="Pilih guru"
+              searchable
+              searchPlaceholder="Cari nama atau username guru..."
+              emptyText="Guru tidak ditemukan."
+              options={teacherProfiles.map((t) => ({
+                value: t.id,
+                label: t.name,
+                description: t.username || t.id,
+              }))}
+            />
             <FieldError message={errors.teacher_id} />
           </FieldGroup>
           <FieldGroup label="Mapel">
-            <RadixSelectField value={form.subject_id} onValueChange={(v) => set("subject_id", v)} placeholder="Pilih mapel" options={subjects.map((s) => ({ value: s.id, label: s.name, description: s.code }))} />
+            <RadixSelectField
+              value={form.subject_id}
+              onValueChange={(v) => set("subject_id", v)}
+              placeholder="Pilih mapel"
+              options={subjects.map((s) => ({
+                value: s.id,
+                label: s.name,
+                description: s.code,
+              }))}
+            />
             <FieldError message={errors.subject_id} />
           </FieldGroup>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Kelas">
-          <RadixSelectField value={form.class_id} onValueChange={(v) => set("class_id", v)} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.map((c) => ({ value: c.id, label: getClassDisplayName(c), description: c.school_year_name }))} />
+            <RadixSelectField
+              value={form.class_id}
+              onValueChange={(v) => set("class_id", v)}
+              placeholder="Pilih kelas"
+              searchable
+              searchPlaceholder="Cari kelas..."
+              emptyText="Kelas tidak ditemukan."
+              options={classes.map((c) => ({
+                value: c.id,
+                label: getClassDisplayName(c),
+                description: c.school_year_name,
+              }))}
+            />
             <FieldError message={errors.class_id} />
           </FieldGroup>
           <FieldGroup label="Tahun Ajaran">
-            <RadixSelectField value={form.school_year_id} onValueChange={(v) => set("school_year_id", v)} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
+            <RadixSelectField
+              value={form.school_year_id}
+              onValueChange={(v) => set("school_year_id", v)}
+              placeholder="Pilih tahun ajaran"
+              options={schoolYears.map((y) => ({ value: y.id, label: y.name }))}
+            />
             <FieldError message={errors.school_year_id} />
           </FieldGroup>
         </div>
 
         <FieldGroup label="Status Penugasan">
-          <RadixSelectField value={String(form.is_active)} onValueChange={(v) => set("is_active", v === "true")} placeholder="Pilih status" options={ACTIVE_OPTIONS} />
+          <RadixSelectField
+            value={String(form.is_active)}
+            onValueChange={(v) => set("is_active", v === "true")}
+            placeholder="Pilih status"
+            options={ACTIVE_OPTIONS}
+          />
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
@@ -293,7 +436,12 @@ export function TeacherSubjectAssignmentEditModal({
           onChange={(rows) => set("schedules", rows)}
         />
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Penugasan" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Update Penugasan"
+        />
       </div>
     </PremiumModal>
   );

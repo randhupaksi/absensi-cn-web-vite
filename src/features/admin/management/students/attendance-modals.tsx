@@ -1,6 +1,9 @@
 "use client";
 
-import { FieldGroup, ModalActions } from "@/features/admin/management/shared/section-ui";
+import {
+  FieldGroup,
+  ModalActions,
+} from "@/features/admin/management/shared/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
@@ -11,7 +14,11 @@ import {
   validateRequired,
   validateTime,
 } from "@/lib/form-validation";
-import type { AdminAttendanceRule, AdminAttendanceRulePayload, AdminSchoolYear } from "@/types/admin";
+import type {
+  AdminAttendanceRule,
+  AdminAttendanceRulePayload,
+  AdminSchoolYear,
+} from "@/types/admin";
 import { TimerReset } from "lucide-react";
 import { useState } from "react";
 
@@ -35,9 +42,19 @@ export function validateAttendanceRuleForm(
   form: AdminAttendanceRulePayload,
 ): FieldErrors<keyof AdminAttendanceRulePayload> {
   const errors: FieldErrors<keyof AdminAttendanceRulePayload> = {};
-  validateRequired(errors, "school_year_id", form.school_year_id, "Tahun ajaran");
+  validateRequired(
+    errors,
+    "school_year_id",
+    form.school_year_id,
+    "Tahun ajaran",
+  );
   validateTime(errors, "check_in_start", form.check_in_start, "Mulai absen");
-  validateTime(errors, "on_time_until", form.on_time_until, "Batas tepat waktu");
+  validateTime(
+    errors,
+    "on_time_until",
+    form.on_time_until,
+    "Batas tepat waktu",
+  );
   validateTime(errors, "late_until", form.late_until, "Batas akhir absen");
   return errors;
 }
@@ -86,7 +103,9 @@ export function AttendanceRuleCreateModal({
   onSubmit: (payload: AdminAttendanceRulePayload) => void;
 }) {
   const [form, setForm] = useState<AdminAttendanceRulePayload>(EMPTY_FORM);
-  const [errors, setErrors] = useState<FieldErrors<keyof AdminAttendanceRulePayload>>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<keyof AdminAttendanceRulePayload>
+  >({});
 
   const handleOpenChange = (nextOpen: boolean) => {
     onOpenChange(nextOpen);
@@ -104,34 +123,75 @@ export function AttendanceRuleCreateModal({
   };
 
   return (
-    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Aturan Absensi" description="Atur waktu hadir dan cutoff absensi per tahun ajaran." icon={TimerReset}>
+    <PremiumModal
+      open={open}
+      onOpenChange={handleOpenChange}
+      title="Tambah Aturan Absensi"
+      description="Atur waktu hadir dan cutoff absensi per tahun ajaran."
+      icon={TimerReset}
+    >
       <div className="grid gap-5">
         <FieldGroup label="Tahun Ajaran">
-          <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
+          <RadixSelectField
+            value={form.school_year_id}
+            onValueChange={(v) =>
+              setForm((prev) => ({ ...prev, school_year_id: v }))
+            }
+            placeholder="Pilih tahun ajaran"
+            options={schoolYears.map((y) => ({ value: y.id, label: y.name }))}
+          />
           <FieldError message={errors.school_year_id} />
         </FieldGroup>
 
         <div className="grid gap-4 md:grid-cols-3">
           <FieldGroup label="Mulai Absen">
-            <TimeInput value={form.check_in_start} onChange={(v) => setForm((prev) => ({ ...prev, check_in_start: v }))} placeholder="06:30:00" />
+            <TimeInput
+              value={form.check_in_start}
+              onChange={(v) =>
+                setForm((prev) => ({ ...prev, check_in_start: v }))
+              }
+              placeholder="06:30:00"
+            />
             <FieldError message={errors.check_in_start} />
           </FieldGroup>
           <FieldGroup label="Batas Tepat Waktu">
-            <TimeInput value={form.on_time_until} onChange={(v) => setForm((prev) => ({ ...prev, on_time_until: v }))} placeholder="07:00:00" />
+            <TimeInput
+              value={form.on_time_until}
+              onChange={(v) =>
+                setForm((prev) => ({ ...prev, on_time_until: v }))
+              }
+              placeholder="07:00:00"
+            />
             <FieldError message={errors.on_time_until} />
           </FieldGroup>
           <FieldGroup label="Batas Akhir Absen">
-            <TimeInput value={form.late_until} onChange={(v) => setForm((prev) => ({ ...prev, late_until: v }))} placeholder="07:30:00" />
+            <TimeInput
+              value={form.late_until}
+              onChange={(v) => setForm((prev) => ({ ...prev, late_until: v }))}
+              placeholder="07:30:00"
+            />
             <FieldError message={errors.late_until} />
           </FieldGroup>
         </div>
 
         <FieldGroup label="Status Rule">
-          <RadixSelectField value={String(form.is_active)} onValueChange={(v) => setForm((prev) => ({ ...prev, is_active: v === "true" }))} placeholder="Pilih status" options={ACTIVE_OPTIONS} />
+          <RadixSelectField
+            value={String(form.is_active)}
+            onValueChange={(v) =>
+              setForm((prev) => ({ ...prev, is_active: v === "true" }))
+            }
+            placeholder="Pilih status"
+            options={ACTIVE_OPTIONS}
+          />
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Aturan" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => handleOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Simpan Aturan"
+        />
       </div>
     </PremiumModal>
   );
@@ -163,7 +223,9 @@ export function AttendanceRuleEditModal({
         }
       : EMPTY_FORM,
   );
-  const [errors, setErrors] = useState<FieldErrors<keyof AdminAttendanceRulePayload>>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<keyof AdminAttendanceRulePayload>
+  >({});
 
   const handleSubmit = () => {
     const nextErrors = validateAttendanceRuleForm(form);
@@ -175,34 +237,75 @@ export function AttendanceRuleEditModal({
   if (!rule) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Aturan Absensi" description="Perbarui waktu hadir dan batas akhir absensi untuk tahun ajaran yang dipilih." icon={TimerReset}>
+    <PremiumModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Ubah Aturan Absensi"
+      description="Perbarui waktu hadir dan batas akhir absensi untuk tahun ajaran yang dipilih."
+      icon={TimerReset}
+    >
       <div className="grid gap-5">
         <FieldGroup label="Tahun Ajaran">
-          <RadixSelectField value={form.school_year_id} onValueChange={(v) => setForm((prev) => ({ ...prev, school_year_id: v }))} placeholder="Pilih tahun ajaran" options={schoolYears.map((y) => ({ value: y.id, label: y.name }))} />
+          <RadixSelectField
+            value={form.school_year_id}
+            onValueChange={(v) =>
+              setForm((prev) => ({ ...prev, school_year_id: v }))
+            }
+            placeholder="Pilih tahun ajaran"
+            options={schoolYears.map((y) => ({ value: y.id, label: y.name }))}
+          />
           <FieldError message={errors.school_year_id} />
         </FieldGroup>
 
         <div className="grid gap-4 md:grid-cols-3">
           <FieldGroup label="Mulai Absen">
-            <TimeInput value={form.check_in_start} onChange={(v) => setForm((prev) => ({ ...prev, check_in_start: v }))} placeholder="06:30:00" />
+            <TimeInput
+              value={form.check_in_start}
+              onChange={(v) =>
+                setForm((prev) => ({ ...prev, check_in_start: v }))
+              }
+              placeholder="06:30:00"
+            />
             <FieldError message={errors.check_in_start} />
           </FieldGroup>
           <FieldGroup label="Batas Tepat Waktu">
-            <TimeInput value={form.on_time_until} onChange={(v) => setForm((prev) => ({ ...prev, on_time_until: v }))} placeholder="07:00:00" />
+            <TimeInput
+              value={form.on_time_until}
+              onChange={(v) =>
+                setForm((prev) => ({ ...prev, on_time_until: v }))
+              }
+              placeholder="07:00:00"
+            />
             <FieldError message={errors.on_time_until} />
           </FieldGroup>
           <FieldGroup label="Batas Akhir Absen">
-            <TimeInput value={form.late_until} onChange={(v) => setForm((prev) => ({ ...prev, late_until: v }))} placeholder="07:30:00" />
+            <TimeInput
+              value={form.late_until}
+              onChange={(v) => setForm((prev) => ({ ...prev, late_until: v }))}
+              placeholder="07:30:00"
+            />
             <FieldError message={errors.late_until} />
           </FieldGroup>
         </div>
 
         <FieldGroup label="Status Rule">
-          <RadixSelectField value={String(form.is_active)} onValueChange={(v) => setForm((prev) => ({ ...prev, is_active: v === "true" }))} placeholder="Pilih status" options={ACTIVE_OPTIONS} />
+          <RadixSelectField
+            value={String(form.is_active)}
+            onValueChange={(v) =>
+              setForm((prev) => ({ ...prev, is_active: v === "true" }))
+            }
+            placeholder="Pilih status"
+            options={ACTIVE_OPTIONS}
+          />
           <FieldError message={errors.is_active} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Aturan" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Update Aturan"
+        />
       </div>
     </PremiumModal>
   );

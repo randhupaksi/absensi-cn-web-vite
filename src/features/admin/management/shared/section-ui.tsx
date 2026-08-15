@@ -16,17 +16,31 @@ import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loa
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PencilLine, Plus, Save, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  PencilLine,
+  Plus,
+  Save,
+  Search,
+  SlidersHorizontal,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 type ActionIconTone = "emerald" | "sky" | "rose" | "slate";
 
 export function actionIconButtonClass(tone: ActionIconTone) {
   const toneClass = {
-    emerald: "border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700",
+    emerald:
+      "border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700",
     sky: "border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700",
     rose: "border-rose-100 text-rose-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600",
-    slate: "border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700",
+    slate:
+      "border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700",
   }[tone];
 
   return `size-10 rounded-full border bg-white transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-px hover:shadow-[0_10px_20px_rgba(15,23,42,0.08)] active:translate-y-0 active:scale-[0.94] active:duration-75 ${toneClass}`;
@@ -215,11 +229,22 @@ export function DataTableCard({
         </div>
       ) : isEmpty ? (
         <div className="p-5">
-          <EmptyState icon={icon} title={emptyTitle} description={emptyDescription} compact />
+          <EmptyState
+            icon={icon}
+            title={emptyTitle}
+            description={emptyDescription}
+            compact
+          />
         </div>
       ) : (
         <>
-          <div className={mobileView ? "hidden overflow-x-auto md:block" : "overflow-x-auto"}>{children}</div>
+          <div
+            className={
+              mobileView ? "hidden overflow-x-auto md:block" : "overflow-x-auto"
+            }
+          >
+            {children}
+          </div>
           {mobileView ? <div className="md:hidden">{mobileView}</div> : null}
           {pagination ? <DataTablePagination {...pagination} /> : null}
         </>
@@ -298,21 +323,29 @@ export function DataTablePagination({
     <div className="flex flex-col gap-3 border-t border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-4 py-3.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <div className="flex items-center justify-center gap-2 sm:justify-start sm:gap-4">
         <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Baris</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Baris
+          </span>
           <RowsPerPageSelect value={pageSize} onChange={setPageSize} />
         </div>
 
         <div className="flex items-center gap-4 rounded-[18px] border border-emerald-100/80 bg-white px-4 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
           <div className="flex flex-col items-start gap-0.5">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Rentang</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Rentang
+            </span>
             <span className="whitespace-nowrap text-sm font-bold text-slate-800">
               {totalItems === 0 ? "0" : `${rangeStart}–${rangeEnd}`}
             </span>
           </div>
           <span className="h-8 w-px bg-emerald-100" />
           <div className="flex flex-col items-start gap-0.5">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Total</span>
-            <span className="text-sm font-bold text-emerald-600">{totalItems}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Total
+            </span>
+            <span className="text-sm font-bold text-emerald-600">
+              {totalItems}
+            </span>
           </div>
         </div>
       </div>
@@ -324,19 +357,35 @@ export function DataTablePagination({
         </span>
 
         <div className="flex w-full items-center justify-between gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] sm:w-auto sm:justify-start">
-          <PaginationNavButton onClick={() => setPage(1)} disabled={page <= 1} ariaLabel="Halaman pertama">
+          <PaginationNavButton
+            onClick={() => setPage(1)}
+            disabled={page <= 1}
+            ariaLabel="Halaman pertama"
+          >
             <ChevronsLeft className="size-4" />
           </PaginationNavButton>
-          <PaginationNavButton onClick={() => setPage(page - 1)} disabled={page <= 1} ariaLabel="Halaman sebelumnya">
+          <PaginationNavButton
+            onClick={() => setPage(page - 1)}
+            disabled={page <= 1}
+            ariaLabel="Halaman sebelumnya"
+          >
             <ChevronLeft className="size-4" />
           </PaginationNavButton>
           <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(180deg,#10b981_0%,#0d9488_100%)] text-sm font-semibold text-white shadow-[0_10px_20px_rgba(16,185,129,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]">
             {page}
           </span>
-          <PaginationNavButton onClick={() => setPage(page + 1)} disabled={page >= totalPages} ariaLabel="Halaman berikutnya">
+          <PaginationNavButton
+            onClick={() => setPage(page + 1)}
+            disabled={page >= totalPages}
+            ariaLabel="Halaman berikutnya"
+          >
             <ChevronRight className="size-4" />
           </PaginationNavButton>
-          <PaginationNavButton onClick={() => setPage(totalPages)} disabled={page >= totalPages} ariaLabel="Halaman terakhir">
+          <PaginationNavButton
+            onClick={() => setPage(totalPages)}
+            disabled={page >= totalPages}
+            ariaLabel="Halaman terakhir"
+          >
             <ChevronsRight className="size-4" />
           </PaginationNavButton>
         </div>
@@ -381,7 +430,10 @@ function RowsPerPageSelect({
       value={String(value)}
       onValueChange={(next) => onChange(Number(next))}
       placeholder="Baris"
-      options={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: String(size) }))}
+      options={PAGE_SIZE_OPTIONS.map((size) => ({
+        value: String(size),
+        label: String(size),
+      }))}
       triggerClassName="h-10 w-[5.25rem] min-w-[5.25rem] rounded-[14px] border-emerald-200/80 px-3.5 text-sm font-bold text-slate-800"
       contentClassName="rounded-[1.15rem] p-1.5"
       hideIndicator
@@ -408,7 +460,12 @@ export function EmptyRow({
   return (
     <tr className="bg-white">
       <td colSpan={colSpan} className="p-5">
-        <EmptyState icon={icon} title={title} description={description} compact />
+        <EmptyState
+          icon={icon}
+          title={title}
+          description={description}
+          compact
+        />
       </td>
     </tr>
   );
@@ -428,7 +485,12 @@ export function ActionButtons({
       <ActionIconButton tone="sky" onClick={onEdit} ariaLabel="Ubah data">
         <PencilLine className="size-4" />
       </ActionIconButton>
-      <ActionIconButton tone="rose" onClick={onDelete} disabled={isDeletePending} ariaLabel="Hapus data">
+      <ActionIconButton
+        tone="rose"
+        onClick={onDelete}
+        disabled={isDeletePending}
+        ariaLabel="Hapus data"
+      >
         <Trash2 className="size-4" />
       </ActionIconButton>
     </div>
@@ -474,8 +536,14 @@ export function MobileDataHeader({
       <div className="flex min-w-0 items-center gap-3">
         {leading ? <div className="shrink-0">{leading}</div> : null}
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-slate-900">{title}</div>
-          {subtitle ? <div className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</div> : null}
+          <div className="truncate text-sm font-semibold text-slate-900">
+            {title}
+          </div>
+          {subtitle ? (
+            <div className="mt-0.5 truncate text-xs text-slate-500">
+              {subtitle}
+            </div>
+          ) : null}
         </div>
       </div>
       {badge ? <div className="shrink-0">{badge}</div> : null}
@@ -498,7 +566,9 @@ export function MobileDataField({
         {Icon ? <Icon className="size-3" /> : null}
         {label}
       </div>
-      <div className="min-w-0 text-right text-xs font-medium text-slate-700">{value}</div>
+      <div className="min-w-0 text-right text-xs font-medium text-slate-700">
+        {value}
+      </div>
     </div>
   );
 }
@@ -512,7 +582,9 @@ export function MobileDataSection({
 }) {
   return (
     <div className="mt-4 space-y-1.5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+        {label}
+      </p>
       <div className="text-xs leading-5 text-slate-600">{children}</div>
     </div>
   );
@@ -545,7 +617,9 @@ export function StatCard({
           <p className="break-words text-[10px] font-semibold uppercase leading-[1.35] tracking-[0.14em] text-slate-400 sm:text-[12px] sm:tracking-[0.18em]">
             {label}
           </p>
-          <p className="text-3xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.15rem]">{value}</p>
+          <p className="text-3xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.15rem]">
+            {value}
+          </p>
         </div>
         <div className="flex shrink-0 flex-col items-center text-right">
           <span
@@ -575,7 +649,13 @@ const TAB_GRID_COLS_CLASS: Record<number, string> = {
 const SECTION_TAB_TRIGGER_CLASS =
   "shrink-0 rounded-[18px] border border-slate-200/40 bg-white/50 px-5 py-3 text-slate-500 transition-[color,background-color,border-color,box-shadow,transform] duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 active:scale-[0.97] active:border-emerald-300 active:bg-emerald-50/70 active:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)] active:duration-100 data-active:border-emerald-200 data-active:bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] data-active:text-emerald-900 data-active:shadow-none xl:w-full";
 
-export function SectionTabSwitch({ tabs, hugContent = false }: { tabs: SectionTabItem[]; hugContent?: boolean }) {
+export function SectionTabSwitch({
+  tabs,
+  hugContent = false,
+}: {
+  tabs: SectionTabItem[];
+  hugContent?: boolean;
+}) {
   const gridColsClass = TAB_GRID_COLS_CLASS[tabs.length] ?? "";
   return (
     <ScrollableTabsWrapper>
@@ -587,7 +667,11 @@ export function SectionTabSwitch({ tabs, hugContent = false }: { tabs: SectionTa
         }
       >
         {tabs.map(({ value, label, icon: Icon }) => (
-          <TabsTrigger key={value} value={value} className={SECTION_TAB_TRIGGER_CLASS}>
+          <TabsTrigger
+            key={value}
+            value={value}
+            className={SECTION_TAB_TRIGGER_CLASS}
+          >
             <Icon className="size-4" />
             {label}
           </TabsTrigger>
@@ -620,7 +704,8 @@ export function DataTableHeadRow({
             key={label}
             className={cn(
               "whitespace-nowrap px-5 py-4 font-semibold",
-              (label === "Aksi" || centerLabels.includes(label)) && "text-center",
+              (label === "Aksi" || centerLabels.includes(label)) &&
+                "text-center",
             )}
           >
             {label}
@@ -632,7 +717,9 @@ export function DataTableHeadRow({
 }
 
 export function DataTableBody({ children }: { children: ReactNode }) {
-  return <tbody className="divide-y divide-emerald-50 bg-white/92">{children}</tbody>;
+  return (
+    <tbody className="divide-y divide-emerald-50 bg-white/92">{children}</tbody>
+  );
 }
 
 export function DataTableRow({
@@ -659,7 +746,10 @@ export function DataTableCell({
   colSpan?: number;
 }) {
   return (
-    <td colSpan={colSpan} className={cn("whitespace-nowrap px-5 py-4 text-slate-600", className)}>
+    <td
+      colSpan={colSpan}
+      className={cn("whitespace-nowrap px-5 py-4 text-slate-600", className)}
+    >
       {children}
     </td>
   );

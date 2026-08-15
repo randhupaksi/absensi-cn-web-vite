@@ -26,7 +26,11 @@ import {
 } from "@/features/admin/management/admins/modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
-import { createAdminUser, deleteAdminUser, updateAdminUser } from "@/services/admin.service";
+import {
+  createAdminUser,
+  deleteAdminUser,
+  updateAdminUser,
+} from "@/services/admin.service";
 import type { AdminUser, AdminUserPayload } from "@/types/admin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -104,7 +108,8 @@ export function AdminManagementSection({
     );
   }, [adminUsers, deferredQuery]);
 
-  const { pageItems: pageAdmins, pagination: adminsPagination } = usePagination(filteredAdmins);
+  const { pageItems: pageAdmins, pagination: adminsPagination } =
+    usePagination(filteredAdmins);
 
   const kpiCards = [
     {
@@ -152,8 +157,8 @@ export function AdminManagementSection({
                   Manajemen Administrator
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Kelola akun administrator inti yang memiliki kontrol tertinggi pada dashboard
-                  dan master data sekolah.
+                  Kelola akun administrator inti yang memiliki kontrol tertinggi
+                  pada dashboard dan master data sekolah.
                 </p>
               </div>
             </div>
@@ -164,9 +169,12 @@ export function AdminManagementSection({
                   <LineChart className="size-4.5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">Ringkasan akun administrator</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    Ringkasan akun administrator
+                  </p>
                   <p className="text-xs leading-5 text-slate-500">
-                    Fokus ke akun dengan otoritas tertinggi untuk akses pengelolaan sistem.
+                    Fokus ke akun dengan otoritas tertinggi untuk akses
+                    pengelolaan sistem.
                   </p>
                 </div>
               </div>
@@ -181,11 +189,16 @@ export function AdminManagementSection({
 
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="text-xs font-medium text-slate-400">
-              {adminUsers.length} akun administrator aktif dalam struktur role sistem
+              {adminUsers.length} akun administrator aktif dalam struktur role
+              sistem
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari nama admin atau username" />
+              <SearchFilterBar
+                value={query}
+                onChange={setQuery}
+                placeholder="Cari nama admin atau username"
+              />
 
               <AddButton label="Admin" onClick={() => setModalOpen(true)} />
             </div>
@@ -194,7 +207,12 @@ export function AdminManagementSection({
 
         {errorMessage ? (
           <div className="mt-5">
-            <EmptyState icon={ShieldCheck} title="Data admin belum bisa dimuat" description={errorMessage} compact />
+            <EmptyState
+              icon={ShieldCheck}
+              title="Data admin belum bisa dimuat"
+              description={errorMessage}
+              compact
+            />
           </div>
         ) : null}
 
@@ -219,14 +237,23 @@ export function AdminManagementSection({
                       }
                       title={user.name}
                       badge={
-                        <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                        <Badge
+                          variant="outline"
+                          className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                        >
                           ADMIN
                         </Badge>
                       }
                     />
                     <div className="mt-4 space-y-3">
-                      <MobileDataField label="Username" value={user.username || "-"} />
-                      <MobileDataField label="Akses" value="Kontrol penuh dashboard dan master data" />
+                      <MobileDataField
+                        label="Username"
+                        value={user.username || "-"}
+                      />
+                      <MobileDataField
+                        label="Akses"
+                        value="Kontrol penuh dashboard dan master data"
+                      />
                     </div>
                     <MobileDataFooter>
                       <ActionButtons
@@ -241,7 +268,9 @@ export function AdminManagementSection({
             }
           >
             <DataTable>
-              <DataTableHeadRow labels={["Administrator", "Username", "Peran", "Akses", "Aksi"]} />
+              <DataTableHeadRow
+                labels={["Administrator", "Username", "Peran", "Akses", "Aksi"]}
+              />
               <DataTableBody>
                 {pageAdmins.map((user) => (
                   <DataTableRow key={user.id}>
@@ -251,17 +280,24 @@ export function AdminManagementSection({
                           {getInitials(user.name)}
                         </span>
                         <div>
-                          <p className="font-medium text-slate-700">{user.name}</p>
+                          <p className="font-medium text-slate-700">
+                            {user.name}
+                          </p>
                         </div>
                       </div>
                     </DataTableCell>
                     <DataTableCell>{user.username || "-"}</DataTableCell>
                     <DataTableCell>
-                      <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                      >
                         ADMIN
                       </Badge>
                     </DataTableCell>
-                    <DataTableCell>Kontrol penuh dashboard dan master data</DataTableCell>
+                    <DataTableCell>
+                      Kontrol penuh dashboard dan master data
+                    </DataTableCell>
                     <DataTableCell>
                       <ActionButtons
                         onEdit={() => setEditingUser(user)}
@@ -290,9 +326,13 @@ export function AdminManagementSection({
           key={editingUser.id}
           user={editingUser}
           open
-          onOpenChange={(open) => { if (!open) setEditingUser(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingUser(null);
+          }}
           isPending={updateAdminMutation.isPending}
-          onSubmit={(payload) => updateAdminMutation.mutate({ id: editingUser.id, payload })}
+          onSubmit={(payload) =>
+            updateAdminMutation.mutate({ id: editingUser.id, payload })
+          }
         />
       )}
       <DeleteConfirmationModal

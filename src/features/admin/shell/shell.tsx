@@ -2,9 +2,7 @@
 
 import type { AuthSession } from "@/types/auth";
 import type { ReactNode } from "react";
-import {
-  adminSidebarItems,
-} from "@/features/staff/components/sidebar";
+import { adminSidebarItems } from "@/features/staff/components/sidebar";
 import { StaffShell } from "@/features/staff/components/shell";
 
 type AdminShellProps = {

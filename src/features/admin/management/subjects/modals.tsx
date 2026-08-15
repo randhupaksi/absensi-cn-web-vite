@@ -103,21 +103,37 @@ export function SubjectFormModal({
         />
       }
     >
-      <form id="subject-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        id="subject-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className={premiumModalFieldClassName}>
-            <label htmlFor="subject-code" className={premiumModalLabelClassName}>Kode Mapel</label>
+            <label
+              htmlFor="subject-code"
+              className={premiumModalLabelClassName}
+            >
+              Kode Mapel
+            </label>
             <Input
               id="subject-code"
               className={`${INPUT_CN} uppercase`}
               placeholder="Contoh: MTK"
               aria-invalid={Boolean(form.formState.errors.code)}
-              {...form.register("code", { setValueAs: (value: string) => value.toUpperCase() })}
+              {...form.register("code", {
+                setValueAs: (value: string) => value.toUpperCase(),
+              })}
             />
             <FieldError message={form.formState.errors.code?.message} />
           </div>
           <div className={premiumModalFieldClassName}>
-            <label htmlFor="subject-group" className={premiumModalLabelClassName}>Kelompok Mapel</label>
+            <label
+              htmlFor="subject-group"
+              className={premiumModalLabelClassName}
+            >
+              Kelompok Mapel
+            </label>
             <Input
               id="subject-group"
               className={INPUT_CN}
@@ -130,7 +146,9 @@ export function SubjectFormModal({
         </div>
 
         <div className={premiumModalFieldClassName}>
-          <label htmlFor="subject-name" className={premiumModalLabelClassName}>Nama Mapel</label>
+          <label htmlFor="subject-name" className={premiumModalLabelClassName}>
+            Nama Mapel
+          </label>
           <Input
             id="subject-name"
             className={INPUT_CN}
@@ -141,37 +159,81 @@ export function SubjectFormModal({
           <FieldError message={form.formState.errors.name?.message} />
         </div>
 
-		<div className="grid gap-4 sm:grid-cols-2">
-		  <div className={premiumModalFieldClassName}>
-		    <label className={premiumModalLabelClassName}>Cakupan Unit</label>
-		    <Controller control={form.control} name="scope" render={({ field }) => (
-		      <RadixSelectField value={field.value} onValueChange={field.onChange} placeholder="Pilih cakupan" options={[
-		        { value: "ALL", label: "Semua Unit" }, { value: "SMP", label: "SMP" }, { value: "SMA", label: "SMA" }, { value: "SMK", label: "SMK" },
-		      ]} />
-		    )} />
-		  </div>
-		  <div className={premiumModalFieldClassName}>
-		    <label htmlFor="subject-description" className={premiumModalLabelClassName}>Deskripsi</label>
-		    <Textarea id="subject-description" className="min-h-14 rounded-[1.25rem] border-slate-200/80 bg-white" placeholder="Keterangan singkat mapel" {...form.register("description")} />
-		  </div>
-		</div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className={premiumModalFieldClassName}>
+            <label className={premiumModalLabelClassName}>Cakupan Unit</label>
+            <Controller
+              control={form.control}
+              name="scope"
+              render={({ field }) => (
+                <RadixSelectField
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Pilih cakupan"
+                  options={[
+                    { value: "ALL", label: "Semua Unit" },
+                    { value: "SMP", label: "SMP" },
+                    { value: "SMA", label: "SMA" },
+                    { value: "SMK", label: "SMK" },
+                  ]}
+                />
+              )}
+            />
+          </div>
+          <div className={premiumModalFieldClassName}>
+            <label
+              htmlFor="subject-description"
+              className={premiumModalLabelClassName}
+            >
+              Deskripsi
+            </label>
+            <Textarea
+              id="subject-description"
+              className="min-h-14 rounded-[1.25rem] border-slate-200/80 bg-white"
+              placeholder="Keterangan singkat mapel"
+              {...form.register("description")}
+            />
+          </div>
+        </div>
 
-		<div className={premiumModalFieldClassName}>
-		  <label className={premiumModalLabelClassName}>Program/Jurusan Khusus (opsional)</label>
-		  <div className="grid max-h-36 gap-2 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-3 sm:grid-cols-2">
-		    {programs.filter((program) => program.is_active).map((program) => {
-		      const selected = form.watch("major_ids").includes(program.id);
-		      return <label key={program.id} className="flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-700 hover:bg-emerald-50">
-		        <Checkbox checked={selected} onCheckedChange={(checked) => {
-		          const current = form.getValues("major_ids");
-		          form.setValue("major_ids", checked ? [...current, program.id] : current.filter((id) => id !== program.id), { shouldDirty: true });
-		        }} />
-		        <span>{program.school_unit_code} · {program.code}</span>
-		      </label>;
-		    })}
-		    {programs.length === 0 ? <p className="text-sm text-slate-400">Belum ada program aktif.</p> : null}
-		  </div>
-		</div>
+        <div className={premiumModalFieldClassName}>
+          <label className={premiumModalLabelClassName}>
+            Program/Jurusan Khusus (opsional)
+          </label>
+          <div className="grid max-h-36 gap-2 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-3 sm:grid-cols-2">
+            {programs
+              .filter((program) => program.is_active)
+              .map((program) => {
+                const selected = form.watch("major_ids").includes(program.id);
+                return (
+                  <label
+                    key={program.id}
+                    className="flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-700 hover:bg-emerald-50"
+                  >
+                    <Checkbox
+                      checked={selected}
+                      onCheckedChange={(checked) => {
+                        const current = form.getValues("major_ids");
+                        form.setValue(
+                          "major_ids",
+                          checked
+                            ? [...current, program.id]
+                            : current.filter((id) => id !== program.id),
+                          { shouldDirty: true },
+                        );
+                      }}
+                    />
+                    <span>
+                      {program.school_unit_code} · {program.code}
+                    </span>
+                  </label>
+                );
+              })}
+            {programs.length === 0 ? (
+              <p className="text-sm text-slate-400">Belum ada program aktif.</p>
+            ) : null}
+          </div>
+        </div>
 
         <div className={premiumModalFieldClassName}>
           <label className={premiumModalLabelClassName}>Status Mapel</label>
@@ -231,7 +293,7 @@ export function TeachingAssignmentFormModal({
       open={open}
       onOpenChange={onOpenChange}
       title={assignment ? "Ubah Jadwal Mengajar" : "Tambah Jadwal Mengajar"}
-	      description="Hubungkan guru, mapel, tahun ajaran, dan beberapa slot kelas dalam satu penempatan."
+      description="Hubungkan guru, mapel, tahun ajaran, dan beberapa slot kelas dalam satu penempatan."
       icon={BookOpenCheck}
       className="sm:!max-w-4xl"
       footer={
@@ -243,18 +305,24 @@ export function TeachingAssignmentFormModal({
         />
       }
     >
-      <form id="teaching-assignment-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form
+        id="teaching-assignment-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-5"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <SelectController
             control={form.control}
             name="teacher_id"
             label="Guru Pengajar"
             placeholder="Pilih guru"
-            options={teachers.filter((item) => item.is_active).map((item) => ({
-              value: item.id,
-              label: item.name,
-              description: item.username || undefined,
-            }))}
+            options={teachers
+              .filter((item) => item.is_active)
+              .map((item) => ({
+                value: item.id,
+                label: item.name,
+                description: item.username || undefined,
+              }))}
             error={form.formState.errors.teacher_id?.message}
           />
           <SelectController
@@ -262,11 +330,13 @@ export function TeachingAssignmentFormModal({
             name="subject_id"
             label="Mata Pelajaran"
             placeholder="Pilih mapel"
-            options={subjects.filter((item) => item.is_active).map((item) => ({
-              value: item.id,
-              label: item.name,
-              description: item.code,
-            }))}
+            options={subjects
+              .filter((item) => item.is_active)
+              .map((item) => ({
+                value: item.id,
+                label: item.name,
+                description: item.code,
+              }))}
             error={form.formState.errors.subject_id?.message}
           />
           <SelectController
@@ -274,16 +344,20 @@ export function TeachingAssignmentFormModal({
             name="school_year_id"
             label="Tahun Ajaran"
             placeholder="Pilih tahun ajaran"
-            options={schoolYears.filter((item) => item.is_active).map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
+            options={schoolYears
+              .filter((item) => item.is_active)
+              .map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
             error={form.formState.errors.school_year_id?.message}
           />
         </div>
 
         <div className={premiumModalFieldClassName}>
-          <label className={premiumModalLabelClassName}>Status Penempatan</label>
+          <label className={premiumModalLabelClassName}>
+            Status Penempatan
+          </label>
           <Controller
             control={form.control}
             name="is_active"
@@ -298,43 +372,79 @@ export function TeachingAssignmentFormModal({
           />
         </div>
 
-		<div className="grid gap-4 md:grid-cols-3">
-		  <div className={premiumModalFieldClassName}>
-		    <label className={premiumModalLabelClassName}>Peran Guru</label>
-		    <Controller control={form.control} name="assignment_role" render={({ field }) => (
-		      <RadixSelectField value={field.value} onValueChange={(value) => { field.onChange(value); form.setValue("is_primary", value === "PRIMARY"); }} placeholder="Pilih peran" options={[
-		        { value: "PRIMARY", label: "Guru Utama" }, { value: "ASSISTANT", label: "Guru Pendamping" }, { value: "SUBSTITUTE", label: "Guru Pengganti" },
-		      ]} />
-		    )} />
-		  </div>
-		  <Controller
-		    control={form.control}
-		    name="effective_from"
-		    render={({ field }) => (
-		      <DatePickerField label="Berlaku Mulai" value={field.value} onChange={field.onChange} />
-		    )}
-		  />
-		  <Controller
-		    control={form.control}
-		    name="effective_until"
-		    render={({ field }) => (
-		      <DatePickerField label="Berlaku Sampai" value={field.value} onChange={field.onChange} />
-		    )}
-		  />
-		</div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className={premiumModalFieldClassName}>
+            <label className={premiumModalLabelClassName}>Peran Guru</label>
+            <Controller
+              control={form.control}
+              name="assignment_role"
+              render={({ field }) => (
+                <RadixSelectField
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue("is_primary", value === "PRIMARY");
+                  }}
+                  placeholder="Pilih peran"
+                  options={[
+                    { value: "PRIMARY", label: "Guru Utama" },
+                    { value: "ASSISTANT", label: "Guru Pendamping" },
+                    { value: "SUBSTITUTE", label: "Guru Pengganti" },
+                  ]}
+                />
+              )}
+            />
+          </div>
+          <Controller
+            control={form.control}
+            name="effective_from"
+            render={({ field }) => (
+              <DatePickerField
+                label="Berlaku Mulai"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="effective_until"
+            render={({ field }) => (
+              <DatePickerField
+                label="Berlaku Sampai"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
 
         {/* Slot Jadwal */}
         <div className="rounded-[26px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,248,0.96)_100%)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.05)]">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-semibold text-slate-900">Slot Jadwal</h3>
-              <p className="text-xs text-slate-500">Tambahkan satu atau beberapa hari dan jam mengajar.</p>
+              <h3 className="text-base font-semibold text-slate-900">
+                Slot Jadwal
+              </h3>
+              <p className="text-xs text-slate-500">
+                Tambahkan satu atau beberapa hari dan jam mengajar.
+              </p>
             </div>
             <Button
               type="button"
               variant="outline"
               className="h-10 gap-2.5 rounded-[18px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-3.5 text-sm font-semibold text-emerald-900 shadow-[0_10px_20px_rgba(15,23,42,0.04)] hover:border-emerald-300"
-	              onClick={() => schedules.append({ hari: "senin", class_id: "", jam_mulai: "", jam_selesai: "", effective_from: "", effective_until: "", is_active: true })}
+              onClick={() =>
+                schedules.append({
+                  hari: "senin",
+                  class_id: "",
+                  jam_mulai: "",
+                  jam_selesai: "",
+                  effective_from: "",
+                  effective_until: "",
+                  is_active: true,
+                })
+              }
             >
               <span className="flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_6px_12px_rgba(16,185,129,0.2)]">
                 <Plus className="size-3" />
@@ -347,7 +457,7 @@ export function TeachingAssignmentFormModal({
             {schedules.fields.map((field, index) => (
               <div
                 key={field.id}
-			  className="grid gap-3 rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcfa_100%)] p-4 shadow-[0_6px_14px_rgba(15,23,42,0.03)] md:grid-cols-4 md:items-start"
+                className="grid gap-3 rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcfa_100%)] p-4 shadow-[0_6px_14px_rgba(15,23,42,0.03)] md:grid-cols-4 md:items-start"
               >
                 <div className={premiumModalFieldClassName}>
                   <label className={premiumModalLabelClassName}>Hari</label>
@@ -364,39 +474,82 @@ export function TeachingAssignmentFormModal({
                     )}
                   />
                 </div>
-				<div className={premiumModalFieldClassName}>
-				  <label className={premiumModalLabelClassName}>Kelas</label>
-			  <Controller control={form.control} name={`schedules.${index}.class_id`} render={({ field: classField }) => (
-			    <RadixSelectField value={classField.value} onValueChange={classField.onChange} placeholder="Pilih kelas" searchable searchPlaceholder="Cari kelas..." emptyText="Kelas tidak ditemukan." options={classes.filter((item) => item.is_active).map((item) => ({ value: item.id, label: getClassDisplayName(item), description: item.school_year_name }))} />
-			  )} />
-				  <FieldError message={form.formState.errors.schedules?.[index]?.class_id?.message} />
-				</div>
                 <div className={premiumModalFieldClassName}>
-                  <label htmlFor={`schedule-start-${index}`} className={premiumModalLabelClassName}>Jam Mulai</label>
+                  <label className={premiumModalLabelClassName}>Kelas</label>
+                  <Controller
+                    control={form.control}
+                    name={`schedules.${index}.class_id`}
+                    render={({ field: classField }) => (
+                      <RadixSelectField
+                        value={classField.value}
+                        onValueChange={classField.onChange}
+                        placeholder="Pilih kelas"
+                        searchable
+                        searchPlaceholder="Cari kelas..."
+                        emptyText="Kelas tidak ditemukan."
+                        options={classes
+                          .filter((item) => item.is_active)
+                          .map((item) => ({
+                            value: item.id,
+                            label: getClassDisplayName(item),
+                            description: item.school_year_name,
+                          }))}
+                      />
+                    )}
+                  />
+                  <FieldError
+                    message={
+                      form.formState.errors.schedules?.[index]?.class_id
+                        ?.message
+                    }
+                  />
+                </div>
+                <div className={premiumModalFieldClassName}>
+                  <label
+                    htmlFor={`schedule-start-${index}`}
+                    className={premiumModalLabelClassName}
+                  >
+                    Jam Mulai
+                  </label>
                   <Input
                     id={`schedule-start-${index}`}
                     type="time"
                     className={INPUT_CN}
                     {...form.register(`schedules.${index}.jam_mulai`)}
                   />
-                  <FieldError message={form.formState.errors.schedules?.[index]?.jam_mulai?.message} />
+                  <FieldError
+                    message={
+                      form.formState.errors.schedules?.[index]?.jam_mulai
+                        ?.message
+                    }
+                  />
                 </div>
                 <div className={premiumModalFieldClassName}>
-                  <label htmlFor={`schedule-end-${index}`} className={premiumModalLabelClassName}>Jam Selesai</label>
+                  <label
+                    htmlFor={`schedule-end-${index}`}
+                    className={premiumModalLabelClassName}
+                  >
+                    Jam Selesai
+                  </label>
                   <Input
                     id={`schedule-end-${index}`}
                     type="time"
                     className={INPUT_CN}
                     {...form.register(`schedules.${index}.jam_selesai`)}
                   />
-                  <FieldError message={form.formState.errors.schedules?.[index]?.jam_selesai?.message} />
+                  <FieldError
+                    message={
+                      form.formState.errors.schedules?.[index]?.jam_selesai
+                        ?.message
+                    }
+                  />
                 </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="icon-sm"
                   aria-label={`Hapus slot jadwal ${index + 1}`}
-				  className="size-10 rounded-[14px] border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,242,242,0.98)_100%)] text-rose-500 shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-rose-300 hover:bg-rose-50 md:mt-7"
+                  className="size-10 rounded-[14px] border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,242,242,0.98)_100%)] text-rose-500 shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-rose-300 hover:bg-rose-50 md:mt-7"
                   onClick={() => schedules.remove(index)}
                 >
                   <Trash2 className="size-4" />
@@ -405,15 +558,26 @@ export function TeachingAssignmentFormModal({
             ))}
           </div>
 
-          <FieldError message={form.formState.errors.schedules?.root?.message ?? form.formState.errors.schedules?.message} />
+          <FieldError
+            message={
+              form.formState.errors.schedules?.root?.message ??
+              form.formState.errors.schedules?.message
+            }
+          />
         </div>
-
       </form>
     </PremiumModal>
   );
 }
 
-function SelectController({ control, name, label, placeholder, options, error }: {
+function SelectController({
+  control,
+  name,
+  label,
+  placeholder,
+  options,
+  error,
+}: {
   control: ReturnType<typeof useForm<TeachingAssignmentFormValues>>["control"];
   name: "teacher_id" | "subject_id" | "school_year_id";
   label: string;
@@ -433,8 +597,14 @@ function SelectController({ control, name, label, placeholder, options, error }:
             onValueChange={field.onChange}
             placeholder={placeholder}
             searchable={name === "teacher_id"}
-            searchPlaceholder={name === "teacher_id" ? "Cari nama atau username guru..." : undefined}
-            emptyText={name === "teacher_id" ? "Guru tidak ditemukan." : undefined}
+            searchPlaceholder={
+              name === "teacher_id"
+                ? "Cari nama atau username guru..."
+                : undefined
+            }
+            emptyText={
+              name === "teacher_id" ? "Guru tidak ditemukan." : undefined
+            }
             options={options}
           />
         )}
@@ -469,16 +639,25 @@ function DatePickerField({
               <CalendarIcon className="size-4" />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                {label}
+              </p>
               <p className="text-sm font-medium text-slate-700">
-                {parsed ? format(parsed, "d MMMM yyyy", { locale: localeID }) : "Pilih tanggal"}
+                {parsed
+                  ? format(parsed, "d MMMM yyyy", { locale: localeID })
+                  : "Pilih tanggal"}
               </p>
             </div>
           </div>
         </PopoverTrigger>
-        <PopoverContent sideOffset={10} className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]">
+        <PopoverContent
+          sideOffset={10}
+          className="w-auto rounded-[24px] p-0 shadow-[0_20px_48px_rgba(15,23,42,0.14)]"
+        >
           <PopoverHeader className="px-4 pt-3 pb-2">
-            <PopoverTitle className="text-sm font-semibold text-slate-900">Pilih tanggal</PopoverTitle>
+            <PopoverTitle className="text-sm font-semibold text-slate-900">
+              Pilih tanggal
+            </PopoverTitle>
           </PopoverHeader>
           <Calendar
             mode="single"
@@ -496,7 +675,17 @@ function DatePickerField({
   );
 }
 
-function ModalActions({ formId, isPending, onCancel, submitLabel }: { formId: string; isPending: boolean; onCancel: () => void; submitLabel: string }) {
+function ModalActions({
+  formId,
+  isPending,
+  onCancel,
+  submitLabel,
+}: {
+  formId: string;
+  isPending: boolean;
+  onCancel: () => void;
+  submitLabel: string;
+}) {
   return (
     <div className="flex flex-row items-center justify-between gap-3 sm:justify-end [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none">
       <Button
@@ -528,24 +717,61 @@ function subjectValues(subject: AdminSubject | null): SubjectFormValues {
     name: subject?.name ?? "",
     group: subject?.group ?? "",
     description: subject?.description ?? "",
-    scope: subject?.scope === "SMP" || subject?.scope === "SMA" || subject?.scope === "SMK" ? subject.scope : "ALL",
+    scope:
+      subject?.scope === "SMP" ||
+      subject?.scope === "SMA" ||
+      subject?.scope === "SMK"
+        ? subject.scope
+        : "ALL",
     major_ids: subject?.major_ids ?? [],
     is_active: subject?.is_active ?? true,
   };
 }
 
-function assignmentValues(assignment: AdminTeacherSubjectAssignment | null): TeachingAssignmentFormValues {
+function assignmentValues(
+  assignment: AdminTeacherSubjectAssignment | null,
+): TeachingAssignmentFormValues {
   return {
     teacher_id: assignment?.teacher_id ?? "",
     subject_id: assignment?.subject_id ?? "",
     school_year_id: assignment?.school_year_id ?? "",
-    assignment_role: assignment?.assignment_role === "ASSISTANT" || assignment?.assignment_role === "SUBSTITUTE" ? assignment.assignment_role : "PRIMARY",
+    assignment_role:
+      assignment?.assignment_role === "ASSISTANT" ||
+      assignment?.assignment_role === "SUBSTITUTE"
+        ? assignment.assignment_role
+        : "PRIMARY",
     is_primary: assignment?.is_primary ?? true,
     effective_from: assignment?.effective_from ?? "",
     effective_until: assignment?.effective_until ?? "",
     is_active: assignment?.is_active ?? true,
-    schedules: assignment?.schedules.map(({ hari, jam_mulai, jam_selesai, class_id, effective_from, effective_until, is_active }) => ({ hari, jam_mulai, jam_selesai, class_id: class_id || assignment.class_id, effective_from: effective_from ?? "", effective_until: effective_until ?? "", is_active })) ?? [
-	  { hari: "senin", class_id: "", jam_mulai: "", jam_selesai: "", effective_from: "", effective_until: "", is_active: true },
+    schedules: assignment?.schedules.map(
+      ({
+        hari,
+        jam_mulai,
+        jam_selesai,
+        class_id,
+        effective_from,
+        effective_until,
+        is_active,
+      }) => ({
+        hari,
+        jam_mulai,
+        jam_selesai,
+        class_id: class_id || assignment.class_id,
+        effective_from: effective_from ?? "",
+        effective_until: effective_until ?? "",
+        is_active,
+      }),
+    ) ?? [
+      {
+        hari: "senin",
+        class_id: "",
+        jam_mulai: "",
+        jam_selesai: "",
+        effective_from: "",
+        effective_until: "",
+        is_active: true,
+      },
     ],
   };
 }

@@ -83,7 +83,10 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const ImportExcelModal = dynamic(
-  () => import("@/components/modals/import-excel-modal").then((module) => module.ImportExcelModal),
+  () =>
+    import("@/components/modals/import-excel-modal").then(
+      (module) => module.ImportExcelModal,
+    ),
   { ssr: false },
 );
 
@@ -124,22 +127,30 @@ export function StudentSection({
   const [isExportingStudents, setIsExportingStudents] = useState(false);
   const [membershipModalOpen, setMembershipModalOpen] = useState(false);
   const [ruleModalOpen, setRuleModalOpen] = useState(false);
-  const [editingStudent, setEditingStudent] = useState<AdminStudent | null>(null);
+  const [editingStudent, setEditingStudent] = useState<AdminStudent | null>(
+    null,
+  );
   const [editingMembership, setEditingMembership] =
     useState<AdminStudentClassMembership | null>(null);
-  const [editingRule, setEditingRule] = useState<AdminAttendanceRule | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<StudentDeleteTarget | null>(null);
+  const [editingRule, setEditingRule] = useState<AdminAttendanceRule | null>(
+    null,
+  );
+  const [deleteTarget, setDeleteTarget] = useState<StudentDeleteTarget | null>(
+    null,
+  );
 
   const normalizedQuery = deferredQuery.trim().toLowerCase();
 
   const unitFilterOptions = useMemo(() => {
     const units = new Map<string, string>();
-    classes.forEach((item) => units.set(item.school_unit_id, item.school_unit_code));
+    classes.forEach((item) =>
+      units.set(item.school_unit_id, item.school_unit_code),
+    );
 
     return [
       { value: "all", label: "Semua jenjang" },
-      ...Array.from(units, ([value, label]) => ({ value, label })).sort((left, right) =>
-        left.label.localeCompare(right.label, "id"),
+      ...Array.from(units, ([value, label]) => ({ value, label })).sort(
+        (left, right) => left.label.localeCompare(right.label, "id"),
       ),
     ];
   }, [classes]);
@@ -147,13 +158,17 @@ export function StudentSection({
   const majorFilterOptions = useMemo(() => {
     const majors = new Map<string, string>();
     classes
-      .filter((item) => unitFilter === "all" || item.school_unit_id === unitFilter)
-      .forEach((item) => majors.set(item.major_id, `${item.major_code} - ${item.major_name}`));
+      .filter(
+        (item) => unitFilter === "all" || item.school_unit_id === unitFilter,
+      )
+      .forEach((item) =>
+        majors.set(item.major_id, `${item.major_code} - ${item.major_name}`),
+      );
 
     return [
       { value: "all", label: "Semua program / jurusan" },
-      ...Array.from(majors, ([value, label]) => ({ value, label })).sort((left, right) =>
-        left.label.localeCompare(right.label, "id"),
+      ...Array.from(majors, ([value, label]) => ({ value, label })).sort(
+        (left, right) => left.label.localeCompare(right.label, "id"),
       ),
     ];
   }, [classes, unitFilter]);
@@ -178,7 +193,9 @@ export function StudentSection({
     onSuccess: () => {
       toast.success("Profil siswa berhasil ditambahkan.");
       void queryClient.invalidateQueries({ queryKey: ["admin-students"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-student-class-memberships"],
+      });
       setProfileModalOpen(false);
     },
     onError: (error: Error) => toast.error(error.message),
@@ -204,19 +221,28 @@ export function StudentSection({
           ? "Aturan absensi berhasil ditambahkan."
           : "Aturan absensi disimpan sebagai Nonaktif karena tahun ajaran ini sudah memiliki rule aktif.",
       );
-      void queryClient.invalidateQueries({ queryKey: ["admin-attendance-rules"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-attendance-rules"],
+      });
       setRuleModalOpen(false);
     },
     onError: (error: Error) => toast.error(error.message),
   });
 
   const updateStudentMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: AdminStudentPayload }) =>
-      updateAdminStudent(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: AdminStudentPayload;
+    }) => updateAdminStudent(id, payload),
     onSuccess: () => {
       toast.success("Profil siswa berhasil diperbarui.");
       void queryClient.invalidateQueries({ queryKey: ["admin-students"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-student-class-memberships"],
+      });
       setEditingStudent(null);
     },
     onError: (error: Error) => toast.error(error.message),
@@ -275,7 +301,9 @@ export function StudentSection({
     }) => updateAdminAttendanceRule(id, payload),
     onSuccess: () => {
       toast.success("Aturan absensi berhasil diperbarui.");
-      void queryClient.invalidateQueries({ queryKey: ["admin-attendance-rules"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-attendance-rules"],
+      });
       setEditingRule(null);
     },
     onError: (error: Error) => toast.error(error.message),
@@ -286,7 +314,9 @@ export function StudentSection({
     onSuccess: () => {
       toast.success("Aturan absensi berhasil dihapus.");
       setDeleteTarget(null);
-      void queryClient.invalidateQueries({ queryKey: ["admin-attendance-rules"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-attendance-rules"],
+      });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -309,13 +339,20 @@ export function StudentSection({
           (student.nisn ?? "").toLowerCase().includes(normalizedQuery);
         return matchesAcademic && matchesQuery;
       }),
-    [hasAcademicFilter, matchingClassIDs, memberships, normalizedQuery, students],
+    [
+      hasAcademicFilter,
+      matchingClassIDs,
+      memberships,
+      normalizedQuery,
+      students,
+    ],
   );
 
   const filteredMemberships = useMemo(
     () =>
       memberships.filter((membership) => {
-        const matchesAcademic = !hasAcademicFilter || matchingClassIDs.has(membership.class_id);
+        const matchesAcademic =
+          !hasAcademicFilter || matchingClassIDs.has(membership.class_id);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           membership.student_name.toLowerCase().includes(normalizedQuery) ||
@@ -342,9 +379,12 @@ export function StudentSection({
     [attendanceRules, normalizedQuery],
   );
 
-  const { pageItems: pageStudents, pagination: studentsPagination } = usePagination(filteredStudents);
-  const { pageItems: pageMemberships, pagination: membershipsPagination } = usePagination(filteredMemberships);
-  const { pageItems: pageRules, pagination: rulesPagination } = usePagination(filteredRules);
+  const { pageItems: pageStudents, pagination: studentsPagination } =
+    usePagination(filteredStudents);
+  const { pageItems: pageMemberships, pagination: membershipsPagination } =
+    usePagination(filteredMemberships);
+  const { pageItems: pageRules, pagination: rulesPagination } =
+    usePagination(filteredRules);
 
   const studentMetrics = useMemo(() => {
     let activeStudentCount = 0;
@@ -372,7 +412,9 @@ export function StudentSection({
     for (const rule of attendanceRules) {
       if (rule.is_active) activeRuleCount += 1;
       ruleSchoolYearIds.add(rule.school_year_id);
-      ruleWindows.add(`${rule.check_in_start}|${rule.on_time_until}|${rule.late_until}`);
+      ruleWindows.add(
+        `${rule.check_in_start}|${rule.on_time_until}|${rule.late_until}`,
+      );
     }
 
     return {
@@ -473,7 +515,13 @@ export function StudentSection({
         accentClass: "from-amber-400 via-orange-400 to-emerald-500",
       },
     ];
-  }, [activeTab, attendanceRules.length, memberships.length, studentMetrics, students.length]);
+  }, [
+    activeTab,
+    attendanceRules.length,
+    memberships.length,
+    studentMetrics,
+    students.length,
+  ]);
 
   const addActionConfig = {
     profiles: {
@@ -501,7 +549,9 @@ export function StudentSection({
         classes,
         allowedClassIds: hasAcademicFilter ? matchingClassIDs : undefined,
       });
-      toast.success(`Data siswa berhasil diekspor dalam ${exportedMajorCount} tab jurusan.`);
+      toast.success(
+        `Data siswa berhasil diekspor dalam ${exportedMajorCount} tab jurusan.`,
+      );
     } catch {
       toast.error("Gagal membuat Excel data siswa. Silakan coba lagi.");
     } finally {
@@ -515,121 +565,138 @@ export function StudentSection({
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as StudentTab)}>
-        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
-                <LayoutPanelTop className="size-3.5" />
-                Halaman Siswa
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as StudentTab)}
+        >
+          <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+                  <LayoutPanelTop className="size-3.5" />
+                  Halaman Siswa
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                    Manajemen Siswa
+                  </h2>
+                  <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+                    Kelola profil siswa, penempatan kelas per tahun ajaran, dan
+                    aturan absensi harian dari API admin dengan struktur yang
+                    konsisten.
+                  </p>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Manajemen Siswa
-                </h2>
-                <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Kelola profil siswa, penempatan kelas per tahun ajaran, dan aturan absensi
-                  harian dari API admin dengan struktur yang konsisten.
-                </p>
+              <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
+                {activeTab === "profiles" && (
+                  <Button
+                    variant="outline"
+                    className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 disabled:cursor-wait sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                    onClick={() => void handleExportStudents()}
+                    disabled={
+                      isExportingStudents ||
+                      classes.filter((item) => item.is_active).length === 0
+                    }
+                  >
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
+                      <FileDown className="size-4" />
+                    </span>
+                    {isExportingStudents ? "Membuat Excel..." : "Export Siswa"}
+                  </Button>
+                )}
+
+                {(activeTab === "profiles" || activeTab === "memberships") && (
+                  <Button
+                    variant="outline"
+                    className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                    onClick={() => setImportModalOpen(true)}
+                  >
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
+                      <FileSpreadsheet className="size-4" />
+                    </span>
+                    Import Excel
+                  </Button>
+                )}
               </div>
             </div>
 
-            <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
-              {activeTab === "profiles" && (
-                <Button
-                  variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 disabled:cursor-wait sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                  onClick={() => void handleExportStudents()}
-                  disabled={isExportingStudents || classes.filter((item) => item.is_active).length === 0}
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
-                    <FileDown className="size-4" />
-                  </span>
-                  {isExportingStudents ? "Membuat Excel..." : "Export Siswa"}
-                </Button>
-              )}
-
-              {(activeTab === "profiles" || activeTab === "memberships") && (
-                <Button
-                  variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                  onClick={() => setImportModalOpen(true)}
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
-                    <FileSpreadsheet className="size-4" />
-                  </span>
-                  Import Excel
-                </Button>
-              )}
-
+            <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
+              {kpiCards.map((card) => (
+                <StatCard
+                  key={card.label}
+                  label={card.label}
+                  value={card.value}
+                  icon={card.icon}
+                  accentClass={card.accentClass}
+                />
+              ))}
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
-            {kpiCards.map((card) => (
-              <StatCard
-                key={card.label}
-                label={card.label}
-                value={card.value}
-                icon={card.icon}
-                accentClass={card.accentClass}
-              />
-            ))}
-          </div>
-
-          <SectionTabSwitch
-            tabs={[
-              { value: "profiles", label: "Profil Siswa", icon: UsersRound },
-              { value: "memberships", label: "Penempatan Kelas", icon: GraduationCap },
-              { value: "rules", label: "Aturan Absensi", icon: TimerReset },
-            ]}
-          />
-        </div>
-
-        {errorMessage ? (
-          <div className="mt-5">
-            <EmptyState
-              icon={UsersRound}
-              title="Data student belum bisa dimuat"
-              description={errorMessage}
-              compact
+            <SectionTabSwitch
+              tabs={[
+                { value: "profiles", label: "Profil Siswa", icon: UsersRound },
+                {
+                  value: "memberships",
+                  label: "Penempatan Kelas",
+                  icon: GraduationCap,
+                },
+                { value: "rules", label: "Aturan Absensi", icon: TimerReset },
+              ]}
             />
           </div>
-        ) : null}
 
-        <div className="mt-3">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari siswa, kelas, atau NIS" />
+          {errorMessage ? (
+            <div className="mt-5">
+              <EmptyState
+                icon={UsersRound}
+                title="Data student belum bisa dimuat"
+                description={errorMessage}
+                compact
+              />
+            </div>
+          ) : null}
 
-              <div className="w-full sm:w-[210px]">
-                <RadixSelectField
-                  value={unitFilter}
-                  onValueChange={(value) => {
-                    setUnitFilter(value);
-                    setMajorFilter("all");
-                  }}
-                  placeholder="Pilih jenjang"
-                  options={unitFilterOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
+          <div className="mt-3">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari siswa, kelas, atau NIS"
+                />
+
+                <div className="w-full sm:w-[210px]">
+                  <RadixSelectField
+                    value={unitFilter}
+                    onValueChange={(value) => {
+                      setUnitFilter(value);
+                      setMajorFilter("all");
+                    }}
+                    placeholder="Pilih jenjang"
+                    options={unitFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <div className="w-full sm:w-[250px]">
+                  <RadixSelectField
+                    value={majorFilter}
+                    onValueChange={setMajorFilter}
+                    placeholder="Pilih program / jurusan"
+                    options={majorFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <AddButton
+                  label={activeAction.label}
+                  onClick={activeAction.onClick}
                 />
               </div>
-
-              <div className="w-full sm:w-[250px]">
-                <RadixSelectField
-                  value={majorFilter}
-                  onValueChange={setMajorFilter}
-                  placeholder="Pilih program / jurusan"
-                  options={majorFilterOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
-                />
-              </div>
-
-              <AddButton label={activeAction.label} onClick={activeAction.onClick} />
             </div>
           </div>
-        </div>
 
           <TabsContent value="profiles" className="mt-4">
             <DataTableCard
@@ -643,7 +710,11 @@ export function StudentSection({
               mobileView={
                 <MobileDataList>
                   {pageStudents.map((student) => {
-                    const activeMembership = memberships.find((membership) => membership.student_id === student.id && membership.is_active);
+                    const activeMembership = memberships.find(
+                      (membership) =>
+                        membership.student_id === student.id &&
+                        membership.is_active,
+                    );
                     return (
                       <MobileDataCard key={student.id}>
                         <MobileDataHeader
@@ -657,14 +728,31 @@ export function StudentSection({
                         />
                         <div className="mt-4 space-y-3">
                           <MobileDataField label="NIS" value={student.nis} />
-                          <MobileDataField label="NISN" value={student.nisn || "-"} />
-                          <MobileDataField label="Kelas Aktif" value={activeMembership?.class_name || "Belum ditempatkan"} />
-                          <MobileDataField label="Gender" value={formatGender(student.gender)} />
+                          <MobileDataField
+                            label="NISN"
+                            value={student.nisn || "-"}
+                          />
+                          <MobileDataField
+                            label="Kelas Aktif"
+                            value={
+                              activeMembership?.class_name ||
+                              "Belum ditempatkan"
+                            }
+                          />
+                          <MobileDataField
+                            label="Gender"
+                            value={formatGender(student.gender)}
+                          />
                         </div>
                         <MobileDataFooter>
                           <ActionButtons
                             onEdit={() => setEditingStudent(student)}
-                            onDelete={() => setDeleteTarget({ type: "profile", item: student })}
+                            onDelete={() =>
+                              setDeleteTarget({
+                                type: "profile",
+                                item: student,
+                              })
+                            }
                             isDeletePending={deleteStudentMutation.isPending}
                           />
                         </MobileDataFooter>
@@ -675,7 +763,16 @@ export function StudentSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Siswa", "NIS / NISN", "Kelas Aktif", "Gender", "Status", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={[
+                    "Siswa",
+                    "NIS / NISN",
+                    "Kelas Aktif",
+                    "Gender",
+                    "Status",
+                    "Aksi",
+                  ]}
+                />
                 <DataTableBody>
                   {pageStudents.map((student) => (
                     <DataTableRow key={student.id}>
@@ -685,27 +782,39 @@ export function StudentSection({
                             {getInitials(student.name)}
                           </span>
                           <div>
-                            <p className="font-medium text-slate-700">{formatPersonName(student.name)}</p>
+                            <p className="font-medium text-slate-700">
+                              {formatPersonName(student.name)}
+                            </p>
                           </div>
                         </div>
                       </DataTableCell>
                       <DataTableCell>
                         <div className="space-y-1">
                           <p>{student.nis}</p>
-                          <p className="text-xs text-slate-400">NISN: {student.nisn || "-"}</p>
+                          <p className="text-xs text-slate-400">
+                            NISN: {student.nisn || "-"}
+                          </p>
                         </div>
                       </DataTableCell>
                       <DataTableCell>
-                        {memberships.find((membership) => membership.student_id === student.id && membership.is_active)?.class_name || "Belum ditempatkan"}
+                        {memberships.find(
+                          (membership) =>
+                            membership.student_id === student.id &&
+                            membership.is_active,
+                        )?.class_name || "Belum ditempatkan"}
                       </DataTableCell>
-                      <DataTableCell>{formatGender(student.gender)}</DataTableCell>
+                      <DataTableCell>
+                        {formatGender(student.gender)}
+                      </DataTableCell>
                       <DataTableCell>
                         <StatusBadge isActive={student.is_active} />
                       </DataTableCell>
                       <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingStudent(student)}
-                          onDelete={() => setDeleteTarget({ type: "profile", item: student })}
+                          onDelete={() =>
+                            setDeleteTarget({ type: "profile", item: student })
+                          }
                           isDeletePending={deleteStudentMutation.isPending}
                         />
                       </DataTableCell>
@@ -737,18 +846,37 @@ export function StudentSection({
                         }
                         title={membership.student_name}
                         subtitle={membership.nis}
-                        badge={<MembershipStatusBadge status={membership.status} />}
+                        badge={
+                          <MembershipStatusBadge status={membership.status} />
+                        }
                       />
                       <div className="mt-4 space-y-3">
-                        <MobileDataField label="Kelas" value={membership.class_name} />
-                        <MobileDataField label="Tahun Ajaran" value={membership.school_year_name} />
-                        <MobileDataField label="Masuk" value={formatDateTime(membership.joined_at)} />
-                        <MobileDataField label="Keluar" value={formatDateTime(membership.left_at)} />
+                        <MobileDataField
+                          label="Kelas"
+                          value={membership.class_name}
+                        />
+                        <MobileDataField
+                          label="Tahun Ajaran"
+                          value={membership.school_year_name}
+                        />
+                        <MobileDataField
+                          label="Masuk"
+                          value={formatDateTime(membership.joined_at)}
+                        />
+                        <MobileDataField
+                          label="Keluar"
+                          value={formatDateTime(membership.left_at)}
+                        />
                       </div>
                       <MobileDataFooter>
                         <ActionButtons
                           onEdit={() => setEditingMembership(membership)}
-                          onDelete={() => setDeleteTarget({ type: "membership", item: membership })}
+                          onDelete={() =>
+                            setDeleteTarget({
+                              type: "membership",
+                              item: membership,
+                            })
+                          }
                           isDeletePending={deleteMembershipMutation.isPending}
                         />
                       </MobileDataFooter>
@@ -758,18 +886,33 @@ export function StudentSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Siswa", "Kelas", "Tahun Ajaran", "Status", "Waktu", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={[
+                    "Siswa",
+                    "Kelas",
+                    "Tahun Ajaran",
+                    "Status",
+                    "Waktu",
+                    "Aksi",
+                  ]}
+                />
                 <DataTableBody>
                   {pageMemberships.map((membership) => (
                     <DataTableRow key={membership.id}>
                       <DataTableCell>
                         <div className="space-y-1">
-                          <p className="font-medium text-slate-700">{membership.student_name}</p>
-                          <p className="text-xs text-slate-400">{membership.nis}</p>
+                          <p className="font-medium text-slate-700">
+                            {membership.student_name}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {membership.nis}
+                          </p>
                         </div>
                       </DataTableCell>
                       <DataTableCell>{membership.class_name}</DataTableCell>
-                      <DataTableCell>{membership.school_year_name}</DataTableCell>
+                      <DataTableCell>
+                        {membership.school_year_name}
+                      </DataTableCell>
                       <DataTableCell>
                         <MembershipStatusBadge status={membership.status} />
                       </DataTableCell>
@@ -782,7 +925,12 @@ export function StudentSection({
                       <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingMembership(membership)}
-                          onDelete={() => setDeleteTarget({ type: "membership", item: membership })}
+                          onDelete={() =>
+                            setDeleteTarget({
+                              type: "membership",
+                              item: membership,
+                            })
+                          }
                           isDeletePending={deleteMembershipMutation.isPending}
                         />
                       </DataTableCell>
@@ -812,28 +960,42 @@ export function StudentSection({
                             <TimerReset className="size-4" />
                           </span>
                         }
-                          title={rule.school_year}
-                          subtitle="Periode absensi harian"
+                        title={rule.school_year}
+                        subtitle="Periode absensi harian"
                         badge={<StatusBadge isActive={rule.is_active} />}
                       />
                       <div className="mt-4 grid grid-cols-3 gap-2">
                         <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Mulai</p>
-                          <p className="mt-1 text-sm font-semibold text-slate-900">{rule.check_in_start}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                            Mulai
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-slate-900">
+                            {rule.check_in_start}
+                          </p>
                         </div>
                         <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Tepat</p>
-                          <p className="mt-1 text-sm font-semibold text-emerald-700">{rule.on_time_until}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                            Tepat
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-emerald-700">
+                            {rule.on_time_until}
+                          </p>
                         </div>
                         <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Cutoff</p>
-                          <p className="mt-1 text-sm font-semibold text-amber-700">{rule.late_until}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                            Cutoff
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-amber-700">
+                            {rule.late_until}
+                          </p>
                         </div>
                       </div>
                       <MobileDataFooter>
                         <ActionButtons
                           onEdit={() => setEditingRule(rule)}
-                          onDelete={() => setDeleteTarget({ type: "rule", item: rule })}
+                          onDelete={() =>
+                            setDeleteTarget({ type: "rule", item: rule })
+                          }
                           isDeletePending={deleteRuleMutation.isPending}
                         />
                       </MobileDataFooter>
@@ -843,7 +1005,16 @@ export function StudentSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Tahun Ajaran", "Mulai Absen", "Tepat Waktu", "Batas Akhir Absen", "Status", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={[
+                    "Tahun Ajaran",
+                    "Mulai Absen",
+                    "Tepat Waktu",
+                    "Batas Akhir Absen",
+                    "Status",
+                    "Aksi",
+                  ]}
+                />
                 <DataTableBody>
                   {pageRules.map((rule) => (
                     <DataTableRow key={rule.id}>
@@ -857,7 +1028,9 @@ export function StudentSection({
                       <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingRule(rule)}
-                          onDelete={() => setDeleteTarget({ type: "rule", item: rule })}
+                          onDelete={() =>
+                            setDeleteTarget({ type: "rule", item: rule })
+                          }
                           isDeletePending={deleteRuleMutation.isPending}
                         />
                       </DataTableCell>
@@ -876,8 +1049,12 @@ export function StudentSection({
           onOpenChange={setImportModalOpen}
           type="siswa"
           onSuccess={() => {
-            void queryClient.invalidateQueries({ queryKey: ["admin-students"] });
-            void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
+            void queryClient.invalidateQueries({
+              queryKey: ["admin-students"],
+            });
+            void queryClient.invalidateQueries({
+              queryKey: ["admin-student-class-memberships"],
+            });
           }}
         />
       )}
@@ -896,11 +1073,21 @@ export function StudentSection({
           key={editingStudent.id}
           student={editingStudent}
           open
-          onOpenChange={(open) => { if (!open) setEditingStudent(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingStudent(null);
+          }}
           isPending={updateStudentMutation.isPending}
           classes={classes}
-          currentClassId={memberships.find((membership) => membership.student_id === editingStudent.id && membership.is_active)?.class_id}
-          onSubmit={(payload) => updateStudentMutation.mutate({ id: editingStudent.id, payload })}
+          currentClassId={
+            memberships.find(
+              (membership) =>
+                membership.student_id === editingStudent.id &&
+                membership.is_active,
+            )?.class_id
+          }
+          onSubmit={(payload) =>
+            updateStudentMutation.mutate({ id: editingStudent.id, payload })
+          }
         />
       )}
       {membershipModalOpen && (
@@ -920,13 +1107,20 @@ export function StudentSection({
           key={editingMembership.id}
           membership={editingMembership}
           open
-          onOpenChange={(open) => { if (!open) setEditingMembership(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingMembership(null);
+          }}
           students={students}
           memberships={memberships}
           classes={classes}
           schoolYears={schoolYears}
           isPending={updateMembershipMutation.isPending}
-          onSubmit={(payload) => updateMembershipMutation.mutate({ id: editingMembership.id, payload })}
+          onSubmit={(payload) =>
+            updateMembershipMutation.mutate({
+              id: editingMembership.id,
+              payload,
+            })
+          }
         />
       )}
       {ruleModalOpen && (
@@ -943,10 +1137,14 @@ export function StudentSection({
           key={editingRule.id}
           rule={editingRule}
           open
-          onOpenChange={(open) => { if (!open) setEditingRule(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingRule(null);
+          }}
           schoolYears={schoolYears}
           isPending={updateRuleMutation.isPending}
-          onSubmit={(payload) => updateRuleMutation.mutate({ id: editingRule.id, payload })}
+          onSubmit={(payload) =>
+            updateRuleMutation.mutate({ id: editingRule.id, payload })
+          }
         />
       )}
       <DeleteConfirmationModal

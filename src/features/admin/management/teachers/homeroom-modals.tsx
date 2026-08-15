@@ -1,10 +1,17 @@
 "use client";
 
-import { FieldGroup, ModalActions } from "@/features/admin/management/shared/section-ui";
+import {
+  FieldGroup,
+  ModalActions,
+} from "@/features/admin/management/shared/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
-import { type FieldErrors, hasFieldErrors, validateRequired } from "@/lib/form-validation";
+import {
+  type FieldErrors,
+  hasFieldErrors,
+  validateRequired,
+} from "@/lib/form-validation";
 import { getClassDisplayName } from "@/lib/class-display-name";
 import type {
   AdminClass,
@@ -22,8 +29,18 @@ export function validateHomeroomAssignmentForm(
   const errors: FieldErrors<keyof AdminHomeroomAssignmentPayload> = {};
   validateRequired(errors, "teacher_id", form.teacher_id, "Guru");
   validateRequired(errors, "class_id", form.class_id, "Kelas");
-  validateRequired(errors, "school_year_id", form.school_year_id, "Tahun ajaran");
-  validateRequired(errors, "is_active", String(form.is_active), "Status penugasan");
+  validateRequired(
+    errors,
+    "school_year_id",
+    form.school_year_id,
+    "Tahun ajaran",
+  );
+  validateRequired(
+    errors,
+    "is_active",
+    String(form.is_active),
+    "Status penugasan",
+  );
   return errors;
 }
 
@@ -57,7 +74,9 @@ export function HomeroomAssignmentCreateModal({
   onSubmit,
 }: { open: boolean; onOpenChange: (open: boolean) => void } & SharedProps) {
   const [form, setForm] = useState<AdminHomeroomAssignmentPayload>(EMPTY_FORM);
-  const [errors, setErrors] = useState<FieldErrors<keyof AdminHomeroomAssignmentPayload>>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<keyof AdminHomeroomAssignmentPayload>
+  >({});
 
   const handleOpenChange = (nextOpen: boolean) => {
     onOpenChange(nextOpen);
@@ -164,7 +183,11 @@ export function HomeroomAssignmentEditModal({
   schoolYears,
   isPending,
   onSubmit,
-}: { assignment: AdminHomeroomAssignment | null; open: boolean; onOpenChange: (open: boolean) => void } & SharedProps) {
+}: {
+  assignment: AdminHomeroomAssignment | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+} & SharedProps) {
   const [form, setForm] = useState<AdminHomeroomAssignmentPayload>(() =>
     assignment
       ? {
@@ -175,7 +198,9 @@ export function HomeroomAssignmentEditModal({
         }
       : EMPTY_FORM,
   );
-  const [errors, setErrors] = useState<FieldErrors<keyof AdminHomeroomAssignmentPayload>>({});
+  const [errors, setErrors] = useState<
+    FieldErrors<keyof AdminHomeroomAssignmentPayload>
+  >({});
 
   const handleSubmit = () => {
     const nextErrors = validateHomeroomAssignmentForm(form);

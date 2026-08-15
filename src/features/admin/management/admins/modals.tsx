@@ -1,6 +1,9 @@
 "use client";
 
-import { FieldGroup, ModalActions } from "@/features/admin/management/shared/section-ui";
+import {
+  FieldGroup,
+  ModalActions,
+} from "@/features/admin/management/shared/section-ui";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
@@ -31,7 +34,8 @@ export function validateAdminUserForm(
   const errors: FieldErrors<keyof AdminUserPayload> = {};
   validateRequired(errors, "name", form.name, "Nama administrator");
   validateRequired(errors, "username", form.username, "Nama pengguna masuk");
-  if (!isEdit) validateRequired(errors, "password", form.password, "Kata sandi masuk");
+  if (!isEdit)
+    validateRequired(errors, "password", form.password, "Kata sandi masuk");
   return errors;
 }
 
@@ -65,25 +69,57 @@ export function AdminCreateModal({
   };
 
   return (
-    <PremiumModal open={open} onOpenChange={handleOpenChange} title="Tambah Admin" description="Buat akun administrator baru dengan akses penuh ke dashboard dan master data." icon={ShieldCheck}>
+    <PremiumModal
+      open={open}
+      onOpenChange={handleOpenChange}
+      title="Tambah Admin"
+      description="Buat akun administrator baru dengan akses penuh ke dashboard dan master data."
+      icon={ShieldCheck}
+    >
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Administrator">
-            <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Masukkan nama admin" className={INPUT_CN} />
+            <Input
+              value={form.name}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="Masukkan nama admin"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.name} />
           </FieldGroup>
           <FieldGroup label="Username Login">
-            <Input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} placeholder="Masukkan username admin" className={INPUT_CN} />
+            <Input
+              value={form.username}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, username: e.target.value }))
+              }
+              placeholder="Masukkan username admin"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.username} />
           </FieldGroup>
         </div>
 
-          <FieldGroup label="Password Login">
-            <Input value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Masukkan password login" className={INPUT_CN} />
+        <FieldGroup label="Password Login">
+          <Input
+            value={form.password}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, password: e.target.value }))
+            }
+            placeholder="Masukkan password login"
+            className={INPUT_CN}
+          />
           <FieldError message={errors.password} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => handleOpenChange(false)} onSubmit={handleSubmit} submitLabel="Simpan Admin" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => handleOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Simpan Admin"
+        />
       </div>
     </PremiumModal>
   );
@@ -125,25 +161,57 @@ export function AdminEditModal({
   if (!user) return null;
 
   return (
-    <PremiumModal open={open} onOpenChange={onOpenChange} title="Ubah Admin" description="Perbarui identitas akun administrator dan isi password hanya jika memang ingin diganti." icon={FilePenLine}>
+    <PremiumModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Ubah Admin"
+      description="Perbarui identitas akun administrator dan isi password hanya jika memang ingin diganti."
+      icon={FilePenLine}
+    >
       <div className="grid gap-5">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldGroup label="Nama Administrator">
-            <Input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Masukkan nama admin" className={INPUT_CN} />
+            <Input
+              value={form.name}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="Masukkan nama admin"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.name} />
           </FieldGroup>
           <FieldGroup label="Username Login">
-            <Input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} placeholder="Masukkan username admin" className={INPUT_CN} />
+            <Input
+              value={form.username}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, username: e.target.value }))
+              }
+              placeholder="Masukkan username admin"
+              className={INPUT_CN}
+            />
             <FieldError message={errors.username} />
           </FieldGroup>
         </div>
 
         <FieldGroup label="Password Baru">
-          <Input value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} placeholder="Kosongkan jika tidak diubah" className={INPUT_CN} />
+          <Input
+            value={form.password}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, password: e.target.value }))
+            }
+            placeholder="Kosongkan jika tidak diubah"
+            className={INPUT_CN}
+          />
           <FieldError message={errors.password} />
         </FieldGroup>
 
-        <ModalActions isPending={isPending} onCancel={() => onOpenChange(false)} onSubmit={handleSubmit} submitLabel="Update Admin" />
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={handleSubmit}
+          submitLabel="Update Admin"
+        />
       </div>
     </PremiumModal>
   );

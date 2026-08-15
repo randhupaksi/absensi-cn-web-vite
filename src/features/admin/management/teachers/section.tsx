@@ -25,7 +25,10 @@ import {
   getInitials,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
-import { HomeroomAssignmentCreateModal, HomeroomAssignmentEditModal } from "@/features/admin/management/teachers/homeroom-modals";
+import {
+  HomeroomAssignmentCreateModal,
+  HomeroomAssignmentEditModal,
+} from "@/features/admin/management/teachers/homeroom-modals";
 import {
   TeacherProfileCreateModal,
   TeacherProfileEditModal,
@@ -74,12 +77,18 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const ImportExcelModal = dynamic(
-  () => import("@/components/modals/import-excel-modal").then((module) => module.ImportExcelModal),
+  () =>
+    import("@/components/modals/import-excel-modal").then(
+      (module) => module.ImportExcelModal,
+    ),
   { ssr: false },
 );
 
 const GuruReportModal = dynamic(
-  () => import("@/features/reports/admin/teachers-report-modal").then((module) => module.GuruReportModal),
+  () =>
+    import("@/features/reports/admin/teachers-report-modal").then(
+      (module) => module.GuruReportModal,
+    ),
   { ssr: false },
 );
 
@@ -119,12 +128,17 @@ export function TeacherSection({
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [homeroomModalOpen, setHomeroomModalOpen] = useState(false);
   const [bkModalOpen, setBkModalOpen] = useState(false);
-  const [editingBkTeacher, setEditingBkTeacher] = useState<AdminTeacherProfile | null>(null);
-  const [editingProfile, setEditingProfile] = useState<AdminTeacherProfile | null>(null);
+  const [editingBkTeacher, setEditingBkTeacher] =
+    useState<AdminTeacherProfile | null>(null);
+  const [editingProfile, setEditingProfile] =
+    useState<AdminTeacherProfile | null>(null);
   const [editingHomeroomAssignment, setEditingHomeroomAssignment] =
     useState<AdminHomeroomAssignment | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<TeacherDeleteTarget | null>(null);
-  const [revokeBkTarget, setRevokeBkTarget] = useState<AdminTeacherProfile | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<TeacherDeleteTarget | null>(
+    null,
+  );
+  const [revokeBkTarget, setRevokeBkTarget] =
+    useState<AdminTeacherProfile | null>(null);
 
   const classesQuery = useQuery({
     queryKey: ["admin-classes"],
@@ -141,7 +155,9 @@ export function TeacherSection({
     mutationFn: createAdminTeacherAccount,
     onSuccess: () => {
       toast.success("Akun dan profil guru baru berhasil ditambahkan.");
-      void queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-teacher-profiles"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setProfileModalOpen(false);
     },
@@ -174,7 +190,9 @@ export function TeacherSection({
     },
     onSuccess: () => {
       toast.success("Profil guru berhasil diperbarui.");
-      void queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-teacher-profiles"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setEditingProfile(null);
     },
@@ -186,7 +204,9 @@ export function TeacherSection({
     onSuccess: () => {
       toast.success("Data guru berhasil dihapus.");
       setDeleteTarget(null);
-      void queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-teacher-profiles"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       void queryClient.invalidateQueries({
         queryKey: ["admin-teacher-subject-assignments"],
@@ -194,7 +214,9 @@ export function TeacherSection({
       void queryClient.invalidateQueries({
         queryKey: ["admin-homeroom-assignments"],
       });
-      void queryClient.invalidateQueries({ queryKey: ["admin-bk-unit-scopes"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-bk-unit-scopes"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
     },
     onError: (error: Error) => toast.error(error.message),
@@ -237,7 +259,9 @@ export function TeacherSection({
       toast.success("Penempatan BK berhasil disimpan.");
       setBkModalOpen(false);
       setEditingBkTeacher(null);
-      void queryClient.invalidateQueries({ queryKey: ["admin-bk-unit-scopes"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-bk-unit-scopes"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
     },
     onError: (error: Error) => toast.error(error.message),
@@ -249,7 +273,9 @@ export function TeacherSection({
     onSuccess: () => {
       toast.success("Penempatan BK berhasil dicabut.");
       setRevokeBkTarget(null);
-      void queryClient.invalidateQueries({ queryKey: ["admin-bk-unit-scopes"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-bk-unit-scopes"],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
     },
     onError: (error: Error) => toast.error(error.message),
@@ -271,13 +297,17 @@ export function TeacherSection({
   const majorFilterOptions = useMemo(() => {
     const majors = new Map<string, string>();
     classes
-      .filter((item) => unitFilter === "all" || item.school_unit_id === unitFilter)
-      .forEach((item) => majors.set(item.major_id, `${item.major_code} - ${item.major_name}`));
+      .filter(
+        (item) => unitFilter === "all" || item.school_unit_id === unitFilter,
+      )
+      .forEach((item) =>
+        majors.set(item.major_id, `${item.major_code} - ${item.major_name}`),
+      );
 
     return [
       { value: "all", label: "Semua program / jurusan" },
-      ...Array.from(majors, ([value, label]) => ({ value, label })).sort((left, right) =>
-        left.label.localeCompare(right.label, "id"),
+      ...Array.from(majors, ([value, label]) => ({ value, label })).sort(
+        (left, right) => left.label.localeCompare(right.label, "id"),
       ),
     ];
   }, [classes, unitFilter]);
@@ -298,18 +328,29 @@ export function TeacherSection({
   );
 
   const bkScopesByUser = useMemo(
-    () => bkUnitScopes.reduce<Record<string, AdminBKUnitScope[]>>((result, scope) => {
-      (result[scope.user_id] ??= []).push(scope);
-      return result;
-    }, {}),
+    () =>
+      bkUnitScopes.reduce<Record<string, AdminBKUnitScope[]>>(
+        (result, scope) => {
+          (result[scope.user_id] ??= []).push(scope);
+          return result;
+        },
+        {},
+      ),
     [bkUnitScopes],
   );
   const bkTeachers = useMemo(
-    () => teacherProfiles.filter((teacher) => (bkScopesByUser[teacher.user_id]?.length ?? 0) > 0),
+    () =>
+      teacherProfiles.filter(
+        (teacher) => (bkScopesByUser[teacher.user_id]?.length ?? 0) > 0,
+      ),
     [bkScopesByUser, teacherProfiles],
   );
   const eligibleTeachersForBk = useMemo(
-    () => teacherProfiles.filter((teacher) => teacher.is_active && !bkScopesByUser[teacher.user_id]?.length),
+    () =>
+      teacherProfiles.filter(
+        (teacher) =>
+          teacher.is_active && !bkScopesByUser[teacher.user_id]?.length,
+      ),
     [bkScopesByUser, teacherProfiles],
   );
 
@@ -338,10 +379,12 @@ export function TeacherSection({
   const teachersWithMatchingClasses = useMemo(() => {
     const teacherIDs = new Set<string>();
     teacherSubjectAssignments.forEach((assignment) => {
-      if (matchingClassIDs.has(assignment.class_id)) teacherIDs.add(assignment.teacher_id);
+      if (matchingClassIDs.has(assignment.class_id))
+        teacherIDs.add(assignment.teacher_id);
     });
     homeroomAssignments.forEach((assignment) => {
-      if (matchingClassIDs.has(assignment.class_id)) teacherIDs.add(assignment.teacher_id);
+      if (matchingClassIDs.has(assignment.class_id))
+        teacherIDs.add(assignment.teacher_id);
     });
     return teacherIDs;
   }, [homeroomAssignments, matchingClassIDs, teacherSubjectAssignments]);
@@ -349,20 +392,27 @@ export function TeacherSection({
   const filteredTeacherProfiles = useMemo(
     () =>
       teacherProfiles.filter((teacher) => {
-        const matchesAcademic = !hasAcademicFilter || teachersWithMatchingClasses.has(teacher.id);
+        const matchesAcademic =
+          !hasAcademicFilter || teachersWithMatchingClasses.has(teacher.id);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           teacher.name.toLowerCase().includes(normalizedQuery) ||
           (teacher.username ?? "").toLowerCase().includes(normalizedQuery);
         return matchesAcademic && matchesQuery;
       }),
-    [hasAcademicFilter, normalizedQuery, teacherProfiles, teachersWithMatchingClasses],
+    [
+      hasAcademicFilter,
+      normalizedQuery,
+      teacherProfiles,
+      teachersWithMatchingClasses,
+    ],
   );
 
   const filteredHomeroomAssignments = useMemo(
     () =>
       homeroomAssignments.filter((assignment) => {
-        const matchesAcademic = !hasAcademicFilter || matchingClassIDs.has(assignment.class_id);
+        const matchesAcademic =
+          !hasAcademicFilter || matchingClassIDs.has(assignment.class_id);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           assignment.teacher_name.toLowerCase().includes(normalizedQuery) ||
@@ -382,7 +432,8 @@ export function TeacherSection({
           (bkScopesByUser[teacher.user_id] ?? []).some(
             (scope) => scope.school_unit_id === unitFilter,
           );
-        const matchesMajor = majorFilter === "all" || teachersWithMatchingClasses.has(teacher.id);
+        const matchesMajor =
+          majorFilter === "all" || teachersWithMatchingClasses.has(teacher.id);
         const matchesQuery =
           normalizedQuery.length === 0 ||
           teacher.name.toLowerCase().includes(normalizedQuery) ||
@@ -390,12 +441,26 @@ export function TeacherSection({
 
         return matchesUnit && matchesMajor && matchesQuery;
       }),
-    [bkScopesByUser, bkTeachers, majorFilter, normalizedQuery, teachersWithMatchingClasses, unitFilter],
+    [
+      bkScopesByUser,
+      bkTeachers,
+      majorFilter,
+      normalizedQuery,
+      teachersWithMatchingClasses,
+      unitFilter,
+    ],
   );
 
-  const { pageItems: pageTeacherProfiles, pagination: teacherProfilesPagination } = usePagination(filteredTeacherProfiles);
-  const { pageItems: pageHomeroomAssignments, pagination: homeroomAssignmentsPagination } = usePagination(filteredHomeroomAssignments);
-  const { pageItems: pageBkTeachers, pagination: bkTeachersPagination } = usePagination(filteredBkTeachers);
+  const {
+    pageItems: pageTeacherProfiles,
+    pagination: teacherProfilesPagination,
+  } = usePagination(filteredTeacherProfiles);
+  const {
+    pageItems: pageHomeroomAssignments,
+    pagination: homeroomAssignmentsPagination,
+  } = usePagination(filteredHomeroomAssignments);
+  const { pageItems: pageBkTeachers, pagination: bkTeachersPagination } =
+    usePagination(filteredBkTeachers);
 
   const totalHomeroomAssignments = homeroomAssignments.length;
   const teacherMetrics = useMemo(() => {
@@ -521,10 +586,7 @@ export function TeacherSection({
       label: "BK",
       onClick: () => setBkModalOpen(true),
     },
-  } satisfies Record<
-    TeacherTab,
-    { label: string; onClick: () => void }
-  >;
+  } satisfies Record<TeacherTab, { label: string; onClick: () => void }>;
 
   const activeAction = addActionConfig[activeTab];
 
@@ -541,119 +603,130 @@ export function TeacherSection({
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as TeacherTab)}
         >
-        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
-                <LayoutPanelTop className="size-3.5" />
-                Halaman Guru
+          <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+                  <LayoutPanelTop className="size-3.5" />
+                  Halaman Guru
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                    Manajemen Guru
+                  </h2>
+                  <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+                    Profil guru dan penugasan wali kelas dengan tampilan kerja
+                    yang lebih rapi untuk operasional harian. Jadwal mengajar
+                    dikelola terpusat melalui Manajemen Mapel.
+                  </p>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Manajemen Guru
-                </h2>
-                <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Profil guru dan penugasan wali kelas dengan tampilan kerja yang
-                  lebih rapi untuk operasional harian. Jadwal mengajar dikelola
-                  terpusat melalui Manajemen Mapel.
-                </p>
+              <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
+                {activeTab === "profiles" && (
+                  <Button
+                    variant="outline"
+                    className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                    onClick={() => setImportModalOpen(true)}
+                  >
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
+                      <FileSpreadsheet className="size-4" />
+                    </span>
+                    Import Excel
+                  </Button>
+                )}
+
+                {activeTab === "profiles" && (
+                  <Button
+                    variant="outline"
+                    className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                    onClick={() => setReportModalOpen(true)}
+                  >
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
+                      <Printer className="size-4" />
+                    </span>
+                    Export Laporan
+                  </Button>
+                )}
               </div>
             </div>
 
-            <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
-              {activeTab === "profiles" && (
-                <Button
-                  variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                  onClick={() => setImportModalOpen(true)}
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
-                    <FileSpreadsheet className="size-4" />
-                  </span>
-                  Import Excel
-                </Button>
-              )}
-
-              {activeTab === "profiles" && (
-                <Button
-                  variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                  onClick={() => setReportModalOpen(true)}
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
-                    <Printer className="size-4" />
-                  </span>
-                  Export Laporan
-                </Button>
-              )}
+            <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
+              {kpiCards.map((card) => (
+                <StatCard
+                  key={card.label}
+                  label={card.label}
+                  value={card.value}
+                  icon={card.icon}
+                  accentClass={card.accentClass}
+                />
+              ))}
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
-            {kpiCards.map((card) => (
-              <StatCard
-                key={card.label}
-                label={card.label}
-                value={card.value}
-                icon={card.icon}
-                accentClass={card.accentClass}
-              />
-            ))}
-          </div>
-
-          <SectionTabSwitch
-            tabs={[
-              { value: "profiles", label: "Profil Guru", icon: UsersRound },
-              { value: "homerooms", label: "Penempatan Walas", icon: GraduationCap },
-              { value: "bk", label: "Penempatan BK", icon: UserCog },
-            ]}
-          />
-        </div>
-
-        {errorMessage ? (
-          <div className="mt-5">
-            <EmptyState
-              icon={UsersRound}
-              title="Data teacher belum bisa dimuat"
-              description={errorMessage}
-              compact
+            <SectionTabSwitch
+              tabs={[
+                { value: "profiles", label: "Profil Guru", icon: UsersRound },
+                {
+                  value: "homerooms",
+                  label: "Penempatan Walas",
+                  icon: GraduationCap,
+                },
+                { value: "bk", label: "Penempatan BK", icon: UserCog },
+              ]}
             />
           </div>
-        ) : null}
 
-        <div className="mt-3">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari guru, mapel, kelas" />
+          {errorMessage ? (
+            <div className="mt-5">
+              <EmptyState
+                icon={UsersRound}
+                title="Data teacher belum bisa dimuat"
+                description={errorMessage}
+                compact
+              />
+            </div>
+          ) : null}
 
-              <div className="w-full sm:w-[210px]">
-                <RadixSelectField
-                  value={unitFilter}
-                  onValueChange={(value) => {
-                    setUnitFilter(value);
-                    setMajorFilter("all");
-                  }}
-                  placeholder="Pilih jenjang"
-                  options={unitFilterOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
+          <div className="mt-3">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari guru, mapel, kelas"
+                />
+
+                <div className="w-full sm:w-[210px]">
+                  <RadixSelectField
+                    value={unitFilter}
+                    onValueChange={(value) => {
+                      setUnitFilter(value);
+                      setMajorFilter("all");
+                    }}
+                    placeholder="Pilih jenjang"
+                    options={unitFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <div className="w-full sm:w-[250px]">
+                  <RadixSelectField
+                    value={majorFilter}
+                    onValueChange={setMajorFilter}
+                    placeholder="Pilih program / jurusan"
+                    options={majorFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <AddButton
+                  label={activeAction.label}
+                  onClick={activeAction.onClick}
                 />
               </div>
-
-              <div className="w-full sm:w-[250px]">
-                <RadixSelectField
-                  value={majorFilter}
-                  onValueChange={setMajorFilter}
-                  placeholder="Pilih program / jurusan"
-                  options={majorFilterOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
-                />
-              </div>
-
-              <AddButton label={activeAction.label} onClick={activeAction.onClick} />
             </div>
           </div>
-        </div>
 
           <TabsContent value="profiles" className="mt-4">
             <DataTableCard
@@ -678,18 +751,36 @@ export function TeacherSection({
                         badge={<StatusBadge isActive={teacher.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">
-                        <MobileDataField label="Username" value={teacher.username || "-"} />
-                        <MobileDataField label="Gender" value={formatTeacherGender(teacher.gender)} />
+                        <MobileDataField
+                          label="Username"
+                          value={teacher.username || "-"}
+                        />
+                        <MobileDataField
+                          label="Gender"
+                          value={formatTeacherGender(teacher.gender)}
+                        />
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <TeacherMetricPill label="Mapel" value={subjectAssignmentsByTeacher[teacher.id] ?? 0} tone="emerald" />
-                        <TeacherMetricPill label="Walas" value={homeroomAssignmentsByTeacher[teacher.id] ?? 0} tone="sky" />
+                        <TeacherMetricPill
+                          label="Mapel"
+                          value={subjectAssignmentsByTeacher[teacher.id] ?? 0}
+                          tone="emerald"
+                        />
+                        <TeacherMetricPill
+                          label="Walas"
+                          value={homeroomAssignmentsByTeacher[teacher.id] ?? 0}
+                          tone="sky"
+                        />
                       </div>
                       <MobileDataFooter>
                         <ActionButtons
                           onEdit={() => setEditingProfile(teacher)}
-                          onDelete={() => setDeleteTarget({ type: "profile", item: teacher })}
-                          isDeletePending={deleteTeacherProfileMutation.isPending}
+                          onDelete={() =>
+                            setDeleteTarget({ type: "profile", item: teacher })
+                          }
+                          isDeletePending={
+                            deleteTeacherProfileMutation.isPending
+                          }
                         />
                       </MobileDataFooter>
                     </MobileDataCard>
@@ -698,7 +789,17 @@ export function TeacherSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Guru", "Username", "Jenis Kelamin", "Mapel", "Walas", "Status", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={[
+                    "Guru",
+                    "Username",
+                    "Jenis Kelamin",
+                    "Mapel",
+                    "Walas",
+                    "Status",
+                    "Aksi",
+                  ]}
+                />
                 <DataTableBody>
                   {pageTeacherProfiles.map((teacher) => (
                     <DataTableRow key={teacher.id}>
@@ -718,16 +819,24 @@ export function TeacherSection({
                       <DataTableCell>
                         {formatTeacherGender(teacher.gender)}
                       </DataTableCell>
-                      <DataTableCell>{subjectAssignmentsByTeacher[teacher.id] ?? 0}</DataTableCell>
-                      <DataTableCell>{homeroomAssignmentsByTeacher[teacher.id] ?? 0}</DataTableCell>
+                      <DataTableCell>
+                        {subjectAssignmentsByTeacher[teacher.id] ?? 0}
+                      </DataTableCell>
+                      <DataTableCell>
+                        {homeroomAssignmentsByTeacher[teacher.id] ?? 0}
+                      </DataTableCell>
                       <DataTableCell>
                         <StatusBadge isActive={teacher.is_active} />
                       </DataTableCell>
                       <DataTableCell>
                         <ActionButtons
                           onEdit={() => setEditingProfile(teacher)}
-                          onDelete={() => setDeleteTarget({ type: "profile", item: teacher })}
-                          isDeletePending={deleteTeacherProfileMutation.isPending}
+                          onDelete={() =>
+                            setDeleteTarget({ type: "profile", item: teacher })
+                          }
+                          isDeletePending={
+                            deleteTeacherProfileMutation.isPending
+                          }
                         />
                       </DataTableCell>
                     </DataTableRow>
@@ -760,14 +869,29 @@ export function TeacherSection({
                         badge={<StatusBadge isActive={assignment.is_active} />}
                       />
                       <div className="mt-4 grid gap-3">
-                        <MobileDataField label="Kelas" value={assignment.class_name} />
-                        <MobileDataField label="Tahun Ajaran" value={assignment.school_year_name} />
+                        <MobileDataField
+                          label="Kelas"
+                          value={assignment.class_name}
+                        />
+                        <MobileDataField
+                          label="Tahun Ajaran"
+                          value={assignment.school_year_name}
+                        />
                       </div>
                       <MobileDataFooter>
                         <ActionButtons
-                          onEdit={() => setEditingHomeroomAssignment(assignment)}
-                          onDelete={() => setDeleteTarget({ type: "homeroom", item: assignment })}
-                          isDeletePending={deleteHomeroomAssignmentMutation.isPending}
+                          onEdit={() =>
+                            setEditingHomeroomAssignment(assignment)
+                          }
+                          onDelete={() =>
+                            setDeleteTarget({
+                              type: "homeroom",
+                              item: assignment,
+                            })
+                          }
+                          isDeletePending={
+                            deleteHomeroomAssignmentMutation.isPending
+                          }
                         />
                       </MobileDataFooter>
                     </MobileDataCard>
@@ -776,22 +900,46 @@ export function TeacherSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Guru", "Kelas", "Tahun Ajaran", "Status", "ID Penugasan", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={[
+                    "Guru",
+                    "Kelas",
+                    "Tahun Ajaran",
+                    "Status",
+                    "ID Penugasan",
+                    "Aksi",
+                  ]}
+                />
                 <DataTableBody>
                   {pageHomeroomAssignments.map((assignment) => (
                     <DataTableRow key={assignment.id}>
-                      <DataTableCell className="font-medium text-slate-700">{assignment.teacher_name}</DataTableCell>
+                      <DataTableCell className="font-medium text-slate-700">
+                        {assignment.teacher_name}
+                      </DataTableCell>
                       <DataTableCell>{assignment.class_name}</DataTableCell>
-                      <DataTableCell>{assignment.school_year_name}</DataTableCell>
+                      <DataTableCell>
+                        {assignment.school_year_name}
+                      </DataTableCell>
                       <DataTableCell>
                         <StatusBadge isActive={assignment.is_active} />
                       </DataTableCell>
-                      <DataTableCell className="text-xs text-slate-400">{assignment.id}</DataTableCell>
+                      <DataTableCell className="text-xs text-slate-400">
+                        {assignment.id}
+                      </DataTableCell>
                       <DataTableCell>
                         <ActionButtons
-                          onEdit={() => setEditingHomeroomAssignment(assignment)}
-                          onDelete={() => setDeleteTarget({ type: "homeroom", item: assignment })}
-                          isDeletePending={deleteHomeroomAssignmentMutation.isPending}
+                          onEdit={() =>
+                            setEditingHomeroomAssignment(assignment)
+                          }
+                          onDelete={() =>
+                            setDeleteTarget({
+                              type: "homeroom",
+                              item: assignment,
+                            })
+                          }
+                          isDeletePending={
+                            deleteHomeroomAssignmentMutation.isPending
+                          }
                         />
                       </DataTableCell>
                     </DataTableRow>
@@ -823,7 +971,10 @@ export function TeacherSection({
                         title={formatPersonName(teacher.name)}
                         subtitle={teacher.username || "-"}
                         badge={
-                          <Badge variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-100 bg-emerald-50 text-emerald-700"
+                          >
                             BK
                           </Badge>
                         }
@@ -832,12 +983,18 @@ export function TeacherSection({
                         <div className="flex flex-wrap gap-1.5">
                           {bkScopesByUser[teacher.user_id]?.length ? (
                             bkScopesByUser[teacher.user_id].map((scope) => (
-                              <Badge key={scope.id} variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                              <Badge
+                                key={scope.id}
+                                variant="outline"
+                                className="border-emerald-100 bg-emerald-50 text-emerald-700"
+                              >
                                 {scope.school_unit_code}
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-sm text-slate-500">Belum ada unit</span>
+                            <span className="text-sm text-slate-500">
+                              Belum ada unit
+                            </span>
                           )}
                         </div>
                       </MobileDataSection>
@@ -857,7 +1014,9 @@ export function TeacherSection({
               }
             >
               <DataTable>
-                <DataTableHeadRow labels={["Nama", "Username", "Cakupan Unit", "Aksi"]} />
+                <DataTableHeadRow
+                  labels={["Nama", "Username", "Cakupan Unit", "Aksi"]}
+                />
                 <DataTableBody>
                   {pageBkTeachers.map((teacher) => (
                     <DataTableRow key={teacher.user_id}>
@@ -866,14 +1025,20 @@ export function TeacherSection({
                           <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#fef7ec_0%,#ecfdf5_100%)] text-xs font-semibold text-emerald-700 shadow-[0_8px_20px_rgba(22,85,58,0.08)]">
                             {getInitials(teacher.name)}
                           </span>
-                          <p className="font-medium text-slate-700">{formatPersonName(teacher.name)}</p>
+                          <p className="font-medium text-slate-700">
+                            {formatPersonName(teacher.name)}
+                          </p>
                         </div>
                       </DataTableCell>
                       <DataTableCell>{teacher.username || "-"}</DataTableCell>
                       <DataTableCell>
                         <div className="flex flex-wrap gap-1.5">
                           {bkScopesByUser[teacher.user_id]?.map((scope) => (
-                            <Badge key={scope.id} variant="outline" className="border-emerald-100 bg-emerald-50 text-emerald-700">
+                            <Badge
+                              key={scope.id}
+                              variant="outline"
+                              className="border-emerald-100 bg-emerald-50 text-emerald-700"
+                            >
                               {scope.school_unit_code}
                             </Badge>
                           ))}
@@ -904,7 +1069,9 @@ export function TeacherSection({
           onOpenChange={setImportModalOpen}
           type="guru"
           onSuccess={() => {
-            void queryClient.invalidateQueries({ queryKey: ["admin-teacher-profiles"] });
+            void queryClient.invalidateQueries({
+              queryKey: ["admin-teacher-profiles"],
+            });
             void queryClient.invalidateQueries({ queryKey: ["admin-users"] });
           }}
         />
@@ -931,7 +1098,9 @@ export function TeacherSection({
           key={editingProfile.id}
           teacher={editingProfile}
           open
-          onOpenChange={(open) => { if (!open) setEditingProfile(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingProfile(null);
+          }}
           isPending={updateTeacherProfileMutation.isPending}
           onSubmit={(payload) => updateTeacherProfileMutation.mutate(payload)}
         />
@@ -945,7 +1114,9 @@ export function TeacherSection({
           classes={classesQuery.data ?? []}
           schoolYears={schoolYearsQuery.data ?? []}
           isPending={createHomeroomAssignmentMutation.isPending}
-          onSubmit={(payload) => createHomeroomAssignmentMutation.mutate(payload)}
+          onSubmit={(payload) =>
+            createHomeroomAssignmentMutation.mutate(payload)
+          }
         />
       )}
       {editingHomeroomAssignment && (
@@ -953,12 +1124,19 @@ export function TeacherSection({
           key={editingHomeroomAssignment.id}
           assignment={editingHomeroomAssignment}
           open
-          onOpenChange={(open) => { if (!open) setEditingHomeroomAssignment(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingHomeroomAssignment(null);
+          }}
           teacherProfiles={teacherProfiles}
           classes={classesQuery.data ?? []}
           schoolYears={schoolYearsQuery.data ?? []}
           isPending={updateHomeroomAssignmentMutation.isPending}
-          onSubmit={(payload) => updateHomeroomAssignmentMutation.mutate({ id: editingHomeroomAssignment.id, payload })}
+          onSubmit={(payload) =>
+            updateHomeroomAssignmentMutation.mutate({
+              id: editingHomeroomAssignment.id,
+              payload,
+            })
+          }
         />
       )}
       <DeleteConfirmationModal
@@ -988,25 +1166,42 @@ export function TeacherSection({
             setBkModalOpen(open);
             if (!open) setEditingBkTeacher(null);
           }}
-          teachers={editingBkTeacher ? [editingBkTeacher] : eligibleTeachersForBk}
+          teachers={
+            editingBkTeacher ? [editingBkTeacher] : eligibleTeachersForBk
+          }
           units={schoolUnits}
-          initialValues={editingBkTeacher ? {
-            user_id: editingBkTeacher.user_id,
-            school_unit_ids: bkScopesByUser[editingBkTeacher.user_id]?.map((scope) => scope.school_unit_id) ?? [],
-          } : undefined}
+          initialValues={
+            editingBkTeacher
+              ? {
+                  user_id: editingBkTeacher.user_id,
+                  school_unit_ids:
+                    bkScopesByUser[editingBkTeacher.user_id]?.map(
+                      (scope) => scope.school_unit_id,
+                    ) ?? [],
+                }
+              : undefined
+          }
           isPending={saveBkAssignmentMutation.isPending}
           onSubmit={(values) => saveBkAssignmentMutation.mutate(values)}
         />
       )}
       <DeleteConfirmationModal
         open={Boolean(revokeBkTarget)}
-        onOpenChange={(open) => { if (!open) setRevokeBkTarget(null); }}
+        onOpenChange={(open) => {
+          if (!open) setRevokeBkTarget(null);
+        }}
         title="Cabut Penempatan BK?"
-        description={revokeBkTarget ? `Capability BK untuk "${revokeBkTarget.name}" akan dicabut dari seluruh unit sekolah.` : ""}
+        description={
+          revokeBkTarget
+            ? `Capability BK untuk "${revokeBkTarget.name}" akan dicabut dari seluruh unit sekolah.`
+            : ""
+        }
         warning="Penugasan mapel dan wali kelas tetap tersimpan."
         confirmLabel="Ya, Cabut"
         isPending={revokeBkAssignmentMutation.isPending}
-        onConfirm={() => revokeBkTarget && revokeBkAssignmentMutation.mutate(revokeBkTarget)}
+        onConfirm={() =>
+          revokeBkTarget && revokeBkAssignmentMutation.mutate(revokeBkTarget)
+        }
       />
     </>
   );

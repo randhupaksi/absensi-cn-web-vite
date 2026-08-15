@@ -29,11 +29,28 @@ import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation
 import { Badge } from "@/components/ui/badge";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { createAdminClass, deleteAdminClass, updateAdminClass } from "@/services/admin.service";
-import type { AdminClass, AdminClassPayload, AdminMajor, AdminSchoolUnit, AdminSchoolYear } from "@/types/admin";
+import {
+  createAdminClass,
+  deleteAdminClass,
+  updateAdminClass,
+} from "@/services/admin.service";
+import type {
+  AdminClass,
+  AdminClassPayload,
+  AdminMajor,
+  AdminSchoolUnit,
+  AdminSchoolYear,
+} from "@/types/admin";
 import { getClassDisplayName } from "@/lib/class-display-name";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, Building2, GraduationCap, LayoutPanelTop, Network, School } from "lucide-react";
+import {
+  BadgeCheck,
+  Building2,
+  GraduationCap,
+  LayoutPanelTop,
+  Network,
+  School,
+} from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -60,19 +77,28 @@ const GRADE_ORDER: Record<string, number> = {
 const CLASS_TYPE_ORDER: Record<string, number> = { PLUS: 1, REGULER: 2 };
 
 function compareClasses(left: AdminClass, right: AdminClass) {
-  const schoolYearOrder = right.school_year_name.localeCompare(left.school_year_name, "id", { numeric: true });
+  const schoolYearOrder = right.school_year_name.localeCompare(
+    left.school_year_name,
+    "id",
+    { numeric: true },
+  );
   if (schoolYearOrder !== 0) return schoolYearOrder;
 
-  const unitOrder = (SCHOOL_UNIT_ORDER[left.school_unit_code] ?? 4) - (SCHOOL_UNIT_ORDER[right.school_unit_code] ?? 4);
+  const unitOrder =
+    (SCHOOL_UNIT_ORDER[left.school_unit_code] ?? 4) -
+    (SCHOOL_UNIT_ORDER[right.school_unit_code] ?? 4);
   if (unitOrder !== 0) return unitOrder;
 
-  const gradeOrder = (GRADE_ORDER[left.grade] ?? 4) - (GRADE_ORDER[right.grade] ?? 4);
+  const gradeOrder =
+    (GRADE_ORDER[left.grade] ?? 4) - (GRADE_ORDER[right.grade] ?? 4);
   if (gradeOrder !== 0) return gradeOrder;
 
   const majorOrder = left.major_code.localeCompare(right.major_code, "id");
   if (majorOrder !== 0) return majorOrder;
 
-  const classTypeOrder = (CLASS_TYPE_ORDER[left.class_type] ?? 3) - (CLASS_TYPE_ORDER[right.class_type] ?? 3);
+  const classTypeOrder =
+    (CLASS_TYPE_ORDER[left.class_type] ?? 3) -
+    (CLASS_TYPE_ORDER[right.class_type] ?? 3);
   if (classTypeOrder !== 0) return classTypeOrder;
 
   return left.name.localeCompare(right.name, "id", { numeric: true });
@@ -99,7 +125,10 @@ export function ClassManagementSection({
   const activeClasses = classes.filter((item) => item.is_active);
   const activeSchoolUnits = schoolUnits.filter((item) => item.is_active).length;
   const activeMajors = majors.filter((item) => item.is_active).length;
-  const orderedClasses = useMemo(() => [...classes].sort(compareClasses), [classes]);
+  const orderedClasses = useMemo(
+    () => [...classes].sort(compareClasses),
+    [classes],
+  );
 
   const unitFilterOptions = useMemo(
     () => [
@@ -119,9 +148,16 @@ export function ClassManagementSection({
     () => [
       { value: "all", label: "Semua program / jurusan" },
       ...majors
-        .filter((major) => major.is_active && (unitFilter === "all" || major.school_unit_id === unitFilter))
+        .filter(
+          (major) =>
+            major.is_active &&
+            (unitFilter === "all" || major.school_unit_id === unitFilter),
+        )
         .sort((left, right) => left.name.localeCompare(right.name, "id"))
-        .map((major) => ({ value: major.id, label: `${major.code} - ${major.name}` })),
+        .map((major) => ({
+          value: major.id,
+          label: `${major.code} - ${major.name}`,
+        })),
     ],
     [majors, unitFilter],
   );
@@ -129,8 +165,10 @@ export function ClassManagementSection({
   const filteredClasses = useMemo(() => {
     const normalized = deferredQuery.trim().toLowerCase();
     return orderedClasses.filter((item) => {
-      const matchesUnit = unitFilter === "all" || item.school_unit_id === unitFilter;
-      const matchesMajor = majorFilter === "all" || item.major_id === majorFilter;
+      const matchesUnit =
+        unitFilter === "all" || item.school_unit_id === unitFilter;
+      const matchesMajor =
+        majorFilter === "all" || item.major_id === majorFilter;
       const matchesQuery =
         normalized.length === 0 ||
         getClassDisplayName(item).toLowerCase().includes(normalized) ||
@@ -142,7 +180,8 @@ export function ClassManagementSection({
     });
   }, [deferredQuery, majorFilter, orderedClasses, unitFilter]);
 
-  const { pageItems: pageClasses, pagination: classesPagination } = usePagination(filteredClasses);
+  const { pageItems: pageClasses, pagination: classesPagination } =
+    usePagination(filteredClasses);
 
   const createMutation = useMutation({
     mutationFn: createAdminClass,
@@ -161,9 +200,15 @@ export function ClassManagementSection({
       toast.success("Kelas berhasil diperbarui.");
       setEditingClass(null);
       void queryClient.invalidateQueries({ queryKey: ["admin-classes"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-homeroom-assignments"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-teacher-subject-assignments"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-homeroom-assignments"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-teacher-subject-assignments"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-student-class-memberships"],
+      });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -174,9 +219,15 @@ export function ClassManagementSection({
       toast.success("Kelas dan relasi terkait berhasil dihapus.");
       setDeleteTarget(null);
       void queryClient.invalidateQueries({ queryKey: ["admin-classes"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-homeroom-assignments"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-teacher-subject-assignments"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-student-class-memberships"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-homeroom-assignments"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-teacher-subject-assignments"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-student-class-memberships"],
+      });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -214,233 +265,307 @@ export function ClassManagementSection({
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AcademicWorkspaceTab)} className="relative">
-        <div className="flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
-                <LayoutPanelTop className="size-3.5" />
-                Struktur Akademik
-              </div>
-
-              <div className="space-y-2">
-                <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as AcademicWorkspaceTab)}
+          className="relative"
+        >
+          <div className="flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+                  <LayoutPanelTop className="size-3.5" />
                   Struktur Akademik
-                </h2>
-                <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Kelola unit sekolah, jurusan, dan rombel dari satu area operasional yang saling
-                  terhubung.
-                </p>
-              </div>
-            </div>
+                </div>
 
-            <div className="lg:w-[390px]">
-              <div className="flex items-center gap-3 rounded-[22px] border border-slate-200/75 bg-white/76 px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                <span className="flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#effcf6_0%,#e0f7ee_100%)] text-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
-                  <GraduationCap className="size-4.5" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">Struktur data terhubung</p>
-                  <p className="text-xs leading-5 text-slate-500">
-                    Kelas, jurusan, dan unit menjadi fondasi relasi siswa, mapel, dan jadwal.
+                <div className="space-y-2">
+                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                    Struktur Akademik
+                  </h2>
+                  <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+                    Kelola unit sekolah, jurusan, dan rombel dari satu area
+                    operasional yang saling terhubung.
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
-            {kpiCards.map((card) => (
-              <StatCard key={card.label} {...card} />
-            ))}
-          </div>
-
-          <SectionTabSwitch
-            tabs={[
-              { value: "classes", label: "Kelas", icon: Building2 },
-              { value: "units", label: "Unit Sekolah", icon: School },
-              { value: "majors", label: "Jurusan", icon: Network },
-            ]}
-          />
-        </div>
-
-        <TabsContent value="classes" className="mt-5">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari kelas, jurusan, walas" />
-
-              <div className="w-full sm:w-[210px]">
-                <RadixSelectField
-                  value={unitFilter}
-                  onValueChange={(value) => {
-                    setUnitFilter(value);
-                    setMajorFilter("all");
-                  }}
-                  placeholder="Pilih jenjang"
-                  options={unitFilterOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
-                />
+              <div className="lg:w-[390px]">
+                <div className="flex items-center gap-3 rounded-[22px] border border-slate-200/75 bg-white/76 px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
+                  <span className="flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#effcf6_0%,#e0f7ee_100%)] text-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                    <GraduationCap className="size-4.5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Struktur data terhubung
+                    </p>
+                    <p className="text-xs leading-5 text-slate-500">
+                      Kelas, jurusan, dan unit menjadi fondasi relasi siswa,
+                      mapel, dan jadwal.
+                    </p>
+                  </div>
+                </div>
               </div>
-
-              <div className="w-full sm:w-[250px]">
-                <RadixSelectField
-                  value={majorFilter}
-                  onValueChange={setMajorFilter}
-                  placeholder="Pilih program / jurusan"
-                  options={majorFilterOptions}
-                  triggerClassName="h-14 rounded-[22px] pl-4"
-                />
-              </div>
-
-              <AddButton label="Kelas" onClick={() => setModalOpen(true)} />
             </div>
-          </div>
 
-        {errorMessage ? (
-          <div className="mt-5">
-            <EmptyState
-              icon={Building2}
-              title="Data kelas belum bisa dimuat"
-              description={errorMessage}
-              compact
+            <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
+              {kpiCards.map((card) => (
+                <StatCard key={card.label} {...card} />
+              ))}
+            </div>
+
+            <SectionTabSwitch
+              tabs={[
+                { value: "classes", label: "Kelas", icon: Building2 },
+                { value: "units", label: "Unit Sekolah", icon: School },
+                { value: "majors", label: "Jurusan", icon: Network },
+              ]}
             />
           </div>
-        ) : null}
 
-        <div className="mt-5">
-          <DataTableCard
-            isLoading={isLoading}
-            columnCount={8}
-            isEmpty={filteredClasses.length === 0}
-            emptyTitle="Kelas tidak ditemukan"
-            emptyDescription="Coba ubah pencarian, jenjang, atau program/jurusan, atau tambahkan kelas baru."
-            icon={Building2}
-            pagination={classesPagination}
-            mobileView={
-              <MobileDataList>
-                {pageClasses.map((item) => (
-                  <MobileDataCard key={item.id}>
-                    <MobileDataHeader
-                      leading={
-                        <span className="flex size-10 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
-                          {item.grade}
-                        </span>
-                      }
-                      title={getClassDisplayName(item)}
-                      subtitle={`${item.major_code} - ${item.school_year_name}`}
-                      badge={
-                        <Badge variant="outline" className={item.is_active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"}>
-                          {item.is_active ? "Aktif" : "Nonaktif"}
-                        </Badge>
-                      }
-                    />
-                    <div className="mt-4 space-y-3">
-                      <MobileDataField label="Jurusan" value={item.major_name} />
-                      <MobileDataField label="Tipe Kelas" value={item.class_type || "Belum ditentukan"} />
-                      <MobileDataField
-                        label="Walas"
-                        value={
-                          item.homeroom_teacher_name ? (
-                            <span className="text-emerald-700">{item.homeroom_teacher_name}</span>
+          <TabsContent value="classes" className="mt-5">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari kelas, jurusan, walas"
+                />
+
+                <div className="w-full sm:w-[210px]">
+                  <RadixSelectField
+                    value={unitFilter}
+                    onValueChange={(value) => {
+                      setUnitFilter(value);
+                      setMajorFilter("all");
+                    }}
+                    placeholder="Pilih jenjang"
+                    options={unitFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <div className="w-full sm:w-[250px]">
+                  <RadixSelectField
+                    value={majorFilter}
+                    onValueChange={setMajorFilter}
+                    placeholder="Pilih program / jurusan"
+                    options={majorFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <AddButton label="Kelas" onClick={() => setModalOpen(true)} />
+              </div>
+            </div>
+
+            {errorMessage ? (
+              <div className="mt-5">
+                <EmptyState
+                  icon={Building2}
+                  title="Data kelas belum bisa dimuat"
+                  description={errorMessage}
+                  compact
+                />
+              </div>
+            ) : null}
+
+            <div className="mt-5">
+              <DataTableCard
+                isLoading={isLoading}
+                columnCount={8}
+                isEmpty={filteredClasses.length === 0}
+                emptyTitle="Kelas tidak ditemukan"
+                emptyDescription="Coba ubah pencarian, jenjang, atau program/jurusan, atau tambahkan kelas baru."
+                icon={Building2}
+                pagination={classesPagination}
+                mobileView={
+                  <MobileDataList>
+                    {pageClasses.map((item) => (
+                      <MobileDataCard key={item.id}>
+                        <MobileDataHeader
+                          leading={
+                            <span className="flex size-10 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                              {item.grade}
+                            </span>
+                          }
+                          title={getClassDisplayName(item)}
+                          subtitle={`${item.major_code} - ${item.school_year_name}`}
+                          badge={
+                            <Badge
+                              variant="outline"
+                              className={
+                                item.is_active
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                  : "border-slate-200 bg-slate-50 text-slate-500"
+                              }
+                            >
+                              {item.is_active ? "Aktif" : "Nonaktif"}
+                            </Badge>
+                          }
+                        />
+                        <div className="mt-4 space-y-3">
+                          <MobileDataField
+                            label="Jurusan"
+                            value={item.major_name}
+                          />
+                          <MobileDataField
+                            label="Tipe Kelas"
+                            value={item.class_type || "Belum ditentukan"}
+                          />
+                          <MobileDataField
+                            label="Walas"
+                            value={
+                              item.homeroom_teacher_name ? (
+                                <span className="text-emerald-700">
+                                  {item.homeroom_teacher_name}
+                                </span>
+                              ) : (
+                                <span className="text-amber-700">
+                                  Belum Ada
+                                </span>
+                              )
+                            }
+                          />
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                Siswa
+                              </p>
+                              <p className="mt-1 text-lg font-semibold text-slate-900">
+                                {item.student_count}
+                              </p>
+                            </div>
+                            <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                Mapel
+                              </p>
+                              <p className="mt-1 text-lg font-semibold text-slate-900">
+                                {item.subject_assignment_count}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <MobileDataFooter>
+                          <ActionButtons
+                            onEdit={() => setEditingClass(item)}
+                            onDelete={() => setDeleteTarget(item)}
+                            isDeletePending={deleteMutation.isPending}
+                          />
+                        </MobileDataFooter>
+                      </MobileDataCard>
+                    ))}
+                  </MobileDataList>
+                }
+              >
+                <DataTable>
+                  <DataTableHeadRow
+                    labels={[
+                      "Kelas",
+                      "Jurusan",
+                      "Tahun Ajaran",
+                      "Walas",
+                      "Siswa",
+                      "Mapel",
+                      "Status",
+                      "Aksi",
+                    ]}
+                  />
+                  <DataTableBody>
+                    {pageClasses.map((item) => (
+                      <DataTableRow key={item.id}>
+                        <DataTableCell>
+                          <div className="flex items-center gap-3">
+                            <span className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
+                              {item.grade}
+                            </span>
+                            <div>
+                              <p className="font-semibold text-slate-800">
+                                {getClassDisplayName(item)}
+                              </p>
+                              {item.class_type ? (
+                                <p className="text-xs font-medium text-emerald-700">
+                                  {item.class_type}
+                                </p>
+                              ) : null}
+                            </div>
+                          </div>
+                        </DataTableCell>
+                        <DataTableCell>
+                          <p className="font-medium text-slate-700">
+                            {item.major_code}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {item.major_name}
+                          </p>
+                        </DataTableCell>
+                        <DataTableCell className="whitespace-nowrap">
+                          {item.school_year_name}
+                        </DataTableCell>
+                        <DataTableCell>
+                          {item.homeroom_teacher_name ? (
+                            <Badge
+                              variant="outline"
+                              className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                            >
+                              {item.homeroom_teacher_name}
+                            </Badge>
                           ) : (
-                            <span className="text-amber-700">Belum Ada</span>
-                          )
-                        }
-                      />
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Siswa</p>
-                          <p className="mt-1 text-lg font-semibold text-slate-900">{item.student_count}</p>
-                        </div>
-                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Mapel</p>
-                          <p className="mt-1 text-lg font-semibold text-slate-900">{item.subject_assignment_count}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <MobileDataFooter>
-                      <ActionButtons
-                        onEdit={() => setEditingClass(item)}
-                        onDelete={() => setDeleteTarget(item)}
-                        isDeletePending={deleteMutation.isPending}
-                      />
-                    </MobileDataFooter>
-                  </MobileDataCard>
-                ))}
-              </MobileDataList>
-            }
-          >
-            <DataTable>
-              <DataTableHeadRow labels={["Kelas", "Jurusan", "Tahun Ajaran", "Walas", "Siswa", "Mapel", "Status", "Aksi"]} />
-              <DataTableBody>
-                {pageClasses.map((item) => (
-                  <DataTableRow key={item.id}>
-                    <DataTableCell>
-                      <div className="flex items-center gap-3">
-                        <span className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(180deg,#effcf6_0%,#dcfce7_100%)] text-xs font-semibold text-emerald-700">
-                          {item.grade}
-                        </span>
-                        <div>
-                          <p className="font-semibold text-slate-800">{getClassDisplayName(item)}</p>
-                          {item.class_type ? <p className="text-xs font-medium text-emerald-700">{item.class_type}</p> : null}
-                        </div>
-                      </div>
-                    </DataTableCell>
-                    <DataTableCell>
-                      <p className="font-medium text-slate-700">{item.major_code}</p>
-                      <p className="text-xs text-slate-400">{item.major_name}</p>
-                    </DataTableCell>
-                    <DataTableCell className="whitespace-nowrap">{item.school_year_name}</DataTableCell>
-                    <DataTableCell>
-                      {item.homeroom_teacher_name ? (
-                        <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
-                          {item.homeroom_teacher_name}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
-                          Belum Ada
-                        </Badge>
-                      )}
-                    </DataTableCell>
-                    <DataTableCell>{item.student_count}</DataTableCell>
-                    <DataTableCell>{item.subject_assignment_count}</DataTableCell>
-                    <DataTableCell>
-                      <Badge variant="outline" className={item.is_active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-500"}>
-                        {item.is_active ? "Aktif" : "Nonaktif"}
-                      </Badge>
-                    </DataTableCell>
-                    <DataTableCell>
-                      <ActionButtons
-                        onEdit={() => setEditingClass(item)}
-                        onDelete={() => setDeleteTarget(item)}
-                        isDeletePending={deleteMutation.isPending}
-                      />
-                    </DataTableCell>
-                  </DataTableRow>
-                ))}
-              </DataTableBody>
-            </DataTable>
-          </DataTableCard>
-        </div>
-        </TabsContent>
+                            <Badge
+                              variant="outline"
+                              className="border-amber-200 bg-amber-50 text-amber-700"
+                            >
+                              Belum Ada
+                            </Badge>
+                          )}
+                        </DataTableCell>
+                        <DataTableCell>{item.student_count}</DataTableCell>
+                        <DataTableCell>
+                          {item.subject_assignment_count}
+                        </DataTableCell>
+                        <DataTableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              item.is_active
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                : "border-slate-200 bg-slate-50 text-slate-500"
+                            }
+                          >
+                            {item.is_active ? "Aktif" : "Nonaktif"}
+                          </Badge>
+                        </DataTableCell>
+                        <DataTableCell>
+                          <ActionButtons
+                            onEdit={() => setEditingClass(item)}
+                            onDelete={() => setDeleteTarget(item)}
+                            isDeletePending={deleteMutation.isPending}
+                          />
+                        </DataTableCell>
+                      </DataTableRow>
+                    ))}
+                  </DataTableBody>
+                </DataTable>
+              </DataTableCard>
+            </div>
+          </TabsContent>
 
-        <TabsContent value="units" className="mt-0">
-          <AcademicStructureTabContent
-            activeTab="units"
-            units={schoolUnits}
-            majors={majors}
-            isLoading={isLoading}
-          />
-        </TabsContent>
+          <TabsContent value="units" className="mt-0">
+            <AcademicStructureTabContent
+              activeTab="units"
+              units={schoolUnits}
+              majors={majors}
+              isLoading={isLoading}
+            />
+          </TabsContent>
 
-        <TabsContent value="majors" className="mt-0">
-          <AcademicStructureTabContent
-            activeTab="majors"
-            units={schoolUnits}
-            majors={majors}
-            isLoading={isLoading}
-          />
-        </TabsContent>
+          <TabsContent value="majors" className="mt-0">
+            <AcademicStructureTabContent
+              activeTab="majors"
+              units={schoolUnits}
+              majors={majors}
+              isLoading={isLoading}
+            />
+          </TabsContent>
         </Tabs>
       </section>
 
@@ -469,8 +594,12 @@ export function ClassManagementSection({
           schoolUnits={schoolUnits}
           schoolYears={schoolYears}
           isSubmitting={updateMutation.isPending}
-          onOpenChange={(open) => { if (!open) setEditingClass(null); }}
-          onSubmit={(payload) => updateMutation.mutate({ id: editingClass.id, payload })}
+          onOpenChange={(open) => {
+            if (!open) setEditingClass(null);
+          }}
+          onSubmit={(payload) =>
+            updateMutation.mutate({ id: editingClass.id, payload })
+          }
         />
       )}
 

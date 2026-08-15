@@ -122,7 +122,8 @@ export function UserSection({
     );
   }, [activeTab, normalizedQuery, staffUsers]);
 
-  const { pageItems: pageUsers, pagination: usersPagination } = usePagination(filteredUsers);
+  const { pageItems: pageUsers, pagination: usersPagination } =
+    usePagination(filteredUsers);
 
   const kpiCards = [
     {
@@ -151,81 +152,99 @@ export function UserSection({
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as UserTab)}>
-        <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
-                <LayoutPanelTop className="size-3.5" />
-                Halaman Peran
-              </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as UserTab)}
+        >
+          <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+                  <LayoutPanelTop className="size-3.5" />
+                  Halaman Peran
+                </div>
 
-              <div className="space-y-2">
-                <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
-                  Manajemen Peran
-                </h2>
-                <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
-                  Kelola akun administrator dan identitas dasar guru. Penugasan operasional
-                  guru dikelola dari ruang kerja Guru.
-                </p>
-              </div>
-            </div>
-
-            <div className="lg:w-[390px]">
-              <div className="flex items-center gap-3 rounded-[22px] border border-slate-200/75 bg-white/76 px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                <span className="flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#effcf6_0%,#e0f7ee_100%)] text-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
-                  <LineChart className="size-4.5" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">Ringkasan distribusi role</p>
-                  <p className="text-xs leading-5 text-slate-500">
-                    Fokus ke sebaran role dan akun staff yang dipakai lintas modul sistem.
+                <div className="space-y-2">
+                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                    Manajemen Peran
+                  </h2>
+                  <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+                    Kelola akun administrator dan identitas dasar guru.
+                    Penugasan operasional guru dikelola dari ruang kerja Guru.
                   </p>
                 </div>
               </div>
+
+              <div className="lg:w-[390px]">
+                <div className="flex items-center gap-3 rounded-[22px] border border-slate-200/75 bg-white/76 px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
+                  <span className="flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#effcf6_0%,#e0f7ee_100%)] text-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                    <LineChart className="size-4.5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Ringkasan distribusi role
+                    </p>
+                    <p className="text-xs leading-5 text-slate-500">
+                      Fokus ke sebaran role dan akun staff yang dipakai lintas
+                      modul sistem.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-3">
+              {kpiCards.map((card) => (
+                <StatCard
+                  key={card.label}
+                  label={card.label}
+                  value={card.value}
+                  icon={card.icon}
+                  accentClass={card.accentClass}
+                />
+              ))}
+            </div>
+
+            <SectionTabSwitch
+              tabs={[
+                { value: "all", label: "Semua Akun", icon: UsersRound },
+                { value: "admins", label: "Administrator", icon: ShieldCheck },
+                { value: "teachers", label: "Guru", icon: GraduationCap },
+              ]}
+            />
           </div>
 
-          <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-3">
-            {kpiCards.map((card) => (
-              <StatCard
-                key={card.label}
-                label={card.label}
-                value={card.value}
-                icon={card.icon}
-                accentClass={card.accentClass}
+          {errorMessage ? (
+            <div className="mt-5">
+              <EmptyState
+                icon={ShieldCheck}
+                title="Data admin belum bisa dimuat"
+                description={errorMessage}
+                compact
               />
-            ))}
-          </div>
-
-          <SectionTabSwitch
-            tabs={[
-              { value: "all", label: "Semua Akun", icon: UsersRound },
-              { value: "admins", label: "Administrator", icon: ShieldCheck },
-              { value: "teachers", label: "Guru", icon: GraduationCap },
-            ]}
-          />
-        </div>
-
-        {errorMessage ? (
-          <div className="mt-5">
-            <EmptyState icon={ShieldCheck} title="Data admin belum bisa dimuat" description={errorMessage} compact />
-          </div>
-        ) : null}
-
-        <div className="mt-3">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="text-xs font-medium text-slate-400">
-              {staffUsers.length} akun staff dengan role operasional tersedia
             </div>
+          ) : null}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-              <SearchFilterBar value={query} onChange={setQuery} placeholder="Cari nama, peran, username" />
+          <div className="mt-3">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+              <div className="text-xs font-medium text-slate-400">
+                {staffUsers.length} akun staff dengan role operasional tersedia
+              </div>
 
-              <AddButton label="Administrator" onClick={() => setModalOpen(true)} />
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                <SearchFilterBar
+                  value={query}
+                  onChange={setQuery}
+                  placeholder="Cari nama, peran, username"
+                />
+
+                <AddButton
+                  label="Administrator"
+                  onClick={() => setModalOpen(true)}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
           {(["all", "admins", "teachers"] as UserTab[]).map((tab) => (
             <TabsContent key={tab} value={tab} className="mt-4">
@@ -234,7 +253,7 @@ export function UserSection({
                 columnCount={6}
                 isEmpty={filteredUsers.length === 0}
                 emptyTitle="Belum ada role staff"
-                  emptyDescription="Tambahkan administrator di sini atau akun guru dari ruang kerja Guru."
+                emptyDescription="Tambahkan administrator di sini atau akun guru dari ruang kerja Guru."
                 icon={ShieldCheck}
                 pagination={usersPagination}
                 mobileView={
@@ -247,13 +266,22 @@ export function UserSection({
                               {getInitials(user.name)}
                             </span>
                           }
-                              title={formatPersonName(user.name)}
+                          title={formatPersonName(user.name)}
                           badge={<UserRoleBadge role={user.role} />}
                         />
                         <div className="mt-4 space-y-3">
-                          <MobileDataField label="Username" value={user.username || "-"} />
-                          <MobileDataField label="Identitas" value={user.username || user.nis || "-"} />
-                          <MobileDataField label="Akses" value={roleDescription(user.role)} />
+                          <MobileDataField
+                            label="Username"
+                            value={user.username || "-"}
+                          />
+                          <MobileDataField
+                            label="Identitas"
+                            value={user.username || user.nis || "-"}
+                          />
+                          <MobileDataField
+                            label="Akses"
+                            value={roleDescription(user.role)}
+                          />
                         </div>
                         <MobileDataFooter>
                           <ActionButtons
@@ -268,7 +296,16 @@ export function UserSection({
                 }
               >
                 <DataTable>
-                        <DataTableHeadRow labels={["Nama", "Peran", "Username", "Identitas", "Akses", "Aksi"]} />
+                  <DataTableHeadRow
+                    labels={[
+                      "Nama",
+                      "Peran",
+                      "Username",
+                      "Identitas",
+                      "Akses",
+                      "Aksi",
+                    ]}
+                  />
                   <DataTableBody>
                     {pageUsers.map((user) => (
                       <DataTableRow key={user.id}>
@@ -278,7 +315,9 @@ export function UserSection({
                               {getInitials(user.name)}
                             </span>
                             <div>
-                              <p className="font-medium text-slate-700">{formatPersonName(user.name)}</p>
+                              <p className="font-medium text-slate-700">
+                                {formatPersonName(user.name)}
+                              </p>
                             </div>
                           </div>
                         </DataTableCell>
@@ -286,8 +325,12 @@ export function UserSection({
                           <UserRoleBadge role={user.role} />
                         </DataTableCell>
                         <DataTableCell>{user.username || "-"}</DataTableCell>
-                        <DataTableCell>{user.username || user.nis || "-"}</DataTableCell>
-                        <DataTableCell>{roleDescription(user.role)}</DataTableCell>
+                        <DataTableCell>
+                          {user.username || user.nis || "-"}
+                        </DataTableCell>
+                        <DataTableCell>
+                          {roleDescription(user.role)}
+                        </DataTableCell>
                         <DataTableCell>
                           <ActionButtons
                             onEdit={() => setEditingUser(user)}
@@ -318,9 +361,13 @@ export function UserSection({
           key={editingUser.id}
           user={editingUser}
           open
-          onOpenChange={(open) => { if (!open) setEditingUser(null); }}
+          onOpenChange={(open) => {
+            if (!open) setEditingUser(null);
+          }}
           isPending={updateUserMutation.isPending}
-          onSubmit={(payload) => updateUserMutation.mutate({ id: editingUser.id, payload })}
+          onSubmit={(payload) =>
+            updateUserMutation.mutate({ id: editingUser.id, payload })
+          }
         />
       )}
       <DeleteConfirmationModal
