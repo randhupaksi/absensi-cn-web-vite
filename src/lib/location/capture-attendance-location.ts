@@ -19,7 +19,8 @@ export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureRe
     return Promise.resolve({
       capture: { client_status: "unavailable" },
       outcome: "unavailable",
-      message: "Lokasi membutuhkan HTTPS. Buka aplikasi melalui alamat HTTPS atau localhost, lalu tekan Ambil Ulang Lokasi.",
+      message:
+        "Lokasi membutuhkan HTTPS. Buka aplikasi melalui alamat HTTPS atau localhost, lalu tekan Ambil Ulang Lokasi.",
     });
   }
 
@@ -42,7 +43,9 @@ export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureRe
         const permissionDenied = error.code === error.PERMISSION_DENIED;
         resolve({
           capture: {
-            client_status: permissionDenied ? "permission_denied" : "unavailable",
+            client_status: permissionDenied
+              ? "permission_denied"
+              : "unavailable",
           },
           outcome: permissionDenied ? "permission_denied" : "unavailable",
           message: permissionDenied

@@ -3,7 +3,9 @@ import { z } from "zod";
 const baseTeacherProfileSchema = z.object({
   name: z.string().trim().min(1, "Nama guru wajib diisi."),
   username: z.string().trim().min(1, "Username login wajib diisi."),
-  gender: z.enum(["MALE", "FEMALE"], { message: "Jenis kelamin wajib dipilih." }),
+  gender: z.enum(["MALE", "FEMALE"], {
+    message: "Jenis kelamin wajib dipilih.",
+  }),
   is_active: z.boolean(),
 });
 
@@ -15,4 +17,6 @@ export const editTeacherProfileSchema = baseTeacherProfileSchema.extend({
   password: z.string().trim(),
 });
 
-export type TeacherProfileFormValues = z.infer<typeof createTeacherProfileSchema>;
+export type TeacherProfileFormValues = z.infer<
+  typeof createTeacherProfileSchema
+>;

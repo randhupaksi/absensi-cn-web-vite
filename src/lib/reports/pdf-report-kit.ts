@@ -36,7 +36,12 @@ type HeaderOptions = {
 
 export function drawReportPdfHeader(
   doc: jsPDF,
-  { title, subtitle, bandHeight = 22, marginX = REPORT_PDF_MARGIN_X }: HeaderOptions,
+  {
+    title,
+    subtitle,
+    bandHeight = 22,
+    marginX = REPORT_PDF_MARGIN_X,
+  }: HeaderOptions,
 ) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const now = new Date().toLocaleString("id-ID", {
@@ -48,7 +53,15 @@ export function drawReportPdfHeader(
   });
 
   doc.setFillColor(6, 78, 59);
-  doc.roundedRect(marginX, 10, pageWidth - marginX * 2, bandHeight, 2.5, 2.5, "F");
+  doc.roundedRect(
+    marginX,
+    10,
+    pageWidth - marginX * 2,
+    bandHeight,
+    2.5,
+    2.5,
+    "F",
+  );
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(236, 253, 245);
@@ -108,8 +121,13 @@ export function drawReportPdfFooter(
     doc.setLineWidth(0.2);
     doc.line(marginX, pageHeight - 8, pageWidth - marginX, pageHeight - 8);
     doc.text(label, marginX, pageHeight - 4);
-    doc.text(`Halaman ${page} / ${totalPages}`, pageWidth - marginX, pageHeight - 4, {
-      align: "right",
-    });
+    doc.text(
+      `Halaman ${page} / ${totalPages}`,
+      pageWidth - marginX,
+      pageHeight - 4,
+      {
+        align: "right",
+      },
+    );
   }
 }

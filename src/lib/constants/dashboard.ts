@@ -79,7 +79,11 @@ export const roleDashboardConfig: Record<
       "Pengajuan izin dan sakit",
     ],
     navigation: [
-      { label: "Dashboard Siswa", href: "/dashboard/siswa", icon: LayoutDashboard },
+      {
+        label: "Dashboard Siswa",
+        href: "/dashboard/siswa",
+        icon: LayoutDashboard,
+      },
       { label: "Absensi Saya", href: "/dashboard/siswa", icon: ClipboardCheck },
       { label: "Rekap Pribadi", href: "/dashboard/siswa", icon: ChartColumn },
     ],
@@ -127,9 +131,21 @@ export const roleDashboardConfig: Record<
       "Deteksi alfa berulang",
     ],
     navigation: [
-      { label: "Dashboard Guru", href: "/dashboard/teacher/homeroom", icon: LayoutDashboard },
-      { label: "Absensi Kelas", href: "/dashboard/teacher/homeroom/attendance", icon: ClipboardCheck },
-      { label: "Data Siswa", href: "/dashboard/teacher/homeroom/students", icon: Users },
+      {
+        label: "Dashboard Guru",
+        href: "/dashboard/teacher/homeroom",
+        icon: LayoutDashboard,
+      },
+      {
+        label: "Absensi Kelas",
+        href: "/dashboard/teacher/homeroom/attendance",
+        icon: ClipboardCheck,
+      },
+      {
+        label: "Data Siswa",
+        href: "/dashboard/teacher/homeroom/students",
+        icon: Users,
+      },
     ],
   },
   bk: {
@@ -175,9 +191,21 @@ export const roleDashboardConfig: Record<
       "Catatan pembinaan singkat",
     ],
     navigation: [
-      { label: "Dashboard BK", href: "/dashboard/teacher", icon: LayoutDashboard },
-      { label: "Pemantauan BK", href: "/dashboard/teacher/bk/students", icon: Shield },
-      { label: "Catatan Siswa", href: "/dashboard/teacher/bk/counseling", icon: NotebookPen },
+      {
+        label: "Dashboard BK",
+        href: "/dashboard/teacher",
+        icon: LayoutDashboard,
+      },
+      {
+        label: "Pemantauan BK",
+        href: "/dashboard/teacher/bk/students",
+        icon: Shield,
+      },
+      {
+        label: "Catatan Siswa",
+        href: "/dashboard/teacher/bk/counseling",
+        icon: NotebookPen,
+      },
     ],
   },
   admin: {
@@ -223,7 +251,11 @@ export const roleDashboardConfig: Record<
       "Kontrol data kelas dan rekap",
     ],
     navigation: [
-      { label: "Dashboard Admin", href: "/dashboard/admin", icon: LayoutDashboard },
+      {
+        label: "Dashboard Admin",
+        href: "/dashboard/admin",
+        icon: LayoutDashboard,
+      },
       { label: "Kelola Pengguna", href: "/dashboard/admin", icon: UserCog },
       { label: "Rekap Sekolah", href: "/dashboard/admin", icon: ChartColumn },
     ],

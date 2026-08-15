@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatDisplayLabel(value: string) {
@@ -11,12 +11,12 @@ export function formatDisplayLabel(value: string) {
     .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .toLowerCase()
-    .replace(/\b\p{L}/gu, (match) => match.toUpperCase())
+    .replace(/\b\p{L}/gu, (match) => match.toUpperCase());
 
   const localizedLabels: Record<string, string> = {
     Active: "Aktif",
     Inactive: "Nonaktif",
-  }
+  };
 
-  return localizedLabels[normalized] ?? normalized
+  return localizedLabels[normalized] ?? normalized;
 }

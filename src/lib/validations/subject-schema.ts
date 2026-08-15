@@ -16,8 +16,16 @@ const scheduleSchema = z
   });
 
 export const subjectSchema = z.object({
-  code: z.string().trim().min(1, "Kode mapel wajib diisi").max(30, "Maksimal 30 karakter"),
-  name: z.string().trim().min(1, "Nama mapel wajib diisi").max(150, "Maksimal 150 karakter"),
+  code: z
+    .string()
+    .trim()
+    .min(1, "Kode mapel wajib diisi")
+    .max(30, "Maksimal 30 karakter"),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Nama mapel wajib diisi")
+    .max(150, "Maksimal 150 karakter"),
   group: z.string().trim().max(100, "Maksimal 100 karakter"),
   description: z.string().trim(),
   scope: z.enum(["ALL", "SMP", "SMA", "SMK"]),
@@ -26,16 +34,20 @@ export const subjectSchema = z.object({
 });
 
 export const teachingAssignmentSchema = z.object({
-	teacher_id: z.string().min(1, "Guru wajib dipilih"),
-	subject_id: z.string().min(1, "Mapel wajib dipilih"),
-	school_year_id: z.string().min(1, "Tahun ajaran wajib dipilih"),
+  teacher_id: z.string().min(1, "Guru wajib dipilih"),
+  subject_id: z.string().min(1, "Mapel wajib dipilih"),
+  school_year_id: z.string().min(1, "Tahun ajaran wajib dipilih"),
   assignment_role: z.enum(["PRIMARY", "ASSISTANT", "SUBSTITUTE"]),
   is_primary: z.boolean(),
   effective_from: z.string(),
   effective_until: z.string(),
   is_active: z.boolean(),
-  schedules: z.array(scheduleSchema).min(1, "Minimal satu jadwal mengajar wajib ditambahkan"),
+  schedules: z
+    .array(scheduleSchema)
+    .min(1, "Minimal satu jadwal mengajar wajib ditambahkan"),
 });
 
 export type SubjectFormValues = z.infer<typeof subjectSchema>;
-export type TeachingAssignmentFormValues = z.infer<typeof teachingAssignmentSchema>;
+export type TeachingAssignmentFormValues = z.infer<
+  typeof teachingAssignmentSchema
+>;

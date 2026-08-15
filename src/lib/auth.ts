@@ -1,6 +1,11 @@
 "use client";
 
-import type { ApiUserRole, AuthSession, AuthUser, DashboardRole } from "@/types/auth";
+import type {
+  ApiUserRole,
+  AuthSession,
+  AuthUser,
+  DashboardRole,
+} from "@/types/auth";
 
 const AUTH_STORAGE_KEY = "absensi-cn-auth";
 const AUTH_SESSION_EVENT = "absensi-cn-auth-change";
@@ -96,7 +101,10 @@ export function getDefaultDashboardRole(user: AuthUser): DashboardRole {
 }
 
 export function requiresInitialPasswordChange(user: AuthUser) {
-  return (user.role === "STUDENT" || user.role === "TEACHER") && user.must_change_password;
+  return (
+    (user.role === "STUDENT" || user.role === "TEACHER") &&
+    user.must_change_password
+  );
 }
 
 export function getDashboardPathForUser(user: AuthUser) {
@@ -134,7 +142,10 @@ export function getLoginPathForCurrentContext(pathname?: string) {
   return "/login/student";
 }
 
-export function canAccessDashboardRole(user: AuthUser, dashboardRole: DashboardRole) {
+export function canAccessDashboardRole(
+  user: AuthUser,
+  dashboardRole: DashboardRole,
+) {
   switch (dashboardRole) {
     case "siswa":
       return user.role === "STUDENT";

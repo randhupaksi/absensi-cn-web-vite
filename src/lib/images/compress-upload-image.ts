@@ -3,9 +3,17 @@
 // because a device produces a more detailed image.
 const TARGET_IMAGE_BYTES = 200 * 1024;
 const MAX_UPLOAD_IMAGE_BYTES = 300 * 1024;
-const MAX_DIMENSION_STEPS = [960, 800, 720, 640, 560, 480, 400, 360, 320, 256] as const;
-const JPEG_QUALITY_STEPS = [0.76, 0.7, 0.64, 0.58, 0.52, 0.46, 0.4, 0.34] as const;
-const SUPPORTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_DIMENSION_STEPS = [
+  960, 800, 720, 640, 560, 480, 400, 360, 320, 256,
+] as const;
+const JPEG_QUALITY_STEPS = [
+  0.76, 0.7, 0.64, 0.58, 0.52, 0.46, 0.4, 0.34,
+] as const;
+const SUPPORTED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 const SUPPORTED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
 
 export async function compressUploadImage(file: File): Promise<File> {
@@ -26,7 +34,12 @@ export async function compressUploadImage(file: File): Promise<File> {
     let bestBlob: Blob | null = null;
 
     for (const maxDimension of MAX_DIMENSION_STEPS) {
-      const canvas = renderImageToCanvas(image.source, image.width, image.height, maxDimension);
+      const canvas = renderImageToCanvas(
+        image.source,
+        image.width,
+        image.height,
+        maxDimension,
+      );
       for (const quality of JPEG_QUALITY_STEPS) {
         const blob = await canvasToJpegBlob(canvas, quality);
         if (!blob) continue;
@@ -47,7 +60,9 @@ export async function compressUploadImage(file: File): Promise<File> {
       return file;
     }
 
-    throw new Error("Foto tidak dapat dikompres hingga batas 300 KB. Silakan ambil ulang foto dengan pencahayaan yang lebih baik.");
+    throw new Error(
+      "Foto tidak dapat dikompres hingga batas 300 KB. Silakan ambil ulang foto dengan pencahayaan yang lebih baik.",
+    );
   } finally {
     image.cleanup();
   }
@@ -56,7 +71,12 @@ export async function compressUploadImage(file: File): Promise<File> {
 async function normalizeImageOrientation(file: File): Promise<File> {
   const image = await loadImageSource(file);
   try {
-    const canvas = renderImageToCanvas(image.source, image.width, image.height, MAX_DIMENSION_STEPS[0]);
+    const canvas = renderImageToCanvas(
+      image.source,
+      image.width,
+      image.height,
+      MAX_DIMENSION_STEPS[0],
+    );
     const blob = await canvasToJpegBlob(canvas, 0.92);
     return blob ? createCompressedFile(file, blob) : file;
   } finally {
@@ -74,7 +94,9 @@ type LoadedImageSource = {
 async function loadImageSource(file: File): Promise<LoadedImageSource> {
   if ("createImageBitmap" in window) {
     try {
-      const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+      const bitmap = await createImageBitmap(file, {
+        imageOrientation: "from-image",
+      });
       return {
         source: bitmap,
         width: bitmap.width,
@@ -94,7 +116,9 @@ async function loadImageSource(file: File): Promise<LoadedImageSource> {
     await image.decode();
   } catch {
     URL.revokeObjectURL(url);
-    throw new Error("Format foto tidak dapat dibaca browser. Gunakan foto JPG atau PNG.");
+    throw new Error(
+      "Format foto tidak dapat dibaca browser. Gunakan foto JPG atau PNG.",
+    );
   }
   if (!image.naturalWidth || !image.naturalHeight) {
     URL.revokeObjectURL(url);

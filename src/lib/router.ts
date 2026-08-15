@@ -1,4 +1,8 @@
-import { useLocation, useNavigate, useSearchParams as useReactSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useSearchParams as useReactSearchParams,
+} from "react-router-dom";
 
 export function useRouter() {
   const navigate = useNavigate();

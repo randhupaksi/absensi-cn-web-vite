@@ -5,6 +5,10 @@ export function formatPersonName(name?: string | null) {
     .trim()
     .toLocaleLowerCase("id-ID")
     .split(/\s+/)
-    .map((part) => part ? `${part.charAt(0).toLocaleUpperCase("id-ID")}${part.slice(1)}` : part)
+    .map((part) =>
+      part
+        ? `${part.charAt(0).toLocaleUpperCase("id-ID")}${part.slice(1)}`
+        : part,
+    )
     .join(" ");
 }

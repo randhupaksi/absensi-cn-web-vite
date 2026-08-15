@@ -10,7 +10,10 @@ export function getClassDisplayName(classItem: ClassDisplaySource) {
     .replace(/\s+/g, " ")
     .trim();
 
-  if (classItem.class_type?.toUpperCase() === "PLUS" && !/\bPLUS\b/i.test(withoutRegular)) {
+  if (
+    classItem.class_type?.toUpperCase() === "PLUS" &&
+    !/\bPLUS\b/i.test(withoutRegular)
+  ) {
     return `${withoutRegular} PLUS`;
   }
 

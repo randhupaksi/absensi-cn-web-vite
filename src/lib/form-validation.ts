@@ -1,7 +1,9 @@
 export type FieldErrors<T extends string = string> = Partial<Record<T, string>>;
 
 export function isBlank(value: unknown) {
-  return value === undefined || value === null || String(value).trim().length === 0;
+  return (
+    value === undefined || value === null || String(value).trim().length === 0
+  );
 }
 
 export function hasFieldErrors(errors: FieldErrors) {
@@ -59,7 +61,8 @@ export function validatePhone<T extends string>(
   const trimmed = value.trim();
   if (options?.allowEmpty && trimmed.length === 0) return;
   if (!/^0\d{9,14}$/.test(trimmed)) {
-    errors[field] = `${label} harus berupa nomor Indonesia, contoh 081234567890.`;
+    errors[field] =
+      `${label} harus berupa nomor Indonesia, contoh 081234567890.`;
   }
 }
 
@@ -84,7 +87,10 @@ export function validateDate<T extends string>(
 ) {
   const trimmed = value.trim();
   if (options?.allowEmpty && trimmed.length === 0) return;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed) || Number.isNaN(new Date(`${trimmed}T00:00:00`).getTime())) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(trimmed) ||
+    Number.isNaN(new Date(`${trimmed}T00:00:00`).getTime())
+  ) {
     errors[field] = `${label} harus dipilih dengan format tanggal yang valid.`;
   }
 }
