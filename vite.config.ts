@@ -22,9 +22,18 @@ export default defineConfig({
       "/api": {
         target: "https://absensmk.citranegara.online",
         changeOrigin: true,
-        secure: true,
+        // Development-only proxy: tolerate an upstream certificate chain that
+        // Node does not trust even when the browser accepts the site.
+        secure: false,
         headers: {
           origin: "https://absensmk.citranegara.online",
+        },
+        configure(proxy) {
+          proxy.on("error", (error, request) => {
+            console.error(
+              `[vite proxy] ${request.method} ${request.url}: ${error.message}`,
+            );
+          });
         },
       },
     },
