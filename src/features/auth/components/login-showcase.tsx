@@ -34,7 +34,8 @@ export function LoginShowcase() {
             Kehadiran digital untuk sekolah modern.
           </h1>
           <p className="max-w-md text-base leading-8 text-slate-600">
-            Pengalaman masuk yang elegan, terarah, dan dirancang untuk lingkungan sekolah yang profesional.
+            Pengalaman masuk yang elegan, terarah, dan dirancang untuk
+            lingkungan sekolah yang profesional.
           </p>
         </div>
 

@@ -31,37 +31,43 @@ const locationStatusConfig = {
   },
   outside_radius: {
     label: "Di luar radius",
-    description: "Titik lokasi berada di luar radius absensi dan perlu ditinjau.",
+    description:
+      "Titik lokasi berada di luar radius absensi dan perlu ditinjau.",
     className: "border-rose-200 bg-rose-50 text-rose-700",
     icon: AlertTriangle,
   },
   low_accuracy: {
     label: "Akurasi GPS rendah",
-    description: "Lokasi terekam, tetapi akurasinya belum cukup untuk keputusan otomatis.",
+    description:
+      "Lokasi terekam, tetapi akurasinya belum cukup untuk keputusan otomatis.",
     className: "border-amber-200 bg-amber-50 text-amber-700",
     icon: AlertTriangle,
   },
   stale: {
     label: "Lokasi tidak terbaru",
-    description: "Waktu pengambilan lokasi terlalu jauh dari waktu pengiriman absensi.",
+    description:
+      "Waktu pengambilan lokasi terlalu jauh dari waktu pengiriman absensi.",
     className: "border-amber-200 bg-amber-50 text-amber-700",
     icon: Clock3,
   },
   captured_unverified: {
     label: "Lokasi terekam",
-    description: "Koordinat tersimpan, tetapi radius sekolah belum dikonfigurasi di server.",
+    description:
+      "Koordinat tersimpan, tetapi radius sekolah belum dikonfigurasi di server.",
     className: "border-sky-200 bg-sky-50 text-sky-700",
     icon: MapPinned,
   },
   permission_denied: {
     label: "Izin lokasi ditolak",
-    description: "Siswa tidak memberikan izin lokasi; bukti perlu diperiksa manual.",
+    description:
+      "Siswa tidak memberikan izin lokasi; bukti perlu diperiksa manual.",
     className: "border-rose-200 bg-rose-50 text-rose-700",
     icon: AlertTriangle,
   },
   unavailable: {
     label: "Lokasi tidak tersedia",
-    description: "Perangkat tidak berhasil mengirim metadata lokasi untuk absensi ini.",
+    description:
+      "Perangkat tidak berhasil mengirim metadata lokasi untuk absensi ini.",
     className: "border-slate-200 bg-slate-100 text-slate-600",
     icon: AlertTriangle,
   },
@@ -96,13 +102,15 @@ export function AttendanceLocationEvidence({
             )}
           </span>
           <div className="min-w-0">
-            <p className="text-[0.92rem] font-semibold text-slate-800">Lokasi Pengambilan</p>
+            <p className="text-[0.92rem] font-semibold text-slate-800">
+              Lokasi Pengambilan
+            </p>
             <p className="mt-1 text-[0.76rem] leading-[1.55] text-slate-500">
               {message ??
                 (isLoading
                   ? "Sedang membaca lokasi perangkat dengan akurasi terbaik."
-                  : config?.description ??
-                    "Record lama ini belum memiliki metadata lokasi.")}
+                  : (config?.description ??
+                    "Record lama ini belum memiliki metadata lokasi."))}
             </p>
           </div>
         </div>
@@ -120,7 +128,8 @@ export function AttendanceLocationEvidence({
         ) : null}
       </div>
 
-      {!isLoading && (hasCoordinates || evidence.location_accuracy_meters !== undefined) ? (
+      {!isLoading &&
+      (hasCoordinates || evidence.location_accuracy_meters !== undefined) ? (
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <LocationMetric
             icon={Crosshair}
@@ -147,7 +156,9 @@ export function AttendanceLocationEvidence({
               type="button"
               variant="outline"
               className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-emerald-200 bg-white px-3 text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 sm:flex-none sm:px-5 sm:text-sm"
-              onClick={() => window.open(mapUrl, "_blank", "noopener,noreferrer")}
+              onClick={() =>
+                window.open(mapUrl, "_blank", "noopener,noreferrer")
+              }
             >
               <ExternalLink className="size-4" />
               Buka di Peta

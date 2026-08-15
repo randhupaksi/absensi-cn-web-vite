@@ -7,9 +7,7 @@ type AttendanceStatusBadgeProps = {
   status: AttendanceStatus;
 };
 
-export function AttendanceStatusBadge({
-  status,
-}: AttendanceStatusBadgeProps) {
+export function AttendanceStatusBadge({ status }: AttendanceStatusBadgeProps) {
   const config = attendanceStatusMap[status];
 
   return (

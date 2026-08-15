@@ -27,14 +27,18 @@ export function PremiumInput({
 
   return (
     <motion.div
-      animate={isPassword ? { y: 0, boxShadow: "none" } : {
-        y: focused ? -2 : hovered ? -1 : 0,
-        boxShadow: focused
-          ? "0 24px 54px rgba(36, 140, 103, 0.16)"
-          : hovered
-            ? "0 18px 38px rgba(36, 140, 103, 0.1)"
-            : "0 10px 24px rgba(16, 24, 40, 0.05)",
-      }}
+      animate={
+        isPassword
+          ? { y: 0, boxShadow: "none" }
+          : {
+              y: focused ? -2 : hovered ? -1 : 0,
+              boxShadow: focused
+                ? "0 24px 54px rgba(36, 140, 103, 0.16)"
+                : hovered
+                  ? "0 18px 38px rgba(36, 140, 103, 0.1)"
+                  : "0 10px 24px rgba(16, 24, 40, 0.05)",
+            }
+      }
       transition={{ type: "spring", stiffness: 250, damping: 24 }}
       className="group relative isolate rounded-[1.2rem]"
     >

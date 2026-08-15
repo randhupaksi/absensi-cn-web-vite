@@ -14,12 +14,14 @@ const portalContent = {
   student: {
     badge: "Portal Siswa",
     title: "Absensi CN",
-    subtitle: "Masuk dengan NIS untuk melakukan absensi dan melihat riwayat kehadiran.",
+    subtitle:
+      "Masuk dengan NIS untuk melakukan absensi dan melihat riwayat kehadiran.",
     intro: "Akses absensi siswa.",
     introDetail: "Gunakan NIS sekolah dan password akun siswa.",
     formShell:
       "rounded-[1.7rem] border border-emerald-100/90 bg-white/58 p-4 shadow-[0_20px_52px_rgba(15,118,110,0.11),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-md sm:p-5",
-    footer: "Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.",
+    footer:
+      "Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.",
   },
   staff: {
     badge: "Portal Staff",
@@ -29,17 +31,21 @@ const portalContent = {
     introDetail: "Gunakan username staff yang sudah terdaftar oleh admin.",
     formShell:
       "rounded-[1.7rem] border border-emerald-100/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(236,253,245,0.46))] p-4 shadow-[0_20px_52px_rgba(15,118,110,0.11),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-md sm:p-5",
-    footer: "Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.",
+    footer:
+      "Copyright 2026 Sekolah Citra Negara · Developed by Randhu Paksi Membumi · All rights reserved.",
   },
-} satisfies Record<PortalType, {
-  badge: string;
-  title: string;
-  subtitle: string;
-  intro: string;
-  introDetail: string;
-  formShell: string;
-  footer: string;
-}>;
+} satisfies Record<
+  PortalType,
+  {
+    badge: string;
+    title: string;
+    subtitle: string;
+    intro: string;
+    introDetail: string;
+    formShell: string;
+    footer: string;
+  }
+>;
 
 export function LoginCard({ portal }: LoginCardProps) {
   const content = portalContent[portal];
@@ -98,11 +104,8 @@ export function LoginCard({ portal }: LoginCardProps) {
               <p className="text-sm font-medium text-slate-700">
                 {content.intro}
               </p>
-              <p className="text-sm text-slate-500">
-                {content.introDetail}
-              </p>
+              <p className="text-sm text-slate-500">{content.introDetail}</p>
             </div>
-
           </div>
 
           <div className={content.formShell}>
@@ -111,7 +114,6 @@ export function LoginCard({ portal }: LoginCardProps) {
 
           <div className="flex items-center justify-center gap-3 text-center text-xs text-slate-500">
             <p>{content.footer}</p>
-           
           </div>
         </div>
       </div>

@@ -18,7 +18,11 @@ export function AmbientParticles() {
           key={`${particle.left}-${particle.top}`}
           className={`absolute transform-gpu rounded-full bg-white/65 shadow-[0_0_20px_rgba(255,255,255,0.6)] will-change-transform ${particle.size}`}
           style={{ left: particle.left, top: particle.top }}
-          animate={{ y: [0, -10, 0], opacity: [0.25, 0.8, 0.25], scale: [1, 1.2, 1] }}
+          animate={{
+            y: [0, -10, 0],
+            opacity: [0.25, 0.8, 0.25],
+            scale: [1, 1.2, 1],
+          }}
           transition={{
             duration: 5.5,
             delay: particle.delay,

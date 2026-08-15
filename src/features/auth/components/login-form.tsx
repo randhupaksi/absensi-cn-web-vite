@@ -4,7 +4,11 @@ import { PremiumInput } from "@/features/auth/components/premium-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { getDashboardPathForUser, saveAuthSession } from "@/lib/auth";
-import { loginSchema, type LoginSchema, type PortalType } from "@/lib/validations/login-schema";
+import {
+  loginSchema,
+  type LoginSchema,
+  type PortalType,
+} from "@/lib/validations/login-schema";
 import { login, type AuthLoginResponse } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -46,15 +50,18 @@ const formContent = {
     buttonClass:
       "border-teal-300/45 bg-[linear-gradient(135deg,#0f766e_0%,#149a73_52%,#65c586_100%)] shadow-[0_18px_44px_rgba(15,118,110,0.22)] hover:shadow-[0_22px_56px_rgba(15,118,110,0.28)]",
   },
-} satisfies Record<PortalType, {
-  identifierLabel: string;
-  identifierPlaceholder: string;
-  identifierHelper: string;
-  passwordHelper: string;
-  submitLabel: string;
-  submittingLabel: string;
-  buttonClass: string;
-}>;
+} satisfies Record<
+  PortalType,
+  {
+    identifierLabel: string;
+    identifierPlaceholder: string;
+    identifierHelper: string;
+    passwordHelper: string;
+    submitLabel: string;
+    submittingLabel: string;
+    buttonClass: string;
+  }
+>;
 
 export function LoginForm({ portal }: LoginFormProps) {
   const queryClient = useQueryClient();
@@ -101,64 +108,68 @@ export function LoginForm({ portal }: LoginFormProps) {
   const isSubmitting = form.formState.isSubmitting;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className={portal === "staff" ? "space-y-5" : "space-y-4"}>
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className={portal === "staff" ? "space-y-5" : "space-y-4"}
+    >
       <input type="hidden" {...form.register("portal")} value={portal} />
 
       {portal === "student" ? (
         <div className="space-y-2">
-            <Label htmlFor="nis" className="text-sm font-medium text-slate-700">
-              {content.identifierLabel}
-            </Label>
-            <PremiumInput
-              id="nis"
-              icon={UserRound}
-              inputMode="numeric"
-              maxLength={10}
-              placeholder={content.identifierPlaceholder}
-              {...form.register("nis")}
-              onChange={(e) => {
-                const filtered = e.target.value.replace(/\D/g, "").slice(0, 10);
-                form.setValue("nis", filtered, { shouldValidate: !!form.formState.errors.nis });
-              }}
-            />
-            {form.formState.errors.nis ? (
-              <p className="text-sm text-rose-600">
-                {form.formState.errors.nis.message}
-              </p>
-            ) : (
-              <p className="text-xs text-slate-500">
-                {content.identifierHelper}
-              </p>
-            )}
+          <Label htmlFor="nis" className="text-sm font-medium text-slate-700">
+            {content.identifierLabel}
+          </Label>
+          <PremiumInput
+            id="nis"
+            icon={UserRound}
+            inputMode="numeric"
+            maxLength={10}
+            placeholder={content.identifierPlaceholder}
+            {...form.register("nis")}
+            onChange={(e) => {
+              const filtered = e.target.value.replace(/\D/g, "").slice(0, 10);
+              form.setValue("nis", filtered, {
+                shouldValidate: !!form.formState.errors.nis,
+              });
+            }}
+          />
+          {form.formState.errors.nis ? (
+            <p className="text-sm text-rose-600">
+              {form.formState.errors.nis.message}
+            </p>
+          ) : (
+            <p className="text-xs text-slate-500">{content.identifierHelper}</p>
+          )}
         </div>
-        ) : (
-          <div className="space-y-2">
-            <Label
-              htmlFor="username"
-              className="text-sm font-medium text-slate-700"
-            >
-              {content.identifierLabel}
-            </Label>
-            <PremiumInput
-              id="username"
-              icon={ShieldCheck}
-              placeholder={content.identifierPlaceholder}
-              {...form.register("username")}
-            />
-            {form.formState.errors.username ? (
-              <p className="text-sm text-rose-600">
-                {form.formState.errors.username.message}
-              </p>
-            ) : (
-              <p className="text-xs text-slate-500">
-                {content.identifierHelper}
-              </p>
-            )}
-          </div>
-        )}
+      ) : (
+        <div className="space-y-2">
+          <Label
+            htmlFor="username"
+            className="text-sm font-medium text-slate-700"
+          >
+            {content.identifierLabel}
+          </Label>
+          <PremiumInput
+            id="username"
+            icon={ShieldCheck}
+            placeholder={content.identifierPlaceholder}
+            {...form.register("username")}
+          />
+          {form.formState.errors.username ? (
+            <p className="text-sm text-rose-600">
+              {form.formState.errors.username.message}
+            </p>
+          ) : (
+            <p className="text-xs text-slate-500">{content.identifierHelper}</p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+        <Label
+          htmlFor="password"
+          className="text-sm font-medium text-slate-700"
+        >
           Password
         </Label>
         <PremiumInput
@@ -191,9 +202,7 @@ export function LoginForm({ portal }: LoginFormProps) {
             {form.formState.errors.password.message}
           </p>
         ) : (
-          <p className="text-xs text-slate-500">
-            {content.passwordHelper}
-          </p>
+          <p className="text-xs text-slate-500">{content.passwordHelper}</p>
         )}
       </div>
 
@@ -206,9 +215,15 @@ export function LoginForm({ portal }: LoginFormProps) {
       >
         <span className="relative flex items-center justify-center gap-2">
           <span className="inline-flex size-4 shrink-0 items-center justify-center">
-            {isSubmitting ? <LoaderCircle className="size-4 animate-spin" /> : <LogIn className="size-4" />}
+            {isSubmitting ? (
+              <LoaderCircle className="size-4 animate-spin" />
+            ) : (
+              <LogIn className="size-4" />
+            )}
           </span>
-          <span>{isSubmitting ? content.submittingLabel : content.submitLabel}</span>
+          <span>
+            {isSubmitting ? content.submittingLabel : content.submitLabel}
+          </span>
         </span>
       </Button>
     </form>

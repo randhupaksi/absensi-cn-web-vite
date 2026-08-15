@@ -32,12 +32,15 @@ export function AttendanceEvidenceModal({
           <div className="rounded-[var(--radius-xl)] border border-emerald-100/70 bg-white/92 p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-base font-semibold text-slate-900">{record.student_name}</p>
+                <p className="text-base font-semibold text-slate-900">
+                  {record.student_name}
+                </p>
                 <p className="text-sm text-slate-500">
                   {record.nis} - {record.class_name}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {formatFriendlyDate(record.attendance_date)} - {formatCheckInTime(record.check_in_at)}
+                  {formatFriendlyDate(record.attendance_date)} -{" "}
+                  {formatCheckInTime(record.check_in_at)}
                 </p>
               </div>
               <EvidenceStatus status={record.status} />
@@ -59,7 +62,10 @@ export function AttendanceEvidenceModal({
                 compact
               />
             )}
-            <AttendanceLocationEvidence evidence={record} className="mt-4 px-1 pb-1" />
+            <AttendanceLocationEvidence
+              evidence={record}
+              className="mt-4 px-1 pb-1"
+            />
           </div>
         </div>
       ) : null}
@@ -73,10 +79,10 @@ function EvidenceStatus({ status }: { status: string }) {
     normalized === "hadir"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
       : normalized === "alfa"
-          ? "border-rose-200 bg-rose-50 text-rose-700"
-          : normalized === "sakit"
-            ? "border-violet-200 bg-violet-50 text-violet-700"
-            : "border-sky-200 bg-sky-50 text-sky-700";
+        ? "border-rose-200 bg-rose-50 text-rose-700"
+        : normalized === "sakit"
+          ? "border-violet-200 bg-violet-50 text-violet-700"
+          : "border-sky-200 bg-sky-50 text-sky-700";
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;
 }
 
