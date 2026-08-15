@@ -3,7 +3,13 @@
 import { AnimatePresence, motion } from "motion/react";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ReportModalFooter } from "@/features/reports/shared/report-modal-footer";
-import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import {
+  QuestionBlock,
+  ReportCheckbox,
+  ReportFormatQuestion,
+  ReportRadio,
+  type ReportFormat,
+} from "@/features/reports/shared/report-question-ui";
 import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
 import {
@@ -61,7 +67,11 @@ async function generateGuruPdf(
     const row: string[] = [String(i + 1), t.name, t.username || "-"];
     if (columns.gender)
       row.push(
-        t.gender === "MALE" ? "Laki-laki" : t.gender === "FEMALE" ? "Perempuan" : "-",
+        t.gender === "MALE"
+          ? "Laki-laki"
+          : t.gender === "FEMALE"
+            ? "Perempuan"
+            : "-",
       );
     if (columns.status) row.push(t.is_active ? "Aktif" : "Non-aktif");
     return row;
@@ -116,19 +126,51 @@ async function generateGuruExcel(
     dataSheetName: "Data Guru",
     metrics: [
       { label: "Total Guru", value: data.length, tone: "emerald" },
-      { label: "Guru Aktif", value: data.filter((teacher) => teacher.is_active).length, tone: "sky" },
-      { label: "Guru Nonaktif", value: data.filter((teacher) => !teacher.is_active).length, tone: "rose" },
+      {
+        label: "Guru Aktif",
+        value: data.filter((teacher) => teacher.is_active).length,
+        tone: "sky",
+      },
+      {
+        label: "Guru Nonaktif",
+        value: data.filter((teacher) => !teacher.is_active).length,
+        tone: "rose",
+      },
     ],
     columns: [
-      { header: "No", value: (_teacher, index) => index + 1, width: 7, kind: "number" },
+      {
+        header: "No",
+        value: (_teacher, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
       { header: "Nama Guru", value: (teacher) => teacher.name, width: 32 },
       { header: "Username", value: (teacher) => teacher.username, width: 20 },
-      ...(columns.gender ? [{
-        header: "Jenis Kelamin",
-        value: (teacher: AdminTeacherProfile) => teacher.gender === "MALE" ? "Laki-laki" : teacher.gender === "FEMALE" ? "Perempuan" : "-",
-        width: 18,
-      }] : []),
-      ...(columns.status ? [{ header: "Status", value: (teacher: AdminTeacherProfile) => teacher.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
+      ...(columns.gender
+        ? [
+            {
+              header: "Jenis Kelamin",
+              value: (teacher: AdminTeacherProfile) =>
+                teacher.gender === "MALE"
+                  ? "Laki-laki"
+                  : teacher.gender === "FEMALE"
+                    ? "Perempuan"
+                    : "-",
+              width: 18,
+            },
+          ]
+        : []),
+      ...(columns.status
+        ? [
+            {
+              header: "Status",
+              value: (teacher: AdminTeacherProfile) =>
+                teacher.is_active ? "Aktif" : "Non-aktif",
+              width: 15,
+              kind: "status" as const,
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -162,7 +204,8 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
 
   const filteredCount = filterStatus ? counts[filterStatus] : 0;
   const showQ2 = filterStatus !== null;
-  const canDownload = format !== null && filterStatus !== null && sortBy !== null;
+  const canDownload =
+    format !== null && filterStatus !== null && sortBy !== null;
 
   function resetState() {
     setFormat(null);
@@ -192,8 +235,11 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
       return (a.username ?? "").localeCompare(b.username ?? "", "id");
     });
     const filterLabel =
-      filterStatus === "active" ? "Aktif Saja" :
-      filterStatus === "inactive" ? "Non-aktif Saja" : "Semua Guru";
+      filterStatus === "active"
+        ? "Aktif Saja"
+        : filterStatus === "inactive"
+          ? "Non-aktif Saja"
+          : "Semua Guru";
     const sortLabel = sortBy === "name" ? "Nama (A–Z)" : "Username";
     setGenerating(true);
     try {
@@ -203,7 +249,9 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
         await generateGuruPdf(sorted, filterLabel, sortLabel, columns);
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -231,19 +279,28 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
               selected={filterStatus === "all"}
               label="Semua Guru"
               badge={`${counts.all}`}
-              onClick={() => { setFilterStatus("all"); setSortBy(null); }}
+              onClick={() => {
+                setFilterStatus("all");
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={filterStatus === "active"}
               label="Aktif Saja"
               badge={`${counts.active}`}
-              onClick={() => { setFilterStatus("active"); setSortBy(null); }}
+              onClick={() => {
+                setFilterStatus("active");
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={filterStatus === "inactive"}
               label="Non-aktif"
               badge={`${counts.inactive}`}
-              onClick={() => { setFilterStatus("inactive"); setSortBy(null); }}
+              onClick={() => {
+                setFilterStatus("inactive");
+                setSortBy(null);
+              }}
             />
           </div>
         </QuestionBlock>
@@ -264,7 +321,12 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
                 answered
               >
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama & Username" badge="wajib" />
+                  <ReportCheckbox
+                    checked
+                    disabled
+                    label="Nama & Username"
+                    badge="wajib"
+                  />
                   <ReportCheckbox
                     checked={columns.gender}
                     onChange={(v) => setColumns((c) => ({ ...c, gender: v }))}
@@ -320,7 +382,11 @@ export function GuruReportModal({ open, onOpenChange, teachers }: Props) {
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={canDownload ? `Unduh ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} guru)` : "Pilih format laporan"}
+          downloadLabel={
+            canDownload
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} guru)`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>

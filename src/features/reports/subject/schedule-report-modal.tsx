@@ -2,7 +2,11 @@
 
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ReportModalFooter } from "@/features/reports/shared/report-modal-footer";
-import { QuestionBlock, ReportFormatQuestion, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import {
+  QuestionBlock,
+  ReportFormatQuestion,
+  type ReportFormat,
+} from "@/features/reports/shared/report-question-ui";
 import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
 import {
@@ -17,7 +21,15 @@ import { CalendarClock, Database, Printer } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-const DAY_ORDER = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"];
+const DAY_ORDER = [
+  "senin",
+  "selasa",
+  "rabu",
+  "kamis",
+  "jumat",
+  "sabtu",
+  "minggu",
+];
 const DAY_LABELS: Record<string, string> = {
   senin: "Senin",
   selasa: "Selasa",
@@ -82,7 +94,9 @@ export function SubjectScheduleReportModal({
         await generateSchedulePdf(rows, summary, teacherName, filterLabel);
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"} jadwal mengajar. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"} jadwal mengajar. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -100,18 +114,32 @@ export function SubjectScheduleReportModal({
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
 
-        <QuestionBlock icon={Database} label="Cakupan laporan" answered={rows.length > 0}>
+        <QuestionBlock
+          icon={Database}
+          label="Cakupan laporan"
+          answered={rows.length > 0}
+        >
           <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
             <p className="font-semibold text-slate-900">{teacherName}</p>
             <p className="mt-1">Jadwal aktif mingguan - {filterLabel}</p>
-            <p>{summary.subjectCount} mapel - {summary.classCount} kelas - {summary.slotCount} slot</p>
+            <p>
+              {summary.subjectCount} mapel - {summary.classCount} kelas -{" "}
+              {summary.slotCount} slot
+            </p>
           </div>
         </QuestionBlock>
 
         <QuestionBlock icon={CalendarClock} label="Isi dokumen" answered>
           <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm leading-6 text-slate-600">
-            <p><span className="font-semibold text-slate-900">Excel:</span> tab Ringkasan berisi statistik beban mengajar, lalu tab Rincian Jadwal.</p>
-            <p className="mt-1"><span className="font-semibold text-slate-900">PDF:</span> identitas guru, statistik utama, dan tabel jadwal siap cetak.</p>
+            <p>
+              <span className="font-semibold text-slate-900">Excel:</span> tab
+              Ringkasan berisi statistik beban mengajar, lalu tab Rincian
+              Jadwal.
+            </p>
+            <p className="mt-1">
+              <span className="font-semibold text-slate-900">PDF:</span>{" "}
+              identitas guru, statistik utama, dan tabel jadwal siap cetak.
+            </p>
           </div>
         </QuestionBlock>
 
@@ -122,34 +150,53 @@ export function SubjectScheduleReportModal({
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>
   );
 }
 
-function buildScheduleReportRows(assignments: StaffSubjectAssignment[], dayFilter: string, classFilter: string): ScheduleReportRow[] {
+function buildScheduleReportRows(
+  assignments: StaffSubjectAssignment[],
+  dayFilter: string,
+  classFilter: string,
+): ScheduleReportRow[] {
   return assignments
     .filter((assignment) => assignment.is_active)
-    .flatMap((assignment) => assignment.schedules
-      .filter((schedule) => schedule.is_active)
-      .filter((schedule) => dayFilter === "all" || schedule.hari.toLowerCase() === dayFilter)
-      .filter((schedule) => classFilter === "all" || schedule.class_id === classFilter)
-      .map((schedule) => ({
-        day: schedule.hari.toLowerCase(),
-        start: normalizeTime(schedule.jam_mulai),
-        end: normalizeTime(schedule.jam_selesai),
-        durationMinutes: getDurationMinutes(schedule.jam_mulai, schedule.jam_selesai),
-        subjectName: assignment.subject_name,
-        className: schedule.class_name,
-        schoolYearName: assignment.school_year_name,
-      })),
+    .flatMap((assignment) =>
+      assignment.schedules
+        .filter((schedule) => schedule.is_active)
+        .filter(
+          (schedule) =>
+            dayFilter === "all" || schedule.hari.toLowerCase() === dayFilter,
+        )
+        .filter(
+          (schedule) =>
+            classFilter === "all" || schedule.class_id === classFilter,
+        )
+        .map((schedule) => ({
+          day: schedule.hari.toLowerCase(),
+          start: normalizeTime(schedule.jam_mulai),
+          end: normalizeTime(schedule.jam_selesai),
+          durationMinutes: getDurationMinutes(
+            schedule.jam_mulai,
+            schedule.jam_selesai,
+          ),
+          subjectName: assignment.subject_name,
+          className: schedule.class_name,
+          schoolYearName: assignment.school_year_name,
+        })),
     )
-    .sort((first, second) =>
-      (DAY_ORDER.indexOf(first.day) - DAY_ORDER.indexOf(second.day))
-      || first.start.localeCompare(second.start)
-      || first.className.localeCompare(second.className, "id"),
+    .sort(
+      (first, second) =>
+        DAY_ORDER.indexOf(first.day) - DAY_ORDER.indexOf(second.day) ||
+        first.start.localeCompare(second.start) ||
+        first.className.localeCompare(second.className, "id"),
     );
 }
 
@@ -166,11 +213,20 @@ function getScheduleSummary(rows: ScheduleReportRow[]) {
   };
 }
 
-function getFilterLabel(assignments: StaffSubjectAssignment[], dayFilter: string, classFilter: string) {
-  const day = dayFilter === "all" ? "Semua hari" : DAY_LABELS[dayFilter] ?? dayFilter;
-  const className = classFilter === "all"
-    ? "Semua kelas"
-    : assignments.flatMap((assignment) => assignment.schedules).find((schedule) => schedule.class_id === classFilter)?.class_name ?? "Kelas terpilih";
+function getFilterLabel(
+  assignments: StaffSubjectAssignment[],
+  dayFilter: string,
+  classFilter: string,
+) {
+  const day =
+    dayFilter === "all" ? "Semua hari" : (DAY_LABELS[dayFilter] ?? dayFilter);
+  const className =
+    classFilter === "all"
+      ? "Semua kelas"
+      : (assignments
+          .flatMap((assignment) => assignment.schedules)
+          .find((schedule) => schedule.class_id === classFilter)?.class_name ??
+        "Kelas terpilih");
   return `${day} - ${className}`;
 }
 
@@ -192,7 +248,11 @@ async function generateScheduleExcel(
       { label: "Mata pelajaran", value: summary.subjects || "-" },
     ],
     metrics: [
-      { label: "Total Jam Mengajar", value: formatDuration(summary.totalMinutes), tone: "emerald" },
+      {
+        label: "Total Jam Mengajar",
+        value: formatDuration(summary.totalMinutes),
+        tone: "emerald",
+      },
       { label: "Slot Jadwal", value: summary.slotCount, tone: "sky" },
       { label: "Mapel Aktif", value: summary.subjectCount, tone: "violet" },
       { label: "Kelas Terjadwal", value: summary.classCount, tone: "amber" },
@@ -204,11 +264,24 @@ async function generateScheduleExcel(
     showColumnFilters: false,
     groupBy: (row) => DAY_LABELS[row.day] ?? row.day,
     columns: [
-      { header: "No", value: (_row, index) => index + 1, width: 7, kind: "number" },
-      { header: "Hari", value: (row) => DAY_LABELS[row.day] ?? row.day, width: 14 },
+      {
+        header: "No",
+        value: (_row, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
+      {
+        header: "Hari",
+        value: (row) => DAY_LABELS[row.day] ?? row.day,
+        width: 14,
+      },
       { header: "Jam Mulai", value: (row) => row.start, width: 14 },
       { header: "Jam Selesai", value: (row) => row.end, width: 14 },
-      { header: "Durasi", value: (row) => formatDuration(row.durationMinutes), width: 16 },
+      {
+        header: "Durasi",
+        value: (row) => formatDuration(row.durationMinutes),
+        width: 16,
+      },
       { header: "Mata Pelajaran", value: (row) => row.subjectName, width: 28 },
       { header: "Kelas", value: (row) => row.className, width: 22 },
       { header: "Tahun Ajaran", value: (row) => row.schoolYearName, width: 18 },
@@ -232,21 +305,39 @@ async function generateSchedulePdf(
     title: "LAPORAN JADWAL MENGAJAR",
     subtitle: "Jadwal Aktif Guru Mata Pelajaran",
   });
-  drawReportPdfPills(doc, [
-    `Guru: ${teacherName}`,
-    `Tahun ajaran: ${summary.schoolYears || "-"}`,
-    `Filter: ${filterLabel}`,
-  ], metaY);
-  drawReportPdfPills(doc, [
-    `Mapel: ${summary.subjectCount}`,
-    `Kelas: ${summary.classCount}`,
-    `Slot: ${summary.slotCount}`,
-    `Total jam: ${formatDuration(summary.totalMinutes)}`,
-    `Hari mengajar: ${summary.dayCount}`,
-  ], metaY + 7);
+  drawReportPdfPills(
+    doc,
+    [
+      `Guru: ${teacherName}`,
+      `Tahun ajaran: ${summary.schoolYears || "-"}`,
+      `Filter: ${filterLabel}`,
+    ],
+    metaY,
+  );
+  drawReportPdfPills(
+    doc,
+    [
+      `Mapel: ${summary.subjectCount}`,
+      `Kelas: ${summary.classCount}`,
+      `Slot: ${summary.slotCount}`,
+      `Total jam: ${formatDuration(summary.totalMinutes)}`,
+      `Hari mengajar: ${summary.dayCount}`,
+    ],
+    metaY + 7,
+  );
 
   autoTable(doc, {
-    head: [["No", "Hari", "Jam", "Durasi", "Mata Pelajaran", "Kelas", "Tahun Ajaran"]],
+    head: [
+      [
+        "No",
+        "Hari",
+        "Jam",
+        "Durasi",
+        "Mata Pelajaran",
+        "Kelas",
+        "Tahun Ajaran",
+      ],
+    ],
     body: rows.map((row, index) => [
       String(index + 1),
       DAY_LABELS[row.day] ?? row.day,
@@ -262,7 +353,9 @@ async function generateSchedulePdf(
   });
 
   drawReportPdfFooter(doc, `Jadwal Mengajar - ${teacherName} - ABSENSI CN`);
-  doc.save(`Jadwal-Mengajar-${toFilenamePart(teacherName)}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  doc.save(
+    `Jadwal-Mengajar-${toFilenamePart(teacherName)}-${new Date().toISOString().slice(0, 10)}.pdf`,
+  );
 }
 
 function normalizeTime(value: string) {
@@ -286,5 +379,10 @@ function formatDuration(totalMinutes: number) {
 }
 
 function toFilenamePart(value: string) {
-  return value.trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "") || "Guru";
+  return (
+    value
+      .trim()
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "") || "Guru"
+  );
 }

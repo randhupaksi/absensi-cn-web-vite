@@ -2,7 +2,13 @@
 
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ReportModalFooter } from "@/features/reports/shared/report-modal-footer";
-import { QuestionBlock, ReportCheckbox, ReportFormatQuestion, ReportRadio, type ReportFormat } from "@/features/reports/shared/report-question-ui";
+import {
+  QuestionBlock,
+  ReportCheckbox,
+  ReportFormatQuestion,
+  ReportRadio,
+  type ReportFormat,
+} from "@/features/reports/shared/report-question-ui";
 import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { applyPdfCreditMetadata } from "@/lib/reports/pdf-metadata";
 import {
@@ -12,15 +18,25 @@ import {
   REPORT_PDF_MARGIN_X,
   REPORT_TABLE_STYLE,
 } from "@/lib/reports/pdf-report-kit";
-import type { StaffSubjectRecap, StaffSubjectRecapStudentRow } from "@/types/staff";
+import type {
+  StaffSubjectRecap,
+  StaffSubjectRecapStudentRow,
+} from "@/types/staff";
 import { ArrowUpDown, Columns3, Database, Printer } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-type ReportTableCell = string | { content: string; colSpan?: number; styles?: Record<string, unknown> };
+type ReportTableCell =
+  | string
+  | { content: string; colSpan?: number; styles?: Record<string, unknown> };
 type SortBy = "name" | "nis" | "h" | "a";
 type Columns = { nis: boolean };
-type HisaRow = StaffSubjectRecapStudentRow & { h: number; i: number; s: number; a: number };
+type HisaRow = StaffSubjectRecapStudentRow & {
+  h: number;
+  i: number;
+  s: number;
+  a: number;
+};
 
 type Props = {
   open: boolean;
@@ -29,7 +45,12 @@ type Props = {
   periodeLabel: string;
 };
 
-export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabel }: Props) {
+export function SubjectRecapReportModal({
+  open,
+  onOpenChange,
+  recap,
+  periodeLabel,
+}: Props) {
   const [format, setFormat] = useState<ReportFormat | null>(null);
   const [columns, setColumns] = useState<Columns>({ nis: true });
   const [sortBy, setSortBy] = useState<SortBy | null>("name");
@@ -69,12 +90,26 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
       });
 
       if (format === "excel") {
-        await generateSubjectRecapExcel(sorted, recap, periodeLabel, getSortLabel(sortBy), columns);
+        await generateSubjectRecapExcel(
+          sorted,
+          recap,
+          periodeLabel,
+          getSortLabel(sortBy),
+          columns,
+        );
       } else {
-        await generateSubjectRecapPdf(sorted, recap, periodeLabel, getSortLabel(sortBy), columns);
+        await generateSubjectRecapPdf(
+          sorted,
+          recap,
+          periodeLabel,
+          getSortLabel(sortBy),
+          columns,
+        );
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"} rekap mapel. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"} rekap mapel. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -91,38 +126,79 @@ export function SubjectRecapReportModal({ open, onOpenChange, recap, periodeLabe
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
-        <QuestionBlock icon={Database} label="Data laporan" answered={Boolean(recap && recap.students.length > 0)}>
+        <QuestionBlock
+          icon={Database}
+          label="Data laporan"
+          answered={Boolean(recap && recap.students.length > 0)}
+        >
           <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
-            <p className="font-semibold text-slate-900">{recap ? `${recap.assignment.subject_name} - ${recap.assignment.class_name}` : "Belum ada mapel dipilih"}</p>
+            <p className="font-semibold text-slate-900">
+              {recap
+                ? `${recap.assignment.subject_name} - ${recap.assignment.class_name}`
+                : "Belum ada mapel dipilih"}
+            </p>
             <p className="mt-1">Periode: {periodeLabel}</p>
-            <p>{recap?.total_pertemuan ?? 0} pertemuan - {recap?.students.length ?? 0} siswa</p>
+            <p>
+              {recap?.total_pertemuan ?? 0} pertemuan -{" "}
+              {recap?.students.length ?? 0} siswa
+            </p>
           </div>
         </QuestionBlock>
 
-        <QuestionBlock icon={Columns3} label="Kolom yang ingin ditampilkan" answered>
+        <QuestionBlock
+          icon={Columns3}
+          label="Kolom yang ingin ditampilkan"
+          answered
+        >
           <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-2">
             <ReportCheckbox checked disabled label="Nama Siswa" badge="wajib" />
-            <ReportCheckbox checked={columns.nis} onChange={(value) => setColumns((current) => ({ ...current, nis: value }))} label="NIS" />
-            <ReportCheckbox checked disabled label="Rekap H I S A" badge="wajib" />
+            <ReportCheckbox
+              checked={columns.nis}
+              onChange={(value) =>
+                setColumns((current) => ({ ...current, nis: value }))
+              }
+              label="NIS"
+            />
+            <ReportCheckbox
+              checked
+              disabled
+              label="Rekap H I S A"
+              badge="wajib"
+            />
           </div>
         </QuestionBlock>
 
-        <QuestionBlock icon={ArrowUpDown} label="Urutkan data berdasarkan" answered={sortBy !== null}>
+        <QuestionBlock
+          icon={ArrowUpDown}
+          label="Urutkan data berdasarkan"
+          answered={sortBy !== null}
+        >
           <div className="grid gap-2 sm:grid-cols-2">
             {sortOptions.map((option) => (
-              <ReportRadio key={option.value} selected={sortBy === option.value} label={option.label} onClick={() => setSortBy(option.value)} />
+              <ReportRadio
+                key={option.value}
+                selected={sortBy === option.value}
+                label={option.label}
+                onClick={() => setSortBy(option.value)}
+              />
             ))}
           </div>
         </QuestionBlock>
 
         <ReportModalFooter
-          canDownload={Boolean(format && recap && recap.students.length > 0 && sortBy)}
+          canDownload={Boolean(
+            format && recap && recap.students.length > 0 && sortBy,
+          )}
           generating={generating}
           onCancel={() => handleClose(false)}
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>
@@ -151,16 +227,24 @@ async function generateSubjectRecapExcel(
     dataSheetName: "Rekap Siswa",
     showColumnFilters: false,
     columns: [
-      { header: "No", value: (_row, index) => index + 1, width: 7, kind: "number" },
+      {
+        header: "No",
+        value: (_row, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
       { header: "Nama Siswa", value: (row) => row.student_name, width: 28 },
-      ...(columns.nis ? [{ header: "NIS", value: (row: HisaRow) => row.nis, width: 17 }] : []),
+      ...(columns.nis
+        ? [{ header: "NIS", value: (row: HisaRow) => row.nis, width: 17 }]
+        : []),
       { header: "H", value: (row) => row.h, width: 8, kind: "attendance" },
       { header: "I", value: (row) => row.i, width: 8, kind: "attendance" },
       { header: "S", value: (row) => row.s, width: 8, kind: "attendance" },
       { header: "A", value: (row) => row.a, width: 8, kind: "attendance" },
       {
         header: "Persentase Hadir",
-        value: (row) => recap.total_pertemuan > 0 ? row.h / recap.total_pertemuan : 0,
+        value: (row) =>
+          recap.total_pertemuan > 0 ? row.h / recap.total_pertemuan : 0,
         width: 19,
         kind: "number",
         numberFormat: "0%",
@@ -186,25 +270,32 @@ async function generateSubjectRecapPdf(
     title: "LAPORAN REKAP MAPEL",
     subtitle: "Rekap Kehadiran Guru Mapel",
   });
-  drawReportPdfPills(doc, [
-    `Mapel: ${recap.assignment.subject_name}`,
-    `Kelas: ${recap.assignment.class_name}`,
-    `Periode: ${periodeLabel}`,
-    `Pertemuan: ${recap.total_pertemuan}`,
-    `Total: ${rows.length} siswa`,
-    `Urutan: ${sortLabel}`,
-  ], metaY);
+  drawReportPdfPills(
+    doc,
+    [
+      `Mapel: ${recap.assignment.subject_name}`,
+      `Kelas: ${recap.assignment.class_name}`,
+      `Periode: ${periodeLabel}`,
+      `Pertemuan: ${recap.total_pertemuan}`,
+      `Total: ${rows.length} siswa`,
+      `Urutan: ${sortLabel}`,
+    ],
+    metaY,
+  );
 
   const head: string[][] = [["No", "Nama Siswa"]];
   if (columns.nis) head[0].push("NIS");
   head[0].push("H", "I", "S", "A");
 
-  const totals = rows.reduce((acc, row) => ({
-    h: acc.h + row.h,
-    i: acc.i + row.i,
-    s: acc.s + row.s,
-    a: acc.a + row.a,
-  }), { h: 0, i: 0, s: 0, a: 0 });
+  const totals = rows.reduce(
+    (acc, row) => ({
+      h: acc.h + row.h,
+      i: acc.i + row.i,
+      s: acc.s + row.s,
+      a: acc.a + row.a,
+    }),
+    { h: 0, i: 0, s: 0, a: 0 },
+  );
 
   const body: ReportTableCell[][] = rows.map((row, index) => {
     const cells: ReportTableCell[] = [String(index + 1), row.student_name];
@@ -219,10 +310,22 @@ async function generateSubjectRecapPdf(
     S: totals.s,
     A: totals.a,
   };
-  body.push(head[0].map((header, index) => ({
-    content: index === 1 ? "Total" : totalByHeader[header] !== undefined ? String(totalByHeader[header]) : "",
-    styles: { fillColor: [236, 253, 245], fontStyle: "bold", halign: "center", textColor: [6, 78, 59] },
-  })));
+  body.push(
+    head[0].map((header, index) => ({
+      content:
+        index === 1
+          ? "Total"
+          : totalByHeader[header] !== undefined
+            ? String(totalByHeader[header])
+            : "",
+      styles: {
+        fillColor: [236, 253, 245],
+        fontStyle: "bold",
+        halign: "center",
+        textColor: [6, 78, 59],
+      },
+    })),
+  );
 
   autoTable(doc, {
     head,
@@ -232,8 +335,13 @@ async function generateSubjectRecapPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Rekap Mapel - ${recap.assignment.subject_name} - ABSENSI CN`);
-  doc.save(`Laporan-Rekap-Mapel-${recap.assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  drawReportPdfFooter(
+    doc,
+    `Rekap Mapel - ${recap.assignment.subject_name} - ABSENSI CN`,
+  );
+  doc.save(
+    `Laporan-Rekap-Mapel-${recap.assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,
+  );
 }
 
 function toHisaRow(row: StaffSubjectRecapStudentRow): HisaRow {

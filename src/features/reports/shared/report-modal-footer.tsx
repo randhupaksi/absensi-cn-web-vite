@@ -16,7 +16,8 @@ type ReportModalFooterProps = {
   format?: ReportFormat | null;
 };
 
-const cancelClassName = "h-10 rounded-[0.8rem] border-slate-200 px-5 text-[0.88rem] text-slate-600";
+const cancelClassName =
+  "h-10 rounded-[0.8rem] border-slate-200 px-5 text-[0.88rem] text-slate-600";
 
 export function ReportModalFooter({
   canDownload,
@@ -29,19 +30,25 @@ export function ReportModalFooter({
   format = "pdf",
 }: ReportModalFooterProps) {
   const DownloadIcon = format === "excel" ? FileSpreadsheet : Printer;
-  const cancel = cancelVariant === "native" ? (
-    <button
-      type="button"
-      className="inline-flex h-10 items-center justify-center rounded-[0.8rem] border border-slate-200 px-5 text-[0.88rem] text-slate-600 transition hover:bg-slate-50"
-      onClick={onCancel}
-    >
-      Batal
-    </button>
-  ) : (
-    <Button type="button" variant="outline" className={cancelClassName} onClick={onCancel}>
-      Batal
-    </Button>
-  );
+  const cancel =
+    cancelVariant === "native" ? (
+      <button
+        type="button"
+        className="inline-flex h-10 items-center justify-center rounded-[0.8rem] border border-slate-200 px-5 text-[0.88rem] text-slate-600 transition hover:bg-slate-50"
+        onClick={onCancel}
+      >
+        Batal
+      </button>
+    ) : (
+      <Button
+        type="button"
+        variant="outline"
+        className={cancelClassName}
+        onClick={onCancel}
+      >
+        Batal
+      </Button>
+    );
 
   return (
     <div className={premiumModalActionsClassName}>

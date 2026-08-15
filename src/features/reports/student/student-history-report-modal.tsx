@@ -53,7 +53,10 @@ export function StudentHistoryReportModal({
   const [generating, setGenerating] = useState(false);
 
   const sortedAttendance = useMemo(
-    () => [...attendance].sort((first, second) => first.attendance_date.localeCompare(second.attendance_date)),
+    () =>
+      [...attendance].sort((first, second) =>
+        first.attendance_date.localeCompare(second.attendance_date),
+      ),
     [attendance],
   );
 
@@ -67,13 +70,25 @@ export function StudentHistoryReportModal({
     setGenerating(true);
     try {
       if (format === "excel") {
-        await generateStudentHistoryExcel(sortedAttendance, profile, stats, columns);
+        await generateStudentHistoryExcel(
+          sortedAttendance,
+          profile,
+          stats,
+          columns,
+        );
       } else {
-        await generateStudentHistoryPdf(sortedAttendance, profile, stats, columns);
+        await generateStudentHistoryPdf(
+          sortedAttendance,
+          profile,
+          stats,
+          columns,
+        );
       }
       onOpenChange(false);
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"} histori absensi. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"} histori absensi. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -91,37 +106,79 @@ export function StudentHistoryReportModal({
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
 
-        <QuestionBlock icon={Database} label="Data laporan" answered={Boolean(profile && sortedAttendance.length)}>
+        <QuestionBlock
+          icon={Database}
+          label="Data laporan"
+          answered={Boolean(profile && sortedAttendance.length)}
+        >
           <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
-            <p className="font-semibold text-slate-900">{profile?.name ?? "Profil siswa belum tersedia"}</p>
-            <p className="mt-1">{profile?.class_name ?? "Kelas"} · {profile?.school_year_name ?? "Tahun ajaran"}</p>
-            <p>{sortedAttendance.length} riwayat absensi akan disusun kronologis per bulan.</p>
+            <p className="font-semibold text-slate-900">
+              {profile?.name ?? "Profil siswa belum tersedia"}
+            </p>
+            <p className="mt-1">
+              {profile?.class_name ?? "Kelas"} ·{" "}
+              {profile?.school_year_name ?? "Tahun ajaran"}
+            </p>
+            <p>
+              {sortedAttendance.length} riwayat absensi akan disusun kronologis
+              per bulan.
+            </p>
           </div>
         </QuestionBlock>
 
         <QuestionBlock icon={Columns3} label="Kolom histori" answered>
           <div className="grid gap-2 min-[520px]:grid-cols-2">
-            <ReportCheckbox checked disabled label="Bulan, tanggal & status" badge="wajib" />
-            <ReportCheckbox checked={columns.checkIn} onChange={(value) => setColumns((current) => ({ ...current, checkIn: value }))} label="Waktu masuk" />
-            <ReportCheckbox checked={columns.validation} onChange={(value) => setColumns((current) => ({ ...current, validation: value }))} label="Status validasi" />
-            <ReportCheckbox checked={columns.notes} onChange={(value) => setColumns((current) => ({ ...current, notes: value }))} label="Catatan absensi" />
+            <ReportCheckbox
+              checked
+              disabled
+              label="Bulan, tanggal & status"
+              badge="wajib"
+            />
+            <ReportCheckbox
+              checked={columns.checkIn}
+              onChange={(value) =>
+                setColumns((current) => ({ ...current, checkIn: value }))
+              }
+              label="Waktu masuk"
+            />
+            <ReportCheckbox
+              checked={columns.validation}
+              onChange={(value) =>
+                setColumns((current) => ({ ...current, validation: value }))
+              }
+              label="Status validasi"
+            />
+            <ReportCheckbox
+              checked={columns.notes}
+              onChange={(value) =>
+                setColumns((current) => ({ ...current, notes: value }))
+              }
+              label="Catatan absensi"
+            />
           </div>
         </QuestionBlock>
 
         <QuestionBlock icon={CalendarDays} label="Susunan laporan" answered>
           <p className="rounded-[0.9rem] border border-emerald-100 bg-white/80 px-4 py-3 text-sm leading-6 text-slate-600">
-            Ringkasan identitas dan persentase kehadiran ditampilkan lebih dahulu, lalu histori diurutkan dari bulan terlama ke terbaru.
+            Ringkasan identitas dan persentase kehadiran ditampilkan lebih
+            dahulu, lalu histori diurutkan dari bulan terlama ke terbaru.
           </p>
         </QuestionBlock>
 
         <ReportModalFooter
-          canDownload={Boolean(format && profile && sortedAttendance.length > 0)}
+          canDownload={Boolean(
+            format && profile && sortedAttendance.length > 0,
+          )}
           generating={generating}
           onCancel={() => onOpenChange(false)}
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>
@@ -149,24 +206,97 @@ async function generateStudentHistoryExcel(
       { label: "Periode", value: getPeriodLabel(attendance) },
     ],
     metrics: [
-      { label: "Total absensi", value: stats?.total_attendance ?? attendance.length, tone: "emerald" },
-      { label: "Hadir", value: stats?.present ?? countStatus(attendance, "hadir"), tone: "emerald" },
-      { label: "Izin", value: stats?.permission ?? countStatus(attendance, "izin"), tone: "sky" },
-      { label: "Sakit", value: stats?.sick ?? countStatus(attendance, "sakit"), tone: "violet" },
-      { label: "Alfa", value: stats?.alpha ?? countStatus(attendance, "alfa"), tone: "rose" },
-      { label: "Kehadiran", value: `${Math.round(rate * 100)}%`, tone: "amber" },
+      {
+        label: "Total absensi",
+        value: stats?.total_attendance ?? attendance.length,
+        tone: "emerald",
+      },
+      {
+        label: "Hadir",
+        value: stats?.present ?? countStatus(attendance, "hadir"),
+        tone: "emerald",
+      },
+      {
+        label: "Izin",
+        value: stats?.permission ?? countStatus(attendance, "izin"),
+        tone: "sky",
+      },
+      {
+        label: "Sakit",
+        value: stats?.sick ?? countStatus(attendance, "sakit"),
+        tone: "violet",
+      },
+      {
+        label: "Alfa",
+        value: stats?.alpha ?? countStatus(attendance, "alfa"),
+        tone: "rose",
+      },
+      {
+        label: "Kehadiran",
+        value: `${Math.round(rate * 100)}%`,
+        tone: "amber",
+      },
     ],
     rows: attendance,
     dataSheetName: "Histori per Bulan",
     includeStatisticsSheet: false,
     columns: [
-      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
-      { header: "Bulan", value: (record) => formatMonth(record.attendance_date), width: 22 },
-      { header: "Tanggal", value: (record) => toDate(record.attendance_date), width: 16, kind: "date" },
-      { header: "Status", value: (record) => formatStatus(record.status), width: 14, kind: "status" },
-      ...(columns.checkIn ? [{ header: "Absen Masuk", value: (record: StaffAttendanceRecord) => toDateTime(record.check_in_at), width: 18, kind: "date" as const, numberFormat: "hh:mm" }] : []),
-      ...(columns.validation ? [{ header: "Validasi", value: (record: StaffAttendanceRecord) => getValidationLabel(record), width: 22, kind: "status" as const }] : []),
-      ...(columns.notes ? [{ header: "Catatan", value: (record: StaffAttendanceRecord) => record.notes || record.verification_note || "-", width: 42 }] : []),
+      {
+        header: "No",
+        value: (_record, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
+      {
+        header: "Bulan",
+        value: (record) => formatMonth(record.attendance_date),
+        width: 22,
+      },
+      {
+        header: "Tanggal",
+        value: (record) => toDate(record.attendance_date),
+        width: 16,
+        kind: "date",
+      },
+      {
+        header: "Status",
+        value: (record) => formatStatus(record.status),
+        width: 14,
+        kind: "status",
+      },
+      ...(columns.checkIn
+        ? [
+            {
+              header: "Absen Masuk",
+              value: (record: StaffAttendanceRecord) =>
+                toDateTime(record.check_in_at),
+              width: 18,
+              kind: "date" as const,
+              numberFormat: "hh:mm",
+            },
+          ]
+        : []),
+      ...(columns.validation
+        ? [
+            {
+              header: "Validasi",
+              value: (record: StaffAttendanceRecord) =>
+                getValidationLabel(record),
+              width: 22,
+              kind: "status" as const,
+            },
+          ]
+        : []),
+      ...(columns.notes
+        ? [
+            {
+              header: "Catatan",
+              value: (record: StaffAttendanceRecord) =>
+                record.notes || record.verification_note || "-",
+              width: 42,
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -186,13 +316,17 @@ async function generateStudentHistoryPdf(
     title: "LAPORAN HISTORI ABSENSI",
     subtitle: "Rekap Kehadiran Siswa",
   });
-  drawReportPdfPills(doc, [
-    `Siswa: ${profile.name}`,
-    `Kelas: ${profile.class_name ?? "-"}`,
-    `Periode: ${getPeriodLabel(attendance)}`,
-    `Kehadiran: ${Math.round(getAttendanceRate(stats) * 100)}%`,
-    `Total: ${attendance.length} data`,
-  ], metaY);
+  drawReportPdfPills(
+    doc,
+    [
+      `Siswa: ${profile.name}`,
+      `Kelas: ${profile.class_name ?? "-"}`,
+      `Periode: ${getPeriodLabel(attendance)}`,
+      `Kehadiran: ${Math.round(getAttendanceRate(stats) * 100)}%`,
+      `Total: ${attendance.length} data`,
+    ],
+    metaY,
+  );
 
   const head = [["No", "Bulan", "Tanggal", "Status"]];
   if (columns.checkIn) head[0].push("Absen Masuk");
@@ -200,10 +334,16 @@ async function generateStudentHistoryPdf(
   if (columns.notes) head[0].push("Catatan");
 
   const body = attendance.map((record, index) => {
-    const row = [String(index + 1), formatMonth(record.attendance_date), formatDate(record.attendance_date), formatStatus(record.status)];
+    const row = [
+      String(index + 1),
+      formatMonth(record.attendance_date),
+      formatDate(record.attendance_date),
+      formatStatus(record.status),
+    ];
     if (columns.checkIn) row.push(formatTime(record.check_in_at));
     if (columns.validation) row.push(getValidationLabel(record));
-    if (columns.notes) row.push(record.notes || record.verification_note || "-");
+    if (columns.notes)
+      row.push(record.notes || record.verification_note || "-");
     return row;
   });
 
@@ -216,7 +356,9 @@ async function generateStudentHistoryPdf(
   });
 
   drawReportPdfFooter(doc, `Histori Absensi ${profile.name} - ABSENSI CN`);
-  doc.save(`Histori-Absensi-${slugify(profile.name)}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  doc.save(
+    `Histori-Absensi-${slugify(profile.name)}-${new Date().toISOString().slice(0, 10)}.pdf`,
+  );
 }
 
 function getAttendanceRate(stats?: StudentStats) {
@@ -225,7 +367,8 @@ function getAttendanceRate(stats?: StudentStats) {
 }
 
 function countStatus(attendance: StaffAttendanceRecord[], status: string) {
-  return attendance.filter((record) => record.status.toLowerCase() === status).length;
+  return attendance.filter((record) => record.status.toLowerCase() === status)
+    .length;
 }
 
 function getPeriodLabel(attendance: StaffAttendanceRecord[]) {
@@ -235,26 +378,40 @@ function getPeriodLabel(attendance: StaffAttendanceRecord[]) {
 
 function getValidationLabel(record: StaffAttendanceRecord) {
   if (record.verified_at) return "Sudah direview";
-  return record.status.toLowerCase() === "hadir" ? "Terkirim" : "Menunggu review";
+  return record.status.toLowerCase() === "hadir"
+    ? "Terkirim"
+    : "Menunggu review";
 }
 
 function formatStatus(value: string) {
-  return value ? `${value.slice(0, 1).toUpperCase()}${value.slice(1).toLowerCase()}` : "-";
+  return value
+    ? `${value.slice(0, 1).toUpperCase()}${value.slice(1).toLowerCase()}`
+    : "-";
 }
 
 function formatMonth(value: string) {
   const date = toDate(value);
-  return date ? date.toLocaleDateString("id-ID", { month: "long", year: "numeric" }) : "-";
+  return date
+    ? date.toLocaleDateString("id-ID", { month: "long", year: "numeric" })
+    : "-";
 }
 
 function formatDate(value: string) {
   const date = toDate(value);
-  return date ? date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "-";
+  return date
+    ? date.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
 }
 
 function formatTime(value?: string) {
   const date = toDateTime(value);
-  return date ? date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "-";
+  return date
+    ? date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+    : "-";
 }
 
 function toDate(value?: string) {
@@ -270,5 +427,10 @@ function toDateTime(value?: string) {
 }
 
 function slugify(value: string) {
-  return value.trim().replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "") || "Siswa";
+  return (
+    value
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9-]/g, "") || "Siswa"
+  );
 }

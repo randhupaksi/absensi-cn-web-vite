@@ -177,7 +177,8 @@ async function generateBKAbsensiPdf(
     if (columns.kelas) row.push(r.class_name || "-");
     if (columns.tanggal) row.push(formatDate(r.attendance_date));
     if (columns.checkIn) row.push(formatTime(r.check_in_at));
-    if (columns.status) row.push(STATUS_LABEL[r.status.toLowerCase()] ?? r.status);
+    if (columns.status)
+      row.push(STATUS_LABEL[r.status.toLowerCase()] ?? r.status);
     if (columns.diverifikasi) row.push(r.verified_at ? "Sudah" : "Belum");
     if (columns.catatan) row.push(r.verification_note || r.notes || "-");
     return row;
@@ -214,15 +215,84 @@ async function generateBKAbsensiExcel(
     rows: records,
     dataSheetName: "Detail Absensi",
     columns: [
-      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
-      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      {
+        header: "No",
+        value: (_record, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
+      {
+        header: "Nama Siswa",
+        value: (record) => record.student_name,
+        width: 28,
+      },
       { header: "NIS", value: (record) => record.nis, width: 17 },
-      ...(columns.kelas ? [{ header: "Kelas", value: (record: StaffAttendanceRecord) => record.class_name, width: 24 }] : []),
-      ...(columns.tanggal ? [{ header: "Tanggal", value: (record: StaffAttendanceRecord) => record.attendance_date ? new Date(`${record.attendance_date}T00:00:00`) : null, width: 17, kind: "date" as const }] : []),
-      ...(columns.checkIn ? [{ header: "Absen Masuk", value: (record: StaffAttendanceRecord) => record.check_in_at ? new Date(record.check_in_at) : null, width: 20, kind: "date" as const, numberFormat: "hh:mm" }] : []),
-      ...(columns.status ? [{ header: "Status", value: (record: StaffAttendanceRecord) => STATUS_LABEL[record.status.toLowerCase()] ?? record.status, width: 15, kind: "status" as const }] : []),
-      ...(columns.diverifikasi ? [{ header: "Verifikasi", value: (record: StaffAttendanceRecord) => record.verified_at ? "Sudah" : "Belum", width: 16, kind: "status" as const }] : []),
-      ...(columns.catatan ? [{ header: "Catatan", value: (record: StaffAttendanceRecord) => record.verification_note || record.notes, width: 42 }] : []),
+      ...(columns.kelas
+        ? [
+            {
+              header: "Kelas",
+              value: (record: StaffAttendanceRecord) => record.class_name,
+              width: 24,
+            },
+          ]
+        : []),
+      ...(columns.tanggal
+        ? [
+            {
+              header: "Tanggal",
+              value: (record: StaffAttendanceRecord) =>
+                record.attendance_date
+                  ? new Date(`${record.attendance_date}T00:00:00`)
+                  : null,
+              width: 17,
+              kind: "date" as const,
+            },
+          ]
+        : []),
+      ...(columns.checkIn
+        ? [
+            {
+              header: "Absen Masuk",
+              value: (record: StaffAttendanceRecord) =>
+                record.check_in_at ? new Date(record.check_in_at) : null,
+              width: 20,
+              kind: "date" as const,
+              numberFormat: "hh:mm",
+            },
+          ]
+        : []),
+      ...(columns.status
+        ? [
+            {
+              header: "Status",
+              value: (record: StaffAttendanceRecord) =>
+                STATUS_LABEL[record.status.toLowerCase()] ?? record.status,
+              width: 15,
+              kind: "status" as const,
+            },
+          ]
+        : []),
+      ...(columns.diverifikasi
+        ? [
+            {
+              header: "Verifikasi",
+              value: (record: StaffAttendanceRecord) =>
+                record.verified_at ? "Sudah" : "Belum",
+              width: 16,
+              kind: "status" as const,
+            },
+          ]
+        : []),
+      ...(columns.catatan
+        ? [
+            {
+              header: "Catatan",
+              value: (record: StaffAttendanceRecord) =>
+                record.verification_note || record.notes,
+              width: 42,
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -239,7 +309,10 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
   const [format, setFormat] = useState<ReportFormat | null>(null);
   const [dateMode, setDateMode] = useState<DateMode | null>(null);
   const [specificDate, setSpecificDate] = useState("");
-  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: undefined,
+    to: undefined,
+  });
   const [classFilter, setClassFilter] = useState<ClassFilter | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
@@ -257,21 +330,25 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
   const [rangeFromOpen, setRangeFromOpen] = useState(false);
   const [rangeToOpen, setRangeToOpen] = useState(false);
 
-  const dateValue = dateMode === "today"
-    ? todayStr()
-    : dateMode === "specific" && specificDate
-    ? specificDate
-    : "";
+  const dateValue =
+    dateMode === "today"
+      ? todayStr()
+      : dateMode === "specific" && specificDate
+        ? specificDate
+        : "";
 
   const rangeValid =
-    !dateRange.from || !dateRange.to || dateRange.from.getTime() <= dateRange.to.getTime();
+    !dateRange.from ||
+    !dateRange.to ||
+    dateRange.from.getTime() <= dateRange.to.getTime();
 
   const q1Answered =
     dateMode === "today" ||
     (dateMode === "specific" && specificDate !== "") ||
     (dateMode === "range" && !!dateRange.from && !!dateRange.to && rangeValid);
   const q2FullyAnswered =
-    classFilter === "all" || (classFilter === "specific" && selectedClassId !== null);
+    classFilter === "all" ||
+    (classFilter === "specific" && selectedClassId !== null);
   const showQ2 = q1Answered;
   const showQ3 = q1Answered && q2FullyAnswered;
   const showQ4 = showQ3 && statusFilter !== null;
@@ -293,7 +370,14 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
     setClassFilter(null);
     setSelectedClassId(null);
     setStatusFilter(null);
-    setColumns({ kelas: true, tanggal: true, checkIn: true, status: true, diverifikasi: false, catatan: false });
+    setColumns({
+      kelas: true,
+      tanggal: true,
+      checkIn: true,
+      status: true,
+      diverifikasi: false,
+      catatan: false,
+    });
     setSortBy(null);
   }
 
@@ -309,7 +393,8 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
       const overview = await getBKAttendanceOverview({
         date: dateMode === "range" ? "" : dateValue,
         status: statusFilter === "Semua" ? "" : (statusFilter ?? ""),
-        class_id: classFilter === "specific" && selectedClassId ? selectedClassId : "",
+        class_id:
+          classFilter === "specific" && selectedClassId ? selectedClassId : "",
       });
 
       let records = overview.records ?? [];
@@ -318,7 +403,9 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
       if (dateMode === "range" && dateRange.from && dateRange.to) {
         const fromStr = toDateInputValue(dateRange.from);
         const toStr = toDateInputValue(dateRange.to);
-        records = records.filter((r) => r.attendance_date >= fromStr && r.attendance_date <= toStr);
+        records = records.filter(
+          (r) => r.attendance_date >= fromStr && r.attendance_date <= toStr,
+        );
       }
 
       if (records.length === 0) {
@@ -327,9 +414,11 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
       }
 
       const sorted = [...records].sort((a, b) => {
-        if (sortBy === "name") return a.student_name.localeCompare(b.student_name, "id");
+        if (sortBy === "name")
+          return a.student_name.localeCompare(b.student_name, "id");
         if (sortBy === "nis") return a.nis.localeCompare(b.nis, "id");
-        if (sortBy === "class") return (a.class_name || "").localeCompare(b.class_name || "", "id");
+        if (sortBy === "class")
+          return (a.class_name || "").localeCompare(b.class_name || "", "id");
         if (sortBy === "checkin") {
           return (a.check_in_at ?? "").localeCompare(b.check_in_at ?? "");
         }
@@ -337,21 +426,29 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
       });
 
       const meta = {
-        tanggal: dateMode === "today"
-          ? todayDisplay()
-          : dateMode === "specific" && specificDate
-          ? formatDisplayDate(specificDate)
-          : dateMode === "range" && dateRange.from && dateRange.to
-          ? `${formatDisplayDate(toDateInputValue(dateRange.from))} - ${formatDisplayDate(toDateInputValue(dateRange.to))}`
-          : "Semua",
-        kelas: classFilter === "specific" && selectedClass
-          ? selectedClass.class_name
-          : "Semua Kelas",
-        status: statusFilter ? (STATUS_LABEL[statusFilter] ?? "Semua Status") : "Semua Status",
+        tanggal:
+          dateMode === "today"
+            ? todayDisplay()
+            : dateMode === "specific" && specificDate
+              ? formatDisplayDate(specificDate)
+              : dateMode === "range" && dateRange.from && dateRange.to
+                ? `${formatDisplayDate(toDateInputValue(dateRange.from))} - ${formatDisplayDate(toDateInputValue(dateRange.to))}`
+                : "Semua",
+        kelas:
+          classFilter === "specific" && selectedClass
+            ? selectedClass.class_name
+            : "Semua Kelas",
+        status: statusFilter
+          ? (STATUS_LABEL[statusFilter] ?? "Semua Status")
+          : "Semua Status",
         urutan:
-          sortBy === "name" ? "Nama (A–Z)" :
-          sortBy === "nis" ? "NIS" :
-          sortBy === "class" ? "Kelas" : "Waktu Absen Masuk",
+          sortBy === "name"
+            ? "Nama (A–Z)"
+            : sortBy === "nis"
+              ? "NIS"
+              : sortBy === "class"
+                ? "Kelas"
+                : "Waktu Absen Masuk",
       };
 
       if (format === "excel") {
@@ -360,7 +457,9 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
         await generateBKAbsensiPdf(sorted, meta, columns);
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -378,7 +477,11 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 - Tanggal */}
-        <QuestionBlock icon={CalendarClock} label="Pilih tanggal absensi" answered={q1Answered}>
+        <QuestionBlock
+          icon={CalendarClock}
+          label="Pilih tanggal absensi"
+          answered={q1Answered}
+        >
           <div className="grid gap-2 sm:grid-cols-3">
             <ReportRadio
               selected={dateMode === "today"}
@@ -436,7 +539,10 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                     <p className="mb-1.5 text-[0.75rem] font-semibold uppercase tracking-wide text-slate-500">
                       Mulai tanggal
                     </p>
-                    <Popover open={rangeFromOpen} onOpenChange={setRangeFromOpen}>
+                    <Popover
+                      open={rangeFromOpen}
+                      onOpenChange={setRangeFromOpen}
+                    >
                       <PopoverTrigger
                         render={<Button type="button" variant="outline" />}
                         className={cn(
@@ -445,20 +551,27 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                         )}
                       >
                         <CalendarClock className="mr-2 size-4 shrink-0 text-emerald-600" />
-                        {dateRange.from ? formatDisplayDate(toDateInputValue(dateRange.from)) : "dd/mm/yyyy"}
+                        {dateRange.from
+                          ? formatDisplayDate(toDateInputValue(dateRange.from))
+                          : "dd/mm/yyyy"}
                       </PopoverTrigger>
                       <PopoverContent
                         sideOffset={10}
                         className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
                       >
                         <PopoverHeader className="px-2 pb-2 pt-1">
-                          <PopoverTitle className="text-sm font-semibold text-slate-900">Mulai tanggal</PopoverTitle>
+                          <PopoverTitle className="text-sm font-semibold text-slate-900">
+                            Mulai tanggal
+                          </PopoverTitle>
                         </PopoverHeader>
                         <Calendar
                           mode="single"
                           selected={dateRange.from}
                           onSelect={(date) => {
-                            setDateRange((prev) => ({ ...prev, from: date ?? undefined }));
+                            setDateRange((prev) => ({
+                              ...prev,
+                              from: date ?? undefined,
+                            }));
                             setRangeFromOpen(false);
                           }}
                           locale={localeID}
@@ -485,20 +598,27 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                         )}
                       >
                         <CalendarClock className="mr-2 size-4 shrink-0 text-emerald-600" />
-                        {dateRange.to ? formatDisplayDate(toDateInputValue(dateRange.to)) : "dd/mm/yyyy"}
+                        {dateRange.to
+                          ? formatDisplayDate(toDateInputValue(dateRange.to))
+                          : "dd/mm/yyyy"}
                       </PopoverTrigger>
                       <PopoverContent
                         sideOffset={10}
                         className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
                       >
                         <PopoverHeader className="px-2 pb-2 pt-1">
-                          <PopoverTitle className="text-sm font-semibold text-slate-900">Sampai tanggal</PopoverTitle>
+                          <PopoverTitle className="text-sm font-semibold text-slate-900">
+                            Sampai tanggal
+                          </PopoverTitle>
                         </PopoverHeader>
                         <Calendar
                           mode="single"
                           selected={dateRange.to}
                           onSelect={(date) => {
-                            setDateRange((prev) => ({ ...prev, to: date ?? undefined }));
+                            setDateRange((prev) => ({
+                              ...prev,
+                              to: date ?? undefined,
+                            }));
                             setRangeToOpen(false);
                           }}
                           locale={localeID}
@@ -513,16 +633,20 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                 </div>
 
                 {/* Validation error */}
-                {dateRange.from && dateRange.to && dateRange.from > dateRange.to && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-2 flex items-center gap-1.5 text-[0.8rem] font-medium text-rose-600"
-                  >
-                    <span className="inline-flex size-4 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold">!</span>
-                    Tanggal mulai tidak boleh lebih dari tanggal akhir.
-                  </motion.p>
-                )}
+                {dateRange.from &&
+                  dateRange.to &&
+                  dateRange.from > dateRange.to && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 flex items-center gap-1.5 text-[0.8rem] font-medium text-rose-600"
+                    >
+                      <span className="inline-flex size-4 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold">
+                        !
+                      </span>
+                      Tanggal mulai tidak boleh lebih dari tanggal akhir.
+                    </motion.p>
+                  )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -538,7 +662,10 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                 className="overflow-hidden"
               >
                 <div className="mt-3">
-                  <Popover open={specificDateOpen} onOpenChange={setSpecificDateOpen}>
+                  <Popover
+                    open={specificDateOpen}
+                    onOpenChange={setSpecificDateOpen}
+                  >
                     <PopoverTrigger
                       render={<Button type="button" variant="outline" />}
                       className={cn(
@@ -547,7 +674,9 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                       )}
                     >
                       <CalendarClock className="mr-2 size-4 shrink-0 text-emerald-600" />
-                      {specificDate ? formatDisplayDate(specificDate) : "Pilih tanggal absensi"}
+                      {specificDate
+                        ? formatDisplayDate(specificDate)
+                        : "Pilih tanggal absensi"}
                     </PopoverTrigger>
                     <PopoverContent
                       sideOffset={10}
@@ -594,18 +723,32 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q2FullyAnswered}>
+              <QuestionBlock
+                icon={GraduationCap}
+                label="Filter per kelas"
+                answered={q2FullyAnswered}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
                   <ReportRadio
                     selected={classFilter === "all"}
                     label="Semua Kelas"
                     badge={`${classes.length} kelas`}
-                    onClick={() => { setClassFilter("all"); setSelectedClassId(null); setStatusFilter(null); setSortBy(null); }}
+                    onClick={() => {
+                      setClassFilter("all");
+                      setSelectedClassId(null);
+                      setStatusFilter(null);
+                      setSortBy(null);
+                    }}
                   />
                   <ReportRadio
                     selected={classFilter === "specific"}
                     label="Per Kelas Tertentu"
-                    onClick={() => { setClassFilter("specific"); setSelectedClassId(null); setStatusFilter(null); setSortBy(null); }}
+                    onClick={() => {
+                      setClassFilter("specific");
+                      setSelectedClassId(null);
+                      setStatusFilter(null);
+                      setSortBy(null);
+                    }}
                   />
                 </div>
                 <AnimatePresence>
@@ -626,7 +769,11 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
                           <button
                             key={cls.class_id}
                             type="button"
-                            onClick={() => { setSelectedClassId(cls.class_id); setStatusFilter(null); setSortBy(null); }}
+                            onClick={() => {
+                              setSelectedClassId(cls.class_id);
+                              setStatusFilter(null);
+                              setSortBy(null);
+                            }}
                             className={cn(
                               "rounded-full border px-4 py-2 text-sm font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
                               selectedClassId === cls.class_id
@@ -656,14 +803,21 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={Activity} label="Filter status kehadiran" answered={statusFilter !== null}>
+              <QuestionBlock
+                icon={Activity}
+                label="Filter status kehadiran"
+                answered={statusFilter !== null}
+              >
                 <div className="grid gap-2 sm:grid-cols-3">
                   {STATUS_OPTIONS.map((opt) => (
                     <ReportRadio
                       key={opt.value}
                       selected={statusFilter === opt.value}
                       label={opt.label}
-                      onClick={() => { setStatusFilter(opt.value); setSortBy(null); }}
+                      onClick={() => {
+                        setStatusFilter(opt.value);
+                        setSortBy(null);
+                      }}
                     />
                   ))}
                 </div>
@@ -682,15 +836,50 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={ListChecks} label="Kolom yang ingin ditampilkan" answered>
+              <QuestionBlock
+                icon={ListChecks}
+                label="Kolom yang ingin ditampilkan"
+                answered
+              >
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama & NIS" badge="wajib" />
-                  <ReportCheckbox checked={columns.kelas} onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))} label="Kelas" />
-                  <ReportCheckbox checked={columns.tanggal} onChange={(v) => setColumns((c) => ({ ...c, tanggal: v }))} label="Tanggal" />
-                  <ReportCheckbox checked={columns.checkIn} onChange={(v) => setColumns((c) => ({ ...c, checkIn: v }))} label="Jam Absen Masuk" />
-                  <ReportCheckbox checked={columns.status} onChange={(v) => setColumns((c) => ({ ...c, status: v }))} label="Status" />
-                  <ReportCheckbox checked={columns.diverifikasi} onChange={(v) => setColumns((c) => ({ ...c, diverifikasi: v }))} label="Diverifikasi" />
-                  <ReportCheckbox checked={columns.catatan} onChange={(v) => setColumns((c) => ({ ...c, catatan: v }))} label="Catatan" />
+                  <ReportCheckbox
+                    checked
+                    disabled
+                    label="Nama & NIS"
+                    badge="wajib"
+                  />
+                  <ReportCheckbox
+                    checked={columns.kelas}
+                    onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))}
+                    label="Kelas"
+                  />
+                  <ReportCheckbox
+                    checked={columns.tanggal}
+                    onChange={(v) => setColumns((c) => ({ ...c, tanggal: v }))}
+                    label="Tanggal"
+                  />
+                  <ReportCheckbox
+                    checked={columns.checkIn}
+                    onChange={(v) => setColumns((c) => ({ ...c, checkIn: v }))}
+                    label="Jam Absen Masuk"
+                  />
+                  <ReportCheckbox
+                    checked={columns.status}
+                    onChange={(v) => setColumns((c) => ({ ...c, status: v }))}
+                    label="Status"
+                  />
+                  <ReportCheckbox
+                    checked={columns.diverifikasi}
+                    onChange={(v) =>
+                      setColumns((c) => ({ ...c, diverifikasi: v }))
+                    }
+                    label="Diverifikasi"
+                  />
+                  <ReportCheckbox
+                    checked={columns.catatan}
+                    onChange={(v) => setColumns((c) => ({ ...c, catatan: v }))}
+                    label="Catatan"
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -707,12 +896,32 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut", delay: 0.09 }}
             >
-              <QuestionBlock icon={ArrowUpDown} label="Urutkan data berdasarkan" answered={sortBy !== null}>
+              <QuestionBlock
+                icon={ArrowUpDown}
+                label="Urutkan data berdasarkan"
+                answered={sortBy !== null}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <ReportRadio selected={sortBy === "name"} label="Nama (A–Z)" onClick={() => setSortBy("name")} />
-                  <ReportRadio selected={sortBy === "nis"} label="NIS" onClick={() => setSortBy("nis")} />
-                  <ReportRadio selected={sortBy === "class"} label="Kelas" onClick={() => setSortBy("class")} />
-                  <ReportRadio selected={sortBy === "checkin"} label="Waktu Absen Masuk" onClick={() => setSortBy("checkin")} />
+                  <ReportRadio
+                    selected={sortBy === "name"}
+                    label="Nama (A–Z)"
+                    onClick={() => setSortBy("name")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "nis"}
+                    label="NIS"
+                    onClick={() => setSortBy("nis")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "class"}
+                    label="Kelas"
+                    onClick={() => setSortBy("class")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "checkin"}
+                    label="Waktu Absen Masuk"
+                    onClick={() => setSortBy("checkin")}
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -727,7 +936,11 @@ export function BKAbsensiReportModal({ open, onOpenChange, classes }: Props) {
           cancelVariant="native"
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>

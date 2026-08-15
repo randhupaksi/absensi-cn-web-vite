@@ -125,8 +125,10 @@ async function generateBKPengajuanPdf(
     if (columns.kelas) row.push(r.class_name || "-");
     if (columns.tipe) row.push(TYPE_LABEL[r.type] ?? r.type);
     if (columns.alasan) row.push(truncate(r.reason, 80));
-    if (columns.status) row.push(STATUS_LABEL[normalizeStatus(r.status)] ?? r.status);
-    if (columns.catatanReview) row.push(r.review_note ? truncate(r.review_note, 80) : "-");
+    if (columns.status)
+      row.push(STATUS_LABEL[normalizeStatus(r.status)] ?? r.status);
+    if (columns.catatanReview)
+      row.push(r.review_note ? truncate(r.review_note, 80) : "-");
     if (columns.waktu) row.push(formatDateTime(r.created_at));
     return row;
   });
@@ -162,15 +164,79 @@ async function generateBKPengajuanExcel(
     rows: records,
     dataSheetName: "Data Pengajuan",
     columns: [
-      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
-      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
+      {
+        header: "No",
+        value: (_record, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
+      {
+        header: "Nama Siswa",
+        value: (record) => record.student_name,
+        width: 28,
+      },
       { header: "NIS", value: (record) => record.nis, width: 17 },
-      ...(columns.kelas ? [{ header: "Kelas", value: (record: StaffSubmission) => record.class_name, width: 24 }] : []),
-      ...(columns.tipe ? [{ header: "Tipe", value: (record: StaffSubmission) => TYPE_LABEL[record.type] ?? record.type, width: 16, kind: "status" as const }] : []),
-      ...(columns.alasan ? [{ header: "Alasan", value: (record: StaffSubmission) => record.reason, width: 42 }] : []),
-      ...(columns.status ? [{ header: "Status", value: (record: StaffSubmission) => STATUS_LABEL[normalizeStatus(record.status)] ?? record.status, width: 16, kind: "status" as const }] : []),
-      ...(columns.catatanReview ? [{ header: "Catatan Review", value: (record: StaffSubmission) => record.review_note, width: 38 }] : []),
-      ...(columns.waktu ? [{ header: "Waktu Pengajuan", value: (record: StaffSubmission) => record.created_at ? new Date(record.created_at) : null, width: 22, kind: "date" as const, numberFormat: "dd mmm yyyy hh:mm" }] : []),
+      ...(columns.kelas
+        ? [
+            {
+              header: "Kelas",
+              value: (record: StaffSubmission) => record.class_name,
+              width: 24,
+            },
+          ]
+        : []),
+      ...(columns.tipe
+        ? [
+            {
+              header: "Tipe",
+              value: (record: StaffSubmission) =>
+                TYPE_LABEL[record.type] ?? record.type,
+              width: 16,
+              kind: "status" as const,
+            },
+          ]
+        : []),
+      ...(columns.alasan
+        ? [
+            {
+              header: "Alasan",
+              value: (record: StaffSubmission) => record.reason,
+              width: 42,
+            },
+          ]
+        : []),
+      ...(columns.status
+        ? [
+            {
+              header: "Status",
+              value: (record: StaffSubmission) =>
+                STATUS_LABEL[normalizeStatus(record.status)] ?? record.status,
+              width: 16,
+              kind: "status" as const,
+            },
+          ]
+        : []),
+      ...(columns.catatanReview
+        ? [
+            {
+              header: "Catatan Review",
+              value: (record: StaffSubmission) => record.review_note,
+              width: 38,
+            },
+          ]
+        : []),
+      ...(columns.waktu
+        ? [
+            {
+              header: "Waktu Pengajuan",
+              value: (record: StaffSubmission) =>
+                record.created_at ? new Date(record.created_at) : null,
+              width: 22,
+              kind: "date" as const,
+              numberFormat: "dd mmm yyyy hh:mm",
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -201,7 +267,8 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
   const [generating, setGenerating] = useState(false);
 
   const q1FullyAnswered =
-    classFilter === "all" || (classFilter === "specific" && selectedClassId !== null);
+    classFilter === "all" ||
+    (classFilter === "specific" && selectedClassId !== null);
   const showQ2 = q1FullyAnswered;
   const showQ3 = q1FullyAnswered && typeFilter !== null;
   const showQ4 = showQ3 && statusFilter !== null;
@@ -218,7 +285,14 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
     setSelectedClassId(null);
     setTypeFilter(null);
     setStatusFilter(null);
-    setColumns({ kelas: true, tipe: true, alasan: true, status: true, catatanReview: false, waktu: true });
+    setColumns({
+      kelas: true,
+      tipe: true,
+      alasan: true,
+      status: true,
+      catatanReview: false,
+      waktu: true,
+    });
     setSortBy(null);
   }
 
@@ -232,7 +306,8 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
     setGenerating(true);
     try {
       const overview = await getBKSubmissionsOverview({
-        class_id: classFilter === "specific" && selectedClassId ? selectedClassId : "",
+        class_id:
+          classFilter === "specific" && selectedClassId ? selectedClassId : "",
         type: typeFilter === "Semua" ? "" : (typeFilter ?? ""),
         status: statusFilter === "Semua" ? "" : (statusFilter ?? ""),
       });
@@ -244,36 +319,55 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
       }
 
       const TYPE_SORT_ORDER: Record<string, number> = { IZIN: 0, SAKIT: 1 };
-      const STATUS_SORT_ORDER: Record<string, number> = { menunggu: 0, diterima: 1, ditolak: 2 };
+      const STATUS_SORT_ORDER: Record<string, number> = {
+        menunggu: 0,
+        diterima: 1,
+        ditolak: 2,
+      };
 
       const sorted = [...records].sort((a, b) => {
-        if (sortBy === "name") return a.student_name.localeCompare(b.student_name, "id");
+        if (sortBy === "name")
+          return a.student_name.localeCompare(b.student_name, "id");
         if (sortBy === "nis") return a.nis.localeCompare(b.nis, "id");
         if (sortBy === "type") {
-          return (TYPE_SORT_ORDER[a.type] ?? 9) - (TYPE_SORT_ORDER[b.type] ?? 9);
+          return (
+            (TYPE_SORT_ORDER[a.type] ?? 9) - (TYPE_SORT_ORDER[b.type] ?? 9)
+          );
         }
         if (sortBy === "status") {
-          return (STATUS_SORT_ORDER[normalizeStatus(a.status)] ?? 9) - (STATUS_SORT_ORDER[normalizeStatus(b.status)] ?? 9);
+          return (
+            (STATUS_SORT_ORDER[normalizeStatus(a.status)] ?? 9) -
+            (STATUS_SORT_ORDER[normalizeStatus(b.status)] ?? 9)
+          );
         }
-        if (sortBy === "date_desc") return (b.created_at ?? "").localeCompare(a.created_at ?? "");
+        if (sortBy === "date_desc")
+          return (b.created_at ?? "").localeCompare(a.created_at ?? "");
         return 0;
       });
 
       const meta = {
-        kelas: classFilter === "specific" && selectedClass
-          ? selectedClass.class_name
-          : "Semua Kelas",
-        tipe: typeFilter === "Semua" || !typeFilter
-          ? "Semua"
-          : (TYPE_LABEL[typeFilter] ?? typeFilter),
-        status: statusFilter === "Semua" || !statusFilter
-          ? "Semua"
-          : (STATUS_LABEL[statusFilter] ?? statusFilter),
+        kelas:
+          classFilter === "specific" && selectedClass
+            ? selectedClass.class_name
+            : "Semua Kelas",
+        tipe:
+          typeFilter === "Semua" || !typeFilter
+            ? "Semua"
+            : (TYPE_LABEL[typeFilter] ?? typeFilter),
+        status:
+          statusFilter === "Semua" || !statusFilter
+            ? "Semua"
+            : (STATUS_LABEL[statusFilter] ?? statusFilter),
         urutan:
-          sortBy === "name" ? "Nama (A–Z)" :
-          sortBy === "nis" ? "NIS" :
-          sortBy === "type" ? "Tipe" :
-          sortBy === "status" ? "Status" : "Waktu (Terbaru)",
+          sortBy === "name"
+            ? "Nama (A–Z)"
+            : sortBy === "nis"
+              ? "NIS"
+              : sortBy === "type"
+                ? "Tipe"
+                : sortBy === "status"
+                  ? "Status"
+                  : "Waktu (Terbaru)",
       };
 
       if (format === "excel") {
@@ -282,7 +376,9 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
         await generateBKPengajuanPdf(sorted, meta, columns);
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -300,18 +396,34 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 - Kelas */}
-        <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q1FullyAnswered}>
+        <QuestionBlock
+          icon={GraduationCap}
+          label="Filter per kelas"
+          answered={q1FullyAnswered}
+        >
           <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio
               selected={classFilter === "all"}
               label="Semua Kelas"
               badge={`${classes.length} kelas`}
-              onClick={() => { setClassFilter("all"); setSelectedClassId(null); setTypeFilter(null); setStatusFilter(null); setSortBy(null); }}
+              onClick={() => {
+                setClassFilter("all");
+                setSelectedClassId(null);
+                setTypeFilter(null);
+                setStatusFilter(null);
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={classFilter === "specific"}
               label="Per Kelas Tertentu"
-              onClick={() => { setClassFilter("specific"); setSelectedClassId(null); setTypeFilter(null); setStatusFilter(null); setSortBy(null); }}
+              onClick={() => {
+                setClassFilter("specific");
+                setSelectedClassId(null);
+                setTypeFilter(null);
+                setStatusFilter(null);
+                setSortBy(null);
+              }}
             />
           </div>
           <AnimatePresence>
@@ -332,7 +444,12 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
                     <button
                       key={cls.class_id}
                       type="button"
-                      onClick={() => { setSelectedClassId(cls.class_id); setTypeFilter(null); setStatusFilter(null); setSortBy(null); }}
+                      onClick={() => {
+                        setSelectedClassId(cls.class_id);
+                        setTypeFilter(null);
+                        setStatusFilter(null);
+                        setSortBy(null);
+                      }}
                       className={cn(
                         "rounded-full border px-4 py-2 text-sm font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
                         selectedClassId === cls.class_id
@@ -359,11 +476,39 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={FileText} label="Tipe pengajuan" answered={typeFilter !== null}>
+              <QuestionBlock
+                icon={FileText}
+                label="Tipe pengajuan"
+                answered={typeFilter !== null}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <ReportRadio selected={typeFilter === "Semua"} label="Semua Tipe" onClick={() => { setTypeFilter("Semua"); setStatusFilter(null); setSortBy(null); }} />
-                  <ReportRadio selected={typeFilter === "IZIN"} label="Izin" onClick={() => { setTypeFilter("IZIN"); setStatusFilter(null); setSortBy(null); }} />
-                  <ReportRadio selected={typeFilter === "SAKIT"} label="Sakit" onClick={() => { setTypeFilter("SAKIT"); setStatusFilter(null); setSortBy(null); }} />
+                  <ReportRadio
+                    selected={typeFilter === "Semua"}
+                    label="Semua Tipe"
+                    onClick={() => {
+                      setTypeFilter("Semua");
+                      setStatusFilter(null);
+                      setSortBy(null);
+                    }}
+                  />
+                  <ReportRadio
+                    selected={typeFilter === "IZIN"}
+                    label="Izin"
+                    onClick={() => {
+                      setTypeFilter("IZIN");
+                      setStatusFilter(null);
+                      setSortBy(null);
+                    }}
+                  />
+                  <ReportRadio
+                    selected={typeFilter === "SAKIT"}
+                    label="Sakit"
+                    onClick={() => {
+                      setTypeFilter("SAKIT");
+                      setStatusFilter(null);
+                      setSortBy(null);
+                    }}
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -380,12 +525,44 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={ClipboardCheck} label="Status pengajuan" answered={statusFilter !== null}>
+              <QuestionBlock
+                icon={ClipboardCheck}
+                label="Status pengajuan"
+                answered={statusFilter !== null}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <ReportRadio selected={statusFilter === "Semua"} label="Semua Status" onClick={() => { setStatusFilter("Semua"); setSortBy(null); }} />
-                  <ReportRadio selected={statusFilter === "menunggu"} label="Menunggu" onClick={() => { setStatusFilter("menunggu"); setSortBy(null); }} />
-                  <ReportRadio selected={statusFilter === "diterima"} label="Diterima" onClick={() => { setStatusFilter("diterima"); setSortBy(null); }} />
-                  <ReportRadio selected={statusFilter === "ditolak"} label="Ditolak" onClick={() => { setStatusFilter("ditolak"); setSortBy(null); }} />
+                  <ReportRadio
+                    selected={statusFilter === "Semua"}
+                    label="Semua Status"
+                    onClick={() => {
+                      setStatusFilter("Semua");
+                      setSortBy(null);
+                    }}
+                  />
+                  <ReportRadio
+                    selected={statusFilter === "menunggu"}
+                    label="Menunggu"
+                    onClick={() => {
+                      setStatusFilter("menunggu");
+                      setSortBy(null);
+                    }}
+                  />
+                  <ReportRadio
+                    selected={statusFilter === "diterima"}
+                    label="Diterima"
+                    onClick={() => {
+                      setStatusFilter("diterima");
+                      setSortBy(null);
+                    }}
+                  />
+                  <ReportRadio
+                    selected={statusFilter === "ditolak"}
+                    label="Ditolak"
+                    onClick={() => {
+                      setStatusFilter("ditolak");
+                      setSortBy(null);
+                    }}
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -402,15 +579,50 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={ListChecks} label="Kolom yang ingin ditampilkan" answered>
+              <QuestionBlock
+                icon={ListChecks}
+                label="Kolom yang ingin ditampilkan"
+                answered
+              >
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama & NIS" badge="wajib" />
-                  <ReportCheckbox checked={columns.kelas} onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))} label="Kelas" />
-                  <ReportCheckbox checked={columns.tipe} onChange={(v) => setColumns((c) => ({ ...c, tipe: v }))} label="Tipe" />
-                  <ReportCheckbox checked={columns.alasan} onChange={(v) => setColumns((c) => ({ ...c, alasan: v }))} label="Alasan" />
-                  <ReportCheckbox checked={columns.status} onChange={(v) => setColumns((c) => ({ ...c, status: v }))} label="Status" />
-                  <ReportCheckbox checked={columns.catatanReview} onChange={(v) => setColumns((c) => ({ ...c, catatanReview: v }))} label="Catatan Review" />
-                  <ReportCheckbox checked={columns.waktu} onChange={(v) => setColumns((c) => ({ ...c, waktu: v }))} label="Waktu" />
+                  <ReportCheckbox
+                    checked
+                    disabled
+                    label="Nama & NIS"
+                    badge="wajib"
+                  />
+                  <ReportCheckbox
+                    checked={columns.kelas}
+                    onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))}
+                    label="Kelas"
+                  />
+                  <ReportCheckbox
+                    checked={columns.tipe}
+                    onChange={(v) => setColumns((c) => ({ ...c, tipe: v }))}
+                    label="Tipe"
+                  />
+                  <ReportCheckbox
+                    checked={columns.alasan}
+                    onChange={(v) => setColumns((c) => ({ ...c, alasan: v }))}
+                    label="Alasan"
+                  />
+                  <ReportCheckbox
+                    checked={columns.status}
+                    onChange={(v) => setColumns((c) => ({ ...c, status: v }))}
+                    label="Status"
+                  />
+                  <ReportCheckbox
+                    checked={columns.catatanReview}
+                    onChange={(v) =>
+                      setColumns((c) => ({ ...c, catatanReview: v }))
+                    }
+                    label="Catatan Review"
+                  />
+                  <ReportCheckbox
+                    checked={columns.waktu}
+                    onChange={(v) => setColumns((c) => ({ ...c, waktu: v }))}
+                    label="Waktu"
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -427,13 +639,37 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut", delay: 0.09 }}
             >
-              <QuestionBlock icon={ArrowUpDown} label="Urutkan data berdasarkan" answered={sortBy !== null}>
+              <QuestionBlock
+                icon={ArrowUpDown}
+                label="Urutkan data berdasarkan"
+                answered={sortBy !== null}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <ReportRadio selected={sortBy === "name"} label="Nama (A–Z)" onClick={() => setSortBy("name")} />
-                  <ReportRadio selected={sortBy === "nis"} label="NIS" onClick={() => setSortBy("nis")} />
-                  <ReportRadio selected={sortBy === "type"} label="Tipe Pengajuan" onClick={() => setSortBy("type")} />
-                  <ReportRadio selected={sortBy === "status"} label="Status" onClick={() => setSortBy("status")} />
-                  <ReportRadio selected={sortBy === "date_desc"} label="Waktu (Terbaru)" onClick={() => setSortBy("date_desc")} />
+                  <ReportRadio
+                    selected={sortBy === "name"}
+                    label="Nama (A–Z)"
+                    onClick={() => setSortBy("name")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "nis"}
+                    label="NIS"
+                    onClick={() => setSortBy("nis")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "type"}
+                    label="Tipe Pengajuan"
+                    onClick={() => setSortBy("type")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "status"}
+                    label="Status"
+                    onClick={() => setSortBy("status")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "date_desc"}
+                    label="Waktu (Terbaru)"
+                    onClick={() => setSortBy("date_desc")}
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -448,7 +684,11 @@ export function BKPengajuanReportModal({ open, onOpenChange, classes }: Props) {
           cancelVariant="native"
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>

@@ -68,7 +68,11 @@ async function generateSiswaPdf(
     if (columns.nisn) row.push(s.nisn || "-");
     if (columns.gender)
       row.push(
-        s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "-",
+        s.gender === "MALE"
+          ? "Laki-laki"
+          : s.gender === "FEMALE"
+            ? "Perempuan"
+            : "-",
       );
     return row;
   });
@@ -123,20 +127,55 @@ async function generateSiswaExcel(
     dataSheetName: "Data Siswa",
     metrics: [
       { label: "Total Siswa", value: data.length, tone: "emerald" },
-      { label: "Siswa Aktif", value: data.filter((student) => student.is_active).length, tone: "sky" },
-      { label: "Siswa Nonaktif", value: data.filter((student) => !student.is_active).length, tone: "rose" },
+      {
+        label: "Siswa Aktif",
+        value: data.filter((student) => student.is_active).length,
+        tone: "sky",
+      },
+      {
+        label: "Siswa Nonaktif",
+        value: data.filter((student) => !student.is_active).length,
+        tone: "rose",
+      },
     ],
     columns: [
-      { header: "No", value: (_student, index) => index + 1, width: 7, kind: "number" },
+      {
+        header: "No",
+        value: (_student, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
       { header: "Nama Siswa", value: (student) => student.name, width: 30 },
       { header: "NIS", value: (student) => student.nis, width: 18 },
-      ...(columns.nisn ? [{ header: "NISN", value: (student: AdminStudent) => student.nisn, width: 18 }] : []),
-      ...(columns.gender ? [{
-        header: "Jenis Kelamin",
-        value: (student: AdminStudent) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "-",
-        width: 18,
-      }] : []),
-      { header: "Status", value: (student) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" },
+      ...(columns.nisn
+        ? [
+            {
+              header: "NISN",
+              value: (student: AdminStudent) => student.nisn,
+              width: 18,
+            },
+          ]
+        : []),
+      ...(columns.gender
+        ? [
+            {
+              header: "Jenis Kelamin",
+              value: (student: AdminStudent) =>
+                student.gender === "MALE"
+                  ? "Laki-laki"
+                  : student.gender === "FEMALE"
+                    ? "Perempuan"
+                    : "-",
+              width: 18,
+            },
+          ]
+        : []),
+      {
+        header: "Status",
+        value: (student) => (student.is_active ? "Aktif" : "Non-aktif"),
+        width: 15,
+        kind: "status",
+      },
     ],
   });
 }
@@ -211,11 +250,13 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
       return (a.nisn ?? "").localeCompare(b.nisn ?? "", "id");
     });
     const filterLabel =
-      filterStatus === "active" ? "Aktif Saja" :
-      filterStatus === "inactive" ? "Non-aktif Saja" : "Semua Siswa";
+      filterStatus === "active"
+        ? "Aktif Saja"
+        : filterStatus === "inactive"
+          ? "Non-aktif Saja"
+          : "Semua Siswa";
     const sortLabel =
-      sortBy === "name" ? "Nama (A–Z)" :
-      sortBy === "nis" ? "NIS" : "NISN";
+      sortBy === "name" ? "Nama (A–Z)" : sortBy === "nis" ? "NIS" : "NISN";
 
     setGenerating(true);
     try {
@@ -225,7 +266,9 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
         await generateSiswaPdf(sorted, filterLabel, sortLabel, columns);
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -253,19 +296,28 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
               selected={filterStatus === "all"}
               label="Semua Siswa"
               badge={`${counts.all}`}
-              onClick={() => { setFilterStatus("all"); setSortBy(null); }}
+              onClick={() => {
+                setFilterStatus("all");
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={filterStatus === "active"}
               label="Aktif Saja"
               badge={`${counts.active}`}
-              onClick={() => { setFilterStatus("active"); setSortBy(null); }}
+              onClick={() => {
+                setFilterStatus("active");
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={filterStatus === "inactive"}
               label="Non-aktif"
               badge={`${counts.inactive}`}
-              onClick={() => { setFilterStatus("inactive"); setSortBy(null); }}
+              onClick={() => {
+                setFilterStatus("inactive");
+                setSortBy(null);
+              }}
             />
           </div>
         </QuestionBlock>
@@ -286,7 +338,12 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
                 answered
               >
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama & NIS" badge="wajib" />
+                  <ReportCheckbox
+                    checked
+                    disabled
+                    label="Nama & NIS"
+                    badge="wajib"
+                  />
                   <ReportCheckbox
                     checked={columns.nisn}
                     onChange={(v) => setColumns((c) => ({ ...c, nisn: v }))}
@@ -347,7 +404,11 @@ export function SiswaReportModal({ open, onOpenChange, students }: Props) {
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={canDownload ? `Unduh ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} siswa)` : "Pilih format laporan"}
+          downloadLabel={
+            canDownload
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"} (${filteredCount} siswa)`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>

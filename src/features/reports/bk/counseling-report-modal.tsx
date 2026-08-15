@@ -21,7 +21,11 @@ import {
 } from "@/features/reports/shared/report-question-ui";
 import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getBKCounselingOverview } from "@/services/staff.service";
-import type { StaffBKClassSummary, StaffCounselingNote, StaffStudentSummary } from "@/types/staff";
+import type {
+  StaffBKClassSummary,
+  StaffCounselingNote,
+  StaffStudentSummary,
+} from "@/types/staff";
 import {
   ArrowUpDown,
   GraduationCap,
@@ -143,14 +147,74 @@ async function generateBKKonselingExcel(
     rows: records,
     dataSheetName: "Catatan Konseling",
     columns: [
-      { header: "No", value: (_record, index) => index + 1, width: 7, kind: "number" },
-      { header: "Nama Siswa", value: (record) => record.student_name, width: 28 },
-      ...(columns.nis ? [{ header: "NIS", value: (record: StaffCounselingNote) => record.nis, width: 17 }] : []),
-      ...(columns.kelas ? [{ header: "Kelas", value: (record: StaffCounselingNote) => record.class_name, width: 24 }] : []),
-      ...(columns.judul ? [{ header: "Judul Catatan", value: (record: StaffCounselingNote) => record.title, width: 30 }] : []),
-      ...(columns.isiCatatan ? [{ header: "Isi Catatan", value: (record: StaffCounselingNote) => record.note, width: 52 }] : []),
-      ...(columns.dibuatOleh ? [{ header: "Dibuat Oleh", value: (record: StaffCounselingNote) => record.created_by_name, width: 25 }] : []),
-      ...(columns.waktu ? [{ header: "Waktu", value: (record: StaffCounselingNote) => record.created_at ? new Date(record.created_at) : null, width: 22, kind: "date" as const, numberFormat: "dd mmm yyyy hh:mm" }] : []),
+      {
+        header: "No",
+        value: (_record, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
+      {
+        header: "Nama Siswa",
+        value: (record) => record.student_name,
+        width: 28,
+      },
+      ...(columns.nis
+        ? [
+            {
+              header: "NIS",
+              value: (record: StaffCounselingNote) => record.nis,
+              width: 17,
+            },
+          ]
+        : []),
+      ...(columns.kelas
+        ? [
+            {
+              header: "Kelas",
+              value: (record: StaffCounselingNote) => record.class_name,
+              width: 24,
+            },
+          ]
+        : []),
+      ...(columns.judul
+        ? [
+            {
+              header: "Judul Catatan",
+              value: (record: StaffCounselingNote) => record.title,
+              width: 30,
+            },
+          ]
+        : []),
+      ...(columns.isiCatatan
+        ? [
+            {
+              header: "Isi Catatan",
+              value: (record: StaffCounselingNote) => record.note,
+              width: 52,
+            },
+          ]
+        : []),
+      ...(columns.dibuatOleh
+        ? [
+            {
+              header: "Dibuat Oleh",
+              value: (record: StaffCounselingNote) => record.created_by_name,
+              width: 25,
+            },
+          ]
+        : []),
+      ...(columns.waktu
+        ? [
+            {
+              header: "Waktu",
+              value: (record: StaffCounselingNote) =>
+                record.created_at ? new Date(record.created_at) : null,
+              width: 22,
+              kind: "date" as const,
+              numberFormat: "dd mmm yyyy hh:mm",
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -164,12 +228,21 @@ type Props = {
   students: StaffStudentSummary[];
 };
 
-export function BKKonselingReportModal({ open, onOpenChange, classes, students }: Props) {
+export function BKKonselingReportModal({
+  open,
+  onOpenChange,
+  classes,
+  students,
+}: Props) {
   const [format, setFormat] = useState<ReportFormat | null>(null);
   const [classFilter, setClassFilter] = useState<ClassFilter | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  const [studentFilter, setStudentFilter] = useState<StudentFilter | null>(null);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [studentFilter, setStudentFilter] = useState<StudentFilter | null>(
+    null,
+  );
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    null,
+  );
   const [columns, setColumns] = useState<Columns>({
     kelas: true,
     nis: false,
@@ -182,9 +255,12 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
   const [generating, setGenerating] = useState(false);
 
   const q1FullyAnswered =
-    classFilter === "all" || (classFilter === "specific" && selectedClassId !== null);
+    classFilter === "all" ||
+    (classFilter === "specific" && selectedClassId !== null);
   const q2FullyAnswered =
-    q1FullyAnswered && (studentFilter === "all" || (studentFilter === "specific" && selectedStudentId !== null));
+    q1FullyAnswered &&
+    (studentFilter === "all" ||
+      (studentFilter === "specific" && selectedStudentId !== null));
   const showQ2 = q1FullyAnswered;
   const showQ3 = q2FullyAnswered;
   const canDownload = format !== null && showQ3 && sortBy !== null;
@@ -213,7 +289,14 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
     setSelectedClassId(null);
     setStudentFilter(null);
     setSelectedStudentId(null);
-    setColumns({ kelas: true, nis: false, judul: true, isiCatatan: true, dibuatOleh: true, waktu: true });
+    setColumns({
+      kelas: true,
+      nis: false,
+      judul: true,
+      isiCatatan: true,
+      dibuatOleh: true,
+      waktu: true,
+    });
     setSortBy(null);
   }
 
@@ -227,8 +310,12 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
     setGenerating(true);
     try {
       const overview = await getBKCounselingOverview({
-        class_id: classFilter === "specific" && selectedClassId ? selectedClassId : "",
-        student_id: studentFilter === "specific" && selectedStudentId ? selectedStudentId : "",
+        class_id:
+          classFilter === "specific" && selectedClassId ? selectedClassId : "",
+        student_id:
+          studentFilter === "specific" && selectedStudentId
+            ? selectedStudentId
+            : "",
       });
 
       const records = overview.records ?? [];
@@ -238,24 +325,34 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
       }
 
       const sorted = [...records].sort((a, b) => {
-        if (sortBy === "name") return a.student_name.localeCompare(b.student_name, "id");
-        if (sortBy === "date_desc") return (b.created_at ?? "").localeCompare(a.created_at ?? "");
-        if (sortBy === "date_asc") return (a.created_at ?? "").localeCompare(b.created_at ?? "");
-        if (sortBy === "class") return (a.class_name || "").localeCompare(b.class_name || "", "id");
+        if (sortBy === "name")
+          return a.student_name.localeCompare(b.student_name, "id");
+        if (sortBy === "date_desc")
+          return (b.created_at ?? "").localeCompare(a.created_at ?? "");
+        if (sortBy === "date_asc")
+          return (a.created_at ?? "").localeCompare(b.created_at ?? "");
+        if (sortBy === "class")
+          return (a.class_name || "").localeCompare(b.class_name || "", "id");
         return 0;
       });
 
       const meta = {
-        kelas: classFilter === "specific" && selectedClass
-          ? selectedClass.class_name
-          : "Semua Kelas",
-        siswa: studentFilter === "specific" && selectedStudent
-          ? selectedStudent.name
-          : "Semua Siswa",
+        kelas:
+          classFilter === "specific" && selectedClass
+            ? selectedClass.class_name
+            : "Semua Kelas",
+        siswa:
+          studentFilter === "specific" && selectedStudent
+            ? selectedStudent.name
+            : "Semua Siswa",
         urutan:
-          sortBy === "name" ? "Nama Siswa (A–Z)" :
-          sortBy === "date_desc" ? "Waktu (Terbaru)" :
-          sortBy === "date_asc" ? "Waktu (Terlama)" : "Kelas",
+          sortBy === "name"
+            ? "Nama Siswa (A–Z)"
+            : sortBy === "date_desc"
+              ? "Waktu (Terbaru)"
+              : sortBy === "date_asc"
+                ? "Waktu (Terlama)"
+                : "Kelas",
       };
 
       if (format === "excel") {
@@ -264,7 +361,9 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
         await generateBKKonselingPdf(sorted, meta, columns);
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -282,18 +381,34 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
         {/* Q1 - Kelas */}
-        <QuestionBlock icon={GraduationCap} label="Filter per kelas" answered={q1FullyAnswered}>
+        <QuestionBlock
+          icon={GraduationCap}
+          label="Filter per kelas"
+          answered={q1FullyAnswered}
+        >
           <div className="grid gap-2 sm:grid-cols-2">
             <ReportRadio
               selected={classFilter === "all"}
               label="Semua Kelas"
               badge={`${classes.length} kelas`}
-              onClick={() => { setClassFilter("all"); setSelectedClassId(null); setStudentFilter(null); setSelectedStudentId(null); setSortBy(null); }}
+              onClick={() => {
+                setClassFilter("all");
+                setSelectedClassId(null);
+                setStudentFilter(null);
+                setSelectedStudentId(null);
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={classFilter === "specific"}
               label="Per Kelas Tertentu"
-              onClick={() => { setClassFilter("specific"); setSelectedClassId(null); setStudentFilter(null); setSelectedStudentId(null); setSortBy(null); }}
+              onClick={() => {
+                setClassFilter("specific");
+                setSelectedClassId(null);
+                setStudentFilter(null);
+                setSelectedStudentId(null);
+                setSortBy(null);
+              }}
             />
           </div>
           <AnimatePresence>
@@ -314,7 +429,12 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
                     <button
                       key={cls.class_id}
                       type="button"
-                      onClick={() => { setSelectedClassId(cls.class_id); setStudentFilter(null); setSelectedStudentId(null); setSortBy(null); }}
+                      onClick={() => {
+                        setSelectedClassId(cls.class_id);
+                        setStudentFilter(null);
+                        setSelectedStudentId(null);
+                        setSortBy(null);
+                      }}
                       className={cn(
                         "rounded-full border px-4 py-2 text-sm font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
                         selectedClassId === cls.class_id
@@ -341,18 +461,30 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={UserRound} label="Filter per siswa" answered={q2FullyAnswered}>
+              <QuestionBlock
+                icon={UserRound}
+                label="Filter per siswa"
+                answered={q2FullyAnswered}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
                   <ReportRadio
                     selected={studentFilter === "all"}
                     label="Semua Siswa"
                     badge={`${filteredStudents.length} siswa`}
-                    onClick={() => { setStudentFilter("all"); setSelectedStudentId(null); setSortBy(null); }}
+                    onClick={() => {
+                      setStudentFilter("all");
+                      setSelectedStudentId(null);
+                      setSortBy(null);
+                    }}
                   />
                   <ReportRadio
                     selected={studentFilter === "specific"}
                     label="Siswa Tertentu"
-                    onClick={() => { setStudentFilter("specific"); setSelectedStudentId(null); setSortBy(null); }}
+                    onClick={() => {
+                      setStudentFilter("specific");
+                      setSelectedStudentId(null);
+                      setSortBy(null);
+                    }}
                   />
                 </div>
                 <AnimatePresence>
@@ -369,14 +501,19 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
                         Pilih siswa:
                       </p>
                       {filteredStudents.length === 0 ? (
-                        <p className="text-sm text-slate-400">Tidak ada siswa yang tersedia.</p>
+                        <p className="text-sm text-slate-400">
+                          Tidak ada siswa yang tersedia.
+                        </p>
                       ) : (
                         <div className="flex max-h-[160px] flex-wrap gap-2 overflow-y-auto">
                           {filteredStudents.map((s) => (
                             <button
                               key={s.id}
                               type="button"
-                              onClick={() => { setSelectedStudentId(s.id); setSortBy(null); }}
+                              onClick={() => {
+                                setSelectedStudentId(s.id);
+                                setSortBy(null);
+                              }}
                               className={cn(
                                 "rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
                                 selectedStudentId === s.id
@@ -410,15 +547,52 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut" }}
             >
-              <QuestionBlock icon={ListChecks} label="Kolom yang ingin ditampilkan" answered>
+              <QuestionBlock
+                icon={ListChecks}
+                label="Kolom yang ingin ditampilkan"
+                answered
+              >
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama Siswa" badge="wajib" />
-                  <ReportCheckbox checked={columns.kelas} onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))} label="Kelas" />
-                  <ReportCheckbox checked={columns.nis} onChange={(v) => setColumns((c) => ({ ...c, nis: v }))} label="NIS" />
-                  <ReportCheckbox checked={columns.judul} onChange={(v) => setColumns((c) => ({ ...c, judul: v }))} label="Judul Catatan" />
-                  <ReportCheckbox checked={columns.isiCatatan} onChange={(v) => setColumns((c) => ({ ...c, isiCatatan: v }))} label="Isi Catatan" />
-                  <ReportCheckbox checked={columns.dibuatOleh} onChange={(v) => setColumns((c) => ({ ...c, dibuatOleh: v }))} label="Dibuat Oleh" />
-                  <ReportCheckbox checked={columns.waktu} onChange={(v) => setColumns((c) => ({ ...c, waktu: v }))} label="Waktu" />
+                  <ReportCheckbox
+                    checked
+                    disabled
+                    label="Nama Siswa"
+                    badge="wajib"
+                  />
+                  <ReportCheckbox
+                    checked={columns.kelas}
+                    onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))}
+                    label="Kelas"
+                  />
+                  <ReportCheckbox
+                    checked={columns.nis}
+                    onChange={(v) => setColumns((c) => ({ ...c, nis: v }))}
+                    label="NIS"
+                  />
+                  <ReportCheckbox
+                    checked={columns.judul}
+                    onChange={(v) => setColumns((c) => ({ ...c, judul: v }))}
+                    label="Judul Catatan"
+                  />
+                  <ReportCheckbox
+                    checked={columns.isiCatatan}
+                    onChange={(v) =>
+                      setColumns((c) => ({ ...c, isiCatatan: v }))
+                    }
+                    label="Isi Catatan"
+                  />
+                  <ReportCheckbox
+                    checked={columns.dibuatOleh}
+                    onChange={(v) =>
+                      setColumns((c) => ({ ...c, dibuatOleh: v }))
+                    }
+                    label="Dibuat Oleh"
+                  />
+                  <ReportCheckbox
+                    checked={columns.waktu}
+                    onChange={(v) => setColumns((c) => ({ ...c, waktu: v }))}
+                    label="Waktu"
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -435,12 +609,32 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.26, ease: "easeOut", delay: 0.09 }}
             >
-              <QuestionBlock icon={ArrowUpDown} label="Urutkan data berdasarkan" answered={sortBy !== null}>
+              <QuestionBlock
+                icon={ArrowUpDown}
+                label="Urutkan data berdasarkan"
+                answered={sortBy !== null}
+              >
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <ReportRadio selected={sortBy === "name"} label="Nama Siswa (A–Z)" onClick={() => setSortBy("name")} />
-                  <ReportRadio selected={sortBy === "class"} label="Kelas" onClick={() => setSortBy("class")} />
-                  <ReportRadio selected={sortBy === "date_desc"} label="Waktu (Terbaru)" onClick={() => setSortBy("date_desc")} />
-                  <ReportRadio selected={sortBy === "date_asc"} label="Waktu (Terlama)" onClick={() => setSortBy("date_asc")} />
+                  <ReportRadio
+                    selected={sortBy === "name"}
+                    label="Nama Siswa (A–Z)"
+                    onClick={() => setSortBy("name")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "class"}
+                    label="Kelas"
+                    onClick={() => setSortBy("class")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "date_desc"}
+                    label="Waktu (Terbaru)"
+                    onClick={() => setSortBy("date_desc")}
+                  />
+                  <ReportRadio
+                    selected={sortBy === "date_asc"}
+                    label="Waktu (Terlama)"
+                    onClick={() => setSortBy("date_asc")}
+                  />
                 </div>
               </QuestionBlock>
             </motion.div>
@@ -455,7 +649,11 @@ export function BKKonselingReportModal({ open, onOpenChange, classes, students }
           cancelVariant="native"
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>

@@ -22,14 +22,21 @@ import {
 import { exportStyledExcelReport } from "@/lib/reports/excel-report-kit";
 import { getBKStudentsOverview } from "@/services/staff.service";
 import type { StaffBKClassSummary, StaffStudentSummary } from "@/types/staff";
-import { ArrowUpDown, GraduationCap, ListChecks, Printer, TriangleAlert } from "lucide-react";
+import {
+  ArrowUpDown,
+  GraduationCap,
+  ListChecks,
+  Printer,
+  TriangleAlert,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ClassFilter = "all" | "specific";
-type RiskFilter = "Semua" | "need_attention" | "alpha" | "counseling" | "stable";
+type RiskFilter =
+  "Semua" | "need_attention" | "alpha" | "counseling" | "stable";
 type SortBy = "name" | "nis" | "alpha";
 type Columns = {
   kelas: boolean;
@@ -89,10 +96,17 @@ async function generateBKSiswaPdf(
   const body = data.map((s, i) => {
     const row: string[] = [String(i + 1), s.name, s.nis];
     if (columns.kelas) {
-      row.push([s.class_name, s.school_year_name].filter(Boolean).join("\n") || "-");
+      row.push(
+        [s.class_name, s.school_year_name].filter(Boolean).join("\n") || "-",
+      );
     }
     if (columns.identitas) {
-      const gender = s.gender === "MALE" ? "Laki-laki" : s.gender === "FEMALE" ? "Perempuan" : "-";
+      const gender =
+        s.gender === "MALE"
+          ? "Laki-laki"
+          : s.gender === "FEMALE"
+            ? "Perempuan"
+            : "-";
       row.push(`${gender}\nNISN: ${s.nisn || "-"}`);
     }
     if (columns.hadir) row.push(String(s.present_count));
@@ -103,7 +117,8 @@ async function generateBKSiswaPdf(
     return row;
   });
 
-  const hasCountColumns = columns.hadir || columns.alfa || columns.izin || columns.sakit;
+  const hasCountColumns =
+    columns.hadir || columns.alfa || columns.izin || columns.sakit;
   if (hasCountColumns) {
     const totals = {
       Hadir: data.reduce((sum, student) => sum + student.present_count, 0),
@@ -111,10 +126,12 @@ async function generateBKSiswaPdf(
       Izin: data.reduce((sum, student) => sum + student.permission_count, 0),
       Sakit: data.reduce((sum, student) => sum + student.sick_count, 0),
     };
-    body.push(head[0].map((header, index) => {
-      if (index === 1) return "Total";
-      return String(totals[header as keyof typeof totals] ?? "");
-    }));
+    body.push(
+      head[0].map((header, index) => {
+        if (index === 1) return "Total";
+        return String(totals[header as keyof typeof totals] ?? "");
+      }),
+    );
   }
 
   autoTable(doc, {
@@ -124,7 +141,11 @@ async function generateBKSiswaPdf(
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
     didParseCell: (hook) => {
-      if (hasCountColumns && hook.section === "body" && hook.row.index === body.length - 1) {
+      if (
+        hasCountColumns &&
+        hook.section === "body" &&
+        hook.row.index === body.length - 1
+      ) {
         hook.cell.styles.fillColor = [236, 253, 245];
         hook.cell.styles.textColor = [6, 78, 59];
         hook.cell.styles.fontStyle = "bold";
@@ -157,19 +178,93 @@ async function generateBKSiswaExcel(
     rows: data,
     dataSheetName: "Monitoring Siswa",
     columns: [
-      { header: "No", value: (_student, index) => index + 1, width: 7, kind: "number" },
+      {
+        header: "No",
+        value: (_student, index) => index + 1,
+        width: 7,
+        kind: "number",
+      },
       { header: "Nama Siswa", value: (student) => student.name, width: 28 },
       { header: "NIS", value: (student) => student.nis, width: 17 },
-      ...(columns.kelas ? [{ header: "Kelas", value: (student: StaffStudentSummary) => student.class_name, width: 24 }] : []),
-      ...(columns.identitas ? [
-        { header: "Jenis Kelamin", value: (student: StaffStudentSummary) => student.gender === "MALE" ? "Laki-laki" : student.gender === "FEMALE" ? "Perempuan" : "-", width: 18 },
-        { header: "NISN", value: (student: StaffStudentSummary) => student.nisn, width: 17 },
-      ] : []),
-      ...(columns.hadir ? [{ header: "H", value: (student: StaffStudentSummary) => student.present_count, width: 8, kind: "attendance" as const }] : []),
-      ...(columns.izin ? [{ header: "I", value: (student: StaffStudentSummary) => student.permission_count, width: 8, kind: "attendance" as const }] : []),
-      ...(columns.sakit ? [{ header: "S", value: (student: StaffStudentSummary) => student.sick_count, width: 8, kind: "attendance" as const }] : []),
-      ...(columns.alfa ? [{ header: "A", value: (student: StaffStudentSummary) => student.alpha_count, width: 8, kind: "attendance" as const }] : []),
-      ...(columns.status ? [{ header: "Status", value: (student: StaffStudentSummary) => student.is_active ? "Aktif" : "Non-aktif", width: 15, kind: "status" as const }] : []),
+      ...(columns.kelas
+        ? [
+            {
+              header: "Kelas",
+              value: (student: StaffStudentSummary) => student.class_name,
+              width: 24,
+            },
+          ]
+        : []),
+      ...(columns.identitas
+        ? [
+            {
+              header: "Jenis Kelamin",
+              value: (student: StaffStudentSummary) =>
+                student.gender === "MALE"
+                  ? "Laki-laki"
+                  : student.gender === "FEMALE"
+                    ? "Perempuan"
+                    : "-",
+              width: 18,
+            },
+            {
+              header: "NISN",
+              value: (student: StaffStudentSummary) => student.nisn,
+              width: 17,
+            },
+          ]
+        : []),
+      ...(columns.hadir
+        ? [
+            {
+              header: "H",
+              value: (student: StaffStudentSummary) => student.present_count,
+              width: 8,
+              kind: "attendance" as const,
+            },
+          ]
+        : []),
+      ...(columns.izin
+        ? [
+            {
+              header: "I",
+              value: (student: StaffStudentSummary) => student.permission_count,
+              width: 8,
+              kind: "attendance" as const,
+            },
+          ]
+        : []),
+      ...(columns.sakit
+        ? [
+            {
+              header: "S",
+              value: (student: StaffStudentSummary) => student.sick_count,
+              width: 8,
+              kind: "attendance" as const,
+            },
+          ]
+        : []),
+      ...(columns.alfa
+        ? [
+            {
+              header: "A",
+              value: (student: StaffStudentSummary) => student.alpha_count,
+              width: 8,
+              kind: "attendance" as const,
+            },
+          ]
+        : []),
+      ...(columns.status
+        ? [
+            {
+              header: "Status",
+              value: (student: StaffStudentSummary) =>
+                student.is_active ? "Aktif" : "Non-aktif",
+              width: 15,
+              kind: "status" as const,
+            },
+          ]
+        : []),
     ],
   });
 }
@@ -200,7 +295,8 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
   const [generating, setGenerating] = useState(false);
 
   const q1FullyAnswered =
-    classFilter === "all" || (classFilter === "specific" && selectedClassIds.length > 0);
+    classFilter === "all" ||
+    (classFilter === "specific" && selectedClassIds.length > 0);
   const showQ2 = q1FullyAnswered;
   const showQ3 = q1FullyAnswered && riskFilter !== null;
   const canDownload = format !== null && showQ3 && sortBy !== null;
@@ -223,7 +319,15 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
     setClassFilter(null);
     setSelectedClassIds([]);
     setRiskFilter(null);
-    setColumns({ kelas: true, identitas: false, hadir: true, alfa: true, izin: false, sakit: false, status: false });
+    setColumns({
+      kelas: true,
+      identitas: false,
+      hadir: true,
+      alfa: true,
+      izin: false,
+      sakit: false,
+      status: false,
+    });
     setSortBy(null);
   }
 
@@ -244,7 +348,9 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
       let students = overview.students ?? [];
 
       if (classFilter === "specific" && selectedClassIds.length > 0) {
-        students = students.filter((s) => selectedClassIds.includes(s.class_id ?? ""));
+        students = students.filter((s) =>
+          selectedClassIds.includes(s.class_id ?? ""),
+        );
       }
 
       if (students.length === 0) {
@@ -263,19 +369,37 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
         classFilter === "specific" && selectedClasses.length > 0
           ? selectedClasses.map((c) => c.class_name).join(", ")
           : "Semua Kelas";
-      const filterRisikoLabel = riskFilter ? RISK_LABELS[riskFilter] : "Semua Siswa";
+      const filterRisikoLabel = riskFilter
+        ? RISK_LABELS[riskFilter]
+        : "Semua Siswa";
       const sortLabel =
-        sortBy === "name" ? "Nama (A–Z)" :
-        sortBy === "nis" ? "NIS" :
-        "Alfa (terbanyak)";
+        sortBy === "name"
+          ? "Nama (A–Z)"
+          : sortBy === "nis"
+            ? "NIS"
+            : "Alfa (terbanyak)";
 
       if (format === "excel") {
-        await generateBKSiswaExcel(sorted, filterKelasLabel, filterRisikoLabel, sortLabel, columns);
+        await generateBKSiswaExcel(
+          sorted,
+          filterKelasLabel,
+          filterRisikoLabel,
+          sortLabel,
+          columns,
+        );
       } else {
-        await generateBKSiswaPdf(sorted, filterKelasLabel, filterRisikoLabel, sortLabel, columns);
+        await generateBKSiswaPdf(
+          sorted,
+          filterKelasLabel,
+          filterRisikoLabel,
+          sortLabel,
+          columns,
+        );
       }
     } catch {
-      toast.error(`Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`);
+      toast.error(
+        `Gagal membuat ${format === "excel" ? "Excel" : "PDF"}. Silakan coba lagi.`,
+      );
     } finally {
       setGenerating(false);
     }
@@ -303,12 +427,22 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
               selected={classFilter === "all"}
               label="Semua Kelas"
               badge={`${classes.length} kelas`}
-              onClick={() => { setClassFilter("all"); setSelectedClassIds([]); setRiskFilter(null); setSortBy(null); }}
+              onClick={() => {
+                setClassFilter("all");
+                setSelectedClassIds([]);
+                setRiskFilter(null);
+                setSortBy(null);
+              }}
             />
             <ReportRadio
               selected={classFilter === "specific"}
               label="Per Kelas Tertentu"
-              onClick={() => { setClassFilter("specific"); setSelectedClassIds([]); setRiskFilter(null); setSortBy(null); }}
+              onClick={() => {
+                setClassFilter("specific");
+                setSelectedClassIds([]);
+                setRiskFilter(null);
+                setSortBy(null);
+              }}
             />
           </div>
 
@@ -343,7 +477,12 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                       >
                         {cls.class_name}
                         {cls.school_year_name && (
-                          <span className={cn("ml-1.5 text-xs", active ? "opacity-80" : "opacity-50")}>
+                          <span
+                            className={cn(
+                              "ml-1.5 text-xs",
+                              active ? "opacity-80" : "opacity-50",
+                            )}
+                          >
                             {cls.school_year_name}
                           </span>
                         )}
@@ -386,7 +525,10 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                       key={risk}
                       selected={riskFilter === risk}
                       label={RISK_LABELS[risk]}
-                      onClick={() => { setRiskFilter(risk); setSortBy(null); }}
+                      onClick={() => {
+                        setRiskFilter(risk);
+                        setSortBy(null);
+                      }}
                     />
                   ))}
                 </div>
@@ -411,7 +553,12 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                 answered
               >
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportCheckbox checked disabled label="Nama & NIS" badge="wajib" />
+                  <ReportCheckbox
+                    checked
+                    disabled
+                    label="Nama & NIS"
+                    badge="wajib"
+                  />
                   <ReportCheckbox
                     checked={columns.kelas}
                     onChange={(v) => setColumns((c) => ({ ...c, kelas: v }))}
@@ -419,7 +566,9 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
                   />
                   <ReportCheckbox
                     checked={columns.identitas}
-                    onChange={(v) => setColumns((c) => ({ ...c, identitas: v }))}
+                    onChange={(v) =>
+                      setColumns((c) => ({ ...c, identitas: v }))
+                    }
                     label="Identitas"
                   />
                   <ReportCheckbox
@@ -497,7 +646,11 @@ export function BKSiswaReportModal({ open, onOpenChange, classes }: Props) {
           onDownload={handleDownload}
           format={format}
           generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={format ? `Unduh ${format === "excel" ? "Excel" : "PDF"}` : "Pilih format laporan"}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
         />
       </div>
     </PremiumModal>

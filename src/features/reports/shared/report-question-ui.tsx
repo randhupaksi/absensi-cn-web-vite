@@ -1,5 +1,10 @@
 import { cn } from "@/lib/utils";
-import { Check, FileSpreadsheet, FileText, type LucideIcon } from "lucide-react";
+import {
+  Check,
+  FileSpreadsheet,
+  FileText,
+  type LucideIcon,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 export function QuestionBlock({
@@ -65,7 +70,9 @@ export function ReportRadio({
       <span
         className={cn(
           "flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 transition-all",
-          selected ? "border-emerald-600 bg-emerald-600" : "border-slate-300 bg-white",
+          selected
+            ? "border-emerald-600 bg-emerald-600"
+            : "border-slate-300 bg-white",
         )}
       >
         {selected && <span className="size-2 rounded-full bg-white" />}
@@ -75,7 +82,9 @@ export function ReportRadio({
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-xs font-semibold",
-            selected ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500",
+            selected
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-slate-100 text-slate-500",
           )}
         >
           {badge}
@@ -115,7 +124,9 @@ export function ReportCheckbox({
       <span
         className={cn(
           "flex size-[18px] shrink-0 items-center justify-center rounded-[5px] border-2 transition-all",
-          checked ? "border-emerald-600 bg-emerald-600" : "border-slate-300 bg-white",
+          checked
+            ? "border-emerald-600 bg-emerald-600"
+            : "border-slate-300 bg-white",
         )}
       >
         {checked && <Check className="size-3 text-white" />}
@@ -140,7 +151,11 @@ export function ReportFormatQuestion({
   onChange: (value: ReportFormat) => void;
 }) {
   return (
-    <QuestionBlock icon={value === "excel" ? FileSpreadsheet : FileText} label="Pilih format laporan" answered={value !== null}>
+    <QuestionBlock
+      icon={value === "excel" ? FileSpreadsheet : FileText}
+      label="Pilih format laporan"
+      answered={value !== null}
+    >
       <div className="grid gap-2 sm:grid-cols-2">
         <ReportRadio
           selected={value === "pdf"}
