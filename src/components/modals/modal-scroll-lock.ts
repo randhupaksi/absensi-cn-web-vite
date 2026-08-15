@@ -63,14 +63,19 @@ export function useModalScrollLock(open: boolean) {
 
     const preventBackgroundTouchMove = (event: TouchEvent) => {
       const target = event.target;
-      if (target instanceof Element && target.closest(modalScrollableTargetSelector)) {
+      if (
+        target instanceof Element &&
+        target.closest(modalScrollableTargetSelector)
+      ) {
         return;
       }
 
       event.preventDefault();
     };
 
-    document.addEventListener("touchmove", preventBackgroundTouchMove, { passive: false });
+    document.addEventListener("touchmove", preventBackgroundTouchMove, {
+      passive: false,
+    });
 
     return () => {
       document.removeEventListener("touchmove", preventBackgroundTouchMove);

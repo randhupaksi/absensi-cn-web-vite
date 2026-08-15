@@ -73,7 +73,11 @@ export function PremiumModal({
           if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
 
           const target = event.target as HTMLElement;
-          if (target.closest("textarea,button,a,[role='combobox'],[data-slot='select-trigger']")) {
+          if (
+            target.closest(
+              "textarea,button,a,[role='combobox'],[data-slot='select-trigger']",
+            )
+          ) {
             return;
           }
 
@@ -109,7 +113,10 @@ export function PremiumModal({
           </button>
         </div>
 
-        <div data-modal-scroll-area className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-[1.45rem] pt-[1.4rem] pb-[1.55rem] [touch-action:pan-y] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[2px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-[linear-gradient(180deg,rgba(52,211,153,0.52),rgba(22,163,74,0.42))] [&::-webkit-scrollbar-thumb]:bg-clip-padding">
+        <div
+          data-modal-scroll-area
+          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-[1.45rem] pt-[1.4rem] pb-[1.55rem] [touch-action:pan-y] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[2px] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-[linear-gradient(180deg,rgba(52,211,153,0.52),rgba(22,163,74,0.42))] [&::-webkit-scrollbar-thumb]:bg-clip-padding"
+        >
           {children}
         </div>
 

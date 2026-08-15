@@ -135,7 +135,11 @@ export function ImportExcelModal({
                 Gunakan template resmi agar format data sesuai. Lihat sheet{" "}
                 <strong>Petunjuk</strong> untuk panduan.
                 {type === "siswa" && (
-                  <> Tambah kelas baru di sheet <strong>Data Kelas</strong> (kolom A–E).</>
+                  <>
+                    {" "}
+                    Tambah kelas baru di sheet <strong>Data Kelas</strong>{" "}
+                    (kolom A–E).
+                  </>
                 )}
               </p>
             </div>
@@ -157,18 +161,24 @@ export function ImportExcelModal({
             <div
               role="button"
               tabIndex={0}
-              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileInputRef.current?.click(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  fileInputRef.current?.click();
+              }}
               className={cn(
                 "relative flex min-h-[10.75rem] cursor-pointer flex-col items-center justify-center gap-3 rounded-[1.4rem] border-2 border-solid transition-all duration-200",
                 dragging
                   ? "border-emerald-400 bg-emerald-50/80 shadow-[0_0_0_4px_rgba(5,150,105,0.08)]"
                   : file
-                  ? "border-emerald-300 bg-emerald-50/50"
-                  : "border-slate-200 bg-slate-50/60 hover:border-emerald-300 hover:bg-emerald-50/40",
+                    ? "border-emerald-300 bg-emerald-50/50"
+                    : "border-slate-200 bg-slate-50/60 hover:border-emerald-300 hover:bg-emerald-50/40",
               )}
             >
               <input
@@ -189,12 +199,17 @@ export function ImportExcelModal({
                       {file.name}
                     </p>
                     <p className="text-[0.78rem] text-slate-500">
-                      {(file.size / 1024).toFixed(1)} KB &middot; Klik untuk ganti file
+                      {(file.size / 1024).toFixed(1)} KB &middot; Klik untuk
+                      ganti file
                     </p>
                   </div>
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setFile(null); setResult(null); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFile(null);
+                      setResult(null);
+                    }}
                     className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[0.75rem] font-medium text-rose-600 transition hover:bg-rose-100"
                   >
                     <X className="size-3" />
@@ -320,7 +335,9 @@ function ImportResultView({
                       {err.row}
                     </td>
                     <td className="px-3 py-2.5 text-slate-600">{err.field}</td>
-                    <td className="px-3 py-2.5 text-slate-700">{err.message}</td>
+                    <td className="px-3 py-2.5 text-slate-700">
+                      {err.message}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -398,13 +415,27 @@ function SummaryCard({
   const c = colors[color];
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-[1.2rem] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]", c.bg)}>
-      <span className={cn("inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", c.icon)}>
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-[1.2rem] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]",
+        c.bg,
+      )}
+    >
+      <span
+        className={cn(
+          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+          c.icon,
+        )}
+      >
         {icon}
       </span>
       <div className="min-w-0">
-        <p className={cn("text-2xl font-bold leading-none", c.value)}>{value}</p>
-        <p className={cn("mt-1 text-[0.75rem] leading-[1.4]", c.label)}>{label}</p>
+        <p className={cn("text-2xl font-bold leading-none", c.value)}>
+          {value}
+        </p>
+        <p className={cn("mt-1 text-[0.75rem] leading-[1.4]", c.label)}>
+          {label}
+        </p>
       </div>
     </div>
   );

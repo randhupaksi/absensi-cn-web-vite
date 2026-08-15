@@ -28,7 +28,9 @@ export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const session = getAuthSession();
-  const dashboardRole = session ? getDefaultDashboardRole(session.user) : "siswa";
+  const dashboardRole = session
+    ? getDefaultDashboardRole(session.user)
+    : "siswa";
   const navigation = getDashboardNavigation(dashboardRole);
 
   const handleLogout = () => {

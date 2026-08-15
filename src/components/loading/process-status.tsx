@@ -84,20 +84,30 @@ function ProcessStepItem({ step }: { step: ProcessStep }) {
     <div
       className={cn(
         "flex min-w-0 items-center gap-2 rounded-xl border px-2.5 py-2.5 transition-colors",
-        step.state === "complete" && "border-emerald-100 bg-emerald-50/80 text-emerald-700",
+        step.state === "complete" &&
+          "border-emerald-100 bg-emerald-50/80 text-emerald-700",
         step.state === "active" && "border-sky-200 bg-sky-50 text-sky-700",
         step.state === "error" && "border-rose-200 bg-rose-50 text-rose-700",
-        step.state === "pending" && "border-slate-100 bg-slate-50/70 text-slate-400",
+        step.state === "pending" &&
+          "border-slate-100 bg-slate-50/70 text-slate-400",
       )}
       title={step.description}
     >
       <span className="relative flex size-5 shrink-0 items-center justify-center">
         {Icon && step.state !== "active" ? <Icon className="size-4" /> : null}
         {!Icon || step.state === "active" ? (
-          <StateIcon className={cn("size-4", step.state === "active" && "animate-spin motion-reduce:animate-none")} />
+          <StateIcon
+            className={cn(
+              "size-4",
+              step.state === "active" &&
+                "animate-spin motion-reduce:animate-none",
+            )}
+          />
         ) : null}
       </span>
-      <span className="truncate text-[0.68rem] font-semibold">{step.label}</span>
+      <span className="truncate text-[0.68rem] font-semibold">
+        {step.label}
+      </span>
     </div>
   );
 }

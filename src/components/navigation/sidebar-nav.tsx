@@ -28,8 +28,8 @@ export function SidebarNav() {
               {siteConfig.name}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Struktur navigasi dipisah agar dashboard berbasis peran lebih mudah
-              dibangun bertahap.
+              Struktur navigasi dipisah agar dashboard berbasis peran lebih
+              mudah dibangun bertahap.
             </p>
           </div>
 
@@ -53,7 +53,9 @@ export function SidebarNav() {
         </div>
 
         <Card className="rounded-3xl border-sky-100 bg-sky-50 p-4 shadow-none">
-          <p className="text-sm font-semibold text-slate-900">Dashboard peran aktif</p>
+          <p className="text-sm font-semibold text-slate-900">
+            Dashboard peran aktif
+          </p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Bilah samping menyesuaikan konteks peran dari hasil masuk.
           </p>

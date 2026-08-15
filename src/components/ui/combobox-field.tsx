@@ -5,7 +5,11 @@ import { Command as CommandPrimitive } from "cmdk";
 import { ChevronDown, Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -49,17 +53,28 @@ export function ComboboxField({
 }: ComboboxFieldProps) {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [visibleOptionCount, setVisibleOptionCount] = React.useState(MAX_RENDERED_OPTIONS);
-  const selected = React.useMemo(() => options.find((option) => option.value === value), [options, value]);
+  const [visibleOptionCount, setVisibleOptionCount] =
+    React.useState(MAX_RENDERED_OPTIONS);
+  const selected = React.useMemo(
+    () => options.find((option) => option.value === value),
+    [options, value],
+  );
   const indexedOptions = React.useMemo(
-    () => options.map((option) => ({ option, searchText: `${option.label} ${option.description ?? ""}`.toLowerCase() })),
+    () =>
+      options.map((option) => ({
+        option,
+        searchText: `${option.label} ${option.description ?? ""}`.toLowerCase(),
+      })),
     [options],
   );
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredOptions = React.useMemo(
-    () => normalizedQuery.length === 0
-      ? indexedOptions
-      : indexedOptions.filter((item) => item.searchText.includes(normalizedQuery)),
+    () =>
+      normalizedQuery.length === 0
+        ? indexedOptions
+        : indexedOptions.filter((item) =>
+            item.searchText.includes(normalizedQuery),
+          ),
     [indexedOptions, normalizedQuery],
   );
   React.useEffect(() => {
@@ -87,7 +102,12 @@ export function ComboboxField({
         )}
         disabled={disabled}
       >
-        <span className={cn("min-w-0 flex-1 truncate", !selected && "text-slate-400")}>
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate",
+            !selected && "text-slate-400",
+          )}
+        >
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown className="size-4 shrink-0 text-slate-400 transition group-data-[popup-open]:rotate-180" />
@@ -102,7 +122,10 @@ export function ComboboxField({
           contentClassName,
         )}
       >
-        <Command shouldFilter={false} className="gap-0 overflow-visible bg-transparent p-0">
+        <Command
+          shouldFilter={false}
+          className="gap-0 overflow-visible bg-transparent p-0"
+        >
           <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
             <Search className="pointer-events-none absolute left-4.5 top-[calc(50%+1px)] size-4 -translate-y-1/2 text-slate-400" />
             <CommandPrimitive.Input
@@ -116,12 +139,22 @@ export function ComboboxField({
             className="max-h-[280px] space-y-1 overscroll-contain p-1 pt-0"
             onScroll={(event) => {
               const list = event.currentTarget;
-              if (list.scrollTop + list.clientHeight >= list.scrollHeight - 80) {
-                setVisibleOptionCount((count) => Math.min(count + MAX_RENDERED_OPTIONS, filteredOptions.length));
+              if (
+                list.scrollTop + list.clientHeight >=
+                list.scrollHeight - 80
+              ) {
+                setVisibleOptionCount((count) =>
+                  Math.min(
+                    count + MAX_RENDERED_OPTIONS,
+                    filteredOptions.length,
+                  ),
+                );
               }
             }}
           >
-            <CommandEmpty className="py-6 text-center text-sm text-slate-400">{emptyText}</CommandEmpty>
+            <CommandEmpty className="py-6 text-center text-sm text-slate-400">
+              {emptyText}
+            </CommandEmpty>
             <CommandGroup>
               {renderedOptions.map(({ option }) => (
                 <CommandItem
@@ -140,7 +173,9 @@ export function ComboboxField({
                       {option.label}
                     </p>
                     {option.description ? (
-                      <p className="truncate text-xs text-slate-400">{option.description}</p>
+                      <p className="truncate text-xs text-slate-400">
+                        {option.description}
+                      </p>
                     ) : null}
                   </div>
                 </CommandItem>
@@ -148,7 +183,8 @@ export function ComboboxField({
             </CommandGroup>
             {filteredOptions.length > renderedOptions.length ? (
               <p className="px-3 py-2 text-center text-xs text-slate-400">
-                Menampilkan {renderedOptions.length} dari {filteredOptions.length}. Gulir untuk memuat lebih banyak.
+                Menampilkan {renderedOptions.length} dari{" "}
+                {filteredOptions.length}. Gulir untuk memuat lebih banyak.
               </p>
             ) : null}
           </CommandList>

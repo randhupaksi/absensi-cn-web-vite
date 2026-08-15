@@ -10,7 +10,12 @@ type BackButtonProps = {
   onClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
-export function BackButton({ href, label = "Kembali", className = "", onClick }: BackButtonProps) {
+export function BackButton({
+  href,
+  label = "Kembali",
+  className = "",
+  onClick,
+}: BackButtonProps) {
   return (
     <AppLink
       href={href}

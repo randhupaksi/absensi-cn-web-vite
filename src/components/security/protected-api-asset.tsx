@@ -8,8 +8,14 @@ import { useEffect, useState, type ImgHTMLAttributes } from "react";
 function isProtectedUpload(value: string) {
   try {
     const resolved = new URL(resolveApiAssetUrl(value));
-    const api = new URL(apiClient.defaults.baseURL ?? window.location.origin, window.location.origin);
-    return resolved.origin === api.origin && resolved.pathname.startsWith("/uploads/");
+    const api = new URL(
+      apiClient.defaults.baseURL ?? window.location.origin,
+      window.location.origin,
+    );
+    return (
+      resolved.origin === api.origin &&
+      resolved.pathname.startsWith("/uploads/")
+    );
   } catch {
     return false;
   }
@@ -43,11 +49,18 @@ async function createAssetObjectUrl(value: string, signal: AbortSignal) {
   return { url: URL.createObjectURL(image), revoke: true };
 }
 
-type ProtectedApiImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
+type ProtectedApiImageProps = Omit<
+  ImgHTMLAttributes<HTMLImageElement>,
+  "src"
+> & {
   src: string;
 };
 
-export function ProtectedApiImage({ src, alt, ...props }: ProtectedApiImageProps) {
+export function ProtectedApiImage({
+  src,
+  alt,
+  ...props
+}: ProtectedApiImageProps) {
   const [displaySrc, setDisplaySrc] = useState("");
 
   useEffect(() => {

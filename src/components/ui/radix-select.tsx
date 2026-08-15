@@ -29,10 +29,7 @@ type RadixSelectProps = {
   itemClassName?: string;
 };
 
-export function RadixSelectField({
-  searchable,
-  ...props
-}: RadixSelectProps) {
+export function RadixSelectField({ searchable, ...props }: RadixSelectProps) {
   if (searchable) {
     return (
       <ComboboxField
@@ -68,7 +65,8 @@ function RadixSelectFieldBase({
   const searchable = false;
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [visibleOptionCount, setVisibleOptionCount] = useState(MAX_RENDERED_OPTIONS);
+  const [visibleOptionCount, setVisibleOptionCount] =
+    useState(MAX_RENDERED_OPTIONS);
   const searchInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!open || !searchable) return;
@@ -79,13 +77,20 @@ function RadixSelectFieldBase({
   }, [open, searchable]);
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const indexedOptions = useMemo(
-    () => options.map((option) => ({ option, searchText: `${option.label} ${option.description ?? ""}`.toLowerCase() })),
+    () =>
+      options.map((option) => ({
+        option,
+        searchText: `${option.label} ${option.description ?? ""}`.toLowerCase(),
+      })),
     [options],
   );
   const filteredOptions = useMemo(
-    () => (!searchable || normalizedQuery.length === 0
-      ? indexedOptions
-      : indexedOptions.filter((item) => item.searchText.includes(normalizedQuery))),
+    () =>
+      !searchable || normalizedQuery.length === 0
+        ? indexedOptions
+        : indexedOptions.filter((item) =>
+            item.searchText.includes(normalizedQuery),
+          ),
     [indexedOptions, normalizedQuery, searchable],
   );
   useEffect(() => {
@@ -169,8 +174,16 @@ function RadixSelectFieldBase({
             className="max-h-[280px] space-y-1 overscroll-contain"
             onScroll={(event) => {
               const viewport = event.currentTarget;
-              if (viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 80) {
-                setVisibleOptionCount((count) => Math.min(count + MAX_RENDERED_OPTIONS, filteredOptions.length));
+              if (
+                viewport.scrollTop + viewport.clientHeight >=
+                viewport.scrollHeight - 80
+              ) {
+                setVisibleOptionCount((count) =>
+                  Math.min(
+                    count + MAX_RENDERED_OPTIONS,
+                    filteredOptions.length,
+                  ),
+                );
               }
             }}
           >
@@ -180,9 +193,16 @@ function RadixSelectFieldBase({
               </div>
             ) : null}
             {renderedOptions.map(({ option }) => (
-              <SelectItem key={option.value} value={option.value} hideIndicator={hideIndicator} className={itemClassName}>
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                hideIndicator={hideIndicator}
+                className={itemClassName}
+              >
                 <div className="min-w-0 flex-1 overflow-hidden">
-                  <p className="truncate font-medium text-slate-700">{option.label}</p>
+                  <p className="truncate font-medium text-slate-700">
+                    {option.label}
+                  </p>
                   {option.description ? (
                     <p className="truncate text-xs text-slate-400">
                       {option.description}
@@ -193,7 +213,8 @@ function RadixSelectFieldBase({
             ))}
             {filteredOptions.length > renderedOptions.length ? (
               <p className="px-3 py-2 text-center text-xs text-slate-400">
-                Menampilkan {renderedOptions.length} dari {filteredOptions.length}. Gulir untuk memuat lebih banyak.
+                Menampilkan {renderedOptions.length} dari{" "}
+                {filteredOptions.length}. Gulir untuk memuat lebih banyak.
               </p>
             ) : null}
           </Select.Viewport>

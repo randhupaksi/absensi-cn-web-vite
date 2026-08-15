@@ -1,37 +1,157 @@
-import { getAuthSession, getDashboardPathForUser, requiresInitialPasswordChange } from "@/lib/auth";
+import {
+  getAuthSession,
+  getDashboardPathForUser,
+  requiresInitialPasswordChange,
+} from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
 import { RouteLoadingFallback } from "@/components/loading/loading-system";
-import { lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  type ReactNode,
+} from "react";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
-const ChangePasswordPage = lazy(() => import("@/pages/auth/change-password-page").then((module) => ({ default: module.ChangePasswordPage })));
-const AdminDashboardPage = lazy(() => import("@/pages/admin/dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
-const AdminAdminsPage = lazy(() => import("@/pages/admin/admins-page").then((module) => ({ default: module.AdminAdminsPage })));
-const AdminClassesPage = lazy(() => import("@/pages/admin/classes-page").then((module) => ({ default: module.AdminClassesPage })));
-const AdminHolidaysPage = lazy(() => import("@/pages/admin/holidays-page").then((module) => ({ default: module.AdminHolidaysPage })));
-const AdminStudentsPage = lazy(() => import("@/pages/admin/students-page").then((module) => ({ default: module.AdminStudentsPage })));
-const AdminSubjectsPage = lazy(() => import("@/pages/admin/subjects-page").then((module) => ({ default: module.AdminSubjectsPage })));
-const AdminTeachersPage = lazy(() => import("@/pages/admin/teachers-page").then((module) => ({ default: module.AdminTeachersPage })));
-const AdminUsersPage = lazy(() => import("@/pages/admin/users-page").then((module) => ({ default: module.AdminUsersPage })));
-const AdminPlaceholderPage = lazy(() => import("@/pages/admin/placeholder-page").then((module) => ({ default: module.AdminPlaceholderPage })));
-const BKAttendancePage = lazy(() => import("@/pages/bk/attendance-page").then((module) => ({ default: module.BKAttendancePage })));
-const BKCounselingPage = lazy(() => import("@/pages/bk/counseling-page").then((module) => ({ default: module.BKCounselingPage })));
-const BKStudentsPage = lazy(() => import("@/pages/bk/students-page").then((module) => ({ default: module.BKStudentsPage })));
-const BKSubmissionsPage = lazy(() => import("@/pages/bk/submissions-page").then((module) => ({ default: module.BKSubmissionsPage })));
-const StudentDashboardPage = lazy(() => import("@/pages/student/dashboard-page").then((module) => ({ default: module.StudentDashboardPage })));
-const StudentHistoryPage = lazy(() => import("@/pages/student/history-page").then((module) => ({ default: module.StudentHistoryPage })));
-const StudentProfilePage = lazy(() => import("@/pages/student/profile-page").then((module) => ({ default: module.StudentProfilePage })));
-const TeacherDashboardPage = lazy(() => import("@/pages/teacher/dashboard-page").then((module) => ({ default: module.TeacherDashboardPage })));
-const WalasAttendancePage = lazy(() => import("@/pages/teacher/homeroom/attendance-page").then((module) => ({ default: module.WalasAttendancePage })));
-const WalasStudentsPage = lazy(() => import("@/pages/teacher/homeroom/students-page").then((module) => ({ default: module.WalasStudentsPage })));
-const WalasSubmissionsPage = lazy(() => import("@/pages/teacher/homeroom/submissions-page").then((module) => ({ default: module.WalasSubmissionsPage })));
-const MapelHistoryPage = lazy(() => import("@/pages/teacher/subject/history-page").then((module) => ({ default: module.MapelHistoryPage })));
-const MapelSchedulePage = lazy(() => import("@/pages/teacher/subject/schedule-page").then((module) => ({ default: module.MapelSchedulePage })));
-const MapelRecapPage = lazy(() => import("@/pages/teacher/subject/recap-page").then((module) => ({ default: module.MapelRecapPage })));
-const MapelSessionPage = lazy(() => import("@/pages/teacher/subject/session-page").then((module) => ({ default: module.MapelSessionPage })));
-const DevFixLogPage = lazy(() => import("@/pages/dev/fix-log-page").then((module) => ({ default: module.DevFixLogPage })));
+const ChangePasswordPage = lazy(() =>
+  import("@/pages/auth/change-password-page").then((module) => ({
+    default: module.ChangePasswordPage,
+  })),
+);
+const AdminDashboardPage = lazy(() =>
+  import("@/pages/admin/dashboard-page").then((module) => ({
+    default: module.AdminDashboardPage,
+  })),
+);
+const AdminAdminsPage = lazy(() =>
+  import("@/pages/admin/admins-page").then((module) => ({
+    default: module.AdminAdminsPage,
+  })),
+);
+const AdminClassesPage = lazy(() =>
+  import("@/pages/admin/classes-page").then((module) => ({
+    default: module.AdminClassesPage,
+  })),
+);
+const AdminHolidaysPage = lazy(() =>
+  import("@/pages/admin/holidays-page").then((module) => ({
+    default: module.AdminHolidaysPage,
+  })),
+);
+const AdminStudentsPage = lazy(() =>
+  import("@/pages/admin/students-page").then((module) => ({
+    default: module.AdminStudentsPage,
+  })),
+);
+const AdminSubjectsPage = lazy(() =>
+  import("@/pages/admin/subjects-page").then((module) => ({
+    default: module.AdminSubjectsPage,
+  })),
+);
+const AdminTeachersPage = lazy(() =>
+  import("@/pages/admin/teachers-page").then((module) => ({
+    default: module.AdminTeachersPage,
+  })),
+);
+const AdminUsersPage = lazy(() =>
+  import("@/pages/admin/users-page").then((module) => ({
+    default: module.AdminUsersPage,
+  })),
+);
+const AdminPlaceholderPage = lazy(() =>
+  import("@/pages/admin/placeholder-page").then((module) => ({
+    default: module.AdminPlaceholderPage,
+  })),
+);
+const BKAttendancePage = lazy(() =>
+  import("@/pages/bk/attendance-page").then((module) => ({
+    default: module.BKAttendancePage,
+  })),
+);
+const BKCounselingPage = lazy(() =>
+  import("@/pages/bk/counseling-page").then((module) => ({
+    default: module.BKCounselingPage,
+  })),
+);
+const BKStudentsPage = lazy(() =>
+  import("@/pages/bk/students-page").then((module) => ({
+    default: module.BKStudentsPage,
+  })),
+);
+const BKSubmissionsPage = lazy(() =>
+  import("@/pages/bk/submissions-page").then((module) => ({
+    default: module.BKSubmissionsPage,
+  })),
+);
+const StudentDashboardPage = lazy(() =>
+  import("@/pages/student/dashboard-page").then((module) => ({
+    default: module.StudentDashboardPage,
+  })),
+);
+const StudentHistoryPage = lazy(() =>
+  import("@/pages/student/history-page").then((module) => ({
+    default: module.StudentHistoryPage,
+  })),
+);
+const StudentProfilePage = lazy(() =>
+  import("@/pages/student/profile-page").then((module) => ({
+    default: module.StudentProfilePage,
+  })),
+);
+const TeacherDashboardPage = lazy(() =>
+  import("@/pages/teacher/dashboard-page").then((module) => ({
+    default: module.TeacherDashboardPage,
+  })),
+);
+const WalasAttendancePage = lazy(() =>
+  import("@/pages/teacher/homeroom/attendance-page").then((module) => ({
+    default: module.WalasAttendancePage,
+  })),
+);
+const WalasStudentsPage = lazy(() =>
+  import("@/pages/teacher/homeroom/students-page").then((module) => ({
+    default: module.WalasStudentsPage,
+  })),
+);
+const WalasSubmissionsPage = lazy(() =>
+  import("@/pages/teacher/homeroom/submissions-page").then((module) => ({
+    default: module.WalasSubmissionsPage,
+  })),
+);
+const MapelHistoryPage = lazy(() =>
+  import("@/pages/teacher/subject/history-page").then((module) => ({
+    default: module.MapelHistoryPage,
+  })),
+);
+const MapelSchedulePage = lazy(() =>
+  import("@/pages/teacher/subject/schedule-page").then((module) => ({
+    default: module.MapelSchedulePage,
+  })),
+);
+const MapelRecapPage = lazy(() =>
+  import("@/pages/teacher/subject/recap-page").then((module) => ({
+    default: module.MapelRecapPage,
+  })),
+);
+const MapelSessionPage = lazy(() =>
+  import("@/pages/teacher/subject/session-page").then((module) => ({
+    default: module.MapelSessionPage,
+  })),
+);
+const DevFixLogPage = lazy(() =>
+  import("@/pages/dev/fix-log-page").then((module) => ({
+    default: module.DevFixLogPage,
+  })),
+);
 
 function PageBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
@@ -73,17 +193,30 @@ function DismissInitialLoader() {
 
 function DashboardRedirect() {
   const session = getAuthSession();
-  return <Navigate replace to={session ? getDashboardPathForUser(session.user) : "/login/student"} />;
+  return (
+    <Navigate
+      replace
+      to={session ? getDashboardPathForUser(session.user) : "/login/student"}
+    />
+  );
 }
 
 function HomeRoute() {
   const session = getAuthSession();
-  return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <HomePage />;
+  return session ? (
+    <Navigate replace to={getDashboardPathForUser(session.user)} />
+  ) : (
+    <HomePage />
+  );
 }
 
 function LoginRoute({ portal }: { portal: PortalType }) {
   const session = getAuthSession();
-  return session ? <Navigate replace to={getDashboardPathForUser(session.user)} /> : <LoginPage portal={portal} />;
+  return session ? (
+    <Navigate replace to={getDashboardPathForUser(session.user)} />
+  ) : (
+    <LoginPage portal={portal} />
+  );
 }
 
 function ChangePasswordRoute() {
@@ -128,45 +261,195 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomeRoute />} />
           <Route path="/deveran" element={<DevFixLogPage />} />
-          <Route path="/login" element={<Navigate replace to="/login/student" />} />
-          <Route path="/login/student" element={<LoginRoute portal="student" />} />
+          <Route
+            path="/login"
+            element={<Navigate replace to="/login/student" />}
+          />
+          <Route
+            path="/login/student"
+            element={<LoginRoute portal="student" />}
+          />
           <Route path="/login/staff" element={<LoginRoute portal="staff" />} />
-	          <Route path="/auth/change-password" element={<ChangePasswordRoute />} />
+          <Route
+            path="/auth/change-password"
+            element={<ChangePasswordRoute />}
+          />
           <Route path="/admin/dashboard" element={<DashboardRedirect />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />
 
           <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
           <Route path="/dashboard/admin/admins" element={<AdminAdminsPage />} />
-          <Route path="/dashboard/admin/classes" element={<AdminClassesPage />} />
-          <Route path="/dashboard/admin/holidays" element={<AdminHolidaysPage />} />
-          <Route path="/dashboard/admin/students" element={<AdminStudentsPage />} />
-          <Route path="/dashboard/admin/subjects" element={<AdminSubjectsPage />} />
-          <Route path="/dashboard/admin/teachers" element={<AdminTeachersPage />} />
+          <Route
+            path="/dashboard/admin/classes"
+            element={<AdminClassesPage />}
+          />
+          <Route
+            path="/dashboard/admin/holidays"
+            element={<AdminHolidaysPage />}
+          />
+          <Route
+            path="/dashboard/admin/students"
+            element={<AdminStudentsPage />}
+          />
+          <Route
+            path="/dashboard/admin/subjects"
+            element={<AdminSubjectsPage />}
+          />
+          <Route
+            path="/dashboard/admin/teachers"
+            element={<AdminTeachersPage />}
+          />
           <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
-          <Route path="/dashboard/admin/reports" element={<AdminPlaceholderPage title="Laporan" subtitle="Laporan dan rekap absensi" description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah halaman ini dibuat." />} />
+          <Route
+            path="/dashboard/admin/reports"
+            element={
+              <AdminPlaceholderPage
+                title="Laporan"
+                subtitle="Laporan dan rekap absensi"
+                description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah halaman ini dibuat."
+              />
+            }
+          />
 
-          <Route path="/dashboard/teacher" element={<TeacherRoute><TeacherDashboardPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/bk/attendance" element={<TeacherRoute><BKAttendancePage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/bk/counseling" element={<TeacherRoute><BKCounselingPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/bk/students" element={<TeacherRoute><BKStudentsPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/bk/submissions" element={<TeacherRoute><BKSubmissionsPage /></TeacherRoute>} />
+          <Route
+            path="/dashboard/teacher"
+            element={
+              <TeacherRoute>
+                <TeacherDashboardPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/bk/attendance"
+            element={
+              <TeacherRoute>
+                <BKAttendancePage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/bk/counseling"
+            element={
+              <TeacherRoute>
+                <BKCounselingPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/bk/students"
+            element={
+              <TeacherRoute>
+                <BKStudentsPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/bk/submissions"
+            element={
+              <TeacherRoute>
+                <BKSubmissionsPage />
+              </TeacherRoute>
+            }
+          />
 
-          <Route path="/dashboard/siswa" element={<StudentRoute><StudentDashboardPage /></StudentRoute>} />
-          <Route path="/dashboard/siswa/history" element={<StudentRoute><StudentHistoryPage /></StudentRoute>} />
-          <Route path="/dashboard/siswa/profile" element={<StudentRoute><StudentProfilePage /></StudentRoute>} />
+          <Route
+            path="/dashboard/siswa"
+            element={
+              <StudentRoute>
+                <StudentDashboardPage />
+              </StudentRoute>
+            }
+          />
+          <Route
+            path="/dashboard/siswa/history"
+            element={
+              <StudentRoute>
+                <StudentHistoryPage />
+              </StudentRoute>
+            }
+          />
+          <Route
+            path="/dashboard/siswa/profile"
+            element={
+              <StudentRoute>
+                <StudentProfilePage />
+              </StudentRoute>
+            }
+          />
 
-          <Route path="/dashboard/teacher/homeroom" element={<Navigate replace to="/dashboard/teacher" />} />
-          <Route path="/dashboard/teacher/homeroom/attendance" element={<TeacherRoute><WalasAttendancePage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/homeroom/students" element={<TeacherRoute><WalasStudentsPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/homeroom/submissions" element={<TeacherRoute><WalasSubmissionsPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/subject" element={<Navigate replace to="/dashboard/teacher" />} />
-          <Route path="/dashboard/teacher/subject/history" element={<TeacherRoute><MapelHistoryPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/subject/schedule" element={<TeacherRoute><MapelSchedulePage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/subject/recap" element={<TeacherRoute><MapelRecapPage /></TeacherRoute>} />
-          <Route path="/dashboard/teacher/subject/session" element={<TeacherRoute><MapelSessionPage /></TeacherRoute>} />
+          <Route
+            path="/dashboard/teacher/homeroom"
+            element={<Navigate replace to="/dashboard/teacher" />}
+          />
+          <Route
+            path="/dashboard/teacher/homeroom/attendance"
+            element={
+              <TeacherRoute>
+                <WalasAttendancePage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/homeroom/students"
+            element={
+              <TeacherRoute>
+                <WalasStudentsPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/homeroom/submissions"
+            element={
+              <TeacherRoute>
+                <WalasSubmissionsPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/subject"
+            element={<Navigate replace to="/dashboard/teacher" />}
+          />
+          <Route
+            path="/dashboard/teacher/subject/history"
+            element={
+              <TeacherRoute>
+                <MapelHistoryPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/subject/schedule"
+            element={
+              <TeacherRoute>
+                <MapelSchedulePage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/subject/recap"
+            element={
+              <TeacherRoute>
+                <MapelRecapPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/subject/session"
+            element={
+              <TeacherRoute>
+                <MapelSessionPage />
+              </TeacherRoute>
+            }
+          />
 
-          <Route path="/dashboard/bk/*" element={<Navigate replace to="/dashboard/teacher" />} />
-          <Route path="/dashboard/walas/*" element={<Navigate replace to="/dashboard/teacher" />} />
+          <Route
+            path="/dashboard/bk/*"
+            element={<Navigate replace to="/dashboard/teacher" />}
+          />
+          <Route
+            path="/dashboard/walas/*"
+            element={<Navigate replace to="/dashboard/teacher" />}
+          />
 
           <Route path="*" element={<Navigate replace to="/" />} />
         </Routes>
