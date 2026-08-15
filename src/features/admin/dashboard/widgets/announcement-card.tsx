@@ -15,7 +15,9 @@ export function AnnouncementCard({ announcements }: AnnouncementCardProps) {
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xl font-semibold text-slate-950">Papan Pengumuman</p>
+          <p className="text-xl font-semibold text-slate-950">
+            Papan Pengumuman
+          </p>
           <p className="mt-1 text-sm text-slate-500">
             Notifikasi operasional admin
           </p>
@@ -39,8 +41,12 @@ export function AnnouncementCard({ announcements }: AnnouncementCardProps) {
                   <BadgeAlert className="size-4" />
                 </span>
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                  <p className="text-sm leading-6 text-slate-500">{item.description}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {item.title}
+                  </p>
+                  <p className="text-sm leading-6 text-slate-500">
+                    {item.description}
+                  </p>
                 </div>
               </div>
             </article>

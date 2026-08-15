@@ -24,7 +24,9 @@ export function RoleDistributionTable({
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xl font-semibold text-slate-950">Akun dan Penugasan Sistem</p>
+          <p className="text-xl font-semibold text-slate-950">
+            Akun dan Penugasan Sistem
+          </p>
           <p className="mt-1 text-sm text-slate-500">
             Komposisi role akun serta capability BK yang aktif di sistem
           </p>
@@ -44,7 +46,8 @@ export function RoleDistributionTable({
 
           <div className="divide-y divide-slate-100">
             {rows.map((row) => {
-              const percentage = totalUsers > 0 ? Math.round((row.count / totalUsers) * 100) : 0;
+              const percentage =
+                totalUsers > 0 ? Math.round((row.count / totalUsers) * 100) : 0;
 
               return (
                 <div
@@ -53,26 +56,36 @@ export function RoleDistributionTable({
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
-                      <span className={`size-3 rounded-full ${row.colorClass}`} />
+                      <span
+                        className={`size-3 rounded-full ${row.colorClass}`}
+                      />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-slate-900">
                           {row.label}
                         </p>
-                        <p className="truncate text-sm text-slate-500">{row.caption}</p>
+                        <p className="truncate text-sm text-slate-500">
+                          {row.caption}
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="text-sm font-semibold text-slate-900">{row.count}</div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    {row.count}
+                  </div>
 
                   <div className="space-y-2">
                     <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
                       <div
                         className={`h-full rounded-full ${row.barClass}`}
-                        style={{ width: `${Math.max(percentage, row.count > 0 ? 8 : 0)}%` }}
+                        style={{
+                          width: `${Math.max(percentage, row.count > 0 ? 8 : 0)}%`,
+                        }}
                       />
                     </div>
-                    <p className="text-xs font-medium text-slate-500">{percentage}% dari total akun</p>
+                    <p className="text-xs font-medium text-slate-500">
+                      {percentage}% dari total akun
+                    </p>
                   </div>
                 </div>
               );

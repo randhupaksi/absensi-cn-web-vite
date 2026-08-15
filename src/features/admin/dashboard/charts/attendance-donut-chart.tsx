@@ -103,7 +103,8 @@ export function AttendanceDonutChart({
                   <Tooltip
                     formatter={(value, name) => {
                       const count = Number(value ?? 0);
-                      const share = total > 0 ? Math.round((count / total) * 100) : 0;
+                      const share =
+                        total > 0 ? Math.round((count / total) * 100) : 0;
                       return [`${count} siswa (${share}%)`, name ?? "Data"];
                     }}
                     position={{
@@ -126,7 +127,9 @@ export function AttendanceDonutChart({
           </MeasuredChart>
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div className="rounded-full bg-white/95 px-6 py-5 text-center shadow-[0_8px_24px_rgba(148,163,184,0.14)]">
-              <p className="text-3xl font-semibold text-slate-950">{percentage}%</p>
+              <p className="text-3xl font-semibold text-slate-950">
+                {percentage}%
+              </p>
               <p className="mt-1 text-sm text-slate-500">Kehadiran</p>
             </div>
           </div>
@@ -138,9 +141,13 @@ export function AttendanceDonutChart({
             key={item.name}
             className="flex min-w-[92px] items-center gap-2 rounded-[14px] bg-slate-50/80 px-3 py-2"
           >
-            <span className={`size-2.5 shrink-0 rounded-full ${item.dotClassName}`} />
+            <span
+              className={`size-2.5 shrink-0 rounded-full ${item.dotClassName}`}
+            />
             <span className="whitespace-nowrap">{item.name}</span>
-            <span className="ml-auto shrink-0 tabular-nums font-semibold text-slate-700">{item.value}</span>
+            <span className="ml-auto shrink-0 tabular-nums font-semibold text-slate-700">
+              {item.value}
+            </span>
           </div>
         ))}
       </div>

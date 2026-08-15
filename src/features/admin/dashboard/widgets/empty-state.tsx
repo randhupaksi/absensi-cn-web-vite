@@ -17,9 +17,10 @@ export function EmptyState({
   compact = false,
   tone = "default",
 }: EmptyStateProps) {
-  const iconTone = tone === "notice"
-    ? "bg-amber-50 text-amber-600 ring-1 ring-amber-100"
-    : "bg-white text-slate-400";
+  const iconTone =
+    tone === "notice"
+      ? "bg-amber-50 text-amber-600 ring-1 ring-amber-100"
+      : "bg-white text-slate-400";
 
   return (
     <div
@@ -27,13 +28,17 @@ export function EmptyState({
         compact ? "gap-3 p-5" : "gap-4 p-8"
       }`}
     >
-      <div className={`flex size-12 items-center justify-center rounded-2xl shadow-sm ${iconTone}`}>
+      <div
+        className={`flex size-12 items-center justify-center rounded-2xl shadow-sm ${iconTone}`}
+      >
         <Icon className="size-5" />
       </div>
       <div className="space-y-1">
         <p className="text-sm font-semibold text-slate-800">{title}</p>
         {description ? (
-          <p className="max-w-sm text-sm leading-6 text-slate-500">{description}</p>
+          <p className="max-w-sm text-sm leading-6 text-slate-500">
+            {description}
+          </p>
         ) : null}
       </div>
     </div>

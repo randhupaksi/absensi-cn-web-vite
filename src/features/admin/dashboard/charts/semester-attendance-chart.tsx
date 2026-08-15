@@ -30,7 +30,11 @@ export function SemesterAttendanceChart({
 }: SemesterAttendanceChartProps) {
   const chartData = data;
   const isEmpty = chartData.every(
-    (item) => item.present === 0 && item.permission === 0 && item.sick === 0 && item.alpha === 0,
+    (item) =>
+      item.present === 0 &&
+      item.permission === 0 &&
+      item.sick === 0 &&
+      item.alpha === 0,
   );
 
   return (
@@ -53,64 +57,68 @@ export function SemesterAttendanceChart({
         <MeasuredChart className="h-[300px] min-w-0">
           {({ width, height }) => (
             <AreaChart width={width} height={height} data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e7ece9" vertical={false} />
-            <XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: "#7b8699", fontSize: 12 }}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: "#7b8699", fontSize: 12 }}
-              allowDecimals={false}
-            />
-            <Tooltip
-              contentStyle={{
-                borderRadius: 18,
-                border: "1px solid rgba(226,232,240,0.9)",
-                boxShadow: "0 18px 36px rgba(148,163,184,0.15)",
-              }}
-            />
-            <Legend
-              verticalAlign="top"
-              align="right"
-              iconType="circle"
-              wrapperStyle={{ fontSize: "12px", paddingBottom: "12px" }}
-            />
-            <Area
-              type="monotone"
-              dataKey="present"
-              name="Hadir"
-              stroke="#63c98f"
-              fill="none"
-              strokeWidth={3}
-            />
-            <Area
-              type="monotone"
-              dataKey="permission"
-              name="Izin"
-              stroke="#38bdf8"
-              fill="none"
-              strokeWidth={2.5}
-            />
-            <Area
-              type="monotone"
-              dataKey="sick"
-              name="Sakit"
-              stroke="#a78bfa"
-              fill="none"
-              strokeWidth={2.5}
-            />
-            <Area
-              type="monotone"
-              dataKey="alpha"
-              name="Alfa"
-              stroke="#f28b82"
-              fill="none"
-              strokeWidth={2.5}
-            />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e7ece9"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#7b8699", fontSize: 12 }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#7b8699", fontSize: 12 }}
+                allowDecimals={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: 18,
+                  border: "1px solid rgba(226,232,240,0.9)",
+                  boxShadow: "0 18px 36px rgba(148,163,184,0.15)",
+                }}
+              />
+              <Legend
+                verticalAlign="top"
+                align="right"
+                iconType="circle"
+                wrapperStyle={{ fontSize: "12px", paddingBottom: "12px" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="present"
+                name="Hadir"
+                stroke="#63c98f"
+                fill="none"
+                strokeWidth={3}
+              />
+              <Area
+                type="monotone"
+                dataKey="permission"
+                name="Izin"
+                stroke="#38bdf8"
+                fill="none"
+                strokeWidth={2.5}
+              />
+              <Area
+                type="monotone"
+                dataKey="sick"
+                name="Sakit"
+                stroke="#a78bfa"
+                fill="none"
+                strokeWidth={2.5}
+              />
+              <Area
+                type="monotone"
+                dataKey="alpha"
+                name="Alfa"
+                stroke="#f28b82"
+                fill="none"
+                strokeWidth={2.5}
+              />
             </AreaChart>
           )}
         </MeasuredChart>

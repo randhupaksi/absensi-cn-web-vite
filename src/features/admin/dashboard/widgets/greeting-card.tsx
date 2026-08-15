@@ -114,7 +114,9 @@ export function GreetingCard({ adminName }: GreetingCardProps) {
             className="group flex min-h-14 items-center justify-between gap-3 rounded-[20px] border border-white/80 bg-white/74 px-3 py-3 text-xs font-semibold text-slate-700 shadow-[0_12px_26px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/80 hover:text-emerald-800 hover:shadow-[0_16px_34px_rgba(15,23,42,0.08)] sm:px-3.5 sm:text-sm"
           >
             <span className="inline-flex min-w-0 items-center gap-2 sm:gap-2.5">
-              <span className={`inline-flex size-8 shrink-0 items-center justify-center rounded-2xl transition sm:size-9 ${iconClass}`}>
+              <span
+                className={`inline-flex size-8 shrink-0 items-center justify-center rounded-2xl transition sm:size-9 ${iconClass}`}
+              >
                 <Icon className="size-4" />
               </span>
               <span className="truncate">{label}</span>

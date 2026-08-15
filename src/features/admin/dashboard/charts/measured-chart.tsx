@@ -7,10 +7,7 @@ type MeasuredChartProps = {
   children: (size: { width: number; height: number }) => ReactNode;
 };
 
-export function MeasuredChart({
-  className,
-  children,
-}: MeasuredChartProps) {
+export function MeasuredChart({ className, children }: MeasuredChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
