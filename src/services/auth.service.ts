@@ -22,10 +22,17 @@ type ApiEnvelope<T> = {
   errors?: Record<string, string>;
 };
 
+const AUTH_REQUEST_TIMEOUT = 20_000;
+const AUTH_MAX_ATTEMPTS = 2;
+
 export async function login(payload: LoginSchema) {
   try {
-    const response = await retryTransientRequest(() =>
-      apiClient.post<ApiEnvelope<ApiAuthSession>>("/auth/login", payload),
+    const response = await retryTransientRequest(
+      () =>
+        apiClient.post<ApiEnvelope<ApiAuthSession>>("/auth/login", payload, {
+          timeout: AUTH_REQUEST_TIMEOUT,
+        }),
+      AUTH_MAX_ATTEMPTS,
     );
 
     return {
@@ -44,7 +51,9 @@ export async function changeInitialPassword(payload: ChangePasswordPayload) {
   try {
     const response = await apiClient.post<
       ApiEnvelope<{ must_change_password: false }>
-    >("/auth/change-password", payload);
+    >("/auth/change-password", payload, {
+      timeout: AUTH_REQUEST_TIMEOUT,
+    });
     return response.data.data;
   } catch (error) {
     throw new Error(getUserErrorMessage(error, "login"));
