@@ -1,11 +1,21 @@
 import { fileURLToPath, URL } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
+import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    legacy({
+      // Keep modern browsers fast while serving a compatible fallback to
+      // older Android/Samsung Internet and iOS browser engines.
+      targets: ["Android >= 7", "Samsung >= 8", "iOS >= 12", "defaults"],
+      modernPolyfills: true,
+    }),
+  ],
   resolve: {
     dedupe: ["react", "react-dom", "@tanstack/react-query"],
     alias: {
@@ -13,8 +23,6 @@ export default defineConfig({
     },
   },
   build: {
-    // Target modern browsers so Vite can avoid legacy transforms and polyfills.
-    target: "es2020",
     chunkSizeWarningLimit: 600,
   },
   server: {

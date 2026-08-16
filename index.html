@@ -56,6 +56,33 @@
         pointer-events: none;
       }
 
+      #initial-loader.is-error .initial-loader__logo {
+        border-color: rgba(251, 191, 36, 0.7);
+      }
+
+      #initial-loader.is-error .initial-loader__bar {
+        display: none;
+      }
+
+      .initial-loader__retry {
+        display: none;
+        min-height: 42px;
+        margin-top: 18px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 12px;
+        background: #047857;
+        color: #fff;
+        font: 700 13px/1 system-ui, sans-serif;
+        cursor: pointer;
+      }
+
+      #initial-loader.is-error .initial-loader__retry {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       .initial-loader__content {
         display: flex;
         width: min(100%, 280px);
@@ -141,9 +168,29 @@
         <div class="initial-loader__track" aria-hidden="true">
           <span class="initial-loader__bar"></span>
         </div>
+        <button class="initial-loader__retry" type="button" onclick="window.location.reload()">Muat ulang halaman</button>
       </div>
     </div>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (function () {
+        function showInitialLoadError() {
+          if (window.__absensiAppReady) return;
+
+          var loader = document.getElementById("initial-loader");
+          if (!loader) return;
+
+          loader.className += " is-error";
+          var title = loader.querySelector(".initial-loader__title");
+          var subtitle = loader.querySelector(".initial-loader__subtitle");
+          if (title) title.textContent = "Halaman belum berhasil dimuat";
+          if (subtitle) subtitle.textContent = "Periksa koneksi lalu muat ulang halaman.";
+        }
+
+        window.__absensiShowInitialLoadError = showInitialLoadError;
+        window.__absensiInitialLoaderTimeout = window.setTimeout(showInitialLoadError, 15000);
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx" onerror="window.__absensiShowInitialLoadError && window.__absensiShowInitialLoadError()"></script>
   </body>
 </html>

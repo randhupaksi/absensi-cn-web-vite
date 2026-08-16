@@ -5,6 +5,7 @@ import {
 } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
 import { RouteLoadingFallback } from "@/components/loading/loading-system";
+import { AppErrorBoundary } from "@/components/errors/app-error-boundary";
 import {
   lazy,
   Suspense,
@@ -159,7 +160,11 @@ const RandhuPage = lazy(() =>
 );
 
 function PageBoundary({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>;
+  return (
+    <AppErrorBoundary>
+      <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>
+    </AppErrorBoundary>
+  );
 }
 
 function ScrollToTopOnNavigate() {
@@ -184,6 +189,11 @@ function ScrollToTopOnNavigate() {
 
 function DismissInitialLoader() {
   useLayoutEffect(() => {
+    window.__absensiAppReady = true;
+    if (window.__absensiInitialLoaderTimeout) {
+      window.clearTimeout(window.__absensiInitialLoaderTimeout);
+    }
+
     const loader = document.getElementById("initial-loader");
     if (!loader) return;
 
