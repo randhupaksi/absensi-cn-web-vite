@@ -282,7 +282,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         size="lg"
         disabled={isSubmitting || isRateLimited}
         aria-busy={isSubmitting || isRateLimited}
-        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold text-white transition-[transform,box-shadow,filter] duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-wait disabled:!opacity-100 ${content.buttonClass}`}
+        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold transition-[transform,box-shadow,filter] duration-200 disabled:cursor-not-allowed disabled:!opacity-100 ${isRateLimited ? "!border-emerald-200 !bg-emerald-100 !text-emerald-700 !shadow-none hover:!scale-100 active:!scale-100" : `text-white hover:scale-[1.01] active:scale-[0.99] ${content.buttonClass}`}`}
       >
         <span className="relative flex items-center justify-center gap-2">
           <span className="inline-flex size-4 shrink-0 items-center justify-center">
