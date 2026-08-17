@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { observeElementResize } from "@/lib/observe-element-resize";
 
 type MeasuredChartProps = {
   className?: string;
@@ -35,15 +36,7 @@ export function MeasuredChart({ className, children }: MeasuredChartProps) {
 
     updateSize();
 
-    const observer = new ResizeObserver(() => {
-      updateSize();
-    });
-
-    observer.observe(element);
-
-    return () => {
-      observer.disconnect();
-    };
+    return observeElementResize(element, updateSize);
   }, []);
 
   return (

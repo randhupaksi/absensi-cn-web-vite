@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { observeElementResize } from "@/lib/observe-element-resize";
 
 export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -20,11 +21,10 @@ export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
     if (!el) return;
     update();
     el.addEventListener("scroll", update, { passive: true });
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
+    const resizeCleanup = observeElementResize(el, update);
     return () => {
       el.removeEventListener("scroll", update);
-      ro.disconnect();
+      resizeCleanup();
     };
   }, []);
 
