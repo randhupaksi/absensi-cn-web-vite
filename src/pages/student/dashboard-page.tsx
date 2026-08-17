@@ -6,7 +6,6 @@ import { AttendanceLocationEvidence } from "@/features/attendance/components/loc
 import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import { StudentShell } from "@/features/student/components/shell";
 import { CameraCaptureModal } from "@/features/student/components/camera-capture-modal";
-import { ModalActions } from "@/features/admin/management/shared/section-ui";
 import {
   formatClock,
   formatStudentDate,
@@ -17,11 +16,14 @@ import {
 } from "@/features/student/components/common";
 import { Button } from "@/components/ui/button";
 import { formatPersonName } from "@/lib/format-person-name";
+import { observeElementResize } from "@/lib/observe-element-resize";
 import {
   PremiumModal,
+  premiumModalActionsClassName,
   premiumModalFieldClassName,
   premiumModalHelperClassName,
   premiumModalLabelClassName,
+  premiumModalSubmitButtonClassName,
   premiumModalSurfaceClassName,
 } from "@/components/modals/premium-modal";
 import { FieldError } from "@/components/ui/field-error";
@@ -38,10 +40,12 @@ import {
   captureAttendanceLocation,
 } from "@/lib/location/capture-attendance-location";
 import {
+  getStudentToday,
   getStudentDashboard,
+  StudentAttendanceSubmissionUncertainError,
   submitStudentDailyReport,
 } from "@/services/student.service";
-import type { StudentDailyReportPayload } from "@/types/student";
+import type { StudentDailyReportPayload, StudentToday } from "@/types/student";
 import type { AttendanceLocationCaptureResult } from "@/types/location";
 import type { StaffAttendanceRecord } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -58,15 +62,20 @@ import {
   History,
   ImageUp,
   LogIn,
+  LoaderCircle,
+  RotateCw,
   School,
+  SendHorizontal,
   ShieldAlert,
   ShieldCheck,
   TimerReset,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { StudentDashboardSkeleton } from "@/components/loading/loading-system";
 import {
   ProcessStatus,
@@ -87,12 +96,19 @@ const reportTypeOptions = [
   },
 ];
 
+type AttendanceSubmissionStage =
+  | "idle"
+  | "uploading"
+  | "queueing"
+  | "retrying"
+  | "verifying"
+  | "retryable-error";
+
 export function StudentDashboardPage() {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const photoPreviewRef = useRef("");
   const locationCaptureSequenceRef = useRef(0);
-  const hasRequestedInitialLocationRef = useRef(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState("");
@@ -105,6 +121,9 @@ export function StudentDashboardPage() {
   const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [submissionStage, setSubmissionStage] =
+    useState<AttendanceSubmissionStage>("idle");
+  const [queueSeconds, setQueueSeconds] = useState(0);
   const [locationState, setLocationState] = useState<
     "idle" | "loading" | "complete"
   >("idle");
@@ -127,28 +146,43 @@ export function StudentDashboardPage() {
 
   const submitMutation = useMutation({
     mutationFn: (payload: StudentDailyReportPayload) =>
-      submitStudentDailyReport(payload, setUploadProgress),
-    onMutate: () => setUploadProgress(6),
+      submitStudentDailyReport(payload, setUploadProgress, (event) => {
+        setSubmissionStage("queueing");
+        setQueueSeconds(Math.max(1, Math.ceil(event.delayMilliseconds / 1_000)));
+      }),
+    onMutate: () => {
+      setUploadProgress(6);
+      setQueueSeconds(0);
+      setSubmissionStage("uploading");
+    },
     onSuccess: async (data) => {
-      if (data?.can_submit !== false) {
-        toast.error("Absensi gagal tersimpan, silakan coba lagi.");
+      await completeAttendanceSubmission(data);
+    },
+    onError: async (error) => {
+      if (error instanceof StudentAttendanceSubmissionUncertainError) {
+        await reconcileAttendanceSubmission();
         return;
       }
-      setUploadProgress(100);
-      toast.success("Absensi berhasil dikirim.");
-      setModalOpen(false);
-      resetCaptureState();
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["student-dashboard"] }),
-        queryClient.invalidateQueries({ queryKey: ["student-history"] }),
-        queryClient.invalidateQueries({ queryKey: ["student-profile"] }),
-      ]);
-    },
-    onError: (error: Error) => {
       setUploadProgress(0);
-      toast.error(error.message);
+      setQueueSeconds(0);
+      setSubmissionStage("idle");
+      toast.error(error instanceof Error ? error.message : "Absensi gagal dikirim.");
     },
   });
+
+  useEffect(() => {
+    if (submissionStage !== "queueing" || queueSeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setQueueSeconds((seconds) => {
+        if (seconds <= 1) {
+          setSubmissionStage("retrying");
+          return 0;
+        }
+        return seconds - 1;
+      });
+    }, 1_000);
+    return () => window.clearInterval(timer);
+  }, [queueSeconds, submissionStage]);
 
   useEffect(
     () => () => {
@@ -178,19 +212,7 @@ export function StudentDashboardPage() {
     };
 
     updateInlineState();
-    const observer = new ResizeObserver(updateInlineState);
-    observer.observe(row);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (hasRequestedInitialLocationRef.current) return;
-    hasRequestedInitialLocationRef.current = true;
-
-    // Ask once as soon as the student dashboard is available. Requesting it
-    // after the login API has resolved can lose the browser's permission flow
-    // on mobile; requesting it here lets the native prompt appear on entry.
-    void captureAttendanceLocation();
+    return observeElementResize(row, updateInlineState);
   }, []);
 
   useEffect(() => {
@@ -266,6 +288,22 @@ export function StudentDashboardPage() {
       return serverNow > lateUntil;
     })();
   const greeting = getDashboardGreeting(greetingNow);
+  const isSubmissionBusy =
+    submitMutation.isPending ||
+    locationState === "loading" ||
+    isPreparingPhoto;
+  const isSubmissionQueued =
+    submissionStage === "queueing" ||
+    submissionStage === "retrying" ||
+    submissionStage === "verifying";
+  const submissionButton = getSubmissionButtonState({
+    isPreparingPhoto,
+    locationState,
+    submissionStage,
+    queueSeconds,
+    uploadProgress,
+  });
+  const SubmissionButtonIcon = submissionButton.icon;
 
   function resetCaptureState() {
     locationCaptureSequenceRef.current += 1;
@@ -279,6 +317,8 @@ export function StudentDashboardPage() {
     setLocationState("idle");
     setLocationResult(null);
     setUploadProgress(0);
+    setQueueSeconds(0);
+    setSubmissionStage("idle");
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -363,6 +403,49 @@ export function StudentDashboardPage() {
       photo: photoFile,
       location: locationResult?.capture ?? { client_status: "unavailable" },
     });
+  }
+
+  async function completeAttendanceSubmission(data: StudentToday) {
+    if (data.can_submit !== false || !data.attendance) {
+      setUploadProgress(0);
+      setQueueSeconds(0);
+      setSubmissionStage("retryable-error");
+      toast.error("Absensi belum tercatat. Silakan coba kirim lagi.");
+      return;
+    }
+
+    setUploadProgress(100);
+    setQueueSeconds(0);
+    setSubmissionStage("idle");
+    toast.success("Absensi berhasil dicatat.");
+    setModalOpen(false);
+    resetCaptureState();
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["student-dashboard"] }),
+      queryClient.invalidateQueries({ queryKey: ["student-history"] }),
+      queryClient.invalidateQueries({ queryKey: ["student-profile"] }),
+    ]);
+  }
+
+  async function reconcileAttendanceSubmission() {
+    setSubmissionStage("verifying");
+    setQueueSeconds(0);
+    try {
+      const latestToday = await getStudentToday();
+      if (latestToday.can_submit === false && latestToday.attendance) {
+        await completeAttendanceSubmission(latestToday);
+        return;
+      }
+    } catch {
+      // The upload result is uncertain and the status endpoint is temporarily
+      // unavailable too. Keep the selected photo so the student can retry.
+    }
+
+    setUploadProgress(0);
+    setSubmissionStage("retryable-error");
+    toast.error(
+      "Absensi belum tercatat. Foto tetap siap dikirim, silakan coba lagi.",
+    );
   }
 
   const attendanceProcessSteps: ProcessStep[] = [
@@ -469,7 +552,7 @@ export function StudentDashboardPage() {
                         {alreadySubmitted
                           ? "Absensi hari ini sudah terkirim."
                           : isHoliday
-                            ? "Hari ini libur."
+                            ? "Hari ini libur"
                             : isWindowClosed
                               ? "Kamu tidak hadir hari ini."
                               : "Ambil foto dan kirim absensi hari ini."}
@@ -516,9 +599,9 @@ export function StudentDashboardPage() {
                     <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
                       {isHoliday ? (
                         today?.holiday_type === "WEEKEND" ? (
-                          "Sabtu dan Minggu adalah hari libur. Tidak ada absensi dan tidak ada status alfa."
+                          "Sabtu dan Minggu adalah hari libur. Tidak ada absensi untuk hari ini."
                         ) : (
-                          `${today?.holiday_name ?? "Tanggal ini"} tercatat sebagai hari libur sekolah. Tidak ada absensi dan tidak ada status alfa.`
+                          `${today?.holiday_name ?? "Tanggal ini"} tercatat sebagai hari libur sekolah. Tidak ada absensi untuk hari ini.`
                         )
                       ) : (
                         <>
@@ -792,25 +875,53 @@ export function StudentDashboardPage() {
               icon={ImageUp}
               className="sm:!max-w-[760px]"
               footer={
-                <ModalActions
-                  isPending={
-                    submitMutation.isPending || locationState === "loading"
-                  }
-                  className="!mt-0 !pt-0 before:hidden"
-                  onCancel={() => {
-                    setModalOpen(false);
-                    resetCaptureState();
-                  }}
-                  onSubmit={handleSubmit}
-                  submitLabel={
-                    locationState === "loading"
-                      ? "Membaca Lokasi..."
-                      : "Kirim Absensi"
-                  }
-                />
+                <div
+                  className={cn(
+                    premiumModalActionsClassName,
+                    "!mt-0 !pt-0 before:hidden",
+                  )}
+                >
+                  <Button
+                    variant="outline"
+                    className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 sm:flex-none sm:px-5"
+                    onClick={() => {
+                      setModalOpen(false);
+                      resetCaptureState();
+                    }}
+                    disabled={isSubmissionBusy}
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    data-modal-submit
+                    className={cn(
+                      premiumModalSubmitButtonClassName,
+                      "min-w-0 flex-1 sm:flex-none",
+                    )}
+                    onClick={handleSubmit}
+                    disabled={isSubmissionBusy}
+                    aria-busy={isSubmissionBusy}
+                  >
+                    <SubmissionButtonIcon
+                      className={cn(
+                        "size-4",
+                        submissionButton.isAnimated &&
+                          "animate-spin motion-reduce:animate-none",
+                      )}
+                    />
+                    <span>{submissionButton.label}</span>
+                  </Button>
+                </div>
               }
             >
               <div className="space-y-5">
+                {isSubmissionQueued ||
+                submissionStage === "retryable-error" ? (
+                  <AttendanceSubmissionFeedback
+                    stage={submissionStage}
+                    queueSeconds={queueSeconds}
+                  />
+                ) : null}
                 <ProcessStatus
                   steps={attendanceProcessSteps}
                   progress={
@@ -970,6 +1081,129 @@ export function StudentDashboardPage() {
   );
 }
 
+function getSubmissionButtonState({
+  isPreparingPhoto,
+  locationState,
+  submissionStage,
+  queueSeconds,
+  uploadProgress,
+}: {
+  isPreparingPhoto: boolean;
+  locationState: "idle" | "loading" | "complete";
+  submissionStage: AttendanceSubmissionStage;
+  queueSeconds: number;
+  uploadProgress: number;
+}): { label: string; icon: LucideIcon; isAnimated: boolean } {
+  if (isPreparingPhoto) {
+    return { label: "Menyiapkan Foto...", icon: LoaderCircle, isAnimated: true };
+  }
+  if (locationState === "loading") {
+    return { label: "Membaca Lokasi...", icon: LoaderCircle, isAnimated: true };
+  }
+  if (submissionStage === "queueing") {
+    return {
+      label: `Menunggu Giliran ${formatQueueCountdown(queueSeconds)}`,
+      icon: TimerReset,
+      isAnimated: false,
+    };
+  }
+  if (submissionStage === "retrying") {
+    return {
+      label: "Mencoba Mengirim Ulang...",
+      icon: RotateCw,
+      isAnimated: true,
+    };
+  }
+  if (submissionStage === "verifying") {
+    return {
+      label: "Memeriksa Status...",
+      icon: LoaderCircle,
+      isAnimated: true,
+    };
+  }
+  if (submissionStage === "retryable-error") {
+    return { label: "Coba Kirim Lagi", icon: RotateCw, isAnimated: false };
+  }
+  if (uploadProgress >= 95) {
+    return { label: "Menyimpan Absensi...", icon: LoaderCircle, isAnimated: true };
+  }
+  if (uploadProgress > 6) {
+    return {
+      label: `Mengunggah Foto... ${Math.round(uploadProgress)}%`,
+      icon: LoaderCircle,
+      isAnimated: true,
+    };
+  }
+  if (submissionStage === "uploading") {
+    return {
+      label: "Menyiapkan Pengiriman...",
+      icon: LoaderCircle,
+      isAnimated: true,
+    };
+  }
+  return { label: "Kirim Absensi", icon: SendHorizontal, isAnimated: false };
+}
+
+function AttendanceSubmissionFeedback({
+  stage,
+  queueSeconds,
+}: {
+  stage: AttendanceSubmissionStage;
+  queueSeconds: number;
+}) {
+  const isRetryableError = stage === "retryable-error";
+  const isVerifying = stage === "verifying";
+  const Icon = isRetryableError ? ShieldAlert : isVerifying ? LoaderCircle : TimerReset;
+  const title = isRetryableError
+    ? "Absensi belum tercatat"
+    : isVerifying
+      ? "Memeriksa status absensi"
+      : "Server sedang menerima banyak absensi";
+  const description = isRetryableError
+    ? "Foto tetap siap dikirim. Gunakan tombol Coba Kirim Lagi tanpa mengambil foto ulang."
+    : isVerifying
+      ? "Kami mengecek apakah pengiriman sebelumnya sudah berhasil dicatat."
+      : `Foto dan data kamu masih kami coba kirim. Mohon tunggu ${formatQueueCountdown(queueSeconds)}.`;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={cn(
+        "flex items-start gap-3 rounded-[1.2rem] border p-4",
+        isRetryableError
+          ? "border-amber-200 bg-amber-50/85 text-amber-900"
+          : "border-sky-200 bg-sky-50/85 text-sky-900",
+      )}
+    >
+      <span
+        className={cn(
+          "flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] bg-white shadow-[0_8px_18px_rgba(15,23,42,0.07)]",
+          isRetryableError ? "text-amber-600" : "text-sky-600",
+        )}
+      >
+        <Icon
+          className={cn(
+            "size-5",
+            isVerifying && "animate-spin motion-reduce:animate-none",
+          )}
+        />
+      </span>
+      <div className="min-w-0 pt-0.5">
+        <p className="text-sm font-semibold">{title}</p>
+        <p className="mt-1 text-sm leading-6 opacity-80">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function formatQueueCountdown(seconds: number) {
+  const safeSeconds = Math.max(0, seconds);
+  return `${String(Math.floor(safeSeconds / 60)).padStart(2, "0")}:${String(
+    safeSeconds % 60,
+  ).padStart(2, "0")}`;
+}
+
 function InfoTile({
   icon: Icon,
   label,
@@ -1008,10 +1242,10 @@ function InfoTile({
 
 function getDashboardGreeting(now: Date) {
   const hour = now.getHours();
-  if (hour < 11) return { label: "Selamat pagi" };
-  if (hour < 15) return { label: "Selamat siang" };
-  if (hour < 18) return { label: "Selamat sore" };
-  return { label: "Selamat malam" };
+  if (hour < 11) return { label: "Selamat Pagi" };
+  if (hour < 15) return { label: "Selamat Siang" };
+  if (hour < 18) return { label: "Selamat Sore" };
+  return { label: "Selamat Malam" };
 }
 
 function formatDashboardGreetingDate(date: Date) {
@@ -1027,6 +1261,7 @@ function isMobileDevice(): boolean {
   return (
     /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
     (typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
       window.matchMedia("(pointer: coarse)").matches)
   );
 }
