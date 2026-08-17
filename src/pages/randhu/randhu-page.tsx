@@ -143,7 +143,7 @@ export function RandhuPage() {
         >
           <motion.a className={styles.eyebrow} href="/" variants={heroItemVariants}>
             <span className={styles.statusDot} />
-            ABSENSI CN / DEVELOPER NOTE
+            CITRA NEGARA ATTENDENCE SYSTEM / DEVELOPER NOTE
           </motion.a>
 
           <motion.p className={styles.kicker} variants={heroItemVariants}>
@@ -279,7 +279,7 @@ export function RandhuPage() {
           <span>02 / THE FOUNDATION</span>
           <h2>Sistem sekolah, standar produk</h2>
           <p>
-            Absensi CN dirancang sebagai sistem operasional terhubung untuk
+            Citra Negara Attendence System dirancang sebagai sistem operasional terhubung untuk
             absensi harian-bukan sekadar kumpulan formulir yang terpisah.
           </p>
         </motion.div>
