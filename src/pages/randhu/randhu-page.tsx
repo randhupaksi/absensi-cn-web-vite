@@ -12,9 +12,9 @@ import {
   Sparkles,
   Terminal,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { FaGithub, FaInstagram, FaLinkedinIn } from "react-icons/fa";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
 import styles from "./randhu-page.module.css";
 
 const capabilities = [
@@ -48,7 +48,7 @@ const heroContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { delayChildren: 0.12, staggerChildren: 0.11 },
+    transition: { delayChildren: 0.04, staggerChildren: 0.07 },
   },
 };
 
@@ -57,7 +57,7 @@ const heroItemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.62, ease: [0.19, 1, 0.22, 1] as const },
+    transition: { duration: 0.42, ease: [0.19, 1, 0.22, 1] as const },
   },
 };
 
@@ -88,40 +88,42 @@ const footerItemVariants = {
 };
 
 export function RandhuPage() {
-  const [spotlight, setSpotlight] = useState({ x: 52, y: 22 });
-  const [animationKey, setAnimationKey] = useState(0);
+  const pageRef = useRef<HTMLElement | null>(null);
+  const spotlightFrameRef = useRef(0);
+  const latestSpotlightRef = useRef({ x: 52, y: 22 });
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    let secondFrame = 0;
-    const firstFrame = window.requestAnimationFrame(() => {
-      secondFrame = window.requestAnimationFrame(() => {
-        setAnimationKey((currentKey) => currentKey + 1);
-      });
-    });
-
     return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.cancelAnimationFrame(secondFrame);
+      window.cancelAnimationFrame(spotlightFrameRef.current);
     };
   }, []);
 
+  function handlePointerMove(event: ReactPointerEvent<HTMLElement>) {
+    if (event.pointerType !== "mouse" || reduceMotion) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    latestSpotlightRef.current = {
+      x: ((event.clientX - bounds.left) / bounds.width) * 100,
+      y: ((event.clientY - bounds.top) / bounds.height) * 100,
+    };
+
+    if (spotlightFrameRef.current) return;
+    spotlightFrameRef.current = window.requestAnimationFrame(() => {
+      const page = pageRef.current;
+      const spotlight = latestSpotlightRef.current;
+      if (page) {
+        page.style.setProperty("--randhu-spotlight-x", `${spotlight.x}%`);
+        page.style.setProperty("--randhu-spotlight-y", `${spotlight.y}%`);
+      }
+      spotlightFrameRef.current = 0;
+    });
+  }
+
   return (
     <main
-      key={animationKey}
+      ref={pageRef}
       className={styles.page}
-      style={
-        {
-          "--randhu-spotlight-x": `${spotlight.x}%`,
-          "--randhu-spotlight-y": `${spotlight.y}%`,
-        } as CSSProperties
-      }
-      onMouseMove={(event) => {
-        const bounds = event.currentTarget.getBoundingClientRect();
-        setSpotlight({
-          x: ((event.clientX - bounds.left) / bounds.width) * 100,
-          y: ((event.clientY - bounds.top) / bounds.height) * 100,
-        });
-      }}
+      onPointerMove={handlePointerMove}
     >
       <div className={styles.gridBackdrop} aria-hidden="true" />
       <div className={styles.orbOne} aria-hidden="true" />
@@ -135,7 +137,7 @@ export function RandhuPage() {
       <section className={styles.hero}>
         <motion.div
           className={styles.heroCopy}
-          initial="hidden"
+          initial={reduceMotion ? false : "hidden"}
           animate="visible"
           variants={heroContainerVariants}
         >
@@ -193,9 +195,13 @@ export function RandhuPage() {
 
         <motion.aside
           className={styles.identityPanel}
-          initial={{ opacity: 0, scale: 0.94, rotate: 2 }}
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.97, rotate: 1 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ duration: 0.9, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : { duration: 0.52, delay: 0.06, ease: [0.19, 1, 0.22, 1] }
+          }
         >
           <div className={styles.panelChrome}>
             <span />

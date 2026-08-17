@@ -1,6 +1,8 @@
 .page {
   --ink: #0d2033;
   --muted: #63728a;
+  --randhu-spotlight-x: 52%;
+  --randhu-spotlight-y: 22%;
   font-family: var(--font-plus-jakarta-sans), sans-serif;
   --emerald: #10b981;
   --deep-emerald: #08694e;
@@ -618,6 +620,8 @@
   position: relative;
   width: 100%;
   max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
   margin: 3rem 0 0;
   overflow: hidden;
   border-top: 1px solid rgba(21, 81, 69, 0.12);
@@ -866,14 +870,18 @@
   .projectBody h2 {
     max-width: 17ch;
   }
+
+  .orbOne,
+  .orbTwo {
+    display: none;
+  }
 }
 
 @media (max-width: 560px) {
   .hero,
   .craftSection,
   .foundationSection,
-  .projectSection,
-  .footer {
+  .projectSection {
     width: min(100% - 1.5rem, 1180px);
   }
 
@@ -911,7 +919,15 @@
   }
 
   .footer {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
     padding-inline: 1.5rem;
+  }
+
+  .footerIdentity {
+    max-width: none;
+    min-width: 0;
   }
 
   .footerInner {
