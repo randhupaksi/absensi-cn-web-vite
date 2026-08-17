@@ -9,19 +9,25 @@ import {
   type LoginSchema,
   type PortalType,
 } from "@/lib/validations/login-schema";
-import { login, type AuthLoginResponse } from "@/services/auth.service";
+import {
+  login,
+  LoginRateLimitError,
+  type AuthLoginResponse,
+  type LoginRateLimitKind,
+} from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Eye,
   EyeOff,
+  AlertTriangle,
   LoaderCircle,
   LogIn,
   LockKeyhole,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -66,6 +72,10 @@ const formContent = {
 export function LoginForm({ portal }: LoginFormProps) {
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
+  const [rateLimitKind, setRateLimitKind] = useState<LoginRateLimitKind | null>(
+    null,
+  );
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
   const content = formContent[portal];
 
   const form = useForm<LoginSchema>({
@@ -79,6 +89,7 @@ export function LoginForm({ portal }: LoginFormProps) {
   });
 
   const onSubmit = async (values: LoginSchema) => {
+    setRateLimitKind(null);
     try {
       const result = await login(values);
       const response = result.data as AuthLoginResponse;
@@ -96,6 +107,11 @@ export function LoginForm({ portal }: LoginFormProps) {
         window.location.replace(getDashboardPathForUser(response.user));
       }
     } catch (error) {
+      if (error instanceof LoginRateLimitError) {
+        setRateLimitKind(error.kind);
+        setRateLimitSeconds(error.retryAfterSeconds);
+        return;
+      }
       toast.error("Gagal masuk", {
         description:
           error instanceof Error
@@ -105,7 +121,26 @@ export function LoginForm({ portal }: LoginFormProps) {
     }
   };
 
+  const isRateLimited = rateLimitSeconds > 0;
+
+  useEffect(() => {
+    if (!isRateLimited) return;
+    const timer = window.setInterval(() => {
+      setRateLimitSeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1_000);
+    return () => window.clearInterval(timer);
+  }, [isRateLimited]);
+
+  useEffect(() => {
+    if (rateLimitSeconds === 0) setRateLimitKind(null);
+  }, [rateLimitSeconds]);
+
   const isSubmitting = form.formState.isSubmitting;
+  const formatCountdown = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainder = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+  };
 
   return (
     <form
@@ -206,11 +241,41 @@ export function LoginForm({ portal }: LoginFormProps) {
         )}
       </div>
 
+      {isRateLimited && rateLimitKind ? (
+        <div
+          role="alert"
+          className={`flex items-start gap-3 rounded-[var(--radius-md)] border px-4 py-3 text-left text-sm ${
+            rateLimitKind === "locked"
+              ? "border-amber-200 bg-amber-50 text-amber-900"
+              : "border-sky-200 bg-sky-50 text-sky-900"
+          }`}
+        >
+          <AlertTriangle
+            className={`mt-0.5 size-4 shrink-0 ${
+              rateLimitKind === "locked" ? "text-amber-600" : "text-sky-600"
+            }`}
+            aria-hidden="true"
+          />
+          <p>
+            <span className="font-semibold">
+              {rateLimitKind === "locked"
+                ? "Terlalu banyak percobaan login."
+                : "Server sedang ramai menerima login."}
+            </span>{" "}
+            Coba lagi dalam{" "}
+            <span className="font-semibold tabular-nums">
+              {formatCountdown(rateLimitSeconds)}
+            </span>
+            .
+          </p>
+        </div>
+      ) : null}
+
       <Button
         type="submit"
         size="lg"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
+        disabled={isSubmitting || isRateLimited}
+        aria-busy={isSubmitting || isRateLimited}
         className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold text-white transition-[transform,box-shadow,filter] duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:cursor-wait disabled:!opacity-100 ${content.buttonClass}`}
       >
         <span className="relative flex items-center justify-center gap-2">
@@ -222,7 +287,11 @@ export function LoginForm({ portal }: LoginFormProps) {
             )}
           </span>
           <span>
-            {isSubmitting ? content.submittingLabel : content.submitLabel}
+            {isRateLimited
+              ? `Coba lagi dalam ${formatCountdown(rateLimitSeconds)}`
+              : isSubmitting
+                ? content.submittingLabel
+                : content.submitLabel}
           </span>
         </span>
       </Button>
