@@ -17,6 +17,7 @@ import { StudentShell } from "@/features/student/components/shell";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import dynamic from "@/lib/dynamic";
+import { formatPersonName } from "@/lib/format-person-name";
 import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import { StudentSubmissionEvidenceModal } from "@/features/student/components/submission-evidence-modal";
 import {
@@ -388,7 +389,10 @@ function StudentHistoryOverview({
           </div>
 
           <div className="mt-5 grid gap-3 min-[420px]:grid-cols-2">
-            <OverviewField label="Nama lengkap" value={profile?.name ?? "-"} />
+            <OverviewField
+              label="Nama lengkap"
+              value={profile?.name ? formatPersonName(profile.name) : "-"}
+            />
             <OverviewField label="NIS" value={profile?.nis ?? "-"} />
             <OverviewField
               label="Kelas aktif"
