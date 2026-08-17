@@ -21,7 +21,7 @@ export function RouteLoadingFallback() {
 }
 
 export function BrandedAppLoader({
-  label = "Menyiapkan Absensi CN",
+  label = "Menyiapkan Citra Negara Attendence System",
 }: {
   label?: string;
 }) {

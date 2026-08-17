@@ -13,7 +13,7 @@ type LoginCardProps = {
 const portalContent = {
   student: {
     badge: "Portal Siswa",
-    title: "Absensi CN",
+    title: "Citra Negara Attendence System",
     subtitle:
       "Masuk dengan NIS untuk melakukan absensi dan melihat riwayat kehadiran.",
     intro: "Akses absensi siswa.",
