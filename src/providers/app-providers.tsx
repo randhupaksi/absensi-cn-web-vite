@@ -104,7 +104,17 @@ export function AppProviders({ children }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       {children}
       <Suspense fallback={null}>
-        <Toaster richColors position="top-right" />
+        <Toaster
+          richColors
+          position="top-right"
+          closeButton
+          toastOptions={{
+            classNames: {
+              closeButton:
+                "!text-red-600 hover:!bg-red-100 hover:!text-red-700 focus-visible:!ring-red-500/40 active:!bg-red-200",
+            },
+          }}
+        />
       </Suspense>
     </QueryClientProvider>
   );
