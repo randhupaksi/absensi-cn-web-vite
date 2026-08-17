@@ -373,7 +373,7 @@ function createStudentRosterMajorSheet(
   merge(sheet, 2, 1, 3, 6);
   merge(sheet, 4, 1, 4, 6);
   merge(sheet, 5, 1, 5, 6);
-  setCell(sheet, 1, 1, "ABSENSI CN  /  DATA SISWA PER TINGKAT DAN JURUSAN", {
+  setCell(sheet, 1, 1, "CITRA NEGARA ATTENDENCE SYSTEM  /  DATA SISWA PER TINGKAT DAN JURUSAN", {
     font: { size: 8, bold: true, color: COLORS.emerald200 },
     fill: COLORS.emerald950,
   });
@@ -391,7 +391,7 @@ function createStudentRosterMajorSheet(
     sheet,
     5,
     1,
-    `Data siswa Absensi CN untuk tingkat ${definition.gradeLabel} jurusan ${definition.majorCode.toUpperCase()}. Setiap tabel menampilkan data satu kelas beserta tahun ajarannya.`,
+    `Data siswa Citra Negara Attendence System untuk tingkat ${definition.gradeLabel} jurusan ${definition.majorCode.toUpperCase()}. Setiap tabel menampilkan data satu kelas beserta tahun ajarannya.`,
     {
       font: { size: 8.5, color: COLORS.slate600 },
       fill: COLORS.emerald50,
@@ -448,7 +448,7 @@ function addStudentRosterClassSection(
     sheet,
     startRow + 1,
     1,
-    `Data siswa Absensi CN untuk kelas ${definition.className} pada tahun ajaran ${definition.schoolYearName}.`,
+    `Data siswa Citra Negara Attendence System untuk kelas ${definition.className} pada tahun ajaran ${definition.schoolYearName}.`,
     {
       font: { size: 8.5, color: COLORS.slate600 },
       fill: COLORS.emerald50,
@@ -611,7 +611,7 @@ function createEmptyRosterSheet(footerLabel?: string) {
   const sheet = createSheet("Data Siswa", COLORS.emerald700, footerLabel);
   sheet.widths.set(1, 58);
   merge(sheet, 1, 1, 1, 1);
-  setCell(sheet, 1, 1, "ABSENSI CN  /  DATA SISWA PER KELAS", {
+  setCell(sheet, 1, 1, "CITRA NEGARA ATTENDENCE SYSTEM  /  DATA SISWA PER KELAS", {
     font: { size: 12, bold: true, color: COLORS.white },
     fill: COLORS.emerald950,
   });
@@ -733,7 +733,7 @@ function createSummarySheet<Row>(definition: ExcelReportDefinition<Row>) {
   merge(sheet, 2, 2, 2, 6);
   merge(sheet, 3, 2, 4, 6);
   merge(sheet, 5, 2, 5, 6);
-  setCell(sheet, 2, 2, "ABSENSI CN  /  LAPORAN RESMI", {
+  setCell(sheet, 2, 2, "CITRA NEGARA ATTENDENCE SYSTEM  /  LAPORAN RESMI", {
     font: { size: 8, bold: true, color: COLORS.emerald200 },
     fill: COLORS.emerald950,
     alignment: { vertical: "center" },
@@ -872,7 +872,7 @@ function createDataSheet<Row>(definition: ExcelReportDefinition<Row>) {
   merge(sheet, 4, 1, 4, columnCount);
   merge(sheet, 5, 1, 5, columnCount);
   merge(sheet, 7, 1, 7, columnCount);
-  setCell(sheet, 1, 1, "ABSENSI CN  /  DATA LAPORAN", {
+  setCell(sheet, 1, 1, "CITRA NEGARA ATTENDENCE SYSTEM  /  DATA LAPORAN", {
     font: { size: 8, bold: true, color: COLORS.emerald200 },
     fill: COLORS.emerald950,
   });
@@ -1078,7 +1078,7 @@ function createStatisticsSheet<Row>(definition: ExcelReportDefinition<Row>) {
   merge(sheet, 1, 1, 1, 4);
   merge(sheet, 2, 1, 3, 4);
   merge(sheet, 4, 1, 4, 4);
-  setCell(sheet, 1, 1, "ABSENSI CN  /  ANALISIS LAPORAN", {
+  setCell(sheet, 1, 1, "CITRA NEGARA ATTENDENCE SYSTEM  /  ANALISIS LAPORAN", {
     font: { size: 8, bold: true, color: COLORS.emerald200 },
     fill: COLORS.emerald950,
   });
@@ -1460,7 +1460,7 @@ function renderSheet(sheet: Sheet, styles: Styles, strings: SharedStrings) {
       '" activePane="bottomLeft" state="frozen"/>'
     : "";
   const footer = xmlEscape(
-    sheet.footerLabel ?? "ABSENSI CN - Sekolah Citra Negara",
+    sheet.footerLabel ?? "CITRA NEGARA ATTENDENCE SYSTEM - Sekolah Citra Negara",
   );
   return (
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><tabColor rgb="FF' +
@@ -1721,7 +1721,7 @@ function corePropertiesXml(title: string, subtitle: string) {
     xmlEscape(title) +
     "</dc:title><dc:subject>" +
     xmlEscape(subtitle) +
-    '</dc:subject><dc:creator>Absensi CN</dc:creator><cp:lastModifiedBy>Absensi CN</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">' +
+    '</dc:subject><dc:creator>Citra Negara Attendence System</dc:creator><cp:lastModifiedBy>Citra Negara Attendence System</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">' +
     now +
     '</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">' +
     now +
@@ -1730,7 +1730,7 @@ function corePropertiesXml(title: string, subtitle: string) {
 }
 function appPropertiesXml(sheets: Sheet[]) {
   return (
-    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Absensi CN</Application><HeadingPairs><vt:vector size="2" baseType="variant"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>' +
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Citra Negara Attendence System</Application><HeadingPairs><vt:vector size="2" baseType="variant"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>' +
     sheets.length +
     '</vt:i4></vt:variant></vt:vector></HeadingPairs><TitlesOfParts><vt:vector size="' +
     sheets.length +
