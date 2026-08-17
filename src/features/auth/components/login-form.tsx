@@ -15,6 +15,7 @@ import {
   type AuthLoginResponse,
   type LoginRateLimitKind,
 } from "@/services/auth.service";
+import { formatPersonName } from "@/lib/format-person-name";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -99,12 +100,17 @@ export function LoginForm({ portal }: LoginFormProps) {
       queryClient.clear();
       saveAuthSession(response);
 
+      const formattedName = formatPersonName(response.user.name);
+      const welcomeName =
+        portal === "student" ? formattedName.split(" ")[0] : formattedName;
       toast.success("Berhasil masuk", {
-        description: `Selamat datang, ${response.user.name}.`,
+        description: `Selamat datang, ${welcomeName}.`,
       });
 
       if (typeof window !== "undefined") {
-        window.location.replace(getDashboardPathForUser(response.user));
+        window.setTimeout(() => {
+          window.location.replace(getDashboardPathForUser(response.user));
+        }, 700);
       }
     } catch (error) {
       if (error instanceof LoginRateLimitError) {
