@@ -143,7 +143,7 @@ export function RandhuPage() {
         >
           <motion.a className={styles.eyebrow} href="/" variants={heroItemVariants}>
             <span className={styles.statusDot} />
-            CITRA NEGARA ATTENDENCE SYSTEM / DEVELOPER NOTE
+            CITRA NEGARA ATTENDENCE SYSTEM
           </motion.a>
 
           <motion.p className={styles.kicker} variants={heroItemVariants}>
@@ -195,12 +195,14 @@ export function RandhuPage() {
 
         <motion.aside
           className={styles.identityPanel}
-          initial={reduceMotion ? false : { opacity: 0, scale: 0.97, rotate: 1 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          initial={
+            reduceMotion ? false : { opacity: 0, y: 24, scale: 0.97, rotate: 1 }
+          }
+          animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
           transition={
             reduceMotion
               ? { duration: 0 }
-              : { duration: 0.52, delay: 0.06, ease: [0.19, 1, 0.22, 1] }
+              : { duration: 0.52, delay: 0.68, ease: [0.19, 1, 0.22, 1] }
           }
         >
           <div className={styles.panelChrome}>
