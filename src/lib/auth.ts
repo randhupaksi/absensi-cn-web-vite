@@ -12,6 +12,21 @@ const AUTH_SESSION_EVENT = "absensi-cn-auth-change";
 let cachedSessionRaw: string | null = null;
 let cachedSessionValue: AuthSession | null = null;
 
+function getAvailableStorages() {
+  if (typeof window === "undefined") return [] as Storage[];
+
+  const storages: Storage[] = [];
+  for (const storageName of ["localStorage", "sessionStorage"] as const) {
+    try {
+      const storage = window[storageName];
+      if (storage && !storages.includes(storage)) storages.push(storage);
+    } catch {
+      // Some privacy modes expose storage but throw on access.
+    }
+  }
+  return storages;
+}
+
 function emitAuthSessionChange() {
   if (typeof window === "undefined") {
     return;
@@ -25,7 +40,24 @@ export function saveAuthSession(session: AuthSession) {
     return;
   }
 
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  const serializedSession = JSON.stringify(session);
+  const storage = getAvailableStorages().find((candidate) => {
+    try {
+      candidate.setItem(AUTH_STORAGE_KEY, serializedSession);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
+  if (!storage) {
+    throw new Error(
+      "Browser tidak dapat menyimpan sesi login. Izinkan penyimpanan situs lalu coba lagi.",
+    );
+  }
+
+  cachedSessionRaw = serializedSession;
+  cachedSessionValue = session;
   emitAuthSessionChange();
 }
 
@@ -34,7 +66,15 @@ export function getAuthSession(): AuthSession | null {
     return null;
   }
 
-  const rawSession = localStorage.getItem(AUTH_STORAGE_KEY);
+  let rawSession: string | null = null;
+  for (const storage of getAvailableStorages()) {
+    try {
+      rawSession = storage.getItem(AUTH_STORAGE_KEY);
+      if (rawSession) break;
+    } catch {
+      // Try the next available storage.
+    }
+  }
   if (!rawSession) {
     cachedSessionRaw = null;
     cachedSessionValue = null;
@@ -53,7 +93,13 @@ export function getAuthSession(): AuthSession | null {
   } catch {
     cachedSessionRaw = null;
     cachedSessionValue = null;
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    for (const storage of getAvailableStorages()) {
+      try {
+        storage.removeItem(AUTH_STORAGE_KEY);
+      } catch {
+        // Ignore storage cleanup failures.
+      }
+    }
     return null;
   }
 }
@@ -63,7 +109,13 @@ export function clearAuthSession() {
     return;
   }
 
-  localStorage.removeItem(AUTH_STORAGE_KEY);
+  for (const storage of getAvailableStorages()) {
+    try {
+      storage.removeItem(AUTH_STORAGE_KEY);
+    } catch {
+      // Ignore storage cleanup failures.
+    }
+  }
   cachedSessionRaw = null;
   cachedSessionValue = null;
   emitAuthSessionChange();
