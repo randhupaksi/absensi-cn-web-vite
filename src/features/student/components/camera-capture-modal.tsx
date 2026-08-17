@@ -28,6 +28,16 @@ export function CameraCaptureModal({
   useEffect(() => {
     let cancelled = false;
 
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError(
+        "Browser ini tidak menyediakan akses kamera. Gunakan pilihan foto dari perangkat.",
+      );
+      return () => {
+        cancelled = true;
+        stopStream();
+      };
+    }
+
     void navigator.mediaDevices
       .getUserMedia({
         video: {

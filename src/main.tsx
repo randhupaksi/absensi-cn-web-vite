@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { AppProviders } from "@/providers/app-providers";
+import { AppErrorBoundary } from "@/components/errors/app-error-boundary";
 
 declare global {
   interface Window {
@@ -13,8 +14,10 @@ declare global {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppProviders>
-      <App />
-    </AppProviders>
+    <AppErrorBoundary>
+      <AppProviders>
+        <App />
+      </AppProviders>
+    </AppErrorBoundary>
   </StrictMode>,
 );

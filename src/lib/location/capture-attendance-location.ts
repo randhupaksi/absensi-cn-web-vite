@@ -25,38 +25,51 @@ export function captureAttendanceLocation(): Promise<AttendanceLocationCaptureRe
   }
 
   return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          capture: {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy_meters: position.coords.accuracy,
-            captured_at: new Date(position.timestamp).toISOString(),
-            client_status: "captured",
-          },
-          outcome: "captured",
-          message: "Lokasi perangkat berhasil dibaca dan siap diverifikasi.",
-        });
-      },
-      (error) => {
-        const permissionDenied = error.code === error.PERMISSION_DENIED;
-        resolve({
-          capture: {
-            client_status: permissionDenied
-              ? "permission_denied"
-              : "unavailable",
-          },
-          outcome: permissionDenied ? "permission_denied" : "unavailable",
-          message: permissionDenied
-            ? "Izin lokasi sudah ditolak atau diblokir. Buka pengaturan izin situs di browser, pilih Lokasi, lalu izinkan dan tekan Ambil Ulang Lokasi."
-            : error.code === error.TIMEOUT
-              ? "Pembacaan lokasi melewati batas waktu. Kamu dapat mencoba lagi."
-              : "Lokasi belum dapat dibaca. Absensi tetap dapat dikirim untuk direview.",
-        });
-      },
-      locationOptions,
-    );
+    const resolveUnavailable = (message: string) =>
+      resolve({
+        capture: { client_status: "unavailable" },
+        outcome: "unavailable",
+        message,
+      });
+
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            capture: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy_meters: position.coords.accuracy,
+              captured_at: new Date(position.timestamp).toISOString(),
+              client_status: "captured",
+            },
+            outcome: "captured",
+            message: "Lokasi perangkat berhasil dibaca dan siap diverifikasi.",
+          });
+        },
+        (error) => {
+          const permissionDenied = error.code === error.PERMISSION_DENIED;
+          resolve({
+            capture: {
+              client_status: permissionDenied
+                ? "permission_denied"
+                : "unavailable",
+            },
+            outcome: permissionDenied ? "permission_denied" : "unavailable",
+            message: permissionDenied
+              ? "Izin lokasi sudah ditolak atau diblokir. Buka pengaturan izin situs di browser, pilih Lokasi, lalu izinkan dan tekan Ambil Ulang Lokasi."
+              : error.code === error.TIMEOUT
+                ? "Pembacaan lokasi melewati batas waktu. Kamu dapat mencoba lagi."
+                : "Lokasi belum dapat dibaca. Absensi tetap dapat dikirim untuk direview.",
+          });
+        },
+        locationOptions,
+      );
+    } catch {
+      resolveUnavailable(
+        "Lokasi belum dapat dibaca oleh browser ini. Absensi tetap dapat dikirim untuk direview.",
+      );
+    }
   });
 }
 
