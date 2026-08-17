@@ -286,15 +286,15 @@ export function LoginForm({ portal }: LoginFormProps) {
       >
         <span className="relative flex items-center justify-center gap-2">
           <span className="inline-flex size-4 shrink-0 items-center justify-center">
-            {isSubmitting ? (
-              <LoaderCircle className="size-4 animate-spin" />
+            {isSubmitting || isRateLimited ? (
+              <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
             ) : (
               <LogIn className="size-4" />
             )}
           </span>
           <span>
             {isRateLimited
-              ? `Coba lagi dalam ${formatCountdown(rateLimitSeconds)}`
+              ? "Tunggu sebentar"
               : isSubmitting
                 ? content.submittingLabel
                 : content.submitLabel}
