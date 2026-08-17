@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 
-# Project: Absensi CN
+# Project: Citra Negara Attendence System
 # Creator: Randhu Paksi Membumi - Creator & Fullstack Developer
 # Copyright 2026 Randhu Paksi Membumi. All rights reserved.
