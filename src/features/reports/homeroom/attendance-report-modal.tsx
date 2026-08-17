@@ -171,7 +171,7 @@ async function generateDailyWalasAbsensiPdf(
 
   drawReportPdfFooter(
     doc,
-    `Laporan Absensi Kelas - ${homeroom.class_name} - ABSENSI CN`,
+    `Laporan Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
   );
   doc.save(
     `Laporan-Walas-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,
@@ -262,7 +262,7 @@ async function generateCumulativeWalasAbsensiPdf(
 
   drawReportPdfFooter(
     doc,
-    `Rekap Absensi Kelas - ${homeroom.class_name} - ABSENSI CN`,
+    `Rekap Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
   );
   doc.save(
     `Laporan-Walas-Rekap-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,

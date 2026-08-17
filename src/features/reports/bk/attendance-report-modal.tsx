@@ -192,7 +192,7 @@ async function generateBKAbsensiPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas - BK ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas - BK CITRA NEGARA ATTENDENCE SYSTEM");
 
   doc.save(`Laporan-Absensi-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

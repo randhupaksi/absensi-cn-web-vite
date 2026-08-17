@@ -129,7 +129,7 @@ async function generateWalasPengajuanPdf(
 
   drawReportPdfFooter(
     doc,
-    `Laporan Pengajuan Kelas - ${homeroom.class_name} - ABSENSI CN`,
+    `Laporan Pengajuan Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
   );
 
   doc.save(

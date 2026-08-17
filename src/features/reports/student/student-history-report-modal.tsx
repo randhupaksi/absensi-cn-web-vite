@@ -355,7 +355,7 @@ async function generateStudentHistoryPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Histori Absensi ${profile.name} - ABSENSI CN`);
+  drawReportPdfFooter(doc, `Histori Absensi ${profile.name} - CITRA NEGARA ATTENDENCE SYSTEM`);
   doc.save(
     `Histori-Absensi-${slugify(profile.name)}-${new Date().toISOString().slice(0, 10)}.pdf`,
   );

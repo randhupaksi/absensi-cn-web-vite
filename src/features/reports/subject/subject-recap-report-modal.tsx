@@ -337,7 +337,7 @@ async function generateSubjectRecapPdf(
 
   drawReportPdfFooter(
     doc,
-    `Rekap Mapel - ${recap.assignment.subject_name} - ABSENSI CN`,
+    `Rekap Mapel - ${recap.assignment.subject_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
   );
   doc.save(
     `Laporan-Rekap-Mapel-${recap.assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,

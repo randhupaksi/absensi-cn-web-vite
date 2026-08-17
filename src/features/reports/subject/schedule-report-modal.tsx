@@ -352,7 +352,7 @@ async function generateSchedulePdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Jadwal Mengajar - ${teacherName} - ABSENSI CN`);
+  drawReportPdfFooter(doc, `Jadwal Mengajar - ${teacherName} - CITRA NEGARA ATTENDENCE SYSTEM`);
   doc.save(
     `Jadwal-Mengajar-${toFilenamePart(teacherName)}-${new Date().toISOString().slice(0, 10)}.pdf`,
   );

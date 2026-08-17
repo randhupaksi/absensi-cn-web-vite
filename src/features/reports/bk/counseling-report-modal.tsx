@@ -125,7 +125,7 @@ async function generateBKKonselingPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Catatan Konseling BK - ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Catatan Konseling BK - CITRA NEGARA ATTENDENCE SYSTEM");
 
   doc.save(`Laporan-Konseling-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

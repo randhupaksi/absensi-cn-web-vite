@@ -103,7 +103,7 @@ async function generateGuruPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Data Guru - ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Data Guru - CITRA NEGARA ATTENDENCE SYSTEM");
 
   doc.save(`Laporan-Guru-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

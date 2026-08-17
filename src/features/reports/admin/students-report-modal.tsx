@@ -104,7 +104,7 @@ async function generateSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Data Siswa - ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Data Siswa - CITRA NEGARA ATTENDENCE SYSTEM");
 
   doc.save(`Laporan-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

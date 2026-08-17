@@ -141,7 +141,7 @@ async function generateBKPengajuanPdf(
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Pengajuan Siswa - BK ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Pengajuan Siswa - BK CITRA NEGARA ATTENDENCE SYSTEM");
 
   doc.save(`Laporan-Pengajuan-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

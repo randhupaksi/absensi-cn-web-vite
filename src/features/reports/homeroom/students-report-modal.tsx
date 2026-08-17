@@ -202,7 +202,7 @@ async function generateWalasSiswaPdf(
 
   drawReportPdfFooter(
     doc,
-    `Laporan Siswa Kelas - ${homeroom.class_name} - ABSENSI CN`,
+    `Laporan Siswa Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
   );
 
   doc.save(
@@ -417,7 +417,7 @@ async function generateDailyWalasSiswaPdf(
   });
   drawReportPdfFooter(
     doc,
-    `Laporan Siswa Kelas â€” ${homeroom.class_name} â€” ABSENSI CN`,
+    `Laporan Siswa Kelas â€” ${homeroom.class_name} â€” CITRA NEGARA ATTENDENCE SYSTEM`,
   );
   doc.save(
     `Laporan-Walas-Siswa-Harian-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,

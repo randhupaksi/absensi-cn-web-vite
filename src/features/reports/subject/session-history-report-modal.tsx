@@ -489,7 +489,7 @@ async function generateSubjectRecapPdf(
     });
     drawReportPdfFooter(
       doc,
-      `Rekap Mapel - ${report.recap.assignment.subject_name} - ABSENSI CN`,
+      `Rekap Mapel - ${report.recap.assignment.subject_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
     );
   });
   doc.save(

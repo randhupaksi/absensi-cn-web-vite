@@ -65,7 +65,7 @@ export function drawReportPdfHeader(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(236, 253, 245);
-  doc.text("ABSENSI CN", marginX + 5, 18);
+  doc.text("CITRA NEGARA ATTENDENCE SYSTEM", marginX + 5, 18);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(167, 243, 208);

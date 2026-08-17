@@ -154,7 +154,7 @@ async function generateBKSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Monitoring Siswa - BK ABSENSI CN");
+  drawReportPdfFooter(doc, "Laporan Monitoring Siswa - BK CITRA NEGARA ATTENDENCE SYSTEM");
 
   doc.save(`Laporan-BK-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
