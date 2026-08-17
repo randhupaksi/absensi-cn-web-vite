@@ -2,9 +2,22 @@ import axios from "axios";
 
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503, 504]);
 
+export type TransientRetryEvent = {
+  attempt: number;
+  nextAttempt: number;
+  maxAttempts: number;
+  delayMilliseconds: number;
+  error: unknown;
+};
+
+type TransientRetryOptions = {
+  onRetry?: (event: TransientRetryEvent) => void;
+};
+
 export async function retryTransientRequest<T>(
   request: () => Promise<T>,
   maxAttempts = 6,
+  options?: TransientRetryOptions,
 ): Promise<T> {
   let lastError: unknown;
 
@@ -17,7 +30,15 @@ export async function retryTransientRequest<T>(
         throw error;
       }
 
-      await wait(resolveRetryDelay(error, attempt));
+      const delayMilliseconds = resolveRetryDelay(error, attempt);
+      options?.onRetry?.({
+        attempt: attempt + 1,
+        nextAttempt: attempt + 2,
+        maxAttempts,
+        delayMilliseconds,
+        error,
+      });
+      await wait(delayMilliseconds);
     }
   }
 
@@ -29,6 +50,7 @@ export async function retryTransientRequest<T>(
 function isRetryableRequestError(error: unknown) {
   if (!axios.isAxiosError(error)) return false;
   if (!error.response) return error.code === "ERR_NETWORK";
+  if (error.response.data?.code === "LOGIN_LOCKED") return false;
   return RETRYABLE_STATUS_CODES.has(error.response.status);
 }
 
