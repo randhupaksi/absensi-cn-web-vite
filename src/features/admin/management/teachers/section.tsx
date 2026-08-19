@@ -594,7 +594,7 @@ export function TeacherSection({
     <>
       <section
         id="guru"
-        className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6"
+      className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl dark:border-slate-700 dark:bg-slate-950 dark:shadow-none sm:p-5 lg:p-6"
       >
         <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-sky-200/20 blur-3xl" />
@@ -603,19 +603,19 @@ export function TeacherSection({
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as TeacherTab)}
         >
-          <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
+      <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 dark:border-slate-700 sm:gap-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)] dark:border-emerald-800 dark:bg-slate-900 dark:text-emerald-300 dark:shadow-none">
                   <LayoutPanelTop className="size-3.5" />
                   Halaman Guru
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 dark:text-slate-100 sm:text-[2.35rem]">
                     Manajemen Guru
                   </h2>
-                  <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+                  <p className="max-w-2xl text-[15px] leading-7 text-slate-600 dark:text-slate-300 sm:text-base">
                     Profil guru dan penugasan wali kelas dengan tampilan kerja
                     yang lebih rapi untuk operasional harian. Jadwal mengajar
                     dikelola terpusat melalui Manajemen Mapel.
@@ -627,7 +627,7 @@ export function TeacherSection({
                 {activeTab === "profiles" && (
                   <Button
                     variant="outline"
-                    className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 dark:border-teal-800 dark:bg-slate-800 dark:text-teal-200 dark:shadow-none dark:hover:border-teal-600 dark:hover:bg-slate-700 dark:hover:text-teal-100 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
                     onClick={() => setImportModalOpen(true)}
                   >
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
@@ -640,7 +640,7 @@ export function TeacherSection({
                 {activeTab === "profiles" && (
                   <Button
                     variant="outline"
-                    className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
+                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 dark:border-emerald-800 dark:bg-slate-800 dark:text-emerald-200 dark:shadow-none dark:hover:border-emerald-600 dark:hover:bg-slate-700 dark:hover:text-emerald-100 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
                     onClick={() => setReportModalOpen(true)}
                   >
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
