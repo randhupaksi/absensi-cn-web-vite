@@ -38,6 +38,7 @@ type ComboboxFieldProps = {
 };
 
 const MAX_RENDERED_OPTIONS = 100;
+const NO_COMBOBOX_HIGHLIGHT = "__no_combobox_highlight__";
 
 export function ComboboxField({
   value,
@@ -53,6 +54,7 @@ export function ComboboxField({
 }: ComboboxFieldProps) {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [highlightedValue, setHighlightedValue] = React.useState("");
   const [visibleOptionCount, setVisibleOptionCount] =
     React.useState(MAX_RENDERED_OPTIONS);
   const selected = React.useMemo(
@@ -90,12 +92,16 @@ export function ComboboxField({
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
-        if (!nextOpen) setSearchQuery("");
+        setSearchQuery("");
+        // Do not let cmdk preselect the first result when the menu opens.
+        // The user should deliberately choose an option or navigate with the
+        // keyboard before anything receives an active highlight.
+        setHighlightedValue("");
       }}
     >
       <PopoverTrigger
         className={cn(
-          "group flex h-14 w-full items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[popup-open]:border-emerald-500 data-[popup-open]:ring-4 data-[popup-open]:ring-emerald-200/80",
+          "group flex h-14 w-full items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[popup-open]:border-emerald-500 data-[popup-open]:ring-4 data-[popup-open]:ring-emerald-200/80 dark:border-slate-600 dark:bg-none dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:focus-visible:ring-emerald-500/25 dark:data-[popup-open]:ring-emerald-500/25",
           "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-60",
           triggerClassName,
           className,
@@ -118,12 +124,17 @@ export function ComboboxField({
         align="start"
         sideOffset={8}
         className={cn(
-          "w-[var(--anchor-width)] max-w-none overflow-hidden rounded-[1.4rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,247,0.98)_100%)] p-2 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl",
+          "w-[var(--anchor-width)] max-w-none overflow-hidden rounded-[1.4rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,247,0.98)_100%)] p-2 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-600 dark:bg-none dark:bg-slate-900 dark:shadow-[0_24px_80px_rgba(0,0,0,0.42)]",
           contentClassName,
         )}
       >
         <Command
           shouldFilter={false}
+          // cmdk treats an empty controlled value as uncontrolled and then
+          // highlights the first item. Use a value that cannot match any
+          // option so the menu opens with no active item at all.
+          value={highlightedValue || NO_COMBOBOX_HIGHLIGHT}
+          onValueChange={setHighlightedValue}
           className="gap-0 overflow-visible bg-transparent p-0"
         >
           <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
@@ -132,7 +143,7 @@ export function ComboboxField({
               value={searchQuery}
               onValueChange={setSearchQuery}
               placeholder={searchPlaceholder}
-              className="h-11 w-full rounded-[1rem] border border-transparent bg-slate-50/90 pl-10 pr-3 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] placeholder:text-slate-400 hover:border-emerald-300 hover:bg-emerald-50/60 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-200/70"
+              className="h-11 w-full rounded-[1rem] border border-transparent bg-slate-50/90 pl-10 pr-3 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] placeholder:text-slate-400 hover:border-emerald-300 hover:bg-emerald-50/60 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-200/70 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:bg-emerald-950/60 dark:focus:bg-slate-800 dark:focus:ring-emerald-500/25"
             />
           </div>
           <CommandList
@@ -165,11 +176,12 @@ export function ComboboxField({
                     onValueChange(option.value);
                     setOpen(false);
                     setSearchQuery("");
+                    setHighlightedValue("");
                   }}
-                  className="rounded-[1rem] border border-transparent py-2.5 transition-[background-color,border-color,box-shadow,color] hover:border-emerald-200 hover:bg-emerald-100 hover:text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-selected:border-emerald-200 data-selected:bg-emerald-100 data-selected:text-emerald-950 data-selected:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-[checked=true]:border-emerald-200 data-[checked=true]:bg-emerald-100 data-[checked=true]:text-emerald-950 data-[checked=true]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
+                className="rounded-[1rem] border border-transparent py-2.5 transition-[background-color,border-color,box-shadow,color] hover:border-emerald-200 hover:bg-emerald-100 hover:text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-selected:border-emerald-200 data-selected:bg-emerald-100 data-selected:text-emerald-950 data-selected:shadow-[0_8px_18px_rgba(16,185,129,0.16)] data-[checked=true]:border-emerald-200 data-[checked=true]:bg-emerald-100 data-[checked=true]:text-emerald-950 data-[checked=true]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)] dark:hover:border-emerald-700 dark:hover:bg-emerald-950/70 dark:hover:text-emerald-100 dark:hover:shadow-none dark:data-selected:border-emerald-700 dark:data-selected:bg-emerald-950/70 dark:data-selected:text-emerald-100 dark:data-selected:shadow-none dark:data-[checked=true]:border-emerald-700 dark:data-[checked=true]:bg-emerald-950/70 dark:data-[checked=true]:text-emerald-100 dark:data-[checked=true]:shadow-none"
                 >
                   <div className="w-0 min-w-0 flex-1">
-                    <p className="truncate font-medium text-slate-700 group-hover/command-item:text-emerald-950 group-data-selected/command-item:text-emerald-950 group-data-[checked=true]/command-item:text-emerald-950">
+                    <p className="truncate font-medium text-slate-700 dark:text-slate-100 group-hover/command-item:text-emerald-950 group-data-selected/command-item:text-emerald-950 group-data-[checked=true]/command-item:text-emerald-950 dark:group-hover/command-item:text-emerald-100 dark:group-data-selected/command-item:text-emerald-100 dark:group-data-[checked=true]/command-item:text-emerald-100">
                       {option.label}
                     </p>
                     {option.description ? (
