@@ -67,9 +67,9 @@ export function PremiumInput({
           scale: focused ? 1.12 : hovered ? 1.06 : 1,
         }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="pointer-events-none absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-emerald-800"
+        className="pointer-events-none absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-emerald-800 dark:text-emerald-300"
       >
-        <Icon className="size-[1.05rem] text-emerald-800" strokeWidth={2.6} />
+        <Icon className="size-[1.05rem] text-emerald-800 dark:text-emerald-300" strokeWidth={2.6} />
       </motion.div>
       <Input
         {...props}
@@ -90,7 +90,7 @@ export function PremiumInput({
           onPointerLeave?.(event);
         }}
         className={cn(
-          "relative z-[1] h-12 appearance-none rounded-[1.2rem] border border-white/60 bg-white pl-11 text-[14px] text-slate-700 caret-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] [-webkit-appearance:none] transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55",
+          "relative z-[1] h-12 appearance-none rounded-[1.2rem] border border-white/60 bg-white pl-11 text-[14px] text-slate-700 caret-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] [-webkit-appearance:none] transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:caret-emerald-300 dark:shadow-none dark:placeholder:text-slate-500 dark:hover:border-emerald-500/70 dark:hover:bg-slate-800 dark:focus-visible:bg-slate-800 dark:focus-visible:ring-emerald-400/25",
           trailing ? "pr-12" : "",
           className,
         )}

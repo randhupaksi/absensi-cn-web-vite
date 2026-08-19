@@ -2,6 +2,7 @@ import { AnimatedBackground } from "@/features/auth/components/animated-backgrou
 import { LoginCard } from "@/features/auth/components/login-card";
 import { LoginShowcase } from "@/features/auth/components/login-showcase";
 import { BackButton } from "@/components/ui/back-button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import type { PortalType } from "@/lib/validations/login-schema";
 
 type LoginPageProps = {
@@ -15,11 +16,12 @@ export default function LoginPage({ portal }: LoginPageProps) {
     <main
       className={
         isStaffPortal
-          ? "relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e7f6f1_28%,#d8efe9_64%,#edf7f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]"
-          : "relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f4fbf7_0%,#e6f6ee_30%,#d7efe3_65%,#edf7f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]"
+          ? "relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e7f6f1_28%,#d8efe9_64%,#edf7f3_100%)] dark:bg-none dark:bg-slate-950 supports-[min-height:100dvh]:min-h-[100dvh]"
+          : "relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f4fbf7_0%,#e6f6ee_30%,#d7efe3_65%,#edf7f3_100%)] dark:bg-none dark:bg-slate-950 supports-[min-height:100dvh]:min-h-[100dvh]"
       }
     >
       <AnimatedBackground />
+      <ThemeToggle placement="fixed" />
       {isStaffPortal ? null : (
         <BackButton
           href="/"

@@ -25,7 +25,7 @@ const items = [
 
 export function PortalToggle({ value, onChange }: PortalToggleProps) {
   return (
-    <div className="relative grid grid-cols-2 rounded-[1.25rem] border border-white/60 bg-white/58 p-2 shadow-[0_16px_36px_rgba(16,24,40,0.05)] backdrop-blur-xl">
+    <div className="relative grid grid-cols-2 rounded-[1.25rem] border border-white/60 bg-white/58 p-2 shadow-[0_16px_36px_rgba(16,24,40,0.05)] backdrop-blur-xl dark:border-slate-700 dark:bg-slate-900 dark:shadow-none dark:backdrop-blur-none">
       <motion.div
         layout
         className={cn(
@@ -51,7 +51,7 @@ export function PortalToggle({ value, onChange }: PortalToggleProps) {
               "relative z-10 mx-1 my-0.5 flex h-10 items-center justify-center gap-2 rounded-[0.9rem] px-3 text-sm font-semibold transition-all duration-300 ease-out",
               active
                 ? "text-white"
-                : "text-slate-600 hover:bg-emerald-100/92 hover:text-emerald-800 hover:shadow-[0_10px_24px_rgba(36,140,103,0.1)]",
+                : "text-slate-600 hover:bg-emerald-100/92 hover:text-emerald-800 hover:shadow-[0_10px_24px_rgba(36,140,103,0.1)] dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-200 dark:hover:shadow-none",
             )}
           >
             <motion.span

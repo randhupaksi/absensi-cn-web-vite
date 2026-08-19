@@ -3,6 +3,7 @@ import { ChangePasswordForm } from "@/features/auth/components/change-password-f
 import { BackButton } from "@/components/ui/back-button";
 import { clearAuthSession, getAuthSession } from "@/lib/auth";
 import { KeyRound, Sparkles } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 const commonFirstNames = new Set([
   "ahmad",
@@ -33,8 +34,9 @@ export function ChangePasswordPage() {
     account?.role === "TEACHER" ? "/login/staff" : "/login/student";
 
   return (
-    <main className="relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e5f6ed_34%,#d7eee2_70%,#edf8f3_100%)] supports-[min-height:100dvh]:min-h-[100dvh]">
+    <main className="relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf8_0%,#e5f6ed_34%,#d7eee2_70%,#edf8f3_100%)] dark:bg-[linear-gradient(180deg,#0d1f1b_0%,#0e2822_46%,#101b2a_100%)] supports-[min-height:100dvh]:min-h-[100dvh]">
       <AnimatedBackground />
+      <ThemeToggle placement="fixed" />
       <BackButton
         href={loginPath}
         label="Kembali ke login"
@@ -42,9 +44,9 @@ export function ChangePasswordPage() {
         className="absolute left-5 top-4 z-20 sm:left-6 sm:top-5"
       />
       <div className="relative mx-auto flex min-h-[100svh] w-full max-w-xl items-center px-5 py-6 supports-[min-height:100dvh]:min-h-[100dvh] sm:px-6">
-        <section className="w-full overflow-hidden rounded-[2rem] border border-white/90 bg-white/88 shadow-[0_28px_72px_rgba(15,23,42,0.13),inset_0_1px_0_rgba(255,255,255,0.96)] backdrop-blur-sm">
+        <section className="w-full overflow-hidden rounded-[2rem] border border-white/90 bg-white/96 shadow-[0_28px_72px_rgba(15,23,42,0.13),inset_0_1px_0_rgba(255,255,255,0.96)] md:bg-white/88 md:backdrop-blur-sm">
           <div className="relative overflow-hidden border-b border-emerald-100/80 bg-[linear-gradient(135deg,rgba(236,253,245,0.96)_0%,rgba(255,255,255,0.96)_68%)] px-5 pb-5 pt-6 sm:px-7 sm:pb-6 sm:pt-7">
-            <div className="absolute -right-8 -top-10 size-32 rounded-full bg-emerald-200/35 blur-2xl" />
+            <div className="absolute -right-8 -top-10 hidden size-32 rounded-full bg-emerald-200/35 blur-2xl md:block" />
             <div className="relative flex items-start gap-4">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#65d69d_0%,#149a73_48%,#087f5b_100%)] text-white shadow-[0_14px_28px_rgba(16,137,99,0.24)]">
                 <KeyRound className="size-5" />
