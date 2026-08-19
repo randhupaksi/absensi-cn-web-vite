@@ -33,6 +33,118 @@ export type AdminDashboardData = {
   }>;
 };
 
+export type AdminAttendanceAnalyticsFilters = {
+  date_from?: string;
+  date_to?: string;
+  school_year_id?: string;
+  grade?: string;
+  major_id?: string;
+  class_id?: string;
+  student_query?: string;
+  page?: number;
+  page_size?: number;
+};
+
+export type AdminAnalyticsPerformance = {
+  id: string;
+  name: string;
+  total_students: number;
+  expected: number;
+  present: number;
+  permission: number;
+  sick: number;
+  alpha: number;
+  not_attended: number;
+  attendance_percentage: number;
+  system_usage_percentage: number;
+};
+
+export type AdminAttendanceAnalytics = {
+  period: {
+    date_from: string;
+    date_to: string;
+    school_days: number;
+    is_temporary: boolean;
+    generated_at: string;
+    data_freshness: string;
+  };
+  filters: {
+    school_year_id: string;
+    school_year_name: string;
+    grade?: string;
+    major_id?: string;
+    class_id?: string;
+  };
+  summary: {
+    total_students: number;
+    total_classes: number;
+    attendance_opportunities: number;
+    recorded_attendance: number;
+    attendance_percentage: number;
+    system_usage_percentage: number;
+    not_attended: number;
+    alpha: number;
+  };
+  status_breakdown: {
+    present: number;
+    permission: number;
+    sick: number;
+    alpha: number;
+    not_attended: number;
+  };
+  trend: Array<{
+    date: string;
+    label: string;
+    expected: number;
+    present: number;
+    permission: number;
+    sick: number;
+    alpha: number;
+    not_attended: number;
+    attendance_percentage: number;
+    system_usage_percentage: number;
+  }>;
+  grades: AdminAnalyticsPerformance[];
+  majors: AdminAnalyticsPerformance[];
+  classes: Array<
+    AdminAnalyticsPerformance & {
+      grade: string;
+      major_id: string;
+      major_code: string;
+    }
+  >;
+  students: {
+    rows: Array<{
+      student_id: string;
+      student_name: string;
+      nis: string;
+      class_id: string;
+      class_name: string;
+      grade: string;
+      major_id: string;
+      major_code: string;
+      expected: number;
+      present: number;
+      permission: number;
+      sick: number;
+      alpha: number;
+      not_attended: number;
+      attendance_percentage: number;
+      system_usage_percentage: number;
+    }>;
+    page: number;
+    page_size: number;
+    total_items: number;
+    total_pages: number;
+  };
+  operational: {
+    total_subject_sessions: number;
+    finalized_subject_sessions: number;
+    pending_subject_sessions: number;
+    validation_percentage: number;
+  };
+};
+
 export type AdminSchoolHolidayType =
   "NATIONAL" | "COLLECTIVE_LEAVE" | "SCHOOL" | "SYSTEM_MAINTENANCE";
 

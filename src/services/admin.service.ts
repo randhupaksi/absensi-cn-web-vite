@@ -5,6 +5,8 @@ import type {
   AdminAttendanceRule,
   AdminAttendanceRulePayload,
   AdminDashboardData,
+  AdminAttendanceAnalytics,
+  AdminAttendanceAnalyticsFilters,
   AdminHomeroomAssignment,
   AdminHomeroomAssignmentPayload,
   AdminMajor,
@@ -102,6 +104,20 @@ export async function getAdminDashboard() {
   try {
     const response =
       await apiClient.get<ApiEnvelope<AdminDashboardData>>("/admin/dashboard");
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function getAdminAttendanceAnalytics(
+  filters: AdminAttendanceAnalyticsFilters = {},
+) {
+  try {
+    const response = await apiClient.get<ApiEnvelope<AdminAttendanceAnalytics>>(
+      "/admin/analytics/attendance",
+      { params: filters },
+    );
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
