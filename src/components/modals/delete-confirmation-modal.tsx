@@ -43,20 +43,20 @@ export function DeleteConfirmationModal({
       <DialogContent
         showCloseButton={false}
         className={cn(
-          "!fixed !left-1/2 !top-1/2 !w-[min(calc(100vw-1.25rem),560px)] !max-w-[560px] !-translate-x-1/2 !-translate-y-1/2 !gap-0 !overflow-hidden !rounded-[1.45rem] border border-white/90 bg-white p-0 text-slate-950 shadow-[0_24px_70px_rgba(15,23,42,0.22),0_8px_22px_rgba(239,68,68,0.07)] ring-0",
+          "!fixed !left-1/2 !top-1/2 !w-[min(calc(100vw-1.25rem),560px)] !max-w-[560px] !-translate-x-1/2 !-translate-y-1/2 !gap-0 !overflow-hidden !rounded-[1.45rem] border border-white/90 bg-white p-0 text-slate-950 shadow-[0_24px_70px_rgba(15,23,42,0.22),0_8px_22px_rgba(239,68,68,0.07)] ring-0 dark:!border-slate-700 dark:!bg-slate-950 dark:!text-slate-100 dark:!shadow-[0_24px_70px_rgba(0,0,0,0.58)]",
           className,
         )}
       >
         <div className="flex items-start gap-4 px-5 py-5 sm:px-6">
-          <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] bg-rose-50 text-rose-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] bg-rose-50 text-rose-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] dark:bg-rose-950/55 dark:text-rose-300 dark:shadow-none">
             <Trash2 className="size-5" />
           </span>
 
           <div className="min-w-0 flex-1">
-            <DialogTitle className="font-sans text-[1.08rem] font-semibold tracking-[-0.025em] text-slate-950 sm:text-[1.18rem]">
+            <DialogTitle className="font-sans text-[1.08rem] font-semibold tracking-[-0.025em] text-slate-950 dark:text-slate-100 sm:text-[1.18rem]">
               {title}
             </DialogTitle>
-            <DialogDescription className="mt-2 text-[0.88rem] leading-6 text-slate-600">
+            <DialogDescription className="mt-2 text-[0.88rem] leading-6 text-slate-600 dark:text-slate-400">
               {description}
             </DialogDescription>
             <p className="mt-1 text-[0.88rem] leading-6 text-red-500">
@@ -67,7 +67,7 @@ export function DeleteConfirmationModal({
           <button
             type="button"
             aria-label="Tutup modal"
-            className="shrink-0 inline-flex size-8 items-center justify-center rounded-lg text-slate-500 [--press-scale:0.9] transition-[color,background-color,box-shadow,transform] duration-150 hover:bg-slate-100 hover:text-slate-700 active:bg-slate-200 active:shadow-inner"
+            className="shrink-0 inline-flex size-8 items-center justify-center rounded-lg text-slate-500 [--press-scale:0.9] transition-[color,background-color,box-shadow,transform] duration-150 hover:bg-slate-100 hover:text-slate-700 active:bg-slate-200 active:shadow-inner dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 dark:active:bg-slate-700"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
@@ -75,10 +75,10 @@ export function DeleteConfirmationModal({
           </button>
         </div>
 
-        <div className="flex flex-row items-center justify-between gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:justify-end sm:px-6 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none">
+        <div className="flex flex-row items-center justify-between gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:justify-end sm:px-6 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none dark:border-slate-700 dark:bg-slate-900">
           <button
             type="button"
-            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 active:shadow-inner disabled:cursor-not-allowed disabled:opacity-60 sm:px-5"
+            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 active:shadow-inner disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:shadow-none dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:active:bg-slate-700"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
