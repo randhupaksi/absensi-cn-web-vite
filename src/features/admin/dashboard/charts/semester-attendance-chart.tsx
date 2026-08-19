@@ -38,47 +38,49 @@ export function SemesterAttendanceChart({
   );
 
   return (
-    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-none">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xl font-semibold text-slate-950">
+          <p className="text-xl font-semibold text-slate-950 dark:text-slate-100">
             Grafik Kehadiran Siswa
           </p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Tren absensi selama satu semester
           </p>
         </div>
-        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300">
           Semester aktif
         </span>
       </div>
 
-      <div className="mt-6 rounded-[28px] bg-[linear-gradient(180deg,#fffefb_0%,#fbfaf4_100%)] p-4">
+      <div className="mt-6 rounded-[28px] bg-[linear-gradient(180deg,#fffefb_0%,#fbfaf4_100%)] p-4 dark:bg-none dark:bg-slate-950/70">
         <MeasuredChart className="h-[300px] min-w-0">
           {({ width, height }) => (
             <AreaChart width={width} height={height} data={chartData}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#e7ece9"
+                stroke="var(--border)"
                 vertical={false}
               />
               <XAxis
                 dataKey="label"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "#7b8699", fontSize: 12 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "#7b8699", fontSize: 12 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                 allowDecimals={false}
               />
               <Tooltip
                 contentStyle={{
                   borderRadius: 18,
-                  border: "1px solid rgba(226,232,240,0.9)",
-                  boxShadow: "0 18px 36px rgba(148,163,184,0.15)",
+                  border: "1px solid var(--border)",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  boxShadow: "0 18px 36px rgba(2,6,23,0.28)",
                 }}
               />
               <Legend

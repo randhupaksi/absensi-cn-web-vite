@@ -16,6 +16,7 @@ type AttendanceDonutChartProps = {
   sick: number;
   alpha: number;
   percentage: number;
+  totalStudents?: number;
   title?: string;
   subtitle?: string;
   badgeText?: string;
@@ -27,10 +28,16 @@ export function AttendanceDonutChart({
   sick,
   alpha,
   percentage,
+  totalStudents,
   title = "Persentase Kehadiran",
   subtitle = "Snapshot kehadiran sekolah hari ini",
   badgeText = "Hari ini",
 }: AttendanceDonutChartProps) {
+  const recordedTotal = present + permission + sick + alpha;
+  const pending =
+    typeof totalStudents === "number"
+      ? Math.max(totalStudents - recordedTotal, 0)
+      : 0;
   const data: AttendanceSegment[] = [
     {
       name: "Hadir",
@@ -56,6 +63,16 @@ export function AttendanceDonutChart({
       color: "var(--color-rose-500)",
       dotClassName: "bg-rose-500",
     },
+    ...(typeof totalStudents === "number"
+      ? [
+          {
+            name: "Belum Absen",
+            value: pending,
+            color: "var(--color-slate-300)",
+            dotClassName: "bg-slate-300",
+          },
+        ]
+      : []),
   ];
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const chartData =
@@ -64,13 +81,13 @@ export function AttendanceDonutChart({
       : [{ name: "Belum ada data", value: 1, color: "var(--color-slate-200)" }];
 
   return (
-    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-none">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-lg font-semibold text-slate-900">{title}</p>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
         </div>
-        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300">
           {badgeText}
         </span>
       </div>
@@ -117,8 +134,10 @@ export function AttendanceDonutChart({
                     }}
                     contentStyle={{
                       borderRadius: 18,
-                      border: "1px solid rgba(226,232,240,0.9)",
-                      boxShadow: "0 16px 36px rgba(148,163,184,0.16)",
+                      border: "1px solid var(--border)",
+                      backgroundColor: "var(--popover)",
+                      color: "var(--popover-foreground)",
+                      boxShadow: "0 16px 36px rgba(2,6,23,0.28)",
                     }}
                   />
                 </PieChart>
@@ -126,26 +145,26 @@ export function AttendanceDonutChart({
             }}
           </MeasuredChart>
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="rounded-full bg-white/95 px-6 py-5 text-center shadow-[0_8px_24px_rgba(148,163,184,0.14)]">
-              <p className="text-3xl font-semibold text-slate-950">
+            <div className="rounded-full bg-white/95 px-6 py-5 text-center shadow-[0_8px_24px_rgba(148,163,184,0.14)] dark:bg-slate-800/95 dark:shadow-none">
+              <p className="text-3xl font-semibold text-slate-950 dark:text-slate-100">
                 {percentage}%
               </p>
-              <p className="mt-1 text-sm text-slate-500">Kehadiran</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Kehadiran</p>
             </div>
           </div>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-slate-500">
+      <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
         {data.map((item) => (
           <div
             key={item.name}
-            className="flex min-w-[92px] items-center gap-2 rounded-[14px] bg-slate-50/80 px-3 py-2"
+            className="flex min-w-[92px] items-center gap-2 rounded-[14px] bg-slate-50/80 px-3 py-2 dark:bg-slate-800"
           >
             <span
               className={`size-2.5 shrink-0 rounded-full ${item.dotClassName}`}
             />
             <span className="whitespace-nowrap">{item.name}</span>
-            <span className="ml-auto shrink-0 tabular-nums font-semibold text-slate-700">
+            <span className="ml-auto shrink-0 tabular-nums font-semibold text-slate-700 dark:text-slate-200">
               {item.value}
             </span>
           </div>

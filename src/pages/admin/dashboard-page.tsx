@@ -68,14 +68,10 @@ export function AdminDashboardPage() {
 
   const dashboard = dashboardQuery.data ?? fallbackDashboard;
   const todayStatus = dashboard.today_status;
-  const todayTotal =
-    (todayStatus.present ?? 0) +
-    (todayStatus.permission ?? 0) +
-    (todayStatus.sick ?? 0) +
-    (todayStatus.alpha ?? 0);
+  const totalStudents = dashboard.counts.total_students ?? 0;
   const todayAttendancePercentage =
-    todayTotal > 0
-      ? Math.round(((todayStatus.present ?? 0) / todayTotal) * 100)
+    totalStudents > 0
+      ? Math.round(((todayStatus.present ?? 0) / totalStudents) * 100)
       : 0;
 
   const kpiCards = [
@@ -170,6 +166,7 @@ export function AdminDashboardPage() {
                   sick={dashboard.today_status.sick ?? 0}
                   alpha={dashboard.today_status.alpha ?? 0}
                   percentage={todayAttendancePercentage}
+                  totalStudents={dashboard.counts.total_students ?? 0}
                 />
                 <AnnouncementCard announcements={dashboard.announcements} />
               </div>

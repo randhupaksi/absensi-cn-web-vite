@@ -18,22 +18,22 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
   const isEmpty = chartData.every((item) => item.percentage === 0);
 
   return (
-    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+    <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-none">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xl font-semibold text-slate-950">
+          <p className="text-xl font-semibold text-slate-950 dark:text-slate-100">
             Kehadiran Terbaik
           </p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Kelas dengan performa kehadiran paling stabil
           </p>
         </div>
-        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+        <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-300">
           Bulanan
         </span>
       </div>
 
-      <div className="mt-6 rounded-[28px] bg-[linear-gradient(180deg,#fcfffd_0%,#f4faf6_100%)] p-4">
+      <div className="mt-6 rounded-[28px] bg-[linear-gradient(180deg,#fcfffd_0%,#f4faf6_100%)] p-4 dark:bg-none dark:bg-slate-950/70">
         <MeasuredChart className="h-[300px] min-w-0">
           {({ width, height }) => (
             <BarChart
@@ -44,19 +44,19 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#e7ece9"
+                stroke="var(--border)"
                 vertical={false}
               />
               <XAxis
                 dataKey="class_name"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "#7b8699", fontSize: 12 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "#7b8699", fontSize: 12 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                 domain={[0, 100]}
               />
               <Tooltip
@@ -64,8 +64,10 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
                 labelFormatter={(label) => `Kelas ${label}`}
                 contentStyle={{
                   borderRadius: 18,
-                  border: "1px solid rgba(226,232,240,0.9)",
-                  boxShadow: "0 18px 36px rgba(148,163,184,0.15)",
+                  border: "1px solid var(--border)",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  boxShadow: "0 18px 36px rgba(2,6,23,0.28)",
                 }}
               />
               <Bar
