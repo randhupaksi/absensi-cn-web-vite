@@ -121,6 +121,7 @@ export function StudentSection({
   const deferredQuery = useDeferredValue(query);
   const [unitFilter, setUnitFilter] = useState("all");
   const [majorFilter, setMajorFilter] = useState("all");
+  const [classFilter, setClassFilter] = useState("all");
   const [activeTab, setActiveTab] = useState<StudentTab>("profiles");
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -173,19 +174,41 @@ export function StudentSection({
     ];
   }, [classes, unitFilter]);
 
-  const hasAcademicFilter = unitFilter !== "all" || majorFilter !== "all";
+  const classFilterOptions = useMemo(() => {
+    if (majorFilter === "all") return [];
+
+    const classMap = new Map<string, string>();
+    classes
+      .filter(
+        (item) =>
+          (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+          item.major_id === majorFilter,
+      )
+      .forEach((item) => classMap.set(item.id, item.display_name || item.name));
+
+    return [
+      { value: "all", label: "Semua kelas" },
+      ...Array.from(classMap, ([value, label]) => ({ value, label })).sort(
+        (left, right) => left.label.localeCompare(right.label, "id"),
+      ),
+    ];
+  }, [classes, majorFilter, unitFilter]);
+
+  const hasAcademicFilter =
+    unitFilter !== "all" || majorFilter !== "all" || classFilter !== "all";
   const matchingClassIDs = useMemo(
     () =>
       new Set(
         classes
           .filter(
-            (item) =>
-              (unitFilter === "all" || item.school_unit_id === unitFilter) &&
-              (majorFilter === "all" || item.major_id === majorFilter),
+              (item) =>
+                (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+              (majorFilter === "all" || item.major_id === majorFilter) &&
+              (classFilter === "all" || item.id === classFilter),
           )
           .map((item) => item.id),
       ),
-    [classes, majorFilter, unitFilter],
+    [classes, classFilter, majorFilter, unitFilter],
   );
 
   const createStudentMutation = useMutation({
@@ -673,6 +696,7 @@ export function StudentSection({
                     onValueChange={(value) => {
                       setUnitFilter(value);
                       setMajorFilter("all");
+                      setClassFilter("all");
                     }}
                     placeholder="Pilih jenjang"
                     options={unitFilterOptions}
@@ -683,12 +707,27 @@ export function StudentSection({
                 <div className="w-full sm:w-[250px]">
                   <RadixSelectField
                     value={majorFilter}
-                    onValueChange={setMajorFilter}
+                    onValueChange={(value) => {
+                      setMajorFilter(value);
+                      setClassFilter("all");
+                    }}
                     placeholder="Pilih program / jurusan"
                     options={majorFilterOptions}
                     triggerClassName="h-14 rounded-[22px] pl-4"
                   />
                 </div>
+
+                {majorFilter !== "all" ? (
+                  <div className="w-full sm:w-[210px]">
+                    <RadixSelectField
+                      value={classFilter}
+                      onValueChange={setClassFilter}
+                      placeholder="Pilih kelas"
+                      options={classFilterOptions}
+                      triggerClassName="h-14 rounded-[22px] pl-4"
+                    />
+                  </div>
+                ) : null}
 
                 <AddButton
                   label={activeAction.label}
