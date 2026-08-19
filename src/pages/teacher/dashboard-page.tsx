@@ -97,7 +97,7 @@ export function TeacherDashboardPage() {
       expectedRole="walas"
       sidebarItems={walasSidebarItems}
       userLabel="Guru"
-      eyebrow="Halaman Guru"
+      eyebrow="Portal Guru"
       resolveTitle={(pathname) =>
         pathname === "/dashboard/teacher" ? "Dashboard Guru" : "Dashboard Guru"
       }

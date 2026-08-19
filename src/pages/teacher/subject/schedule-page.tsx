@@ -152,7 +152,6 @@ export function MapelSchedulePage() {
               label="Kembali ke Sesi Mapel"
             />
             <section className="relative overflow-hidden rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-5 shadow-[0_24px_52px_rgba(15,118,110,0.11)] sm:p-6">
-              <div className="pointer-events-none absolute -right-10 -top-24 size-60 rounded-full bg-emerald-200/30 blur-3xl" />
               <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
@@ -299,6 +298,7 @@ export function MapelSchedulePage() {
                       ([dateKey, dayTickets]) => (
                         <div
                           key={dateKey}
+                          data-schedule-day-group
                           className={`rounded-[28px] border border-l-4 p-3.5 sm:p-4 ${getDayGroupTone(dayTickets[0].date).wrapper}`}
                         >
                           <div className="mb-3 flex items-center gap-3">
@@ -327,7 +327,7 @@ export function MapelSchedulePage() {
                               </p>
                             </div>
                             {dateKey === today ? (
-                              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200">
                                 Hari ini
                               </span>
                             ) : null}
@@ -378,46 +378,46 @@ export function MapelSchedulePage() {
 function getDayGroupTone(date: Date) {
   const tones = [
     {
-      wrapper: "border-slate-300 bg-slate-100/75 border-l-slate-500",
-      dateBadge: "bg-slate-200 text-slate-700",
-      heading: "text-slate-900",
-      icon: "text-slate-600",
+      wrapper: "border-slate-300 bg-slate-100/75 border-l-slate-500 dark:border-slate-700 dark:bg-slate-900/55 dark:border-l-slate-500",
+      dateBadge: "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+      heading: "text-slate-900 dark:text-slate-100",
+      icon: "text-slate-600 dark:text-slate-300",
     },
     {
-      wrapper: "border-emerald-300 bg-emerald-100/70 border-l-emerald-500",
-      dateBadge: "bg-emerald-200 text-emerald-800",
-      heading: "text-emerald-950",
-      icon: "text-emerald-700",
+      wrapper: "border-emerald-300 bg-emerald-100/70 border-l-emerald-500 dark:border-emerald-800/80 dark:bg-emerald-950/45 dark:border-l-emerald-500",
+      dateBadge: "bg-emerald-200 text-emerald-800 dark:bg-emerald-900/65 dark:text-emerald-200",
+      heading: "text-emerald-950 dark:text-emerald-200",
+      icon: "text-emerald-700 dark:text-emerald-300",
     },
     {
-      wrapper: "border-sky-300 bg-sky-100/70 border-l-sky-500",
-      dateBadge: "bg-sky-200 text-sky-800",
-      heading: "text-sky-950",
-      icon: "text-sky-700",
+      wrapper: "border-sky-300 bg-sky-100/70 border-l-sky-500 dark:border-sky-800/80 dark:bg-sky-950/45 dark:border-l-sky-500",
+      dateBadge: "bg-sky-200 text-sky-800 dark:bg-sky-900/65 dark:text-sky-200",
+      heading: "text-sky-950 dark:text-sky-200",
+      icon: "text-sky-700 dark:text-sky-300",
     },
     {
-      wrapper: "border-violet-300 bg-violet-100/65 border-l-violet-500",
-      dateBadge: "bg-violet-200 text-violet-800",
-      heading: "text-violet-950",
-      icon: "text-violet-700",
+      wrapper: "border-violet-300 bg-violet-100/65 border-l-violet-500 dark:border-violet-800/80 dark:bg-violet-950/45 dark:border-l-violet-500",
+      dateBadge: "bg-violet-200 text-violet-800 dark:bg-violet-900/65 dark:text-violet-200",
+      heading: "text-violet-950 dark:text-violet-200",
+      icon: "text-violet-700 dark:text-violet-300",
     },
     {
-      wrapper: "border-amber-300 bg-amber-100/70 border-l-amber-500",
-      dateBadge: "bg-amber-200 text-amber-800",
-      heading: "text-amber-950",
-      icon: "text-amber-700",
+      wrapper: "border-amber-300 bg-amber-100/70 border-l-amber-500 dark:border-amber-800/80 dark:bg-amber-950/45 dark:border-l-amber-500",
+      dateBadge: "bg-amber-200 text-amber-800 dark:bg-amber-900/65 dark:text-amber-200",
+      heading: "text-amber-950 dark:text-amber-200",
+      icon: "text-amber-700 dark:text-amber-300",
     },
     {
-      wrapper: "border-cyan-300 bg-cyan-100/70 border-l-cyan-500",
-      dateBadge: "bg-cyan-200 text-cyan-800",
-      heading: "text-cyan-950",
-      icon: "text-cyan-700",
+      wrapper: "border-cyan-300 bg-cyan-100/70 border-l-cyan-500 dark:border-cyan-800/80 dark:bg-cyan-950/45 dark:border-l-cyan-500",
+      dateBadge: "bg-cyan-200 text-cyan-800 dark:bg-cyan-900/65 dark:text-cyan-200",
+      heading: "text-cyan-950 dark:text-cyan-200",
+      icon: "text-cyan-700 dark:text-cyan-300",
     },
     {
-      wrapper: "border-indigo-300 bg-indigo-100/65 border-l-indigo-500",
-      dateBadge: "bg-indigo-200 text-indigo-800",
-      heading: "text-indigo-950",
-      icon: "text-indigo-700",
+      wrapper: "border-indigo-300 bg-indigo-100/65 border-l-indigo-500 dark:border-indigo-800/80 dark:bg-indigo-950/45 dark:border-l-indigo-500",
+      dateBadge: "bg-indigo-200 text-indigo-800 dark:bg-indigo-900/65 dark:text-indigo-200",
+      heading: "text-indigo-950 dark:text-indigo-200",
+      icon: "text-indigo-700 dark:text-indigo-300",
     },
   ];
   return tones[date.getDay()] ?? tones[0];
@@ -480,29 +480,30 @@ function ScheduleTicketCard({
   const state = {
     active: {
       label: "Sedang berlangsung",
-      cls: "bg-emerald-100 text-emerald-700",
+      cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200",
       description: "Ticket absensi sudah siap dibuka.",
     },
     upcoming: {
       label: "Akan datang",
-      cls: "bg-sky-100 text-sky-700",
+      cls: "bg-sky-100 text-sky-700 dark:bg-sky-900/60 dark:text-sky-200",
       description: "Ticket dapat dibuka saat jam pelajaran dimulai.",
     },
     completed: {
       label: "Selesai",
-      cls: "bg-slate-100 text-slate-600",
+      cls: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
       description: "Slot jadwal hari ini telah berakhir.",
     },
   }[ticket.state];
 
   return (
     <article
-      className={`rounded-[24px] border p-4 transition sm:p-5 ${ticket.state === "active" ? "border-emerald-200 bg-emerald-50/70 shadow-[0_16px_34px_rgba(5,150,105,0.10)]" : "border-slate-100 bg-slate-50/45"}`}
+      data-schedule-ticket
+      className={`rounded-[24px] border p-4 transition sm:p-5 ${ticket.state === "active" ? "border-emerald-200 bg-emerald-50/70 shadow-[0_16px_34px_rgba(5,150,105,0.10)] dark:border-emerald-800/80 dark:bg-emerald-950/35 dark:shadow-none" : "border-slate-100 bg-slate-50/45 dark:border-slate-800 dark:bg-slate-900/55"}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-bold text-slate-950">
+              <span className="text-sm font-bold text-slate-950 dark:text-slate-100">
               {ticket.assignment.subject_name}
             </span>
             <span
@@ -511,23 +512,24 @@ function ScheduleTicketCard({
               {state.label}
             </span>
           </div>
-          <p className="mt-1.5 text-sm text-slate-600">
+          <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300">
             {ticket.className} · {ticket.assignment.school_year_name}
           </p>
         </div>
         <span
-          className={`flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-white shadow-[0_8px_20px_rgba(15,23,42,0.06)] ${getDayGroupTone(ticket.date).icon}`}
+          data-schedule-ticket-icon
+          className={`flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-white/90 shadow-[0_8px_20px_rgba(15,23,42,0.06)] dark:bg-slate-800 dark:shadow-none ${getDayGroupTone(ticket.date).icon}`}
         >
           <GraduationCap className="size-4.5" />
         </span>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-200/70 pt-3.5">
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-200/70 pt-3.5 dark:border-slate-700">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-800">
-            <Clock3 className="size-4 text-emerald-600" />
+          <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-800 dark:text-slate-100">
+            <Clock3 className="size-4 text-emerald-600 dark:text-emerald-400" />
             {ticket.start}–{ticket.end}
           </p>
-          <p className="mt-1 text-xs text-slate-500">{state.description}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{state.description}</p>
         </div>
         {ticket.state === "active" && sessionId ? (
           <Link
@@ -540,7 +542,7 @@ function ScheduleTicketCard({
         ) : (
           <span
             title={state.description}
-            className="inline-flex h-10 shrink-0 cursor-not-allowed items-center gap-2 rounded-[14px] bg-white px-3.5 text-sm font-semibold text-slate-400 ring-1 ring-slate-200"
+            className="inline-flex h-10 shrink-0 cursor-not-allowed items-center gap-2 rounded-[14px] bg-white px-3.5 text-sm font-semibold text-slate-400 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700"
           >
             Masuk
             <ArrowUpRight className="size-4" />
@@ -702,16 +704,16 @@ function groupSchedulesBySubject(assignments: StaffSubjectAssignment[]) {
 function SchedulePageSkeleton() {
   return (
     <div className="space-y-5">
-      <div className="h-52 animate-pulse rounded-[32px] bg-slate-100" />
+      <div className="h-52 animate-pulse rounded-[32px] bg-slate-100 dark:bg-slate-800" />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
           <div
             key={index}
-            className="h-28 animate-pulse rounded-[24px] bg-slate-100"
+            className="h-28 animate-pulse rounded-[24px] bg-slate-100 dark:bg-slate-800"
           />
         ))}
       </div>
-      <div className="h-96 animate-pulse rounded-[32px] bg-slate-100" />
+      <div className="h-96 animate-pulse rounded-[32px] bg-slate-100 dark:bg-slate-800" />
     </div>
   );
 }

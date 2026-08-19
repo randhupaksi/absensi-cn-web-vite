@@ -33,7 +33,7 @@ import {
   LoaderCircle,
   Printer,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const SubjectRecapReportModal = dynamic(
@@ -97,8 +97,17 @@ export function MapelRecapPage() {
   });
 
   const recap = recapQuery.data;
+  const sortedStudents = useMemo<StaffSubjectRecapStudentRow[]>(
+    () =>
+      [...(recap?.students ?? [])].sort((first, second) =>
+        first.student_name.localeCompare(second.student_name, "id", {
+          sensitivity: "base",
+        }),
+      ),
+    [recap?.students],
+  );
   const { pageItems: pagedStudents, pagination: studentsPagination } =
-    usePagination(recap?.students ?? [], 10);
+    usePagination(sortedStudents, 10);
   const periodeLabel = buildPeriodLabel(
     dateFromStr,
     dateToStr,
@@ -156,15 +165,15 @@ export function MapelRecapPage() {
                   Export Laporan
                 </Button>
               </div>
-              <div className="mb-5 flex items-center gap-3 rounded-[20px] border border-emerald-100 bg-emerald-50/55 px-4 py-3.5">
+              <div className="mb-5 flex items-center gap-3 rounded-[20px] border border-emerald-100 bg-emerald-50/55 px-4 py-3.5 dark:border-emerald-800/70 dark:bg-emerald-950/45">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-[13px] bg-emerald-600 text-sm font-bold text-white shadow-[0_8px_18px_rgba(5,150,105,0.18)]">
                   {filterStep}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-emerald-950">
+                  <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
                     {filterStepTitle}
                   </p>
-                  <p className="mt-0.5 text-xs leading-5 text-emerald-800/75">
+                  <p className="mt-0.5 text-xs leading-5 text-emerald-800/75 dark:text-emerald-200/80">
                     {filterStepDescription}
                   </p>
                 </div>
@@ -172,10 +181,10 @@ export function MapelRecapPage() {
               <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">
                 <div className="sm:col-span-2 lg:col-span-1">
                   <div className="mb-1.5 flex items-center justify-between gap-2">
-                    <label className="block text-xs font-semibold text-slate-600">
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300">
                       1. Mata Pelajaran
                     </label>
-                    <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                    <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:border dark:border-emerald-700/70 dark:bg-emerald-950/60 dark:text-emerald-300">
                       Wajib
                     </span>
                   </div>
@@ -193,7 +202,7 @@ export function MapelRecapPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
                     2. Mode Tanggal
                   </label>
                   <DateFilterModeSwitch

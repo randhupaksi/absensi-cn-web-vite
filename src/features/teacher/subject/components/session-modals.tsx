@@ -55,13 +55,13 @@ export function KoreksiModal({
       icon={AlertCircle}
       title="Koreksi Status Kehadiran"
       description={`${studentName} - NIS ${nis}`}
-      className="sm:!max-w-xl"
+      className="correction-attendance-modal sm:!max-w-xl"
       footer={
         <div className={premiumModalActionsClassName}>
           <Button
             type="button"
             variant="outline"
-            className="h-12 rounded-[1.1rem] px-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300"
+            className="h-12 rounded-[1.1rem] px-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-600"
             onClick={onCancel}
             disabled={isPending}
           >
@@ -86,7 +86,7 @@ export function KoreksiModal({
       <div className="space-y-5">
         <div className={premiumModalFieldClassName}>
           <label className={premiumModalLabelClassName}>Status Saat Ini</label>
-          <span className="inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+          <span className="inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-100">
             {currentStatus}
           </span>
         </div>
@@ -110,7 +110,7 @@ export function KoreksiModal({
             onChange={(event) => onAlasanChange(event.target.value)}
             rows={4}
             placeholder="Tuliskan alasan koreksi data kehadiran..."
-            className="min-h-28 rounded-[1.25rem] border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-800 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] placeholder:text-slate-400"
+            className="min-h-28 rounded-[1.25rem] border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-800 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:placeholder:text-slate-400"
           />
         </div>
 

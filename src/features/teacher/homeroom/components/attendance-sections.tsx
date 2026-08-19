@@ -59,6 +59,7 @@ const attendanceStatusOptions = [
   { value: "izin", label: "Izin" },
   { value: "sakit", label: "Sakit" },
   { value: "alfa", label: "Alfa" },
+  { value: "belum_absen", label: "Belum absen" },
 ];
 
 export type AttendanceKpi = ComponentProps<typeof KpiCard>;
@@ -301,7 +302,9 @@ export function AttendanceTableSection({
                                 title={
                                   reviewedByBK
                                     ? "Sudah dikoreksi BK"
-                                    : "Koreksi status absensi"
+                                    : record.id
+                                      ? "Koreksi status absensi"
+                                      : "Tetapkan status absensi"
                                 }
                               >
                                 <BadgeCheck className="size-4.5" />
@@ -373,7 +376,9 @@ export function AttendanceTableSection({
                           title={
                             reviewedByBK
                               ? "Sudah dikoreksi BK"
-                              : "Koreksi status absensi"
+                              : record.id
+                                ? "Koreksi status absensi"
+                                : "Tetapkan status absensi"
                           }
                         >
                           <BadgeCheck className="size-4.5" />

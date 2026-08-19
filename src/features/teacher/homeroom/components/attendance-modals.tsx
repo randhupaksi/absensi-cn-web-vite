@@ -106,7 +106,10 @@ export function AttendanceReviewModal({
   onSubmit: (payload: StaffAttendanceReviewPayload) => void;
   isPending: boolean;
 }) {
-  const [status, setStatus] = useState(record?.status.toLowerCase() ?? "alfa");
+  const isVirtualRecord = Boolean(record && !record.id);
+  const [status, setStatus] = useState(
+    record?.id ? record.status.toLowerCase() : "",
+  );
   const [verificationNote, setVerificationNote] = useState(
     record?.verification_note || record?.notes || "",
   );
@@ -118,7 +121,7 @@ export function AttendanceReviewModal({
   const handleSubmit = () => {
     const nextErrors: FieldErrors<"status" | "verification_note"> = {};
     validateRequired(nextErrors, "status", status, "Status final");
-    if (!isFinalPresent) {
+    if (status && !isFinalPresent) {
       validateRequired(
         nextErrors,
         "verification_note",
@@ -138,8 +141,16 @@ export function AttendanceReviewModal({
     <PremiumModal
       open={Boolean(record)}
       onOpenChange={onOpenChange}
-      title={record ? `Koreksi ${record.student_name}` : "Koreksi Absensi"}
-      description="Perbarui status absensi bila hasil panggil nama atau pengecekan guru berbeda dengan status otomatis."
+      title={
+        record
+          ? `${isVirtualRecord ? "Tetapkan status" : "Koreksi"} ${record.student_name}`
+          : "Koreksi Absensi"
+      }
+      description={
+        isVirtualRecord
+          ? "Siswa belum memiliki record absensi. Pilih status final untuk mencatat absensi hari ini."
+          : "Perbarui status absensi bila hasil panggil nama atau pengecekan guru berbeda dengan status otomatis."
+      }
       icon={BadgeCheck}
       className="sm:!max-w-[760px]"
     >
@@ -156,7 +167,9 @@ export function AttendanceReviewModal({
                 </p>
                 <p className="text-sm text-slate-500">
                   {formatFriendlyDate(record.attendance_date)} •{" "}
-                  {formatCheckInTime(record.check_in_at)}
+                  {record.check_in_at
+                    ? formatCheckInTime(record.check_in_at)
+                    : "Belum tercatat"}
                 </p>
               </div>
               <AttendanceStatusPill status={record.status} />
@@ -182,14 +195,16 @@ export function AttendanceReviewModal({
                 Riwayat koreksi
               </label>
               <div className="flex h-12 items-center rounded-[18px] border border-emerald-100/80 bg-white/90 px-4 text-sm text-slate-600">
-                {record.verified_at
+                {isVirtualRecord
+                  ? "Status akan dicatat manual oleh walas"
+                  : record.verified_at
                   ? "Sudah pernah dikoreksi"
                   : "Belum ada koreksi guru"}
               </div>
             </div>
           </div>
 
-          {!isFinalPresent ? (
+          {status && !isFinalPresent ? (
             <div className={premiumModalFieldClassName}>
               <label className={premiumModalLabelClassName}>
                 Catatan koreksi
@@ -223,7 +238,11 @@ export function AttendanceReviewModal({
               disabled={isPending}
               onClick={handleSubmit}
             >
-              {isPending ? "Menyimpan..." : "Simpan Koreksi"}
+              {isPending
+                ? "Menyimpan..."
+                : isVirtualRecord
+                  ? "Simpan Status"
+                  : "Simpan Koreksi"}
             </Button>
           </div>
         </div>

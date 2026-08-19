@@ -517,7 +517,7 @@ function SubmissionTableSkeleton() {
           {Array.from({ length: 7 }).map((__, cellIndex) => (
             <div
               key={`submission-skeleton-cell-${rowIndex}-${cellIndex}`}
-              className="h-4 animate-pulse rounded-full bg-slate-200"
+              className="h-4 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700"
             />
           ))}
         </div>

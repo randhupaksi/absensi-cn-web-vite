@@ -61,6 +61,7 @@ const STATUS_LABELS: Record<string, string> = {
   izin: "Izin",
   sakit: "Sakit",
   alfa: "Alfa",
+  belum_absen: "Belum Absen",
 };
 
 const CORRECTION_STATUS_OPTIONS = [
@@ -71,17 +72,19 @@ const CORRECTION_STATUS_OPTIONS = [
 ];
 
 const STATUS_PAGI_CLS: Record<string, string> = {
-  hadir: "bg-emerald-100 text-emerald-700",
-  alfa: "bg-rose-100 text-rose-700",
-  sakit: "bg-sky-100 text-sky-700",
-  izin: "bg-slate-100 text-slate-600",
+  hadir: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300",
+  alfa: "bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300",
+  sakit: "bg-sky-100 text-sky-700 dark:bg-sky-950/70 dark:text-sky-300",
+  izin: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+  belum_absen: "border border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400",
 };
 
 const STATUS_MAPEL_CLS: Record<string, string> = {
-  hadir: "bg-emerald-100 text-emerald-700",
-  alfa: "bg-rose-100 text-rose-700",
-  sakit: "bg-sky-100 text-sky-700",
-  izin: "bg-slate-100 text-slate-600",
+  hadir: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300",
+  alfa: "bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300",
+  sakit: "bg-sky-100 text-sky-700 dark:bg-sky-950/70 dark:text-sky-300",
+  izin: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+  belum_absen: "border border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400",
 };
 
 const sessionDetailInputClassName =
@@ -156,7 +159,12 @@ export function MapelSessionPage() {
 
   const session = overviewQuery.data?.session ?? autoSessionQuery.data ?? null;
   const records = useMemo(
-    () => overviewQuery.data?.records ?? [],
+    () =>
+      [...(overviewQuery.data?.records ?? [])].sort((first, second) =>
+        first.student_name.localeCompare(second.student_name, "id", {
+          sensitivity: "base",
+        }),
+      ),
     [overviewQuery.data?.records],
   );
   const isValidated =
@@ -165,7 +173,9 @@ export function MapelSessionPage() {
   const buildOverrides = () =>
     records.flatMap((record) => {
       const status = pendingOverrides[record.student_id] ?? record.status_mapel;
-      if (status === record.status_pagi) return [];
+      if (!status || status === "belum_absen" || status === record.status_pagi) {
+        return [];
+      }
 
       return [
         {
@@ -423,7 +433,7 @@ export function MapelSessionPage() {
                     <div className="hidden overflow-x-auto md:block">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          <tr className="border-b border-slate-100 dark:border-slate-700/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
                             <th className="pb-3 pr-4">Siswa</th>
                             <th className="pb-3 pr-4">NIS</th>
                             <th className="pb-3 pr-4">Konteks Sesi</th>
@@ -437,7 +447,7 @@ export function MapelSessionPage() {
                             <th className="pb-3 text-center">Koreksi</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-slate-50 dark:divide-slate-700/70">
                           {records.map((r) => {
                             const effective =
                               pendingOverrides[r.student_id] ?? r.status_mapel;
@@ -501,7 +511,11 @@ export function MapelSessionPage() {
                                         type="button"
                                         onClick={() => {
                                           setKoreksiTarget(r);
-                                          setKoreksiStatus(r.status_mapel);
+                                          setKoreksiStatus(
+                                            r.status_mapel === "belum_absen"
+                                              ? ""
+                                              : r.status_mapel,
+                                          );
                                           setKoreksiAlasan("");
                                         }}
                                         className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
@@ -521,7 +535,9 @@ export function MapelSessionPage() {
                                       <RadixSelectField
                                         value={
                                           pendingOverrides[r.student_id] ??
-                                          r.status_mapel
+                                          (r.status_mapel === "belum_absen"
+                                            ? ""
+                                            : r.status_mapel)
                                         }
                                         onValueChange={(value) =>
                                           setPendingOverrides((prev) => ({
@@ -616,7 +632,11 @@ export function MapelSessionPage() {
                                     type="button"
                                     onClick={() => {
                                       setKoreksiTarget(r);
-                                      setKoreksiStatus(r.status_mapel);
+                                      setKoreksiStatus(
+                                        r.status_mapel === "belum_absen"
+                                          ? ""
+                                          : r.status_mapel,
+                                      );
                                       setKoreksiAlasan("");
                                     }}
                                     className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
@@ -635,7 +655,9 @@ export function MapelSessionPage() {
                                 <RadixSelectField
                                   value={
                                     pendingOverrides[r.student_id] ??
-                                    r.status_mapel
+                                    (r.status_mapel === "belum_absen"
+                                      ? ""
+                                      : r.status_mapel)
                                   }
                                   onValueChange={(value) =>
                                     setPendingOverrides((prev) => ({

@@ -61,16 +61,16 @@ const SubjectSessionHistoryReportModal = dynamic(
 );
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-  tidak_dibuka: { label: "Tidak Dibuka", cls: "bg-slate-100 text-slate-600" },
+  tidak_dibuka: { label: "Tidak Dibuka", cls: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300" },
   belum_divalidasi: {
     label: "Belum Divalidasi",
-    cls: "bg-amber-100 text-amber-700",
+    cls: "bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300",
   },
   sudah_divalidasi: {
     label: "Sudah Divalidasi",
-    cls: "bg-emerald-100 text-emerald-700",
+    cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300",
   },
-  diedit: { label: "Diedit", cls: "bg-violet-100 text-violet-700" },
+  diedit: { label: "Diedit", cls: "bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-300" },
 };
 
 const HARI_LABEL: Record<string, string> = {
@@ -467,7 +467,7 @@ export function MapelHistoryPage() {
                 <div className="hidden overflow-x-auto md:block">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 dark:border-slate-800">
                         <th className="pb-3 pr-4">Tanggal</th>
                         <th className="pb-3 pr-4">Hari / Jam</th>
                         <th className="pb-3 pr-4">Konteks Mapel</th>
@@ -488,7 +488,7 @@ export function MapelHistoryPage() {
                         <th className="pb-3 text-center">Aksi</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800/80">
                       {pagedSessions.map((sess, i) => {
                         const statusInfo = STATUS_MAP[sess.status] ?? {
                           label: sess.status,
@@ -1054,7 +1054,6 @@ function TodaySessionCard({
 
   return (
     <section className="relative overflow-hidden rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-5 shadow-[0_24px_52px_rgba(15,118,110,0.11)] sm:p-6">
-      <div className="pointer-events-none absolute -right-14 -top-20 size-52 rounded-full bg-emerald-200/25 blur-3xl" />
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-center gap-4">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.24)]">

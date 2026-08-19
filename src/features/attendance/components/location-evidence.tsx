@@ -26,49 +26,49 @@ const locationStatusConfig = {
   inside_radius: {
     label: "Di area sekolah",
     description: "Titik lokasi berada di dalam radius absensi sekolah.",
-    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300",
     icon: CheckCircle2,
   },
   outside_radius: {
     label: "Di luar radius",
     description:
       "Titik lokasi berada di luar radius absensi dan perlu ditinjau.",
-    className: "border-rose-200 bg-rose-50 text-rose-700",
+    className: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/70 dark:text-rose-300",
     icon: AlertTriangle,
   },
   low_accuracy: {
     label: "Akurasi GPS rendah",
     description:
       "Lokasi terekam, tetapi akurasinya belum cukup untuk keputusan otomatis.",
-    className: "border-amber-200 bg-amber-50 text-amber-700",
+    className: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/70 dark:text-amber-300",
     icon: AlertTriangle,
   },
   stale: {
     label: "Lokasi tidak terbaru",
     description:
       "Waktu pengambilan lokasi terlalu jauh dari waktu pengiriman absensi.",
-    className: "border-amber-200 bg-amber-50 text-amber-700",
+    className: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/70 dark:text-amber-300",
     icon: Clock3,
   },
   captured_unverified: {
     label: "Lokasi terekam",
     description:
       "Koordinat tersimpan, tetapi radius sekolah belum dikonfigurasi di server.",
-    className: "border-sky-200 bg-sky-50 text-sky-700",
+    className: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/70 dark:text-sky-300",
     icon: MapPinned,
   },
   permission_denied: {
     label: "Izin lokasi ditolak",
     description:
       "Siswa tidak memberikan izin lokasi; bukti perlu diperiksa manual.",
-    className: "border-rose-200 bg-rose-50 text-rose-700",
+    className: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/70 dark:text-rose-300",
     icon: AlertTriangle,
   },
   unavailable: {
     label: "Lokasi tidak tersedia",
     description:
       "Perangkat tidak berhasil mengirim metadata lokasi untuk absensi ini.",
-    className: "border-slate-200 bg-slate-100 text-slate-600",
+    className: "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
     icon: AlertTriangle,
   },
 } as const;

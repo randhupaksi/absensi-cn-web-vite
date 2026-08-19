@@ -12,6 +12,7 @@ import {
   AttendanceReviewModal,
 } from "@/features/teacher/homeroom/components/attendance-modals";
 import {
+  createTeacherHomeroomManualAttendance,
   getTeacherHomeroomAttendanceOverview,
   reviewTeacherHomeroomAttendance,
 } from "@/services/staff.service";
@@ -100,6 +101,13 @@ export function WalasAttendancePage() {
   const reviewMutation = useMutation({
     mutationFn: async (payload: StaffAttendanceReviewPayload) => {
       if (!reviewTarget) throw new Error("Record absensi tidak ditemukan.");
+      if (!reviewTarget.id) {
+        return createTeacherHomeroomManualAttendance({
+          ...payload,
+          student_id: reviewTarget.student_id,
+          attendance_date: reviewTarget.attendance_date,
+        });
+      }
       return reviewTeacherHomeroomAttendance(reviewTarget.id, payload);
     },
     onSuccess: () => {
@@ -172,14 +180,15 @@ export function WalasAttendancePage() {
   ];
 
   const sortedRecords = useMemo(() => {
-    if (statusFilter !== "Semua") return records;
     return [...records].sort((first, second) => {
-      const firstReviewed = Boolean(first.verified_at);
-      const secondReviewed = Boolean(second.verified_at);
-      if (firstReviewed !== secondReviewed) return firstReviewed ? 1 : -1;
-      return first.student_name.localeCompare(second.student_name, "id");
+      const comparison = first.student_name.localeCompare(
+        second.student_name,
+        "id",
+        { sensitivity: "base" },
+      );
+      return comparison;
     });
-  }, [records, statusFilter]);
+  }, [records]);
 
   return (
     <WalasShell>
@@ -209,7 +218,7 @@ export function WalasAttendancePage() {
 
           {reviewTarget && (
             <AttendanceReviewModal
-              key={reviewTarget.id}
+              key={`${reviewTarget.id || "pending"}-${reviewTarget.student_id}`}
               record={reviewTarget}
               onOpenChange={(open) => {
                 if (!open) setReviewTarget(null);

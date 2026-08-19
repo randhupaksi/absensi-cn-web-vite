@@ -29,16 +29,16 @@ export function AttendanceEvidenceModal({
     >
       {record ? (
         <div className="grid gap-4">
-          <div className="rounded-[var(--radius-xl)] border border-emerald-100/70 bg-white/92 p-4">
+          <div className="rounded-[var(--radius-xl)] border border-emerald-100/70 bg-white/92 p-4 dark:border-emerald-800/60 dark:bg-slate-900">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-base font-semibold text-slate-900">
+                <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
                   {record.student_name}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   {record.nis} - {record.class_name}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   {formatFriendlyDate(record.attendance_date)} -{" "}
                   {formatCheckInTime(record.check_in_at)}
                 </p>
@@ -47,7 +47,7 @@ export function AttendanceEvidenceModal({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[var(--radius-xl)] border border-emerald-100/80 bg-emerald-50/40 p-3">
+          <div className="overflow-hidden rounded-[var(--radius-xl)] border border-emerald-100/80 bg-emerald-50/40 p-3 dark:border-emerald-800/60 dark:bg-emerald-950/30">
             {record.photo_url ? (
               <ProtectedApiImage
                 src={record.photo_url}
