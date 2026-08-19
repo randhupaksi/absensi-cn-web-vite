@@ -1,6 +1,7 @@
 import { appCredits } from "@/lib/config/credits";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -125,6 +126,7 @@ export function RandhuPage() {
       className={styles.page}
       onPointerMove={handlePointerMove}
     >
+      <ThemeToggle placement="fixed" />
       <div className={styles.gridBackdrop} aria-hidden="true" />
       <div className={styles.orbOne} aria-hidden="true" />
       <div className={styles.orbTwo} aria-hidden="true" />

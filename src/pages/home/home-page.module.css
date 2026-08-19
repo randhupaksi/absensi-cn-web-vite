@@ -120,6 +120,10 @@
   box-shadow: var(--landing-shadow-hero);
 }
 
+:global(html.dark) .landingHeroShell {
+  background: #0b1414;
+}
+
 .landingHeroViewport {
   min-height: max(620px, 100svh);
   min-height: max(620px, 100dvh);
@@ -143,6 +147,24 @@
   background: var(--landing-hero-overlay);
 }
 
+.landingHeroBottomFade {
+  background: linear-gradient(
+    to top,
+    rgba(6, 78, 59, 0.7),
+    rgba(6, 78, 59, 0.18) 48%,
+    transparent
+  );
+}
+
+:global(html.dark) .landingHeroBottomFade {
+  background: linear-gradient(
+    to top,
+    rgba(5, 31, 25, 0.72),
+    rgba(5, 31, 25, 0.2) 48%,
+    transparent
+  );
+}
+
 .landingImageSoftOverlay {
   background: var(--landing-image-overlay-soft);
 }
@@ -158,6 +180,18 @@
 .landingChipIcon {
   background: var(--landing-accent);
   color: white;
+}
+
+:global(html.dark) .landingChip {
+  border-color: rgba(110, 231, 183, 0.2);
+  background: rgba(15, 54, 45, 0.88);
+  color: #cbd5d1;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+:global(html.dark) .landingChipIcon {
+  background: #6ee7b7;
+  color: #073b30;
 }
 
 .landingFloatCard {
@@ -193,6 +227,7 @@
 }
 
 .landingStepsSection {
+  margin-inline: -1.25rem;
   border-top: 1px solid var(--landing-border-soft);
   border-bottom: 1px solid var(--landing-border-soft);
   background: linear-gradient(
@@ -265,18 +300,26 @@
 }
 
 .landingStepItem {
+  margin-inline: -1rem;
+  padding-inline: 1rem;
   border-bottom-color: var(--landing-border-soft);
   color: var(--landing-ink-soft);
   z-index: 1;
 }
 
 .landingStepReveal {
-  opacity: 0;
-  transform: translate3d(28px, 0, 0);
+  /* Keep the content available if a browser pauses or skips the observer
+     animation while the theme is being switched. */
+  opacity: 1;
+  transform: none;
 }
 
 .landingStepReveal[data-scroll-revealed="true"] {
-  animation: landingStepIn 380ms ease-out both;
+  /* Individual step visibility must not depend on observer timing. A theme
+     switch can re-render the page while an item is between observer states. */
+  animation: none;
+  opacity: 1;
+  transform: none;
 }
 
 .landingStepItem:hover {
@@ -299,6 +342,8 @@
 
 @media (max-width: 767px) {
   .landingStepItem {
+    margin-inline: 0;
+    padding-inline: 0;
     pointer-events: none;
   }
 
@@ -435,6 +480,17 @@
   color: #047857;
 }
 
+:global(html.dark) .landingCtaButton {
+  background: #6ee7b7;
+  color: #052e2b;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+:global(html.dark) .landingCtaButton:hover {
+  background: #a7f3d0;
+  color: #064e3b;
+}
+
 .landingCtaPill {
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.08);
@@ -448,7 +504,12 @@
 }
 
 .landingFooterShell {
+  border-top: 1px solid var(--landing-border-soft);
   background: var(--landing-footer-bg);
+}
+
+:global(html.dark) .landingFooterShell {
+  border-top-color: rgba(110, 231, 183, 0.24);
 }
 
 @media (max-width: 640px) {
@@ -492,6 +553,46 @@
 .landingFooterContact:hover {
   border-color: rgba(110, 231, 183, 0.4);
   background: rgba(52, 211, 153, 0.1);
+}
+
+:global(html.dark) .landingStepsSection {
+  background: linear-gradient(
+    90deg,
+    rgba(6, 78, 59, 0.28),
+    rgba(15, 23, 42, 0.42) 52%,
+    rgba(19, 78, 74, 0.28)
+  );
+}
+
+:global(html.dark) .landingStepItem:hover {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+:global(html.dark) .landingStepNumber {
+  background: rgba(15, 23, 42, 0.72);
+  color: #6ee7b7;
+}
+
+:global(html.dark) .landingMajorBadge {
+  background: rgba(15, 23, 42, 0.74);
+  color: #6ee7b7;
+}
+
+:global(html.dark) .landingChipIcon,
+:global(html.dark) .landingStepNumber {
+  box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.12);
+}
+
+@media (min-width: 768px) {
+  .landingStepsSection {
+    margin-inline: -2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .landingStepsSection {
+    margin-inline: -2.5rem;
+  }
 }
 
 @keyframes landingImageWake {

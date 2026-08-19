@@ -1,6 +1,7 @@
 import { AppImage as Image } from "@/components/media/app-image";
 import { AppLink as Link } from "@/components/router/app-link";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useEffect } from "react";
 import type { IconType } from "react-icons";
 import { FiPhone } from "react-icons/fi";
@@ -217,6 +218,7 @@ export default function HomePage() {
           <div
             className={`${styles.landingHeroShell} relative overflow-hidden`}
           >
+            <ThemeToggle placement="fixed" />
             <div
               className={`${styles.landingHeroViewport} relative overflow-hidden`}
             >
@@ -232,7 +234,9 @@ export default function HomePage() {
               <div
                 className={`${styles.landingHeroOverlay} ${styles.landingOverlayReveal} absolute inset-0`}
               />
-              <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-emerald-950/70 via-emerald-950/18 to-transparent" />
+              <div
+                className={`${styles.landingHeroBottomFade} absolute inset-x-0 bottom-0 h-48`}
+              />
               <div
                 className={`${styles.landingHeroViewport} relative z-10 mx-auto flex w-full max-w-[1480px] items-center px-6 py-16 md:px-10 xl:px-14`}
               >

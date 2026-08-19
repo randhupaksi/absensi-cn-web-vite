@@ -222,7 +222,7 @@
   min-width: 0;
   overflow: hidden;
   min-height: 29rem;
-  border: 1px solid rgba(255, 255, 255, 0.92);
+  border: 0;
   border-radius: 2rem;
   background:
     radial-gradient(circle at 88% 8%, rgba(74, 222, 128, 0.24), transparent 10rem),
@@ -875,6 +875,91 @@
   .orbTwo {
     display: none;
   }
+}
+
+:global(html.dark) .page {
+  --ink: #e2e8f0;
+  --muted: #a8b8b2;
+  --deep-emerald: #6ee7b7;
+  background:
+    radial-gradient(circle at var(--randhu-spotlight-x) var(--randhu-spotlight-y), rgba(16, 185, 129, 0.14), transparent 26rem),
+    linear-gradient(180deg, #101b1a 0%, #0b1414 48%, #101b1a 100%);
+}
+
+:global(html.dark) .gridBackdrop {
+  opacity: 0.22;
+}
+
+:global(html.dark) .secondaryAction,
+:global(html.dark) .capabilityCard,
+:global(html.dark) .foundationItem,
+:global(html.dark) .footer {
+  border-color: rgba(148, 163, 184, 0.2);
+  background: rgba(22, 37, 36, 0.84);
+  color: #e2e8f0;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.2);
+}
+
+:global(html.dark) .secondaryAction:hover,
+:global(html.dark) .capabilityCard:hover {
+  background: #19342c;
+}
+
+:global(html.dark) .eyebrow,
+:global(html.dark) .projectTopline,
+:global(html.dark) .foundationIntro > span,
+:global(html.dark) .sectionHeading > span,
+:global(html.dark) .footerEyebrow {
+  color: #6ee7b7;
+}
+
+:global(html.dark) .lead {
+  color: #b6c8c2;
+}
+
+:global(html.dark) .capabilityIcon {
+  background: rgba(6, 78, 59, 0.62);
+  color: #6ee7b7;
+}
+
+:global(html.dark) .cardIndex,
+:global(html.dark) .cardArrow {
+  color: #6ee7b7;
+}
+
+:global(html.dark) .foundationSection {
+  border-top-color: rgba(110, 231, 183, 0.18);
+}
+
+:global(html.dark) .foundationItem strong,
+:global(html.dark) .footerIdentity strong {
+  color: #ecfdf5;
+}
+
+:global(html.dark) .foundationItem span,
+:global(html.dark) .footerIdentity p,
+:global(html.dark) .footerAvailability,
+:global(html.dark) .footerBottom {
+  color: #a8b8b2;
+}
+
+:global(html.dark) .footerExplore a {
+  color: #b6c8c2;
+}
+
+:global(html.dark) .footerExplore a:hover {
+  color: #6ee7b7;
+}
+
+:global(html.dark) .footerBottom {
+  border-top-color: rgba(110, 231, 183, 0.2);
+}
+
+:global(html.dark) .footerMark,
+:global(html.dark) .footerSocials a,
+:global(html.dark) .footerBack {
+  border-color: rgba(110, 231, 183, 0.2);
+  background: #16352b;
 }
 
 @media (max-width: 560px) {
