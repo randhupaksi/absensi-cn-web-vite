@@ -26,12 +26,12 @@ export function StudentSubmissionEvidenceModal({
     >
       {submission ? (
         <div className="grid gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-4 rounded-[var(--radius-xl)] border border-emerald-100/70 bg-white p-4">
+          <div className="flex flex-wrap items-start justify-between gap-4 rounded-[var(--radius-xl)] border border-emerald-100/70 bg-white p-4 dark:border-emerald-800/60 dark:bg-slate-900">
             <div>
-              <p className="font-semibold text-slate-900">
+              <p className="font-semibold text-slate-900 dark:text-slate-100">
                 {submission.student_name}
               </p>
-              <p className="mt-1 text-sm leading-6 text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 {submission.reason}
               </p>
             </div>
@@ -41,7 +41,7 @@ export function StudentSubmissionEvidenceModal({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[var(--radius-xl)] border border-emerald-100/80 bg-emerald-50/40 p-3">
+          <div className="overflow-hidden rounded-[var(--radius-xl)] border border-emerald-100/80 bg-emerald-50/40 p-3 dark:border-emerald-800/60 dark:bg-emerald-950/30">
             {submission.attachment ? (
               <ProtectedApiImage
                 src={submission.attachment}

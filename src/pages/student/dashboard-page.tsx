@@ -41,8 +41,10 @@ import {
 } from "@/lib/location/capture-attendance-location";
 import {
   getStudentToday,
+  getStudentTodayWithTimeout,
   getStudentDashboard,
   StudentAttendanceSubmissionUncertainError,
+  StudentServerBusyError,
   submitStudentDailyReport,
 } from "@/services/student.service";
 import type { StudentDailyReportPayload, StudentToday } from "@/types/student";
@@ -106,19 +108,23 @@ type AttendanceSubmissionStage =
 
 export function StudentDashboardPage() {
   const queryClient = useQueryClient();
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const photoPreviewRef = useRef("");
   const locationCaptureSequenceRef = useRef(0);
+  const dashboardRetryTimerRef = useRef<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState("");
+  const [photoPreviewError, setPhotoPreviewError] = useState(false);
   const [reportType, setReportType] =
     useState<StudentDailyReportPayload["type"]>("HADIR");
   const [reason, setReason] = useState("");
   const [errors, setErrors] = useState<
     FieldErrors<"photo" | "type" | "reason">
   >({});
-  const [cameraModalOpen, setCameraModalOpen] = useState(false);
+  const [cameraIssue, setCameraIssue] = useState<string | null>(null);
+  const [dashboardRetrySeconds, setDashboardRetrySeconds] = useState(0);
+  const [loadDashboardDetails, setLoadDashboardDetails] = useState(false);
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [submissionStage, setSubmissionStage] =
@@ -137,12 +143,37 @@ export function StudentDashboardPage() {
   const greetingDateRef = useRef<HTMLSpanElement | null>(null);
   const [greetingIsInline, setGreetingIsInline] = useState(true);
 
+  const todayQuery = useQuery({
+    queryKey: ["student-today"],
+    queryFn: getStudentToday,
+    // This small response controls the attendance CTA. It must not wait for
+    // stats, history, and notification queries during the morning burst.
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  });
+
   const dashboardQuery = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: getStudentDashboard,
-    staleTime: 2 * 60_000,
+    // The details are useful but never block the attendance action. Delay and
+    // spread them out so thousands of dashboard visits do not hit the database
+    // at the exact same moment.
+    enabled: loadDashboardDetails,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+
+  useEffect(() => {
+    if (!todayQuery.isSuccess) return;
+    const delayMilliseconds = 1_500 + Math.floor(Math.random() * 3_500);
+    const timer = window.setTimeout(
+      () => setLoadDashboardDetails(true),
+      delayMilliseconds,
+    );
+    return () => window.clearTimeout(timer);
+  }, [todayQuery.isSuccess]);
 
   const submitMutation = useMutation({
     mutationFn: (payload: StudentDailyReportPayload) =>
@@ -165,7 +196,7 @@ export function StudentDashboardPage() {
       }
       setUploadProgress(0);
       setQueueSeconds(0);
-      setSubmissionStage("idle");
+      setSubmissionStage("retryable-error");
       toast.error(error instanceof Error ? error.message : "Absensi gagal dikirim.");
     },
   });
@@ -187,6 +218,9 @@ export function StudentDashboardPage() {
   useEffect(
     () => () => {
       if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
+      if (dashboardRetryTimerRef.current) {
+        window.clearTimeout(dashboardRetryTimerRef.current);
+      }
     },
     [],
   );
@@ -195,6 +229,14 @@ export function StudentDashboardPage() {
     const timer = window.setInterval(() => setGreetingNow(new Date()), 60_000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (dashboardRetrySeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setDashboardRetrySeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1_000);
+    return () => window.clearInterval(timer);
+  }, [dashboardRetrySeconds]);
 
   useEffect(() => {
     const row = greetingRowRef.current;
@@ -270,9 +312,14 @@ export function StudentDashboardPage() {
   }, [modalOpen, locationResult?.outcome, locationState]);
 
   const dashboard = dashboardQuery.data;
-  const today = dashboard?.today;
+  const today = todayQuery.data ?? dashboard?.today;
   const stats = dashboard?.stats;
   const canSubmit = Boolean(today?.can_submit);
+  const dashboardServerBusyError =
+    todayQuery.error instanceof StudentServerBusyError
+      ? todayQuery.error
+      : null;
+  const dashboardServerBusy = Boolean(dashboardServerBusyError);
   const isHoliday = today?.is_school_day === false;
   const alreadySubmitted = Boolean(today?.attendance && !today.can_submit);
   const isWindowClosed =
@@ -290,20 +337,21 @@ export function StudentDashboardPage() {
   const greeting = getDashboardGreeting(greetingNow);
   const isSubmissionBusy =
     submitMutation.isPending ||
-    locationState === "loading" ||
-    isPreparingPhoto;
+    isPreparingPhoto ||
+    submissionStage === "verifying";
   const isSubmissionQueued =
     submissionStage === "queueing" ||
     submissionStage === "retrying" ||
     submissionStage === "verifying";
   const submissionButton = getSubmissionButtonState({
     isPreparingPhoto,
-    locationState,
     submissionStage,
     queueSeconds,
     uploadProgress,
   });
   const SubmissionButtonIcon = submissionButton.icon;
+  const isDashboardDetailsLoading =
+    !dashboard && (!loadDashboardDetails || dashboardQuery.isLoading);
 
   function resetCaptureState() {
     locationCaptureSequenceRef.current += 1;
@@ -311,6 +359,7 @@ export function StudentDashboardPage() {
     if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
     photoPreviewRef.current = "";
     setPhotoPreview("");
+    setPhotoPreviewError(false);
     setReportType("HADIR");
     setReason("");
     setErrors({});
@@ -319,30 +368,42 @@ export function StudentDashboardPage() {
     setUploadProgress(0);
     setQueueSeconds(0);
     setSubmissionStage("idle");
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
+    setCameraIssue(null);
+  }
+
+  function scheduleDashboardRetry(waitSeconds: number) {
+    if (dashboardRetryTimerRef.current) return;
+    const safeWaitSeconds = Math.max(1, waitSeconds);
+    setDashboardRetrySeconds(safeWaitSeconds);
+    dashboardRetryTimerRef.current = window.setTimeout(() => {
+      dashboardRetryTimerRef.current = null;
+      setDashboardRetrySeconds(0);
+      void todayQuery.refetch();
+    }, safeWaitSeconds * 1_000);
   }
 
   function handleStartAttendance() {
-    if (!canSubmit) return;
-    if (isMobileDevice()) {
-      // iOS may not fire `change` when the same photo is picked again. Clear
-      // the file input before each user gesture so every attempt can reopen
-      // the native camera/photo picker reliably.
-      if (inputRef.current) inputRef.current.value = "";
-      inputRef.current?.click();
-    } else {
-      setCameraModalOpen(true);
+    if (!canSubmit) {
+      if (dashboardServerBusyError) {
+        const waitSeconds = dashboardServerBusyError.retryAfterSeconds;
+        toast.warning("Server sedang menerima banyak absensi", {
+          description: `Mohon tunggu sekitar ${waitSeconds} detik, lalu coba lagi.`,
+        });
+        scheduleDashboardRetry(waitSeconds);
+      }
+      return;
     }
+    setCameraIssue(null);
+    setCameraModalOpen(true);
   }
 
   async function handlePhotoPicked(file?: File) {
     if (!file) return;
-    // Start location capture immediately from the file-picker interaction.
+    setCameraIssue(null);
+    // Start location capture immediately from the camera interaction.
     // Waiting for image compression first can lose the browser's user-action
-    // context, especially on mobile, so the native permission prompt may not
-    // appear when the confirmation modal is shown.
+    // context, especially on mobile, so the permission prompt may not appear
+    // when the confirmation modal is shown.
     const locationPromise = refreshAttendanceLocation();
     setIsPreparingPhoto(true);
     setErrors({});
@@ -350,10 +411,11 @@ export function StudentDashboardPage() {
     try {
       const uploadFile = await compressUploadImage(file);
       if (photoPreviewRef.current) URL.revokeObjectURL(photoPreviewRef.current);
-      const previewUrl = URL.createObjectURL(uploadFile);
+      const previewUrl = await createReliablePhotoPreview(uploadFile);
       photoPreviewRef.current = previewUrl;
       setPhotoFile(uploadFile);
       setPhotoPreview(previewUrl);
+      setPhotoPreviewError(false);
       setModalOpen(true);
       void locationPromise;
     } catch (error) {
@@ -363,9 +425,9 @@ export function StudentDashboardPage() {
           : "Foto tidak dapat diproses. Silakan ambil ulang foto.";
       setErrors({ photo: message });
       toast.error(message);
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
+      setCameraIssue(
+        "Foto dari kamera belum dapat diproses. Silakan buka kamera lagi untuk mengambil foto baru.",
+      );
     } finally {
       setIsPreparingPhoto(false);
     }
@@ -395,7 +457,7 @@ export function StudentDashboardPage() {
       );
     }
     setErrors(nextErrors);
-    if (hasFieldErrors(nextErrors) || !photoFile) return;
+    if (hasFieldErrors(nextErrors) || !photoFile || photoPreviewError) return;
 
     submitMutation.mutate({
       type: reportType,
@@ -421,6 +483,7 @@ export function StudentDashboardPage() {
     setModalOpen(false);
     resetCaptureState();
     await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["student-today"] }),
       queryClient.invalidateQueries({ queryKey: ["student-dashboard"] }),
       queryClient.invalidateQueries({ queryKey: ["student-history"] }),
       queryClient.invalidateQueries({ queryKey: ["student-profile"] }),
@@ -431,7 +494,9 @@ export function StudentDashboardPage() {
     setSubmissionStage("verifying");
     setQueueSeconds(0);
     try {
-      const latestToday = await getStudentToday();
+      // This recovery check should resolve quickly after a mobile upload
+      // becomes uncertain; it must not inherit the long general API timeout.
+      const latestToday = await getStudentTodayWithTimeout(12_000);
       if (latestToday.can_submit === false && latestToday.attendance) {
         await completeAttendanceSubmission(latestToday);
         return;
@@ -444,7 +509,7 @@ export function StudentDashboardPage() {
     setUploadProgress(0);
     setSubmissionStage("retryable-error");
     toast.error(
-      "Absensi belum tercatat. Foto tetap siap dikirim, silakan coba lagi.",
+      "Waktu tunggu server habis. Status absensi belum dapat dipastikan; foto tetap siap dikirim, silakan coba lagi.",
     );
   }
 
@@ -453,7 +518,7 @@ export function StudentDashboardPage() {
       id: "capture",
       label: "Foto",
       icon: Camera,
-      state: photoFile ? "complete" : cameraModalOpen ? "active" : "pending",
+      state: photoFile ? "complete" : "pending",
     },
     {
       id: "compress",
@@ -496,21 +561,10 @@ export function StudentDashboardPage() {
   return (
     <StudentShell>
       {(session) =>
-        dashboardQuery.isLoading && !dashboard ? (
+        todayQuery.isLoading && !today ? (
           <StudentDashboardSkeleton />
         ) : (
           <div className="space-y-5">
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="absolute left-0 top-0 size-px opacity-0"
-              onChange={(event) =>
-                void handlePhotoPicked(event.target.files?.[0])
-              }
-            />
-
             <section
               id="status-absensi-hari-ini"
               className="scroll-mt-5 overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]"
@@ -555,7 +609,7 @@ export function StudentDashboardPage() {
                             ? "Hari ini libur"
                             : isWindowClosed
                               ? "Kamu tidak hadir hari ini."
-                              : "Ambil foto dan kirim absensi hari ini."}
+                              : "Ambil foto dan kirim absensi hari ini"}
                       </h1>
                       <p className="max-w-xl text-base leading-7 text-emerald-50/82">
                         {today?.message ??
@@ -569,14 +623,16 @@ export function StudentDashboardPage() {
                       type="button"
                       onClick={handleStartAttendance}
                       disabled={
-                        !canSubmit ||
-                        dashboardQuery.isLoading ||
-                        isPreparingPhoto
+                        (!canSubmit && !dashboardServerBusy) ||
+                        isPreparingPhoto ||
+                        dashboardRetrySeconds > 0
                       }
                       className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:bg-emerald-50 hover:shadow-[0_20px_38px_rgba(2,44,34,0.24)] active:translate-y-0 active:scale-[0.98] active:!border-emerald-300 active:!bg-emerald-50 active:!text-emerald-800 active:!shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_14px_28px_rgba(16,185,129,0.18)] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
                     >
                       {isPreparingPhoto ? (
                         <TimerReset className="size-5" />
+                      ) : dashboardServerBusy ? (
+                        <LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" />
                       ) : canSubmit ? (
                         <Camera className="size-5" />
                       ) : isHoliday ? (
@@ -588,16 +644,35 @@ export function StudentDashboardPage() {
                       )}
                       {isPreparingPhoto
                         ? "Menyiapkan Foto..."
+                        : cameraIssue
+                          ? "Coba Buka Kamera Lagi"
+                        : dashboardServerBusy
+                          ? dashboardRetrySeconds > 0
+                            ? `Coba Lagi Dalam ${formatQueueCountdown(dashboardRetrySeconds)}`
+                            : "Server Sedang Sibuk"
                         : canSubmit
                           ? "Absen Hari Ini"
                           : isHoliday
                             ? "Hari Libur"
                             : isWindowClosed
                               ? "Waktu Absensi Sudah Habis"
-                              : "Cooldown Sampai Besok"}
+                              : "Absensi Sudah Tercatat"}
                     </Button>
                     <div className="rounded-2xl border border-white/18 bg-white/12 px-4 py-3 text-sm leading-6 text-emerald-50/86">
-                      {isHoliday ? (
+                      {cameraIssue ? (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm leading-6 text-emerald-50/90">
+                          <span>{cameraIssue}</span>
+                          <button
+                            type="button"
+                            onClick={handleStartAttendance}
+                            className="font-semibold text-white underline decoration-white/50 underline-offset-4 transition hover:decoration-white"
+                          >
+                            Buka Kamera Lagi
+                          </button>
+                        </div>
+                      ) : dashboardServerBusy ? (
+                        "Server sedang menerima banyak absensi. Tunggu sebentar, lalu tekan tombol untuk mencoba lagi."
+                      ) : isHoliday ? (
                         today?.holiday_type === "WEEKEND" ? (
                           "Sabtu dan Minggu adalah hari libur. Tidak ada absensi untuk hari ini."
                         ) : (
@@ -715,25 +790,35 @@ export function StudentDashboardPage() {
             <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
               <KpiCard
                 label="Total Absen"
-                value={String(stats?.total_attendance ?? 0)}
+                value={
+                  isDashboardDetailsLoading
+                    ? "…"
+                    : String(stats?.total_attendance ?? 0)
+                }
                 icon={History}
                 accentClass="bg-emerald-100 text-emerald-700"
               />
               <KpiCard
                 label="Hadir"
-                value={String(stats?.present ?? 0)}
+                value={
+                  isDashboardDetailsLoading ? "…" : String(stats?.present ?? 0)
+                }
                 icon={CheckCircle2}
                 accentClass="bg-sky-100 text-sky-700"
               />
               <KpiCard
                 label="Alfa"
-                value={String(stats?.alpha ?? 0)}
+                value={isDashboardDetailsLoading ? "…" : String(stats?.alpha ?? 0)}
                 icon={ShieldAlert}
                 accentClass="bg-rose-100 text-rose-700"
               />
               <KpiCard
                 label="Pengajuan"
-                value={String(stats?.pending_requests ?? 0)}
+                value={
+                  isDashboardDetailsLoading
+                    ? "…"
+                    : String(stats?.pending_requests ?? 0)
+                }
                 icon={FileText}
                 accentClass="bg-rose-100 text-rose-700"
               />
@@ -760,7 +845,9 @@ export function StudentDashboardPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {(dashboard?.recent_attendance ?? []).length > 0 ? (
+                  {isDashboardDetailsLoading ? (
+                    <DashboardDetailsLoading label="Memuat histori terbaru" />
+                  ) : (dashboard?.recent_attendance ?? []).length > 0 ? (
                     (dashboard?.recent_attendance ?? [])
                       .slice(0, 5)
                       .map((record) => (
@@ -783,7 +870,7 @@ export function StudentDashboardPage() {
                               <button
                                 type="button"
                                 onClick={() => setEvidenceRecord(record)}
-                                className="inline-flex size-9 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50"
+                                className="inline-flex size-9 items-center justify-center rounded-full border border-emerald-200 bg-white text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-500/60 dark:bg-slate-900 dark:!text-emerald-300 dark:hover:bg-emerald-950/60"
                                 aria-label="Buka foto absensi"
                               >
                                 <FileImage className="size-4" />
@@ -819,7 +906,10 @@ export function StudentDashboardPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {(dashboard?.notifications ?? []).map((item) => (
+                  {isDashboardDetailsLoading ? (
+                    <DashboardDetailsLoading label="Memuat informasi terbaru" />
+                  ) : (
+                    (dashboard?.notifications ?? []).map((item) => (
                     <div
                       key={item.id}
                       className="rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
@@ -838,9 +928,11 @@ export function StudentDashboardPage() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    ))
+                  )}
 
-                  {(dashboard?.recent_submissions ?? [])
+                  {!isDashboardDetailsLoading &&
+                    (dashboard?.recent_submissions ?? [])
                     .slice(0, 2)
                     .map((item) => (
                       <div
@@ -866,6 +958,9 @@ export function StudentDashboardPage() {
             <PremiumModal
               open={modalOpen}
               onOpenChange={(open) => {
+                // Do not let a delayed tap on slow mobile browsers close the
+                // confirmation while the photo is still being sent.
+                if (!open && isSubmissionBusy) return;
                 setModalOpen(open);
                 if (!open) resetCaptureState();
               }}
@@ -946,15 +1041,27 @@ export function StudentDashboardPage() {
                         </span>
                       </div>
                       <div className="overflow-hidden rounded-[1.35rem] border border-emerald-200/70 bg-slate-950 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
-                        {photoPreview ? (
+                        {photoPreview && !photoPreviewError ? (
                           <img
                             src={photoPreview}
                             alt="Preview foto absensi siswa"
                             className="h-[300px] w-full object-cover sm:h-[350px]"
+                            onError={() => {
+                              setPhotoPreviewError(true);
+                              setErrors((current) => ({
+                                ...current,
+                                photo:
+                                  "Foto belum dapat ditampilkan di browser ini. Silakan ambil ulang foto.",
+                              }));
+                            }}
                           />
                         ) : (
-                          <div className="flex h-[300px] items-center justify-center text-slate-300 sm:h-[350px]">
-                            Foto belum tersedia
+                          <div className="flex h-[300px] flex-col items-center justify-center gap-2 px-5 text-center text-sm text-slate-300 sm:h-[350px]">
+                            <ShieldAlert className="size-6 text-amber-300" />
+                            <span>
+                              Foto belum dapat ditampilkan. Silakan ambil ulang
+                              foto.
+                            </span>
                           </div>
                         )}
                       </div>
@@ -1067,11 +1174,11 @@ export function StudentDashboardPage() {
 
             {cameraModalOpen ? (
               <CameraCaptureModal
+                onClose={() => setCameraModalOpen(false)}
                 onCapture={(file) => {
                   setCameraModalOpen(false);
                   void handlePhotoPicked(file);
                 }}
-                onClose={() => setCameraModalOpen(false)}
               />
             ) : null}
           </div>
@@ -1083,22 +1190,17 @@ export function StudentDashboardPage() {
 
 function getSubmissionButtonState({
   isPreparingPhoto,
-  locationState,
   submissionStage,
   queueSeconds,
   uploadProgress,
 }: {
   isPreparingPhoto: boolean;
-  locationState: "idle" | "loading" | "complete";
   submissionStage: AttendanceSubmissionStage;
   queueSeconds: number;
   uploadProgress: number;
 }): { label: string; icon: LucideIcon; isAnimated: boolean } {
   if (isPreparingPhoto) {
     return { label: "Menyiapkan Foto...", icon: LoaderCircle, isAnimated: true };
-  }
-  if (locationState === "loading") {
-    return { label: "Membaca Lokasi...", icon: LoaderCircle, isAnimated: true };
   }
   if (submissionStage === "queueing") {
     return {
@@ -1160,7 +1262,7 @@ function AttendanceSubmissionFeedback({
       ? "Memeriksa status absensi"
       : "Server sedang menerima banyak absensi";
   const description = isRetryableError
-    ? "Foto tetap siap dikirim. Gunakan tombol Coba Kirim Lagi tanpa mengambil foto ulang."
+    ? "Waktu tunggu server habis atau koneksi terputus. Status absensi belum dapat dipastikan. Foto tetap siap dikirim; gunakan tombol Coba Kirim Lagi tanpa mengambil foto ulang."
     : isVerifying
       ? "Kami mengecek apakah pengiriman sebelumnya sudah berhasil dicatat."
       : `Foto dan data kamu masih kami coba kirim. Mohon tunggu ${formatQueueCountdown(queueSeconds)}.`;
@@ -1216,7 +1318,7 @@ function InfoTile({
   tone?: "profile" | "class" | "checkin" | "success" | "pending";
 }) {
   const toneClassName = {
-    profile: "bg-indigo-50 text-indigo-700",
+    profile: "bg-indigo-50 text-indigo-700 dark:bg-emerald-950/60 dark:text-emerald-300",
     class: "bg-violet-50 text-violet-700",
     checkin: "bg-teal-50 text-teal-700",
     success: "bg-emerald-50 text-emerald-700",
@@ -1256,12 +1358,72 @@ function formatDashboardGreetingDate(date: Date) {
   }).format(date);
 }
 
-function isMobileDevice(): boolean {
-  if (typeof navigator === "undefined") return false;
+async function createReliablePhotoPreview(file: File) {
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    await waitForPhotoPreview(objectUrl);
+    return objectUrl;
+  } catch {
+    // Some older Android/Vivo browser builds fail to render a Blob URL even
+    // though the same JPEG is valid. Use a data URL as a compatibility
+    // fallback, then validate that source too before opening the confirmation.
+    URL.revokeObjectURL(objectUrl);
+    const dataUrl = await readPhotoAsDataUrl(file);
+    await waitForPhotoPreview(dataUrl);
+    return dataUrl;
+  }
+}
+
+function waitForPhotoPreview(source: string) {
+  return new Promise<void>((resolve, reject) => {
+    const image = new Image();
+    const timeout = window.setTimeout(() => {
+      image.src = "";
+      reject(new Error("preview timeout"));
+    }, 8_000);
+    image.onload = () => {
+      window.clearTimeout(timeout);
+      resolve();
+    };
+    image.onerror = () => {
+      window.clearTimeout(timeout);
+      reject(new Error("preview decode failed"));
+    };
+    image.src = source;
+  });
+}
+
+function readPhotoAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    const timeout = window.setTimeout(() => {
+      reader.abort();
+      reject(new Error("preview fallback timeout"));
+    }, 8_000);
+    reader.onload = () => {
+      window.clearTimeout(timeout);
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("preview fallback failed"));
+      }
+    };
+    reader.onerror = () => {
+      window.clearTimeout(timeout);
+      reject(new Error("preview fallback failed"));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function DashboardDetailsLoading({ label }: { label: string }) {
   return (
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (typeof window !== "undefined" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(pointer: coarse)").matches)
+    <div
+      className="flex min-h-28 items-center justify-center gap-2 rounded-[1.2rem] border border-dashed border-slate-200 bg-slate-50/70 px-4 text-sm font-medium text-slate-500"
+      role="status"
+    >
+      <LoaderCircle className="size-4 animate-spin text-emerald-600 motion-reduce:animate-none" />
+      {label}
+    </div>
   );
 }

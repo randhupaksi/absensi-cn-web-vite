@@ -15,7 +15,7 @@ export function StudentShell({ children }: StudentShellProps) {
       expectedRole="siswa"
       sidebarItems={studentSidebarItems}
       userLabel="Siswa"
-      eyebrow="Dashboard Siswa"
+      eyebrow="Portal Siswa"
       resolveTitle={(pathname) => {
         if (pathname.includes("/history")) return "Histori Absen";
         if (pathname.includes("/profile")) return "Profil Siswa";

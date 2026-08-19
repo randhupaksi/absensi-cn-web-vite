@@ -36,12 +36,12 @@ export function StudentProfilePage() {
           <ProfilePageSkeleton />
         ) : (
           <div className="space-y-5">
-            <section className="relative overflow-hidden rounded-[2.25rem] border border-white/90 bg-[radial-gradient(circle_at_100%_0%,rgba(167,243,208,0.52),transparent_31%),linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#edf9f3_100%)] p-3 shadow-[0_26px_76px_rgba(15,23,42,0.09)] sm:p-5">
-              <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-200/28 blur-3xl" />
+            <section className="relative overflow-hidden rounded-[2.25rem] border border-white/90 bg-[radial-gradient(circle_at_100%_0%,rgba(167,243,208,0.52),transparent_31%),linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#edf9f3_100%)] p-3 shadow-[0_26px_76px_rgba(15,23,42,0.09)] dark:border-slate-800 dark:bg-slate-950 dark:bg-none dark:shadow-none sm:p-5">
+              <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-200/28 blur-3xl dark:hidden" />
               <div className="relative grid items-stretch gap-5 lg:grid-cols-[0.86fr_1.14fr]">
-                <div className="relative overflow-hidden rounded-[1.9rem] border border-emerald-300/40 bg-[linear-gradient(155deg,#064e42_0%,#087b63_48%,#10b981_100%)] p-6 text-white shadow-[0_24px_56px_rgba(5,120,91,0.26)] sm:p-7">
+                <div className="relative overflow-hidden rounded-[1.9rem] border border-emerald-300/40 bg-[linear-gradient(155deg,#064e42_0%,#087b63_48%,#10b981_100%)] p-6 text-white shadow-[0_24px_56px_rgba(5,120,91,0.26)] dark:border-emerald-700/60 dark:bg-slate-900 dark:bg-none dark:shadow-none sm:p-7">
                   <div className="pointer-events-none absolute -right-14 -top-20 size-52 rounded-full border-[24px] border-white/10" />
-                  <div className="pointer-events-none absolute -bottom-24 -left-14 size-56 rounded-full bg-white/12 blur-2xl" />
+                  <div className="pointer-events-none absolute -bottom-24 -left-14 size-56 rounded-full bg-white/12 blur-2xl dark:hidden" />
                   <div className="relative flex items-start justify-between gap-4">
                     <span className="flex size-[4.75rem] items-center justify-center rounded-[1.45rem] border border-white/25 bg-white/15 text-2xl font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_14px_30px_rgba(0,0,0,0.1)]">
                       {getInitials(profile?.name ?? "Siswa")}
@@ -91,8 +91,8 @@ export function StudentProfilePage() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.9rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_44px_rgba(15,23,42,0.06)] sm:p-6">
-                  <div className="flex items-start justify-between gap-4 border-b border-slate-200/75 pb-5">
+                <div className="rounded-[1.9rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_44px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:p-6">
+                  <div className="flex items-start justify-between gap-4 border-b border-slate-200/75 pb-5 dark:border-slate-700">
                     <div>
                       <div className="flex items-center gap-2 text-emerald-700">
                         <BookOpen className="size-4" />
@@ -100,22 +100,22 @@ export function StudentProfilePage() {
                           Data akademik
                         </p>
                       </div>
-                      <h2 className="mt-2 text-[1.45rem] font-semibold tracking-[-0.03em] text-slate-950">
+                      <h2 className="mt-2 text-[1.45rem] font-semibold tracking-[-0.03em] text-slate-950 dark:text-slate-100">
                         Identitas Akademik
                       </h2>
-                      <p className="mt-1 max-w-lg text-sm leading-6 text-slate-500">
+                      <p className="mt-1 max-w-lg text-sm leading-6 text-slate-500 dark:text-slate-400">
                         Identitas yang dipakai untuk absensi, wali kelas, BK,
                         dan administrasi sekolah.
                       </p>
                     </div>
-                    <span className="hidden size-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700 sm:flex">
+                    <span className="hidden size-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/50 dark:text-emerald-300 sm:flex">
                       <CircleUserRound className="size-5" />
                     </span>
                   </div>
 
                   {profile ? (
                     <>
-                      <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-700">
+                      <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
                         <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
                         Data profil tersinkron dengan Citra Negara Attendence System
                       </div>
@@ -169,7 +169,7 @@ export function StudentProfilePage() {
                       </div>
                     </>
                   ) : profileQuery.isLoading ? (
-                    <div className="mt-5 text-sm text-slate-500">
+                    <div className="mt-5 text-sm text-slate-500 dark:text-slate-400">
                       Memuat profil siswa...
                     </div>
                   ) : (
@@ -241,15 +241,15 @@ function InfoRow({
   };
 
   return (
-    <div className="group flex min-w-0 items-center gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/65 px-3.5 py-3.5 transition-[transform,border-color,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/45 hover:shadow-[0_12px_24px_rgba(15,118,85,0.07)]">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-[0_5px_12px_rgba(15,23,42,0.05)]">
+    <div className="group flex min-w-0 items-center gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/65 px-3.5 py-3.5 transition-[transform,border-color,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/45 hover:shadow-[0_12px_24px_rgba(15,118,85,0.07)] dark:border-slate-700 dark:bg-slate-800/70 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/45 dark:hover:shadow-none">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-[0_5px_12px_rgba(15,23,42,0.05)] dark:bg-slate-900 dark:text-emerald-300 dark:shadow-none">
         <Icon className="size-4" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate-400">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
           {label}
         </p>
-        <p className="mt-1 truncate font-semibold leading-6 text-slate-800">
+        <p className="mt-1 truncate font-semibold leading-6 text-slate-800 dark:text-slate-100">
           {value}
         </p>
       </div>
@@ -257,7 +257,7 @@ function InfoRow({
         <button
           type="button"
           onClick={handleCopy}
-          className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 opacity-0 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 group-hover:opacity-100"
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 opacity-0 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 group-hover:opacity-100 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300"
           title={copied ? "Tersalin" : `Salin ${label}`}
           aria-label={copied ? `${label} tersalin` : `Salin ${label}`}
         >

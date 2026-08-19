@@ -246,8 +246,8 @@ export function StudentHistoryPage() {
               </TabsContent>
 
               <TabsContent value="history" className="mt-5">
-                <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-                  <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                <section className="rounded-[2rem] border border-white/82 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+                  <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-slate-900">
                         Daftar Aktivitas
@@ -278,9 +278,9 @@ export function StudentHistoryPage() {
 
                   {records.length > 0 ? (
                     <>
-                      <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block">
+                      <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block dark:border-b dark:border-slate-700 dark:border-x-0 dark:border-t-0">
                         <div className="min-w-[560px]">
-                          <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 bg-emerald-50 px-5 py-4 text-sm font-semibold text-slate-700">
+                          <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 bg-emerald-50 px-5 py-4 text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                             <span>Aktivitas</span>
                             <span>Waktu</span>
                             <span>Status</span>
@@ -304,7 +304,7 @@ export function StudentHistoryPage() {
                           )}
                         </div>
                       </div>
-                      <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100">
+                      <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100 dark:border-b dark:border-slate-700 dark:border-x-0 dark:border-t-0">
                         <MobileDataList>
                           {records.map((item) =>
                             item.kind === "attendance" ? (
@@ -325,7 +325,7 @@ export function StudentHistoryPage() {
                       </div>
                     </>
                   ) : (
-                    <div className="mt-5 rounded-[1.45rem] border border-emerald-100 p-5">
+                    <div className="mt-5 rounded-[1.45rem] border border-emerald-100 p-5 dark:border-slate-700">
                       <EmptyState
                         icon={History}
                         title="Histori belum ditemukan"
@@ -373,7 +373,7 @@ function StudentHistoryOverview({
   return (
     <div className="space-y-5">
       <section className="grid gap-5 lg:grid-cols-[1.06fr_0.94fr]">
-        <article className="rounded-[2rem] border border-emerald-100 bg-[linear-gradient(135deg,#f7fffb_0%,#ecfdf5_58%,#ffffff_100%)] p-5 shadow-[0_18px_48px_rgba(5,120,91,0.08)]">
+        <article className="rounded-[2rem] border border-emerald-100 bg-[linear-gradient(135deg,#f7fffb_0%,#ecfdf5_58%,#ffffff_100%)] p-5 shadow-[0_18px_48px_rgba(5,120,91,0.08)] dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none">
           <div className="flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.22)]">
               <LayoutPanelTop className="size-5" />
@@ -382,7 +382,7 @@ function StudentHistoryOverview({
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
                 Profil laporan
               </p>
-              <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+              <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-slate-950 dark:text-slate-100">
                 Data Siswa
               </h2>
             </div>
@@ -405,16 +405,16 @@ function StudentHistoryOverview({
           </div>
         </article>
 
-        <article className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)]">
+        <article className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
                 Kehadiran
               </p>
-              <p className="mt-3 text-5xl font-semibold tracking-[-0.06em] text-slate-950">
+              <p className="mt-3 text-5xl font-semibold tracking-[-0.06em] text-slate-950 dark:text-slate-100">
                 {attendanceRate}%
               </p>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Persentase hadir dari seluruh data absensi yang tercatat.
               </p>
             </div>
@@ -422,9 +422,9 @@ function StudentHistoryOverview({
               <ChartLine className="size-5" />
             </span>
           </div>
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
             <div
-              className="h-full rounded-full bg-[linear-gradient(90deg,#059669,#34d399)] transition-[width] duration-500"
+              className="h-full rounded-full bg-[linear-gradient(90deg,#059669,#34d399)] transition-[width] duration-500 dark:!bg-emerald-500 dark:bg-none"
               style={{ width: `${attendanceRate}%` }}
             />
           </div>
@@ -535,11 +535,11 @@ function StudentHistoryOverview({
 
 function OverviewField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-[1.1rem] border border-white bg-white/84 px-3.5 py-3 shadow-[0_8px_18px_rgba(15,23,42,0.035)]">
-      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.15em] text-slate-400">
+    <div className="min-w-0 rounded-[1.1rem] border border-white bg-white/84 px-3.5 py-3 shadow-[0_8px_18px_rgba(15,23,42,0.035)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-none">
+      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">
         {label}
       </p>
-      <p className="mt-1 truncate text-sm font-semibold text-slate-800">
+      <p className="mt-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
         {value}
       </p>
     </div>
@@ -559,9 +559,9 @@ function OverviewStat({
 }) {
   return (
     <div
-      className={`rounded-[0.9rem] bg-white px-2 shadow-[0_6px_14px_rgba(15,23,42,0.03)] ${compact ? "py-2.5" : "py-3"}`}
+      className={`rounded-[0.9rem] bg-white px-2 shadow-[0_6px_14px_rgba(15,23,42,0.03)] dark:bg-slate-800 dark:shadow-none ${compact ? "py-2.5" : "py-3"}`}
     >
-      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-slate-400">
+      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500">
         {label}
       </p>
       <p className={`mt-1 text-lg font-semibold ${tone}`}>{value}</p>
@@ -577,7 +577,7 @@ function AttendanceRow({
   onOpen: (record: StaffAttendanceRecord) => void;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
+    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm dark:border-slate-700">
       <div>
         <p className="font-semibold text-slate-950">Absensi Harian</p>
         <p className="mt-1 line-clamp-2 text-slate-500">
@@ -665,7 +665,7 @@ function MobileAttendanceCard({
           <button
             type="button"
             onClick={() => onOpen(record)}
-            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-500/60 dark:bg-slate-900 dark:!text-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:!text-emerald-200"
             aria-label="Buka bukti absensi"
           >
             <FileImage className="size-4.5" />
@@ -685,7 +685,7 @@ function SubmissionRow({
   onOpen: (submission: StudentSubmission) => void;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm">
+    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm dark:border-slate-700">
       <div>
         <div className="flex items-center gap-2">
           <StudentSubmissionPill value={submission.type} />
@@ -757,7 +757,7 @@ function MobileSubmissionCard({
           <button
             type="button"
             onClick={() => onOpen(submission)}
-            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-emerald-200 bg-white px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-500/60 dark:bg-slate-900 dark:!text-emerald-300 dark:hover:bg-emerald-950/60 dark:hover:!text-emerald-200"
             aria-label="Buka lampiran pengajuan"
           >
             <FileImage className="size-4.5" />

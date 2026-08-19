@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AsyncButton } from "@/components/ui/async-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Camera, ShieldAlert } from "lucide-react";
+import { Camera, RefreshCw, ShieldAlert, SwitchCamera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type CameraCaptureModalProps = {
@@ -24,13 +24,19 @@ export function CameraCaptureModal({
   const streamRef = useRef<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [videoReady, setVideoReady] = useState(false);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">(
+    "user",
+  );
+  const [isStartingCamera, setIsStartingCamera] = useState(true);
+  const [cameraNotice, setCameraNotice] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     if (!navigator.mediaDevices?.getUserMedia) {
       setCameraError(
-        "Browser ini tidak menyediakan akses kamera. Gunakan pilihan foto dari perangkat.",
+        "Browser ini tidak menyediakan akses kamera. Absensi hadir harus menggunakan kamera langsung.",
       );
       return () => {
         cancelled = true;
@@ -38,29 +44,7 @@ export function CameraCaptureModal({
       };
     }
 
-    void navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      })
-      .then((stream) => {
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop());
-          return;
-        }
-        streamRef.current = stream;
-        if (videoRef.current) videoRef.current.srcObject = stream;
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setCameraError(
-            "Kamera tidak dapat diakses. Pastikan izin kamera sudah diaktifkan di browser.",
-          );
-        }
-      });
+    void startCamera("user", () => cancelled);
 
     return () => {
       cancelled = true;
@@ -73,26 +57,110 @@ export function CameraCaptureModal({
     streamRef.current = null;
   }
 
+  async function startCamera(
+    nextFacingMode: "user" | "environment",
+    isCancelled = () => false,
+  ) {
+    if (!navigator.mediaDevices?.getUserMedia) return;
+
+    stopStream();
+    setVideoReady(false);
+    setIsStartingCamera(true);
+    setCameraError(null);
+    setCameraNotice(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          // `ideal` asks for the selected camera without rejecting older
+          // Android WebViews that only expose a generic video source.
+          facingMode: { ideal: nextFacingMode },
+          // A modest preview avoids an unnecessarily large frame/canvas on
+          // Android Go while remaining more than sufficient for face proof.
+          width: { ideal: 960 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+
+      if (isCancelled()) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      const activeFacingMode = stream
+        .getVideoTracks()[0]
+        ?.getSettings().facingMode;
+      if (activeFacingMode && activeFacingMode !== nextFacingMode) {
+        setCameraNotice(
+          "Kamera yang dipilih tidak tersedia. Browser menggunakan kamera yang tersedia.",
+        );
+      }
+      streamRef.current = stream;
+      setFacingMode(nextFacingMode);
+      if (videoRef.current) videoRef.current.srcObject = stream;
+    } catch {
+      if (!isCancelled()) {
+        setCameraError(
+          "Kamera tidak dapat diakses. Pastikan izin kamera sudah diaktifkan di browser.",
+        );
+      }
+    } finally {
+      if (!isCancelled()) setIsStartingCamera(false);
+    }
+  }
+
   function handleCapture() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    if (!video.videoWidth || !video.videoHeight) {
+      setCameraError("Kamera belum siap. Coba tunggu sebentar lalu ambil foto.");
+      return;
+    }
+
+    const context = canvas.getContext("2d");
+    if (!context || typeof canvas.toBlob !== "function") {
+      setCameraError(
+        "Browser tidak dapat menyiapkan foto kamera. Silakan buka ulang kamera atau gunakan browser terbaru.",
+      );
+      return;
+    }
+
+    const longestSide = Math.max(video.videoWidth, video.videoHeight);
+    const captureScale = Math.min(1, 960 / longestSide);
+    canvas.width = Math.max(1, Math.round(video.videoWidth * captureScale));
+    canvas.height = Math.max(1, Math.round(video.videoHeight * captureScale));
+
+    // Front-camera frames can arrive horizontally mirrored on some Android
+    // camera/browser combinations. Normalize the saved selfie once so the
+    // submitted photo is readable in the same orientation as real life.
+    if (facingMode === "user") {
+      context.translate(canvas.width, 0);
+      context.scale(-1, 1);
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    setIsCapturing(true);
     canvas.toBlob(
       (blob) => {
-        if (!blob) return;
+        if (!blob) {
+          setIsCapturing(false);
+          setCameraError(
+            "Foto belum berhasil dibuat dari kamera. Silakan coba ambil foto lagi.",
+          );
+          return;
+        }
         const file = new File([blob], "absensi.jpg", {
           type: "image/jpeg",
           lastModified: Date.now(),
         });
+        setIsCapturing(false);
         stopStream();
         onCapture(file);
       },
       "image/jpeg",
-      0.72,
+      0.68,
     );
   }
 
@@ -127,9 +195,11 @@ export function CameraCaptureModal({
               playsInline
               muted
               onCanPlay={() => setVideoReady(true)}
-              className="h-[300px] w-full object-cover"
+              className={`h-[300px] w-full object-cover ${
+                facingMode === "user" ? "scale-x-[-1]" : ""
+              }`}
             />
-            {!videoReady ? (
+            {!videoReady || isStartingCamera ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/92 p-6 text-center">
                 <Skeleton className="absolute inset-0 rounded-none bg-slate-800/80" />
                 <span className="relative flex size-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
@@ -147,6 +217,11 @@ export function CameraCaptureModal({
             ) : null}
           </div>
         )}
+        {cameraNotice ? (
+          <p className="rounded-[1rem] border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+            {cameraNotice}
+          </p>
+        ) : null}
         <canvas ref={canvasRef} className="hidden" />
 
         <div className={premiumModalActionsClassName}>
@@ -159,10 +234,35 @@ export function CameraCaptureModal({
             Batal
           </Button>
           {!cameraError && (
+            <Button
+              type="button"
+              variant="outline"
+              aria-label={
+                facingMode === "user"
+                  ? "Gunakan kamera belakang"
+                  : "Gunakan kamera depan"
+              }
+              className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-emerald-200 px-3 text-sm font-semibold text-emerald-700 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 active:scale-[0.96] sm:flex-none sm:px-4"
+              onClick={() =>
+                void startCamera(
+                  facingMode === "user" ? "environment" : "user",
+                )
+              }
+              disabled={isStartingCamera}
+            >
+              {isStartingCamera ? (
+                <RefreshCw className="size-4 animate-spin motion-reduce:animate-none" />
+              ) : (
+                <SwitchCamera className="size-4" />
+              )}
+              <span className="sr-only sm:not-sr-only">Ganti Kamera</span>
+            </Button>
+          )}
+          {!cameraError && (
             <AsyncButton
               type="button"
               data-modal-submit
-              isPending={!videoReady}
+              isPending={!videoReady || isStartingCamera || isCapturing}
               pendingLabel="Menyiapkan kamera..."
               icon={Camera}
               onClick={handleCapture}
