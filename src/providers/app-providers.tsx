@@ -6,7 +6,15 @@ import {
   appCredits,
 } from "@/lib/config/credits";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { lazy, ReactNode, Suspense, useEffect, useState } from "react";
+import {
+  lazy,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { getStoredTheme, subscribeToTheme, type AppTheme } from "@/lib/theme";
 
 const Toaster = lazy(() =>
   import("sonner").then((module) => ({ default: module.Toaster })),
@@ -15,6 +23,29 @@ const Toaster = lazy(() =>
 type AppProvidersProps = {
   children: ReactNode;
 };
+
+function ThemeAwareToaster() {
+  const theme = useSyncExternalStore<AppTheme>(
+    subscribeToTheme,
+    getStoredTheme,
+    () => "light",
+  );
+
+  return (
+    <Toaster
+      theme={theme}
+      richColors
+      position="top-right"
+      closeButton
+      toastOptions={{
+        classNames: {
+          closeButton:
+            "!text-red-600 hover:!bg-red-100 hover:!text-red-700 focus-visible:!ring-red-500/40 active:!bg-red-200 dark:!text-rose-300 dark:hover:!bg-rose-950/70 dark:hover:!text-rose-100 dark:active:!bg-rose-950",
+        },
+      }}
+    />
+  );
+}
 
 export function AppProviders({ children }: AppProvidersProps) {
   const [queryClient] = useState(
@@ -104,17 +135,7 @@ export function AppProviders({ children }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       {children}
       <Suspense fallback={null}>
-        <Toaster
-          richColors
-          position="top-right"
-          closeButton
-          toastOptions={{
-            classNames: {
-              closeButton:
-                "!text-red-600 hover:!bg-red-100 hover:!text-red-700 focus-visible:!ring-red-500/40 active:!bg-red-200",
-            },
-          }}
-        />
+        <ThemeAwareToaster />
       </Suspense>
     </QueryClientProvider>
   );
