@@ -24,6 +24,9 @@ export function AdminShell({ children }: AdminShellProps) {
 
 function getAdminSectionTitle(pathname: string) {
   if (pathname === "/dashboard/admin") return "Dashboard Admin";
+  if (pathname.startsWith("/dashboard/admin/analytics")) {
+    return "Analitik Kehadiran";
+  }
   if (pathname.startsWith("/dashboard/admin/teachers")) {
     return "Manajemen Guru";
   }

@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, LogOut, Menu, Search } from "lucide-react";
 import { usePathname, useRouter } from "@/lib/router";
 import { formatPersonName } from "@/lib/format-person-name";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function Topbar() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export function Topbar() {
   };
 
   return (
-    <header className="sticky top-4 z-20 rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur">
+    <header className="sticky top-4 z-20 rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
       <div className="flex items-center gap-3">
         <div className="lg:hidden">
           <Sheet>
@@ -86,6 +87,7 @@ export function Topbar() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          <ThemeToggle placement="inline" className="hidden sm:inline-flex" />
           <Button variant="outline" size="icon" className="rounded-2xl">
             <Bell className="size-4" />
           </Button>
@@ -112,6 +114,7 @@ export function Topbar() {
           >
             <LogOut className="size-4" />
           </Button>
+          <ThemeToggle placement="inline" className="sm:hidden" />
         </div>
       </div>
     </header>

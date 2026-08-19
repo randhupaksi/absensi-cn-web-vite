@@ -27,6 +27,9 @@ export function DashboardTopbar({
 function getSectionTitle(pathname: string | null) {
   if (!pathname) return "Dashboard Admin";
   if (pathname === "/dashboard/admin") return "Dashboard Admin";
+  if (pathname.startsWith("/dashboard/admin/analytics")) {
+    return "Analitik Kehadiran";
+  }
   if (pathname.startsWith("/dashboard/admin/teachers")) {
     return "Manajemen Guru";
   }
