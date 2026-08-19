@@ -33,6 +33,11 @@ const AdminDashboardPage = lazy(() =>
     default: module.AdminDashboardPage,
   })),
 );
+const AdminAnalyticsPage = lazy(() =>
+  import("@/pages/admin/analytics-page").then((module) => ({
+    default: module.AdminAnalyticsPage,
+  })),
+);
 const AdminAdminsPage = lazy(() =>
   import("@/pages/admin/admins-page").then((module) => ({
     default: module.AdminAdminsPage,
@@ -294,6 +299,10 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardRedirect />} />
 
           <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
+          <Route
+            path="/dashboard/admin/analytics"
+            element={<AdminAnalyticsPage />}
+          />
           <Route path="/dashboard/admin/admins" element={<AdminAdminsPage />} />
           <Route
             path="/dashboard/admin/classes"

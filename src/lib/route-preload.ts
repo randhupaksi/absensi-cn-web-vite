@@ -6,6 +6,7 @@ const routePreloaders: Record<string, RoutePreloader> = {
   "/login/student": () => import("@/pages/auth/login-page"),
   "/login/staff": () => import("@/pages/auth/login-page"),
   "/dashboard/admin": () => import("@/pages/admin/dashboard-page"),
+  "/dashboard/admin/analytics": () => import("@/pages/admin/analytics-page"),
   "/dashboard/admin/admins": () => import("@/pages/admin/admins-page"),
   "/dashboard/admin/classes": () => import("@/pages/admin/classes-page"),
   "/dashboard/admin/students": () => import("@/pages/admin/students-page"),
