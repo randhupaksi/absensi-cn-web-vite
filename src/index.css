@@ -66,6 +66,26 @@
   --app-author: "Randhu Paksi Membumi - Creator & Fullstack Developer";
   --app-credit: "Citra Negara Attendence System dibuat sepenuhnya oleh Randhu Paksi Membumi";
   --app-copyright: "Copyright 2026 Randhu Paksi Membumi. All rights reserved.";
+  /* Hex values keep semantic tokens usable on older Android WebViews that
+     cannot parse OKLCH. Modern browsers read the declaration that follows. */
+  --background: #f7fafb;
+  --foreground: #1f344b;
+  --card: #ffffff;
+  --card-foreground: #1f344b;
+  --popover: #ffffff;
+  --popover-foreground: #1f344b;
+  --primary: #1677a4;
+  --primary-foreground: #f7fbfc;
+  --secondary: #e9f6f8;
+  --secondary-foreground: #29445c;
+  --muted: #f1f5f7;
+  --muted-foreground: #66778a;
+  --accent: #f3f0db;
+  --accent-foreground: #53513f;
+  --destructive: #d85451;
+  --border: #dce4e9;
+  --input: #dce4e9;
+  --ring: #36ad7a;
   --background: oklch(0.985 0.01 235);
   --foreground: oklch(0.24 0.04 245);
   --card: oklch(1 0 0);
@@ -156,6 +176,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.2 0.03 250);
   --foreground: oklch(0.97 0.01 240);
   --card: oklch(0.25 0.03 248);
@@ -187,6 +208,442 @@
   --sidebar-accent-foreground: oklch(0.97 0.01 240);
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.75 0.13 154);
+  --landing-page-bg: linear-gradient(180deg, #101b1a 0%, #0b1414 100%);
+  --landing-surface: rgba(24, 39, 39, 0.92);
+  --landing-surface-strong: #152525;
+  --landing-surface-soft: #132824;
+  --landing-border-soft: rgba(110, 231, 183, 0.18);
+  --landing-ink: #ecfdf5;
+  --landing-ink-soft: #b6c8c2;
+  --landing-accent: #6ee7b7;
+  --landing-accent-strong: #86efac;
+  --landing-accent-soft: rgba(110, 231, 183, 0.14);
+  --landing-accent-glow: rgba(16, 185, 129, 0.22);
+  --landing-dark-surface: #0b211d;
+  --landing-shadow-hero: 0 24px 64px rgba(0, 0, 0, 0.32);
+  --landing-shadow-soft: 0 18px 38px rgba(0, 0, 0, 0.18);
+  --landing-shadow-chip: 0 10px 24px rgba(0, 0, 0, 0.16);
+  --landing-shadow-card: 0 24px 42px rgba(0, 0, 0, 0.36);
+  --landing-shadow-card-hover: 0 34px 68px rgba(0, 0, 0, 0.48);
+  --landing-shadow-panel: 0 24px 50px rgba(0, 0, 0, 0.28);
+  --landing-shadow-float: 0 18px 40px rgba(0, 0, 0, 0.24);
+  --landing-shadow-cta: 0 34px 90px rgba(0, 0, 0, 0.38);
+}
+
+/*
+ * Legacy pages still contain utility-colour surfaces. Match only complete
+ * class tokens here: matching arbitrary substrings also catches variants
+ * such as `hover:bg-white/10`, which incorrectly paints a control at rest.
+ */
+.dark :is([class~="bg-white"], [class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-gray-50"], [class~="bg-gray-100"], [class^="bg-white/"], [class*=" bg-white/"], [class^="bg-slate-50/"], [class*=" bg-slate-50/"], [class^="bg-slate-100/"], [class*=" bg-slate-100/"], [class^="bg-gray-50/"], [class*=" bg-gray-50/"], [class^="bg-gray-100/"], [class*=" bg-gray-100/"]) { background-color: var(--card); }
+.dark :is([class~="bg-slate-200"], [class~="bg-gray-200"], [class^="bg-slate-200/"], [class*=" bg-slate-200/"], [class^="bg-gray-200/"], [class*=" bg-gray-200/"]) { background-color: var(--muted); }
+.dark :is([class~="border-white"], [class~="border-slate-100"], [class~="border-slate-200"], [class~="border-slate-300"], [class~="border-gray-100"], [class~="border-gray-200"], [class~="border-gray-300"], [class^="border-white/"], [class*=" border-white/"], [class^="border-slate-"], [class*=" border-slate-"], [class^="border-gray-"], [class*=" border-gray-"]) { border-color: var(--border); }
+.dark :is([class~="text-slate-950"], [class~="text-slate-900"], [class~="text-slate-800"], [class~="text-gray-950"], [class~="text-gray-900"], [class~="text-gray-800"]) { color: var(--foreground); }
+.dark :is([class~="text-slate-700"], [class~="text-slate-600"], [class~="text-gray-700"], [class~="text-gray-600"]) { color: var(--secondary-foreground); }
+.dark :is([class~="text-slate-500"], [class~="text-slate-400"], [class~="text-gray-500"], [class~="text-gray-400"]) { color: var(--muted-foreground); }
+.dark :is([class~="bg-emerald-50"], [class^="bg-emerald-50/"], [class*=" bg-emerald-50/"]) { background-color: rgba(6, 78, 59, 0.48); }
+.dark :is([class~="bg-sky-50"], [class^="bg-sky-50/"], [class*=" bg-sky-50/"]) { background-color: rgba(7, 89, 133, 0.36); }
+.dark :is([class~="bg-violet-50"], [class^="bg-violet-50/"], [class*=" bg-violet-50/"]) { background-color: rgba(76, 29, 149, 0.34); }
+.dark :is([class~="bg-amber-50"], [class^="bg-amber-50/"], [class*=" bg-amber-50/"]) { background-color: rgba(120, 53, 15, 0.38); }
+.dark :is([class~="bg-rose-50"], [class^="bg-rose-50/"], [class*=" bg-rose-50/"]) { background-color: rgba(136, 19, 55, 0.34); }
+.dark :is([class~="bg-cyan-50"], [class^="bg-cyan-50/"], [class*=" bg-cyan-50/"]) { background-color: rgba(21, 94, 117, 0.38); }
+.dark :is([class~="bg-teal-50"], [class^="bg-teal-50/"], [class*=" bg-teal-50/"]) { background-color: rgba(19, 78, 74, 0.42); }
+.dark :is([class~="bg-emerald-100"], [class^="bg-emerald-100/"], [class*=" bg-emerald-100/"]) { background-color: rgba(6, 78, 59, 0.68); }
+.dark :is([class~="bg-sky-100"], [class^="bg-sky-100/"], [class*=" bg-sky-100/"]) { background-color: rgba(7, 89, 133, 0.58); }
+.dark :is([class~="bg-violet-100"], [class^="bg-violet-100/"], [class*=" bg-violet-100/"]) { background-color: rgba(76, 29, 149, 0.56); }
+.dark :is([class~="bg-amber-100"], [class^="bg-amber-100/"], [class*=" bg-amber-100/"]) { background-color: rgba(120, 53, 15, 0.62); }
+.dark :is([class~="bg-rose-100"], [class^="bg-rose-100/"], [class*=" bg-rose-100/"]) { background-color: rgba(136, 19, 55, 0.58); }
+.dark :is([class~="bg-cyan-100"], [class^="bg-cyan-100/"], [class*=" bg-cyan-100/"]) { background-color: rgba(21, 94, 117, 0.58); }
+.dark :is([class~="bg-teal-100"], [class^="bg-teal-100/"], [class*=" bg-teal-100/"]) { background-color: rgba(19, 78, 74, 0.6); }
+.dark [class*="text-amber-800"], .dark [class*="text-amber-700"] { color: #fcd34d; }
+.dark [class*="text-rose-800"], .dark [class*="text-rose-700"] { color: #fda4af; }
+.dark [class*="text-sky-800"], .dark [class*="text-sky-700"] { color: #7dd3fc; }
+.dark [class*="text-violet-800"], .dark [class*="text-violet-700"] { color: #c4b5fd; }
+.dark [class*="text-emerald-900"], .dark [class*="text-emerald-800"], .dark [class*="text-emerald-700"] { color: #6ee7b7; }
+.dark [class*="text-teal-900"], .dark [class*="text-teal-800"], .dark [class*="text-teal-700"] { color: #5eead4; }
+.dark [class*="text-cyan-900"], .dark [class*="text-cyan-800"], .dark [class*="text-cyan-700"] { color: #67e8f9; }
+
+/*
+ * Legacy admin sections use arbitrary linear-gradient utilities. A
+ * background colour alone cannot cover a background image, so those large
+ * surfaces remained white in dark mode. Keep gradients for light mode while
+ * flattening only elevated white-card surfaces in the dark palette.
+ */
+html.dark :is([class^="border-white/"], [class*=" border-white/"]):is([class^="bg-[linear-gradient"], [class*=" bg-[linear-gradient"]) {
+  background-image: none !important;
+  background-color: oklch(0.22 0.03 248) !important;
+}
+
+/*
+ * Decorative gradients from the original light interface can still sit on
+ * ordinary cards and icon wraps. They are not interactive controls, so make
+ * them a stable dark surface while preserving semantic action buttons below.
+ */
+html.dark :is(div, span, section, article, header, footer, main, li, td, th, label, form):not(.landingPage *):is([class^="bg-[linear-gradient"], [class*=" bg-[linear-gradient"], [class^="bg-gradient-"], [class*=" bg-gradient-"]) {
+  background-image: none !important;
+  background-color: oklch(0.22 0.03 248) !important;
+  box-shadow: none;
+}
+
+/*
+ * The navigation rail keeps its school-green identity while using a deeper
+ * emerald-teal variant in dark mode so it belongs to the dark dashboard
+ * surface without losing its role as an app landmark.
+ */
+html.dark .app-sidebar {
+  background-image: linear-gradient(
+    180deg,
+    #164c49 0%,
+    #103d3b 54%,
+    #0c302f 100%
+  ) !important;
+  box-shadow: 0 24px 64px rgb(2 24 28 / 38%) !important;
+}
+
+html.dark .app-sidebar a {
+  background-color: transparent !important;
+}
+
+html.dark .app-sidebar a[class*="bg-white/16"] {
+  background-color: rgb(110 231 183 / 20%) !important;
+  box-shadow: inset 0 1px 0 rgb(167 243 208 / 10%) !important;
+}
+
+html.dark .app-sidebar a:hover {
+  background-color: rgb(255 255 255 / 10%) !important;
+}
+
+html.dark .app-sidebar a[class*="bg-white/16"]:hover {
+  background-color: rgb(110 231 183 / 26%) !important;
+}
+
+html.dark .app-sidebar [class*="bg-white/8"] {
+  background-color: rgb(255 255 255 / 8%) !important;
+}
+
+html.dark .app-sidebar [class*="bg-white/10"]:hover {
+  background-color: rgb(255 255 255 / 10%) !important;
+}
+
+html.dark .app-sidebar [class*="bg-white/14"] {
+  background-color: rgb(255 255 255 / 14%) !important;
+}
+
+html.dark .app-sidebar [class*="bg-white/16"] {
+  background-color: rgb(255 255 255 / 16%) !important;
+}
+
+html.dark .app-sidebar [class*="bg-white/18"] {
+  background-color: rgb(255 255 255 / 18%) !important;
+}
+
+/* Staff workspace safety net: older teacher, homeroom, subject, and BK
+   screens still contain local light-mode utility classes. Keep those legacy
+   surfaces readable in dark mode until each screen is fully tokenized. */
+html.dark .staff-workspace :is(
+  [class~="bg-white"],
+  [class^="bg-white/"],
+  [class*=" bg-white/"],
+  [class~="bg-slate-50"],
+  [class^="bg-slate-50/"],
+  [class*=" bg-slate-50/"],
+  [class~="bg-slate-100"],
+  [class^="bg-slate-100/"],
+  [class*=" bg-slate-100/"]
+) {
+  background-color: var(--card) !important;
+  background-image: none !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="bg-[linear-gradient"],
+  [class*="bg-[radial-gradient"]
+) {
+  background-color: var(--card) !important;
+  background-image: none !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="border-white"],
+  [class^="border-white/"],
+  [class*=" border-white/"],
+  [class~="border-slate-100"],
+  [class~="border-slate-200"],
+  [class~="border-slate-300"],
+  [class^="border-slate-"],
+  [class*=" border-slate-"]
+) {
+  border-color: var(--border) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="border-emerald-100"],
+  [class^="border-emerald-100/"],
+  [class*=" border-emerald-100/"],
+  [class~="border-emerald-200"],
+  [class^="border-emerald-200/"],
+  [class*=" border-emerald-200/"],
+  [class~="border-sky-200"],
+  [class^="border-sky-200/"],
+  [class*=" border-sky-200/"],
+  [class~="border-violet-200"],
+  [class^="border-violet-200/"],
+  [class*=" border-violet-200/"],
+  [class~="border-amber-200"],
+  [class^="border-amber-200/"],
+  [class*=" border-amber-200/"],
+  [class~="border-rose-200"],
+  [class^="border-rose-200/"],
+  [class*=" border-rose-200/"]
+) {
+  border-color: color-mix(in oklab, currentColor 35%, var(--border)) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="bg-emerald-50"],
+  [class^="bg-emerald-50/"],
+  [class*=" bg-emerald-50/"],
+  [class~="bg-emerald-100"],
+  [class^="bg-emerald-100/"],
+  [class*=" bg-emerald-100/"]
+) {
+  background-color: rgb(6 78 59 / 0.42) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="bg-sky-50"],
+  [class^="bg-sky-50/"],
+  [class*=" bg-sky-50/"],
+  [class~="bg-sky-100"],
+  [class^="bg-sky-100/"],
+  [class*=" bg-sky-100/"]
+) {
+  background-color: rgb(7 89 133 / 0.42) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="bg-violet-50"],
+  [class^="bg-violet-50/"],
+  [class*=" bg-violet-50/"],
+  [class~="bg-violet-100"],
+  [class^="bg-violet-100/"],
+  [class*=" bg-violet-100/"]
+) {
+  background-color: rgb(76 29 149 / 0.42) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="bg-amber-50"],
+  [class^="bg-amber-50/"],
+  [class*=" bg-amber-50/"],
+  [class~="bg-amber-100"],
+  [class^="bg-amber-100/"],
+  [class*=" bg-amber-100/"]
+) {
+  background-color: rgb(120 53 15 / 0.42) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class~="bg-rose-50"],
+  [class^="bg-rose-50/"],
+  [class*=" bg-rose-50/"],
+  [class~="bg-rose-100"],
+  [class^="bg-rose-100/"],
+  [class*=" bg-rose-100/"]
+) {
+  background-color: rgb(136 19 55 / 0.42) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="hover:bg-emerald-50"],
+  [class*="hover:bg-emerald-100"]
+):hover {
+  background-color: rgb(6 78 59 / 0.62) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="hover:bg-sky-50"],
+  [class*="hover:bg-sky-100"]
+):hover {
+  background-color: rgb(7 89 133 / 0.62) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="hover:bg-slate-50"],
+  [class*="hover:bg-slate-100"],
+  [class*="hover:bg-slate-200"]
+):hover {
+  background-color: rgb(51 65 85 / 0.78) !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="text-emerald-700"],
+  [class*="text-emerald-800"],
+  [class*="hover:text-emerald-800"],
+  [class*="hover:text-emerald-900"]
+) {
+  color: #6ee7b7 !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="text-amber-700"],
+  [class*="text-amber-800"],
+  [class*="text-amber-900"],
+  [class*="text-sky-700"],
+  [class*="text-sky-800"],
+  [class*="text-violet-700"],
+  [class*="text-violet-800"],
+  [class*="text-rose-700"],
+  [class*="text-rose-800"]
+) {
+  color: #a7c7dc !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="text-slate-500"],
+  [class*="text-slate-600"],
+  [class*="text-slate-700"]
+) {
+  color: #a8b6c8 !important;
+}
+
+html.dark .staff-workspace :is(
+  [class*="shadow-["],
+  [class~="shadow-sm"],
+  [class~="shadow"]
+) {
+  box-shadow: none !important;
+}
+
+/* The staff login form has its own glass surface and lives outside
+   StaffShell, so keep its dark surface explicit instead of relying on
+   utility ordering against the light gradient. */
+html.dark .staff-login-form-shell {
+  background-color: #142231 !important;
+  background-image: none !important;
+  border-color: rgb(52 211 153 / 0.48) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/*
+ * Many established sections compose their own action controls with arbitrary
+ * light gradients. Make every interactive control a real dark surface even
+ * when that section has not yet been refactored to the shared Button.
+ */
+html.dark :is(button, [role="button"], [data-slot="button"], [data-slot="popover-trigger"]):not(.landingPage *):is([class^="bg-[linear-gradient"], [class*=" bg-[linear-gradient"]) {
+  background-image: none !important;
+  background-color: oklch(0.28 0.03 248) !important;
+  color: oklch(0.93 0.02 170) !important;
+  box-shadow: none !important;
+}
+
+html.dark :is(button, [role="button"], [data-slot="button"], [data-slot="popover-trigger"]):is([class~="bg-white"], [class^="bg-white/"], [class*=" bg-white/"]) {
+  background-color: oklch(0.28 0.03 248) !important;
+  color: oklch(0.93 0.02 170) !important;
+  box-shadow: none !important;
+}
+
+html.dark :is(button, [role="button"], [data-slot="button"], [data-slot="popover-trigger"]):is([class^="bg-[linear-gradient"], [class*=" bg-[linear-gradient"], [class~="bg-white"], [class^="bg-white/"], [class*=" bg-white/"]):hover {
+  background-color: oklch(0.34 0.05 165) !important;
+  border-color: oklch(0.58 0.11 165) !important;
+  color: oklch(0.98 0.01 170) !important;
+}
+
+/*
+ * A number of older feature cards define their interaction colours directly
+ * with light utilities. Give only controls without an explicit dark variant a
+ * semantic dark fallback. This avoids an invisible pressed/selected state
+ * while allowing components that already own their dark treatment to win.
+ */
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:hover"]):is([class*="hover:bg-white"], [class*="hover:bg-slate-"], [class*="hover:bg-gray-"]):hover {
+  background-color: oklch(0.3 0.03 248) !important;
+  border-color: oklch(0.5 0.04 248) !important;
+  color: var(--foreground) !important;
+}
+
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:hover"]):is([class*="hover:bg-emerald-"], [class*="hover:bg-teal-"]):hover {
+  background-color: rgb(6 78 59 / 68%) !important;
+  border-color: rgb(52 211 153 / 52%) !important;
+  color: #d1fae5 !important;
+}
+
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:hover"]):is([class*="hover:bg-sky-"], [class*="hover:bg-cyan-"]):hover {
+  background-color: rgb(7 89 133 / 56%) !important;
+  border-color: rgb(56 189 248 / 52%) !important;
+  color: #e0f2fe !important;
+}
+
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:hover"]):is([class*="hover:bg-rose-"], [class*="hover:bg-red-"]):hover {
+  background-color: rgb(136 19 55 / 58%) !important;
+  border-color: rgb(251 113 133 / 52%) !important;
+  color: #ffe4e6 !important;
+}
+
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:active"]):is([class*="active:bg-"]):active {
+  filter: brightness(1.08);
+}
+
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:data-"])[data-active],
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:data-"])[data-state="checked"],
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:data-"])[aria-pressed="true"] {
+  background-color: rgb(6 78 59 / 68%);
+  border-color: rgb(52 211 153 / 52%);
+  color: #d1fae5;
+}
+
+/* Keep compact table actions semantically coloured in dark mode. */
+html.dark [data-action-tone="emerald"] {
+  background-color: rgb(6 78 59 / 54%) !important;
+  border-color: rgb(52 211 153 / 44%) !important;
+  color: #6ee7b7 !important;
+}
+
+html.dark [data-action-tone="emerald"]:hover,
+html.dark [data-action-tone="emerald"]:focus-visible {
+  background-color: rgb(6 78 59 / 78%) !important;
+  border-color: rgb(110 231 183 / 68%) !important;
+  color: #d1fae5 !important;
+}
+
+html.dark [data-action-tone="sky"] {
+  background-color: rgb(7 89 133 / 48%) !important;
+  border-color: rgb(56 189 248 / 46%) !important;
+  color: #7dd3fc !important;
+}
+
+html.dark [data-action-tone="sky"]:hover,
+html.dark [data-action-tone="sky"]:focus-visible {
+  background-color: rgb(7 89 133 / 70%) !important;
+  border-color: rgb(125 211 252 / 64%) !important;
+  color: #e0f2fe !important;
+}
+
+html.dark [data-action-tone="rose"] {
+  background-color: rgb(136 19 55 / 44%) !important;
+  border-color: rgb(251 113 133 / 46%) !important;
+  color: #fda4af !important;
+}
+
+html.dark [data-action-tone="rose"]:hover,
+html.dark [data-action-tone="rose"]:focus-visible {
+  background-color: rgb(136 19 55 / 66%) !important;
+  border-color: rgb(253 164 175 / 62%) !important;
+  color: #ffe4e6 !important;
+}
+
+html.dark [data-action-tone="slate"] {
+  background-color: rgb(51 65 85 / 78%) !important;
+  border-color: rgb(148 163 184 / 42%) !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark [data-action-tone="slate"]:hover,
+html.dark [data-action-tone="slate"]:focus-visible {
+  background-color: rgb(51 65 85 / 92%) !important;
+  border-color: rgb(148 163 184 / 58%) !important;
+  color: #f1f5f9 !important;
 }
 
 @layer base {
@@ -194,6 +651,11 @@
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
     scrollbar-color: rgba(16, 185, 129, 0.72) rgba(226, 232, 240, 0.7);
+  }
+
+  html.dark,
+  html.dark * {
+    scrollbar-color: rgba(52, 211, 153, 0.72) rgba(30, 41, 59, 0.78);
   }
 
   *::-webkit-scrollbar {
@@ -209,6 +671,100 @@
       rgba(226, 232, 240, 0.82)
     );
   }
+
+  html.dark::-webkit-scrollbar-track,
+  html.dark *::-webkit-scrollbar-track {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.9),
+      rgba(30, 41, 59, 0.82)
+    );
+  }
+
+html.dark {
+  color-scheme: dark;
+}
+
+/*
+ * Mobile does not use a full-page View Transition because its snapshot is
+ * costly on many phone GPUs. Temporarily suppress per-component transitions
+ * instead, so the new palette commits as one responsive visual update rather
+ * than a delayed cascade of cards, inputs, and charts.
+ */
+html.theme-switching-instant,
+html.theme-switching-instant *,
+html.theme-switching-instant *::before,
+html.theme-switching-instant *::after {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* Shared fallback for legacy loading placeholders that still use Tailwind's
+ * animate-pulse directly instead of the Skeleton primitive. */
+html.dark [data-slot="skeleton"] {
+  background-color: rgb(51 65 85 / 0.72) !important;
+}
+
+html.dark [data-slot="skeleton"]::before {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgb(148 163 184 / 0.2),
+    transparent
+  ) !important;
+}
+
+html.dark .animate-pulse.bg-slate-100,
+html.dark .animate-pulse.bg-slate-200,
+html.dark .animate-pulse.bg-gray-100,
+html.dark .animate-pulse.bg-gray-200 {
+  background-color: rgb(51 65 85 / 0.78) !important;
+}
+
+/* The loading root itself is also a surface. Keep its padding and gaps from
+ * revealing the light application background while its children load. */
+html.dark [data-slot="loading-shell"] {
+  background-color: rgb(2 6 23) !important;
+  background-image: none !important;
+}
+
+/*
+ * Keep a theme change visually synchronized. The View Transition API captures
+ * the old and new page once, then crossfades those two frames instead of
+ * asking every card, badge, icon, and chart to animate independently.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+  animation-name: theme-fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: theme-fade-in;
+}
+
+@keyframes theme-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes theme-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.01ms;
+  }
+}
 
   *::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
@@ -231,6 +787,7 @@
   }
   html {
     @apply font-sans scroll-smooth;
+    color-scheme: light;
     min-height: 100%;
     overflow-x: clip;
     scrollbar-gutter: stable;
@@ -261,6 +818,12 @@
         rgba(217, 119, 6, 0.1),
         transparent 24%
       );
+  }
+
+  html.dark body {
+    background-image:
+      radial-gradient(circle at top left, rgba(16, 185, 129, 0.1), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.08), transparent 24%);
   }
 
   /* Radix Select temporarily locks body scroll. The page already reserves a
@@ -297,6 +860,10 @@
   input[type="password"]::placeholder {
     opacity: 1;
     -webkit-text-fill-color: #94a3b8;
+  }
+
+  .dark input[type="password"] {
+    -webkit-text-fill-color: #e2e8f0;
   }
 }
 
@@ -521,4 +1088,148 @@ body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
   .content-enter-up-4 {
     animation: none;
   }
+
+}
+
+/*
+ * Compatibility mode is deliberately capability-based (set before React
+ * starts), so modern phones keep the full visual treatment. Older
+ * Chromium/WebView engines retain the same layout and actions with a less
+ * GPU-intensive surface.
+ */
+html[data-render-mode="compat"] {
+  scroll-behavior: auto;
+}
+
+html[data-render-mode="compat"] body {
+  background-color: #f7faf8;
+  background-image: none;
+}
+
+html.dark[data-render-mode="compat"] body {
+  background-color: #0b1220;
+}
+
+html[data-render-mode="compat"] *,
+html[data-render-mode="compat"] *::before,
+html[data-render-mode="compat"] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-render-mode="compat"] [class*="blur-"],
+html[data-render-mode="compat"] [class*="drop-shadow"] {
+  filter: none !important;
+}
+
+html[data-render-mode="compat"] .content-enter-up-12,
+html[data-render-mode="compat"] .content-enter-up-12-now,
+html[data-render-mode="compat"] .content-enter-up-10,
+html[data-render-mode="compat"] .content-enter-up-8,
+html[data-render-mode="compat"] .content-enter-up-6,
+html[data-render-mode="compat"] .content-enter-up-4 {
+  animation: none !important;
+  opacity: 1;
+  transform: none;
+}
+
+/* The close action must stay destructive/red even when broad dark-mode
+   button fallbacks see its light-mode background utility. */
+html.dark button[data-modal-close] {
+  border-color: rgb(251 113 133 / 0.38) !important;
+  background-color: rgb(136 19 55 / 0.35) !important;
+  background-image: none !important;
+  color: #fda4af !important;
+  box-shadow: none !important;
+}
+
+html.dark button[data-modal-close]:hover {
+  border-color: rgb(251 113 133 / 0.65) !important;
+  background-color: rgb(136 19 55 / 0.62) !important;
+  color: #fecdd3 !important;
+}
+
+html.dark button[data-modal-close]:active {
+  border-color: rgb(251 113 133 / 0.78) !important;
+  background-color: rgb(136 19 55 / 0.82) !important;
+  color: #ffe4e6 !important;
+}
+
+/* Schedule day groups keep their own semantic palette in dark mode. The
+   older staff-workspace fallbacks must not flatten every day into the same
+   white-card treatment or wash out its heading and icon colours. */
+html.dark [data-schedule-day-group] {
+  background-image: none !important;
+}
+
+html.dark [data-schedule-day-group][class*="bg-slate-100"] { background-color: rgb(30 41 59 / 0.72) !important; }
+html.dark [data-schedule-day-group][class*="bg-emerald-100"] { background-color: rgb(6 78 59 / 0.42) !important; }
+html.dark [data-schedule-day-group][class*="bg-sky-100"] { background-color: rgb(7 89 133 / 0.38) !important; }
+html.dark [data-schedule-day-group][class*="bg-violet-100"] { background-color: rgb(76 29 149 / 0.36) !important; }
+html.dark [data-schedule-day-group][class*="bg-amber-100"] { background-color: rgb(120 53 15 / 0.38) !important; }
+html.dark [data-schedule-day-group][class*="bg-cyan-100"] { background-color: rgb(21 94 117 / 0.38) !important; }
+html.dark [data-schedule-day-group][class*="bg-indigo-100"] { background-color: rgb(49 46 129 / 0.38) !important; }
+
+html.dark [data-schedule-ticket] {
+  background-image: none !important;
+}
+
+/* Ticket icons use the same semantic colour as their day wrapper instead of
+   inheriting the generic pale icon fallback from the staff workspace. */
+html.dark [data-schedule-ticket-icon][class*="text-slate-700"] {
+  background-color: rgb(51 65 85 / 0.72) !important;
+  color: #cbd5e1 !important;
+}
+html.dark [data-schedule-ticket-icon][class*="text-emerald-700"] {
+  background-color: rgb(6 78 59 / 0.62) !important;
+  color: #6ee7b7 !important;
+}
+html.dark [data-schedule-ticket-icon][class*="text-sky-700"] {
+  background-color: rgb(7 89 133 / 0.58) !important;
+  color: #7dd3fc !important;
+}
+html.dark [data-schedule-ticket-icon][class*="text-violet-700"] {
+  background-color: rgb(76 29 149 / 0.58) !important;
+  color: #c4b5fd !important;
+}
+html.dark [data-schedule-ticket-icon][class*="text-amber-700"] {
+  background-color: rgb(120 53 15 / 0.62) !important;
+  color: #fcd34d !important;
+}
+html.dark [data-schedule-ticket-icon][class*="text-cyan-700"] {
+  background-color: rgb(21 94 117 / 0.58) !important;
+  color: #67e8f9 !important;
+}
+html.dark [data-schedule-ticket-icon][class*="text-indigo-700"] {
+  background-color: rgb(49 46 129 / 0.58) !important;
+  color: #a5b4fc !important;
+}
+
+/* The attendance correction modal keeps the light-mode hierarchy in dark
+   mode: a readable header, a separate form surface, and a quieter footer. */
+html.dark .correction-attendance-modal {
+  background-color: #0f1b2a !important;
+  background-image: none !important;
+  border-color: rgb(71 85 105 / 0.72) !important;
+}
+
+html.dark .correction-attendance-modal > :first-child {
+  background-color: #142231 !important;
+  background-image: none !important;
+  border-color: rgb(51 65 85 / 0.78) !important;
+}
+
+html.dark .correction-attendance-modal > :first-child > span:first-child {
+  background: linear-gradient(135deg, #6ee7b7 0%, #10b981 48%, #047857 100%) !important;
+  color: #ecfdf5 !important;
+  box-shadow: none !important;
+}
+
+html.dark .correction-attendance-modal [data-modal-scroll-area] {
+  background-color: #0b1624 !important;
+}
+
+html.dark .correction-attendance-modal > :last-child {
+  background-color: #142231 !important;
+  background-image: none !important;
 }
