@@ -10,10 +10,12 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-primary text-primary-foreground shadow-[0_10px_22px_color-mix(in_oklab,var(--primary)_28%,transparent)] hover:-translate-y-px hover:bg-primary/90 hover:shadow-[0_14px_28px_color-mix(in_oklab,var(--primary)_34%,transparent)] active:bg-primary",
+        success:
+          "bg-emerald-600 text-white shadow-[0_10px_22px_rgba(16,185,129,0.22)] hover:-translate-y-px hover:bg-emerald-700 hover:shadow-[0_14px_28px_rgba(16,185,129,0.28)] active:bg-emerald-700",
         outline:
-          "border-2 border-slate-300 bg-slate-100 text-slate-800 shadow-[0_6px_16px_rgba(15,23,42,0.08)] hover:-translate-y-px hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_10px_22px_rgba(16,185,129,0.16)] active:bg-emerald-100/80 aria-expanded:border-emerald-400 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950 dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-2 border-slate-300 bg-slate-100 text-slate-800 shadow-[0_6px_16px_rgba(15,23,42,0.08)] hover:-translate-y-px hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_10px_22px_rgba(16,185,129,0.16)] active:bg-emerald-100/80 aria-expanded:border-emerald-400 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-500 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-100 dark:active:bg-emerald-950/80 dark:aria-expanded:border-emerald-500 dark:aria-expanded:bg-emerald-950/60 dark:aria-expanded:text-emerald-100",
         secondary:
-          "border border-slate-200/80 bg-slate-100/90 text-slate-700 shadow-[0_5px_14px_rgba(15,23,42,0.04)] hover:-translate-y-px hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.14)] active:bg-emerald-100/80 aria-expanded:border-emerald-300 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950",
+          "border border-slate-200/80 bg-slate-100/90 text-slate-700 shadow-[0_5px_14px_rgba(15,23,42,0.04)] hover:-translate-y-px hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-[0_8px_18px_rgba(16,185,129,0.14)] active:bg-emerald-100/80 aria-expanded:border-emerald-300 aria-expanded:bg-emerald-50 aria-expanded:text-emerald-950 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:shadow-none dark:hover:border-emerald-600 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-100 dark:active:bg-emerald-950/80 dark:aria-expanded:border-emerald-600 dark:aria-expanded:bg-emerald-950/60 dark:aria-expanded:text-emerald-100",
         ghost:
           "hover:bg-muted hover:text-foreground active:bg-muted/85 aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
