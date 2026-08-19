@@ -17,7 +17,37 @@
     <meta name="twitter:title" content="Absensi Citra Negara" />
     <meta name="twitter:description" content="Hadirkan pengalaman absensi sekolah yang lebih mudah, tertata, dan terhubung untuk seluruh warga sekolah." />
     <meta name="theme-color" content="#047857" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      (function () {
+        try {
+          var supports = window.CSS && window.CSS.supports;
+          var mode = supports &&
+            supports("color", "color-mix(in srgb, red, blue)") &&
+            (supports("backdrop-filter", "blur(1px)") || supports("-webkit-backdrop-filter", "blur(1px)"))
+            ? "standard"
+            : "compat";
+          document.documentElement.setAttribute("data-render-mode", mode);
+        } catch (_) {
+          document.documentElement.setAttribute("data-render-mode", "compat");
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("absensi-cn-theme") === "dark" ? "dark" : "light";
+          document.documentElement.classList.toggle("dark", theme === "dark");
+          document.documentElement.style.colorScheme = theme;
+          var themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#101b2a" : "#047857");
+        } catch (_) {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.colorScheme = "light";
+        }
+      })();
+    </script>
     <script>
       try {
         if (location.pathname === "/" && !localStorage.getItem("absensi-cn-auth")) {
@@ -140,6 +170,21 @@
         animation: initial-loader-progress 1.15s ease-in-out infinite;
       }
 
+      html.dark #initial-loader {
+        background:
+          radial-gradient(circle at top, rgba(16, 185, 129, 0.16), transparent 34%),
+          linear-gradient(180deg, #101b2a 0%, #0b1220 100%);
+      }
+
+      html.dark .initial-loader__logo {
+        border-color: rgba(110, 231, 183, 0.22);
+        background: rgba(30, 41, 59, 0.92);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      html.dark .initial-loader__title { color: #f1f5f9; }
+      html.dark .initial-loader__subtitle { color: #94a3b8; }
+
       @keyframes initial-loader-progress {
         0% { transform: translateX(0); }
         100% { transform: translateX(365%); }
@@ -148,6 +193,45 @@
       @media (prefers-reduced-motion: reduce) {
         #initial-loader { transition-duration: 1ms; }
         .initial-loader__bar { animation-duration: 2.4s; }
+      }
+
+      /*
+       * Keep the first paint deliberately simple on mobile. Older Android
+       * Chromium/WebView builds can flicker when a full-screen translucent
+       * gradient and an animated layer are composited while JS is starting.
+       */
+      @media (max-width: 767px) {
+        #initial-loader {
+          background: #f3fbf6;
+          transition-duration: 1ms;
+        }
+        .initial-loader__logo {
+          box-shadow: 0 12px 30px rgba(15, 118, 110, 0.12);
+        }
+        .initial-loader__bar {
+          left: 0;
+          width: 58%;
+          animation: none;
+        }
+      }
+
+      html[data-render-mode="compat"] #initial-loader {
+        background: #f3fbf6;
+        transition-duration: 1ms;
+      }
+
+      html[data-render-mode="compat"] .initial-loader__bar {
+        left: 0;
+        width: 58%;
+        animation: none;
+      }
+
+      /* Keep dark mode intact even when the mobile compatibility loader runs. */
+      html.dark #initial-loader,
+      html.dark[data-render-mode="compat"] #initial-loader {
+        background:
+          radial-gradient(circle at top, rgba(16, 185, 129, 0.16), transparent 34%),
+          linear-gradient(180deg, #101b2a 0%, #0b1220 100%);
       }
     </style>
     <!-- Preconnect: browser opens TCP/TLS to Google Fonts servers before CSS requests them -->
@@ -168,12 +252,22 @@
         <div class="initial-loader__track" aria-hidden="true">
           <span class="initial-loader__bar"></span>
         </div>
-        <button class="initial-loader__retry" type="button" onclick="window.location.reload()">Muat ulang halaman</button>
+        <button class="initial-loader__retry" type="button" onclick="window.__absensiReloadFresh ? window.__absensiReloadFresh() : window.location.reload()">Muat ulang halaman</button>
       </div>
     </div>
     <div id="root"></div>
     <script>
       (function () {
+        function reloadFreshDocument() {
+          try {
+            var url = new URL(window.location.href);
+            url.searchParams.set("__app_reload", String(Date.now()));
+            window.location.replace(url.toString());
+          } catch (_) {
+            window.location.reload();
+          }
+        }
+
         function showInitialLoadError() {
           if (window.__absensiAppReady) return;
 
@@ -188,6 +282,7 @@
         }
 
         window.__absensiShowInitialLoadError = showInitialLoadError;
+        window.__absensiReloadFresh = reloadFreshDocument;
         window.__absensiInitialLoaderTimeout = window.setTimeout(showInitialLoadError, 15000);
       })();
     </script>
