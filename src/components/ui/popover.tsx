@@ -4,9 +4,25 @@ import * as React from "react";
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 
 import { cn } from "@/lib/utils";
+import { PopoverContext } from "@/components/ui/popover-context";
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
+  const actionsRef = React.useRef<PopoverPrimitive.Root.Actions>(null);
+  const closeRef = props.actionsRef ?? actionsRef;
+
+  return (
+    <PopoverContext.Provider
+      value={{
+        close: () => closeRef.current?.close(),
+      }}
+    >
+      <PopoverPrimitive.Root
+        data-slot="popover"
+        {...props}
+        actionsRef={closeRef}
+      />
+    </PopoverContext.Provider>
+  );
 }
 
 function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
