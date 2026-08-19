@@ -157,7 +157,7 @@ export function LoginForm({ portal }: LoginFormProps) {
 
       {portal === "student" ? (
         <div className="space-y-2">
-          <Label htmlFor="nis" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="nis" className="text-sm font-medium text-slate-700 dark:text-slate-200">
             {content.identifierLabel}
           </Label>
           <PremiumInput
@@ -179,14 +179,14 @@ export function LoginForm({ portal }: LoginFormProps) {
               {form.formState.errors.nis.message}
             </p>
           ) : (
-            <p className="text-xs text-slate-500">{content.identifierHelper}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-300">{content.identifierHelper}</p>
           )}
         </div>
       ) : (
         <div className="space-y-2">
           <Label
             htmlFor="username"
-            className="text-sm font-medium text-slate-700"
+            className="text-sm font-medium text-slate-700 dark:text-slate-200"
           >
             {content.identifierLabel}
           </Label>
@@ -201,7 +201,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               {form.formState.errors.username.message}
             </p>
           ) : (
-            <p className="text-xs text-slate-500">{content.identifierHelper}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{content.identifierHelper}</p>
           )}
         </div>
       )}
@@ -209,7 +209,7 @@ export function LoginForm({ portal }: LoginFormProps) {
       <div className="space-y-2">
         <Label
           htmlFor="password"
-          className="text-sm font-medium text-slate-700"
+          className="text-sm font-medium text-slate-700 dark:text-slate-200"
         >
           Password
         </Label>
@@ -224,7 +224,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               type="button"
               data-press-managed
               onClick={() => setShowPassword((value) => !value)}
-              className="flex size-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-700"
+              className="flex size-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-700 dark:text-slate-400 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-200"
               aria-label={
                 showPassword ? "Sembunyikan password" : "Tampilkan password"
               }
@@ -243,7 +243,7 @@ export function LoginForm({ portal }: LoginFormProps) {
             {form.formState.errors.password.message}
           </p>
         ) : (
-          <p className="text-xs text-slate-500">{content.passwordHelper}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-300">{content.passwordHelper}</p>
         )}
       </div>
 
@@ -252,13 +252,13 @@ export function LoginForm({ portal }: LoginFormProps) {
           role="alert"
           className={`flex items-start gap-3 rounded-[var(--radius-md)] border px-4 py-3 text-left text-sm ${
             rateLimitKind === "locked"
-              ? "border-amber-200 bg-amber-50 text-amber-900"
-              : "border-sky-200 bg-sky-50 text-sky-900"
+              ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/45 dark:text-amber-100"
+              : "border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-700/60 dark:bg-sky-950/45 dark:text-sky-100"
           }`}
         >
           <AlertTriangle
             className={`mt-0.5 size-4 shrink-0 ${
-              rateLimitKind === "locked" ? "text-amber-600" : "text-sky-600"
+              rateLimitKind === "locked" ? "text-amber-600 dark:text-amber-300" : "text-sky-600 dark:text-sky-300"
             }`}
             aria-hidden="true"
           />
@@ -282,7 +282,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         size="lg"
         disabled={isSubmitting || isRateLimited}
         aria-busy={isSubmitting || isRateLimited}
-        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold transition-[transform,box-shadow,filter] duration-200 disabled:cursor-not-allowed disabled:!opacity-100 ${isRateLimited ? "!border-emerald-200 !bg-emerald-100 !text-emerald-700 !shadow-none hover:!scale-100 active:!scale-100" : `text-white hover:scale-[1.01] active:scale-[0.99] ${content.buttonClass}`}`}
+        className={`group relative h-12 w-full overflow-hidden rounded-[1.15rem] px-5 text-[14px] font-semibold transition-[transform,box-shadow,filter] duration-200 disabled:cursor-not-allowed disabled:!opacity-100 ${isRateLimited ? "!border-emerald-200 !bg-emerald-100 !text-emerald-700 !shadow-none hover:!scale-100 active:!scale-100 dark:!border-emerald-700 dark:!bg-emerald-950 dark:!text-emerald-200" : `text-white hover:scale-[1.01] active:scale-[0.99] ${content.buttonClass}`}`}
       >
         <span className="relative flex items-center justify-center gap-2">
           <span className="inline-flex size-4 shrink-0 items-center justify-center">
