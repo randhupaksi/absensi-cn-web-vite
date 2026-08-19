@@ -3,6 +3,21 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 
 const CHUNK_RELOAD_PREFIX = "absensi-cn:chunk-reload";
 
+function reloadFreshDocument() {
+  if (typeof window === "undefined") return;
+
+  try {
+    // A plain reload can reuse a cached index.html on some mobile browsers.
+    // Add a harmless one-time query value so the browser asks the server for
+    // the current document, which in turn references the current hashed chunks.
+    const url = new URL(window.location.href);
+    url.searchParams.set("__app_reload", String(Date.now()));
+    window.location.replace(url.toString());
+  } catch {
+    window.location.reload();
+  }
+}
+
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   return String(error);
@@ -27,7 +42,7 @@ function tryReloadStaleChunkOnce() {
     if (window.sessionStorage.getItem(retryKey)) return false;
 
     window.sessionStorage.setItem(retryKey, "1");
-    window.location.reload();
+    reloadFreshDocument();
     return true;
   } catch {
     return false;
@@ -69,7 +84,7 @@ export class AppErrorBoundary extends Component<
       // Storage can be disabled by privacy settings. Reload still remains safe.
     }
 
-    window.location.reload();
+    reloadFreshDocument();
   };
 
   render() {
