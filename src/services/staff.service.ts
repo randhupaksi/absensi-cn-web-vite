@@ -8,6 +8,7 @@ import type {
   StaffBKSubmissionOverview,
   StaffCounselingNote,
   StaffAttendanceReviewPayload,
+  StaffManualAttendancePayload,
   StaffHomeroomAttendanceOverview,
   StaffHomeroomContext,
   StaffHomeroomDashboard,
@@ -112,6 +113,20 @@ export async function reviewTeacherHomeroomAttendance(
   try {
     const response = await apiClient.patch<ApiEnvelope<unknown>>(
       `/teacher/homeroom/attendance/${attendanceId}/review`,
+      payload,
+    );
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function createTeacherHomeroomManualAttendance(
+  payload: StaffManualAttendancePayload,
+) {
+  try {
+    const response = await apiClient.post<ApiEnvelope<unknown>>(
+      "/teacher/homeroom/attendance/manual",
       payload,
     );
     return response.data.data;

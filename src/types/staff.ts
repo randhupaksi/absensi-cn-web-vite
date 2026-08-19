@@ -121,6 +121,11 @@ export type StaffAttendanceReviewPayload = {
   verification_note: string;
 };
 
+export type StaffManualAttendancePayload = StaffAttendanceReviewPayload & {
+  student_id: string;
+  attendance_date: string;
+};
+
 export type StaffHomeroomStudentDetail = {
   student: StaffStudentSummary;
   attendance_summary: StaffAttendanceSummary;
