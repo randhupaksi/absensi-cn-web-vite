@@ -51,22 +51,22 @@ export const attendanceStatusMap: Record<
   hadir: {
     label: "Hadir",
     className:
-      "rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 hover:bg-emerald-100",
+      "rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/70 dark:text-emerald-300 dark:hover:bg-emerald-900/70",
   },
   izin: {
     label: "Izin",
     className:
-      "rounded-full bg-sky-100 px-3 py-1 text-sky-800 hover:bg-sky-100",
+      "rounded-full bg-sky-100 px-3 py-1 text-sky-800 hover:bg-sky-100 dark:bg-sky-950/70 dark:text-sky-300 dark:hover:bg-sky-900/70",
   },
   sakit: {
     label: "Sakit",
     className:
-      "rounded-full bg-violet-100 px-3 py-1 text-violet-800 hover:bg-violet-100",
+      "rounded-full bg-violet-100 px-3 py-1 text-violet-800 hover:bg-violet-100 dark:bg-violet-950/70 dark:text-violet-300 dark:hover:bg-violet-900/70",
   },
   alfa: {
     label: "Alfa",
     className:
-      "rounded-full bg-rose-100 px-3 py-1 text-rose-800 hover:bg-rose-100",
+      "rounded-full bg-rose-100 px-3 py-1 text-rose-800 hover:bg-rose-100 dark:bg-rose-950/70 dark:text-rose-300 dark:hover:bg-rose-900/70",
   },
 };
 
