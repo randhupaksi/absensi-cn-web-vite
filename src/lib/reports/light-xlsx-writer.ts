@@ -224,8 +224,10 @@ class Styles {
 class SharedStrings {
   private readonly values: string[] = [];
   private readonly ids = new Map<string, number>();
+  private referenceCount = 0;
 
   id(value: string) {
+    this.referenceCount += 1;
     const existing = this.ids.get(value);
     if (existing !== undefined) return existing;
     const id = this.values.length;
@@ -237,7 +239,7 @@ class SharedStrings {
   xml() {
     return (
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' +
-      this.values.length +
+      this.referenceCount +
       '" uniqueCount="' +
       this.values.length +
       '">' +
