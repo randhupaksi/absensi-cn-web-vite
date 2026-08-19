@@ -23,8 +23,8 @@ export function QuestionBlock({
       className={cn(
         "rounded-[1.3rem] border p-4 transition-all duration-300",
         answered
-          ? "border-emerald-200 bg-emerald-50/50"
-          : "border-slate-200 bg-slate-50/40",
+          ? "border-slate-200 bg-emerald-50/50 dark:border-slate-700 dark:bg-emerald-950/30"
+          : "border-slate-200 bg-slate-50/40 dark:border-slate-700 dark:bg-slate-900/40",
       )}
     >
       <div className="mb-3 flex items-center gap-2.5">
@@ -38,7 +38,7 @@ export function QuestionBlock({
         >
           <Icon className="size-3.5" />
         </span>
-        <p className="text-[0.88rem] font-semibold text-slate-800">{label}</p>
+        <p className="text-[0.88rem] font-semibold text-slate-800 dark:text-slate-100">{label}</p>
       </div>
       {children}
     </div>
@@ -63,8 +63,8 @@ export function ReportRadio({
       className={cn(
         "flex touch-manipulation items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:duration-75 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
         selected
-          ? "border-emerald-300 bg-white text-emerald-900 shadow-[0_0_0_2px_rgba(5,150,105,0.12)]"
-          : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/40",
+          ? "border-slate-200 bg-white text-emerald-900 dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-200"
+          : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-emerald-700/70 dark:hover:bg-emerald-950/35",
       )}
     >
       <span
@@ -72,7 +72,7 @@ export function ReportRadio({
           "flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 transition-all",
           selected
             ? "border-emerald-600 bg-emerald-600"
-            : "border-slate-300 bg-white",
+            : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900",
         )}
       >
         {selected && <span className="size-2 rounded-full bg-white" />}
@@ -83,8 +83,8 @@ export function ReportRadio({
           className={cn(
             "rounded-full px-2 py-0.5 text-xs font-semibold",
             selected
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-slate-100 text-slate-500",
+              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+              : "bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300",
           )}
         >
           {badge}
@@ -115,10 +115,10 @@ export function ReportCheckbox({
       className={cn(
         "flex touch-manipulation items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:duration-75 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
         disabled
-          ? "cursor-default border-emerald-200 bg-emerald-50/60 text-emerald-800"
+          ? "cursor-default border-slate-200 bg-emerald-50/60 text-emerald-800 dark:border-slate-700 dark:bg-emerald-950/30 dark:text-emerald-200"
           : checked
-            ? "border-emerald-300 bg-white text-emerald-900 shadow-[0_0_0_2px_rgba(5,150,105,0.10)]"
-            : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30",
+            ? "border-slate-200 bg-white text-emerald-900 dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-200"
+            : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-emerald-700/70 dark:hover:bg-emerald-950/35",
       )}
     >
       <span
@@ -126,14 +126,14 @@ export function ReportCheckbox({
           "flex size-[18px] shrink-0 items-center justify-center rounded-[5px] border-2 transition-all",
           checked
             ? "border-emerald-600 bg-emerald-600"
-            : "border-slate-300 bg-white",
+            : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900",
         )}
       >
         {checked && <Check className="size-3 text-white" />}
       </span>
       <span className="flex-1 font-medium">{label}</span>
       {badge && (
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400 dark:bg-slate-700 dark:text-slate-300">
           {badge}
         </span>
       )}
