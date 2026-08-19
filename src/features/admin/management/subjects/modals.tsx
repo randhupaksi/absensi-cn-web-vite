@@ -43,7 +43,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 
 const INPUT_CN =
-  "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)]";
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:shadow-none";
 
 const activeOptions = [
   { value: "true", label: "Aktif" },

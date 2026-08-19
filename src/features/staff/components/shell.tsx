@@ -103,7 +103,7 @@ export function StaffShell({
   };
 
   return (
-    <div className="min-h-[100svh] overflow-x-clip bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800 supports-[min-height:100dvh]:min-h-[100dvh]">
+    <div className="staff-workspace min-h-[100svh] overflow-x-clip bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.13),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_20%),linear-gradient(180deg,#101b2a_0%,#0b1220_100%)] dark:text-slate-100 supports-[min-height:100dvh]:min-h-[100dvh]">
       <div className="min-h-[100svh] min-w-0 overflow-x-clip lg:pl-[272px] supports-[min-height:100dvh]:min-h-[100dvh]">
         <StaffSidebar
           items={visibleSidebarItems}
@@ -136,14 +136,14 @@ function StaffShellFallback() {
 function getDashboardEyebrow(role: DashboardRole) {
   switch (role) {
     case "admin":
-      return "Dashboard Admin";
+      return "Portal Admin";
     case "walas":
-      return "Dashboard Guru";
+      return "Portal Guru";
     case "bk":
-      return "Dashboard BK";
+      return "Portal BK";
     case "siswa":
-      return "Dashboard Siswa";
+      return "Portal Siswa";
     default:
-      return "Dashboard";
+      return "Portal";
   }
 }

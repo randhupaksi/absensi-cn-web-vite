@@ -57,7 +57,7 @@ function getSidebarItems(role: DashboardRole): StaffSidebarItem[] {
   switch (role) {
     case "admin":
       return adminSidebarItems;
-    case "bk":
+    case "bk":  
       return bkSidebarItems;
     case "walas":
       return walasSidebarItems;
