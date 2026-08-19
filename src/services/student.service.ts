@@ -28,6 +28,16 @@ export class StudentAttendanceSubmissionUncertainError extends Error {
   }
 }
 
+export class StudentServerBusyError extends Error {
+  readonly retryAfterSeconds: number;
+
+  constructor(retryAfterSeconds: number) {
+    super("Server sedang menerima banyak permintaan.");
+    this.name = "StudentServerBusyError";
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}
+
 function getErrorMessage(error: unknown) {
   return getUserErrorMessage(error, "student");
 }
@@ -38,18 +48,43 @@ export async function getStudentDashboard() {
       await apiClient.get<ApiEnvelope<StudentDashboard>>("/student/dashboard");
     return response.data.data;
   } catch (error) {
+    const serverBusyError = getStudentServerBusyError(error);
+    if (serverBusyError) throw serverBusyError;
     throw new Error(getErrorMessage(error));
   }
 }
 
 export async function getStudentToday() {
+  return getStudentTodayWithTimeout();
+}
+
+export async function getStudentTodayWithTimeout(timeout?: number) {
   try {
-    const response =
-      await apiClient.get<ApiEnvelope<StudentToday>>("/student/today");
+    const response = await apiClient.get<ApiEnvelope<StudentToday>>(
+      "/student/today",
+      { timeout },
+    );
     return response.data.data;
   } catch (error) {
+    const serverBusyError = getStudentServerBusyError(error);
+    if (serverBusyError) throw serverBusyError;
     throw new Error(getErrorMessage(error));
   }
+}
+
+function getStudentServerBusyError(error: unknown) {
+  if (!axios.isAxiosError<{ code?: string }>(error)) return null;
+  if (
+    error.response?.status !== 429 ||
+    error.response.data?.code !== "SERVER_BUSY"
+  ) {
+    return null;
+  }
+
+  const retryAfter = Number(error.response.headers?.["retry-after"]);
+  return new StudentServerBusyError(
+    Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 3,
+  );
 }
 
 export async function getStudentHistory() {
@@ -125,6 +160,10 @@ export async function submitStudentDailyReport(
             headers: {
               "Content-Type": "multipart/form-data",
             },
+            // Keep the live attendance flow bounded on slower mobile
+            // browsers. A timed-out request is reconciled before retrying,
+            // so a record that reached the server is never submitted twice.
+            timeout: 45_000,
             onUploadProgress: (event) => {
               if (!event.total) return;
               onUploadProgress?.(
