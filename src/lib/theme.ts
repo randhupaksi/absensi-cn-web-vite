@@ -3,20 +3,8 @@ export type AppTheme = "light" | "dark";
 const THEME_STORAGE_KEY = "absensi-cn-theme";
 const THEME_CHANGE_EVENT = "absensi-cn-theme-change";
 
-type ThemeTransitionDocument = Document & {
-  startViewTransition?: (updateCallback: () => void) => unknown;
-};
-
-function canUsePageThemeTransition() {
-  // `startViewTransition` snapshots the complete page. That gives desktop a
-  // pleasant crossfade, but it is expensive on mobile GPUs and can cause a
-  // delayed, shuttering switch on lower-end devices. Keep the full-page
-  // transition for desktop-style pointers only; mobile changes immediately.
-  return (
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-    window.matchMedia("(min-width: 768px) and (pointer: fine)").matches
-  );
-}
+let themeTransitionTimer: number | undefined;
+let themeTransitionId = 0;
 
 export function getStoredTheme(): AppTheme {
   if (typeof document === "undefined") return "light";
@@ -25,6 +13,13 @@ export function getStoredTheme(): AppTheme {
 
 export function setAppTheme(theme: AppTheme) {
   const root = document.documentElement;
+  const currentTheme = getStoredTheme();
+  const transitionId = ++themeTransitionId;
+
+  if (currentTheme === theme && !root.classList.contains("theme-switching")) {
+    return;
+  }
+
   const applyTheme = () => {
     root.classList.toggle("dark", theme === "dark");
     root.style.colorScheme = theme;
@@ -44,27 +39,38 @@ export function setAppTheme(theme: AppTheme) {
     window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   };
 
-  const transitionDocument = document as ThemeTransitionDocument;
-
-  if (canUsePageThemeTransition() && transitionDocument.startViewTransition) {
-    try {
-      transitionDocument.startViewTransition(applyTheme);
-      return;
-    } catch {
-      // Some embedded browsers expose the API but cannot create a snapshot.
-      // Fall through to the lightweight path rather than blocking a theme
-      // change.
-    }
+  if (themeTransitionTimer !== undefined) {
+    window.clearTimeout(themeTransitionTimer);
   }
 
-  // On touch devices, make every themed surface commit in the same frame.
-  // This prevents cards, dialogs, charts, and controls with their own CSS
-  // transitions from visibly changing one after another.
-  root.classList.add("theme-switching-instant");
-  applyTheme();
+  // The overlay hides the palette commit, so every surface can switch in the
+  // same frame without a per-component cascade or a costly page snapshot.
+  root.style.setProperty(
+    "--theme-transition-overlay",
+    theme === "dark" ? "#0b1320" : "#f8fafc",
+  );
+  root.classList.remove("theme-switching-fade");
+  root.classList.add("theme-switching", "theme-switching-instant");
+  void root.offsetWidth;
+
+  // Give the browser one paint to place the cover above tables, headers,
+  // charts, and dialogs before their colors change.
   window.requestAnimationFrame(() => {
+    if (transitionId !== themeTransitionId) return;
+    applyTheme();
     window.requestAnimationFrame(() => {
-      root.classList.remove("theme-switching-instant");
+      if (transitionId !== themeTransitionId) return;
+      root.classList.add("theme-switching-fade");
+      themeTransitionTimer = window.setTimeout(() => {
+        if (transitionId !== themeTransitionId) return;
+        root.classList.remove(
+          "theme-switching",
+          "theme-switching-fade",
+          "theme-switching-instant",
+        );
+        root.style.removeProperty("--theme-transition-overlay");
+        themeTransitionTimer = undefined;
+      }, 220);
     });
   });
 }

@@ -24,7 +24,7 @@ export function ThemeToggle({ className, placement = "inline" }: ThemeToggleProp
       title={isDark ? "Gunakan tema terang" : "Gunakan tema gelap"}
       onClick={() => setAppTheme(isDark ? "light" : "dark")}
       className={cn(
-        "relative h-8 w-16 overflow-hidden rounded-full border-slate-300 bg-slate-100 p-0 text-emerald-800 shadow-none hover:translate-y-0 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-950 hover:shadow-none active:border-emerald-400 active:bg-emerald-200/80 sm:h-9 sm:w-[4.5rem] dark:border-emerald-500/60 dark:bg-slate-800 dark:text-amber-200 dark:hover:border-emerald-300 dark:hover:bg-emerald-950/70 dark:hover:text-emerald-100 dark:hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16)] dark:active:border-emerald-300 dark:active:bg-emerald-900/80",
+        "relative h-8 w-16 overflow-hidden rounded-full border-slate-300 bg-slate-100 p-0 text-emerald-800 shadow-none hover:translate-y-0 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-950 hover:shadow-none active:scale-[0.94] active:duration-75 active:border-emerald-400 active:bg-emerald-200/80 sm:h-9 sm:w-[4.5rem] dark:border-emerald-500/60 dark:bg-slate-800 dark:text-amber-200 dark:hover:border-emerald-300 dark:hover:bg-emerald-950/70 dark:hover:text-emerald-100 dark:hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16)] dark:active:border-emerald-300 dark:active:bg-emerald-900/80",
         placement === "fixed" && "fixed right-4 top-4 z-[60] sm:right-6 sm:top-6",
         className,
       )}
