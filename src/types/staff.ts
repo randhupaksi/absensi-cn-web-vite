@@ -105,6 +105,11 @@ export type StaffAttendanceRecord = AttendanceLocationEvidence & {
   verified_by_role?: string;
   verified_at?: string;
   verification_note?: string;
+  status_changed?: boolean;
+  previous_status?: string;
+  status_changed_by?: string;
+  status_changed_by_role?: string;
+  status_changed_at?: string;
 };
 
 export type StaffHomeroomAttendanceOverview = {

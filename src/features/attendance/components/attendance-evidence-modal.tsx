@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
+import { AttendanceStatusChangeNotice } from "@/features/attendance/components/attendance-status-change-notice";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { ProtectedApiImage } from "@/components/security/protected-api-asset";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +46,7 @@ export function AttendanceEvidenceModal({
               </div>
               <EvidenceStatus status={record.status} />
             </div>
+            <AttendanceStatusChangeNotice record={record} />
           </div>
 
           <div className="overflow-hidden rounded-[var(--radius-xl)] border border-emerald-100/80 bg-emerald-50/40 p-3 dark:border-emerald-800/60 dark:bg-emerald-950/30">
