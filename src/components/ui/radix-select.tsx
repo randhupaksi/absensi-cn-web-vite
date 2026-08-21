@@ -151,7 +151,7 @@ function RadixSelectFieldBase({
           position="popper"
           sideOffset={8}
           className={cn(
-            "z-[80] w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[1.4rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,247,0.98)_100%)] p-2 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-600 dark:bg-none dark:bg-slate-900 dark:shadow-[0_24px_80px_rgba(0,0,0,0.42)]",
+            "z-[80] w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[1.4rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,247,0.98)_100%)] p-2 shadow-[0_24px_80px_rgba(15,23,42,0.18)] dark:border-slate-600 dark:bg-none dark:bg-slate-900 dark:shadow-[0_24px_80px_rgba(0,0,0,0.42)]",
             contentClassName,
           )}
         >

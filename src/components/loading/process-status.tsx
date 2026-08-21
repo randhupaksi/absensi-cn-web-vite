@@ -31,7 +31,7 @@ export function ProcessStatus({
       aria-label="Status proses absensi"
       aria-live="polite"
       className={cn(
-        "rounded-[1.3rem] border border-emerald-100/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(240,253,244,0.72))] p-4 shadow-[0_14px_32px_rgba(15,118,110,0.07)]",
+        "rounded-[1.3rem] border border-emerald-100/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(240,253,244,0.72))] p-4 shadow-[0_14px_32px_rgba(15,118,110,0.07)] dark:border-emerald-700/55 dark:bg-slate-900 dark:bg-none dark:shadow-none",
         className,
       )}
     >
@@ -40,19 +40,19 @@ export function ProcessStatus({
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-emerald-700/75">
             Status proses
           </p>
-          <p className="mt-1 text-sm font-semibold text-slate-800">
+          <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
             Bukti kehadiran sedang disiapkan
           </p>
         </div>
         {progress !== undefined ? (
-          <span className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-xs font-semibold tabular-nums text-emerald-700">
+          <span className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-xs font-semibold tabular-nums text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/50 dark:text-emerald-300">
             {Math.round(progress)}%
           </span>
         ) : null}
       </div>
 
       {progress !== undefined ? (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-emerald-100">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-950/70">
           <div
             className="h-full rounded-full bg-emerald-500 transition-[width] duration-300 ease-out motion-reduce:transition-none"
             style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
@@ -85,11 +85,13 @@ function ProcessStepItem({ step }: { step: ProcessStep }) {
       className={cn(
         "flex min-w-0 items-center gap-2 rounded-xl border px-2.5 py-2.5 transition-colors",
         step.state === "complete" &&
-          "border-emerald-100 bg-emerald-50/80 text-emerald-700",
-        step.state === "active" && "border-sky-200 bg-sky-50 text-sky-700",
-        step.state === "error" && "border-rose-200 bg-rose-50 text-rose-700",
+          "border-emerald-100 bg-emerald-50/80 text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/50 dark:text-emerald-300",
+        step.state === "active" &&
+          "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-700/60 dark:bg-sky-950/45 dark:text-sky-300",
+        step.state === "error" &&
+          "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-700/60 dark:bg-rose-950/45 dark:text-rose-300",
         step.state === "pending" &&
-          "border-slate-100 bg-slate-50/70 text-slate-400",
+          "border-slate-100 bg-slate-50/70 text-slate-400 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-400",
       )}
       title={step.description}
     >

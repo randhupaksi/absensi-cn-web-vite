@@ -252,7 +252,7 @@ function CalendarDropdown({
         <Select.Content
           position="popper"
           sideOffset={8}
-          className="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(242,252,247,0.99)_100%)] p-1.5 shadow-[0_24px_70px_rgba(15,23,42,0.18)] backdrop-blur-xl dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_24px_70px_rgba(0,0,0,0.52)]"
+          className="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(242,252,247,0.99)_100%)] p-1.5 shadow-[0_24px_70px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_24px_70px_rgba(0,0,0,0.52)]"
         >
           <Select.Viewport className="max-h-[260px] space-y-1">
             {options?.map((option) => (

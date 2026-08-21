@@ -41,7 +41,7 @@ export function Topbar() {
   };
 
   return (
-    <header className="sticky top-4 z-20 rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
+    <header className="sticky top-4 z-20 rounded-[2rem] border border-white/70 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="flex items-center gap-3">
         <div className="lg:hidden">
           <Sheet>
