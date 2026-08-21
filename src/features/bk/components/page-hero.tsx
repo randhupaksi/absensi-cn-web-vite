@@ -29,18 +29,18 @@ export function BkPageHero({
   footer,
 }: BkPageHeroProps) {
   return (
-    <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5">
+    <div className="relative flex flex-col gap-4 border-b border-slate-200/80 pb-4 dark:border-slate-700 sm:gap-5 sm:pb-5">
       <div className={topClassName}>
         <div className={contentClassName}>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)] dark:border-emerald-800 dark:bg-slate-900 dark:text-emerald-300 dark:shadow-none sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.22em]">
             <LayoutPanelTop className="size-3.5" />
             {badge}
           </div>
           <div className="space-y-2">
-            <h2 className="text-[2rem] font-semibold tracking-normal text-slate-950 sm:text-[2.35rem]">
+            <h2 className="text-[clamp(1.65rem,8vw,2rem)] font-semibold leading-tight tracking-normal text-slate-950 dark:text-slate-100 sm:text-[2.35rem]">
               {title}
             </h2>
-            <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
+            <p className="max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400 sm:text-base sm:leading-7">
               {description}
             </p>
           </div>
@@ -48,7 +48,7 @@ export function BkPageHero({
         <div className={actionClassName}>
           <Button
             variant="outline"
-            className="h-14 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-5 text-sm font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950"
+            className="h-12 w-full rounded-[18px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-4 text-sm font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 dark:border-emerald-700 dark:bg-slate-900 dark:text-emerald-300 dark:shadow-none sm:h-14 sm:w-auto sm:rounded-[22px] sm:px-5"
             onClick={onOpenReport}
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)]">

@@ -34,6 +34,7 @@ type StaffShellProps = {
   userLabel: string;
   resolveTitle: (pathname: string) => string;
   eyebrow?: string;
+  surfaceClassName?: string;
   children: (session: AuthSession) => ReactNode;
 };
 
@@ -43,6 +44,7 @@ export function StaffShell({
   userLabel,
   resolveTitle,
   eyebrow,
+  surfaceClassName,
   children,
 }: StaffShellProps) {
   const router = useRouter();
@@ -103,7 +105,7 @@ export function StaffShell({
   };
 
   return (
-    <div className="staff-workspace min-h-[100svh] overflow-x-clip bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.13),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_20%),linear-gradient(180deg,#101b2a_0%,#0b1220_100%)] dark:text-slate-100 supports-[min-height:100dvh]:min-h-[100dvh]">
+    <div className={`staff-workspace ${surfaceClassName ?? ""} min-h-[100svh] overflow-x-clip bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.13),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_20%),linear-gradient(180deg,#101b2a_0%,#0b1220_100%)] dark:text-slate-100 supports-[min-height:100dvh]:min-h-[100dvh]`}>
       <div className="min-h-[100svh] min-w-0 overflow-x-clip lg:pl-[272px] supports-[min-height:100dvh]:min-h-[100dvh]">
         <StaffSidebar
           items={visibleSidebarItems}
@@ -113,7 +115,7 @@ export function StaffShell({
           onLogout={handleLogout}
         />
 
-        <main className="min-w-0 space-y-5 p-4 md:p-5">
+        <main className="min-w-0 space-y-4 px-3 py-3 min-[380px]:px-4 min-[380px]:py-4 md:space-y-5 md:p-5">
           <StaffTopbar
             userName={session.user.name}
             userLabel={userLabel}

@@ -90,7 +90,7 @@ export function StaffSidebar({
                 </p>
               </div>
             </div>
-            <div className="mt-5 h-px w-full bg-white/14" />
+            <div className="staff-sidebar-divider mt-5 h-px w-full bg-white/14" />
           </div>
 
           <nav
@@ -98,7 +98,7 @@ export function StaffSidebar({
             onScroll={(event) => {
               staffSidebarScrollTop = event.currentTarget.scrollTop;
             }}
-            className="mt-3 flex-1 space-y-2 overflow-y-auto pr-3 [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-gutter:stable] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70"
+            className="mt-3 flex-1 space-y-2 overflow-y-auto [scrollbar-color:rgba(110,231,183,0.5)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300/50 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-emerald-300/70"
           >
             {items.map((item) => {
               const Icon = item.icon;
@@ -132,11 +132,11 @@ export function StaffSidebar({
           </nav>
 
           <div className="mt-auto shrink-0 pt-4">
-            <div className="mb-4 h-px w-full bg-white/14" />
+            <div className="staff-sidebar-divider mb-4 h-px w-full bg-white/14" />
             <button
               type="button"
               onClick={onLogout}
-              className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ffd3c1] px-5 text-sm font-semibold text-[#6d3a2d] transition duration-200 hover:scale-[1.03] hover:bg-rose-500 hover:text-white hover:shadow-[0_8px_22px_rgba(225,60,40,0.35)] active:scale-[0.98]"
+              className="staff-logout-button group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ffd3c1] px-5 text-sm font-semibold text-[#6d3a2d] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70"
             >
               <LogOut className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-rotate-6" />
               Keluar

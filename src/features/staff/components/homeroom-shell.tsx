@@ -20,6 +20,7 @@ export function WalasShell({ children }: WalasShellProps) {
       expectedRole="walas"
       sidebarItems={walasSidebarItems}
       userLabel="Guru"
+      surfaceClassName="staff-walas-surface"
       resolveTitle={resolveWalasSectionTitle}
     >
       {children}

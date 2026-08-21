@@ -21,7 +21,7 @@ export function StaffTopbar({
   onToggleSidebar,
 }: StaffTopbarProps) {
   return (
-    <header className="sticky top-4 z-20 mx-1.5 rounded-[24px] border border-white/70 bg-white/75 px-3.5 py-3 shadow-[0_20px_55px_rgba(153,161,179,0.12)] backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/80 dark:shadow-[0_20px_55px_rgba(0,0,0,0.28)] sm:mx-0 sm:rounded-[30px] sm:p-4">
+    <header className="sticky top-4 z-20 mx-1.5 rounded-[24px] border border-white/70 bg-white px-3.5 py-3 shadow-[0_20px_55px_rgba(153,161,179,0.12)] dark:border-slate-700/80 dark:bg-slate-900 dark:shadow-[0_20px_55px_rgba(0,0,0,0.28)] sm:mx-0 sm:rounded-[30px] sm:p-4">
       <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <button
