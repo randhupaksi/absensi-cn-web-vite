@@ -143,7 +143,7 @@ export function ChangePasswordForm() {
         );
       })}
 
-      <div className="flex items-start gap-3 rounded-[1.1rem] border border-emerald-100 bg-emerald-50/75 px-4 py-3.5">
+      <div className="flex items-start gap-3 rounded-[1.1rem] border border-emerald-100 bg-emerald-50/75 px-4 py-3.5 dark:border-emerald-300/70">
         <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-700" />
         <p className="text-xs leading-5 text-emerald-800">
           Gunakan password yang hanya kamu ketahui. Password ini menggantikan
