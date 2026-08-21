@@ -4,6 +4,10 @@ import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
 import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
+import {
+  AttendanceStatusChangeNotice,
+  hasAttendanceStatusChange,
+} from "@/features/attendance/components/attendance-status-change-notice";
 import { StudentShell } from "@/features/student/components/shell";
 import { CameraCaptureModal } from "@/features/student/components/camera-capture-modal";
 import {
@@ -12,10 +16,10 @@ import {
   formatStudentDateTime,
   formatStudentTime,
   StudentStatusPill,
-  StudentSubmissionPill,
 } from "@/features/student/components/common";
 import { Button } from "@/components/ui/button";
 import { formatPersonName } from "@/lib/format-person-name";
+import { formatDisplayLabel } from "@/lib/utils";
 import { observeElementResize } from "@/lib/observe-element-resize";
 import {
   PremiumModal,
@@ -43,11 +47,17 @@ import {
   getStudentToday,
   getStudentTodayWithTimeout,
   getStudentDashboard,
+	markAllStudentNotificationsRead,
+	markStudentNotificationRead,
   StudentAttendanceSubmissionUncertainError,
   StudentServerBusyError,
   submitStudentDailyReport,
 } from "@/services/student.service";
-import type { StudentDailyReportPayload, StudentToday } from "@/types/student";
+import type {
+  StudentDailyReportPayload,
+  StudentNotification,
+  StudentToday,
+} from "@/types/student";
 import type { AttendanceLocationCaptureResult } from "@/types/location";
 import type { StaffAttendanceRecord } from "@/types/staff";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -59,12 +69,15 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
+  FileCheck2,
   FileImage,
   FileText,
   History,
   ImageUp,
+  KeyRound,
   LogIn,
   LoaderCircle,
+  MessageSquareWarning,
   RotateCw,
   School,
   SendHorizontal,
@@ -163,6 +176,27 @@ export function StudentDashboardPage() {
     staleTime: 5 * 60_000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+  });
+
+  const markNotificationReadMutation = useMutation({
+    mutationFn: markStudentNotificationRead,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
+    },
+  });
+
+  const markAllNotificationsReadMutation = useMutation({
+    mutationFn: markAllStudentNotificationsRead,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Notifikasi belum dapat ditandai sebagai dibaca.",
+      );
+    },
   });
 
   useEffect(() => {
@@ -567,10 +601,10 @@ export function StudentDashboardPage() {
           <div className="space-y-5">
             <section
               id="status-absensi-hari-ini"
-              className="scroll-mt-5 overflow-hidden rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbf6_54%,#e6f7ef_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)]"
+              className="scroll-mt-5 overflow-hidden"
             >
-              <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="flex min-h-[330px] flex-col justify-between rounded-[1.6rem] border border-emerald-200/60 bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-6 text-white shadow-[0_22px_52px_rgba(15,118,85,0.25)]">
+              <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="flex min-h-[300px] flex-col justify-between rounded-[1.8rem] border border-transparent bg-[linear-gradient(135deg,#0f6b58_0%,#0d8a6c_58%,#19b77e_100%)] p-5 text-white dark:border-slate-700 dark:bg-slate-900 dark:bg-none sm:min-h-[330px] sm:p-6">
                   <div className="space-y-4">
                     <div
                       ref={greetingRowRef}
@@ -597,12 +631,12 @@ export function StudentDashboardPage() {
                         {formatDashboardGreetingDate(greetingNow)}
                       </span>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-50">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-50 dark:border-emerald-300/45 dark:bg-emerald-950/35 dark:text-emerald-200">
                       <ClipboardCheck className="size-3.5" />
                       Portal Absensi Siswa
                     </span>
                     <div className="max-w-2xl space-y-3">
-                      <h1 className="text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[3.2rem]">
+                      <h1 className="text-[clamp(2rem,10vw,2.6rem)] font-semibold leading-[1.02] tracking-[-0.03em] [overflow-wrap:anywhere] sm:text-[3.2rem]">
                         {alreadySubmitted
                           ? "Absensi hari ini sudah terkirim."
                           : isHoliday
@@ -611,7 +645,7 @@ export function StudentDashboardPage() {
                               ? "Kamu tidak hadir hari ini."
                               : "Ambil foto dan kirim absensi hari ini"}
                       </h1>
-                      <p className="max-w-xl text-base leading-7 text-emerald-50/82">
+                      <p className="max-w-xl text-sm leading-6 text-emerald-50/82 min-[380px]:text-base min-[380px]:leading-7">
                         {today?.message ??
                           "Buka kamera, ambil foto, lalu pilih keterangan hadir, sakit, atau izin."}
                       </p>
@@ -627,14 +661,14 @@ export function StudentDashboardPage() {
                         isPreparingPhoto ||
                         dashboardRetrySeconds > 0
                       }
-                      className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:bg-emerald-50 hover:shadow-[0_20px_38px_rgba(2,44,34,0.24)] active:translate-y-0 active:scale-[0.98] active:!border-emerald-300 active:!bg-emerald-50 active:!text-emerald-800 active:!shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_14px_28px_rgba(16,185,129,0.18)] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70"
+                      className="h-16 rounded-full border border-white/28 bg-white px-7 text-base font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(2,44,34,0.18)] transition-[transform,box-shadow,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:bg-emerald-50 hover:shadow-[0_20px_38px_rgba(2,44,34,0.24)] active:translate-y-0 active:scale-[0.98] active:!border-emerald-300 active:!bg-emerald-50 active:!text-emerald-800 active:!shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_14px_28px_rgba(16,185,129,0.18)] disabled:translate-y-0 disabled:scale-100 disabled:bg-white/35 disabled:text-white/70 dark:!border-emerald-400/50 dark:!bg-emerald-500/20 dark:!text-emerald-100 dark:shadow-[0_12px_28px_rgba(16,185,129,0.18)] dark:hover:!bg-emerald-500/30 dark:active:!border-emerald-300 dark:active:!bg-emerald-500/35 dark:active:!text-white dark:disabled:!border-slate-700 dark:disabled:!bg-slate-800/70 dark:disabled:!text-slate-500"
                     >
                       {isPreparingPhoto ? (
                         <TimerReset className="size-5" />
                       ) : dashboardServerBusy ? (
                         <LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" />
                       ) : canSubmit ? (
-                        <Camera className="size-5" />
+                        <Camera className="size-5 dark:text-emerald-300" />
                       ) : isHoliday ? (
                         <TimerReset className="size-5" />
                       ) : isWindowClosed ? (
@@ -690,7 +724,7 @@ export function StudentDashboardPage() {
                 </div>
 
                 <div className="grid items-start gap-4">
-                  <div className="rounded-[1.5rem] border border-slate-200/80 bg-white/86 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
+                  <div className="rounded-[1.35rem] border border-slate-200/80 bg-white/86 p-4 shadow-[0_18px_42px_rgba(15,23,42,0.06)] sm:rounded-[1.5rem] sm:p-5">
                     <div className="relative">
                       <div className="min-w-0 w-full">
                         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
@@ -741,9 +775,7 @@ export function StudentDashboardPage() {
                       <InfoTile
                         icon={LogIn}
                         label="Absen Masuk"
-                        value={formatStudentTime(
-                          today?.attendance?.check_in_at,
-                        )}
+                        value={formatDashboardAttendanceValue(today?.attendance)}
                         tone="checkin"
                       />
                       <InfoTile
@@ -767,14 +799,14 @@ export function StudentDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-emerald-200/70 bg-emerald-50/70 p-5">
+                  <div className="rounded-[1.35rem] border border-emerald-200/70 bg-emerald-50/70 p-4 dark:border-0 sm:rounded-[1.5rem] sm:p-5">
                     <div className="flex items-center gap-3">
                       <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_12px_24px_rgba(16,185,129,0.24)]">
                         <ShieldCheck className="size-5" />
                       </span>
                       <div>
                         <p className="font-semibold text-slate-950">
-                          Terkoneksi Walas dan BK
+                          Terkoneksi Walas, Guru Mapel, dan BK
                         </p>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
                           Absensi, izin, dan sakit langsung masuk ke antrian
@@ -787,7 +819,7 @@ export function StudentDashboardPage() {
               </div>
             </section>
 
-            <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+            <section className="grid grid-cols-2 items-start gap-3 sm:gap-4 xl:grid-cols-4">
               <KpiCard
                 label="Total Absen"
                 value={
@@ -820,7 +852,7 @@ export function StudentDashboardPage() {
                     : String(stats?.pending_requests ?? 0)
                 }
                 icon={FileText}
-                accentClass="bg-rose-100 text-rose-700"
+                accentClass="bg-amber-100 text-amber-700"
               />
             </section>
 
@@ -853,19 +885,27 @@ export function StudentDashboardPage() {
                       .map((record) => (
                         <div
                           key={record.id}
-                          className="flex flex-col gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
+                          className="flex flex-row items-start justify-between gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
                         >
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="font-semibold text-slate-950">
                               {formatStudentDate(record.attendance_date)}
                             </p>
+                          {record.check_in_at ? (
                             <p className="mt-1 text-sm text-slate-500">
-                              Absen Masuk{" "}
-                              {formatStudentTime(record.check_in_at)}
+                              Absen Masuk {formatDashboardCheckIn(record)}
                             </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <StudentStatusPill status={record.status} />
+                          ) : (
+                            <p className="mt-1 text-sm text-slate-500">
+                              {formatDashboardCheckIn(record)}
+                            </p>
+                          )}
+                        </div>
+                          <div className="flex shrink-0 flex-col items-end gap-3 sm:flex-row sm:items-center">
+                            <div className="flex flex-col items-end gap-2">
+                              <StudentStatusPill status={record.status} />
+                              <AttendanceStatusChangeNotice record={record} compact />
+                            </div>
                             {record.photo_url ? (
                               <button
                                 type="button"
@@ -897,60 +937,59 @@ export function StudentDashboardPage() {
                       Notification Center
                     </h2>
                     <p className="mt-1 text-sm text-slate-500">
-                      Informasi validasi dan pengajuan terbaru.
+                      Aktivitas absensi, pengajuan, dan keamanan akun kamu.
                     </p>
                   </div>
-                  <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
-                    <Bell className="size-5" />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {dashboard?.unread_notifications ? (
+                      <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-xs font-bold text-white">
+                        {dashboard.unread_notifications > 99
+                          ? "99+"
+                          : dashboard.unread_notifications}
+                      </span>
+                    ) : null}
+                    <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                      <Bell className="size-5" />
+                    </span>
+                  </div>
                 </div>
+
+                {!isDashboardDetailsLoading && dashboard?.unread_notifications ? (
+                  <button
+                    type="button"
+                    onClick={() => markAllNotificationsReadMutation.mutate()}
+                    disabled={markAllNotificationsReadMutation.isPending}
+                    className="mt-4 text-sm font-semibold text-emerald-700 transition hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {markAllNotificationsReadMutation.isPending
+                      ? "Memperbarui..."
+                      : "Tandai semua sudah dibaca"}
+                  </button>
+                ) : null}
 
                 <div className="mt-5 space-y-3">
                   {isDashboardDetailsLoading ? (
                     <DashboardDetailsLoading label="Memuat informasi terbaru" />
+                  ) : (dashboard?.notifications ?? []).length === 0 ? (
+                    <EmptyState
+                      icon={Bell}
+                      title="Belum ada notifikasi baru"
+                      description="Aktivitas penting tentang absensi, pengajuan, dan akun kamu akan muncul di sini."
+                      compact
+                    />
                   ) : (
                     (dashboard?.notifications ?? []).map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                          <Bell className="size-4" />
-                        </span>
-                        <div>
-                          <p className="font-semibold text-slate-950">
-                            {item.title}
-                          </p>
-                          <p className="mt-1 text-sm leading-6 text-slate-500">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                      <StudentNotificationCard
+                        key={item.id}
+                        item={item}
+                        onRead={() => {
+                          if (!item.read_at) {
+                            markNotificationReadMutation.mutate(item.id);
+                          }
+                        }}
+                      />
                     ))
                   )}
-
-                  {!isDashboardDetailsLoading &&
-                    (dashboard?.recent_submissions ?? [])
-                    .slice(0, 2)
-                    .map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded-[1.2rem] border border-slate-200/75 bg-white p-4"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <StudentSubmissionPill value={item.type} />
-                          <StudentSubmissionPill value={item.status} />
-                        </div>
-                        <p className="mt-3 text-sm leading-6 text-slate-500">
-                          {item.reason}
-                        </p>
-                        <p className="mt-2 text-xs font-medium text-slate-400">
-                          {formatStudentDateTime(item.created_at)}
-                        </p>
-                      </div>
-                    ))}
                 </div>
               </div>
             </section>
@@ -1246,6 +1285,128 @@ function getSubmissionButtonState({
   return { label: "Kirim Absensi", icon: SendHorizontal, isAnimated: false };
 }
 
+function StudentNotificationCard({
+  item,
+  onRead,
+}: {
+  item: StudentNotification;
+  onRead: () => void;
+}) {
+  const presentation = getNotificationPresentation(item);
+  const Icon = presentation.icon;
+  const isUnread = !item.read_at;
+  const actor = [item.actor_name, item.actor_role && formatDisplayLabel(item.actor_role)]
+    .filter(Boolean)
+    .join(" · ");
+  const content = (
+    <>
+      <span
+        className={cn(
+          "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-[0.9rem]",
+          presentation.iconClassName,
+        )}
+      >
+        <Icon className="size-[1.05rem]" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold text-slate-950">{item.title}</span>
+          {isUnread ? (
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[0.62rem] font-bold text-emerald-700">
+              Baru
+            </span>
+          ) : null}
+        </span>
+        <span className="mt-1 block text-sm leading-6 text-slate-500">
+          {item.description}
+        </span>
+        <span className="mt-3 flex flex-wrap items-center justify-end gap-x-2 gap-y-1 text-right text-xs font-medium text-slate-400">
+          {actor ? <span>{actor}</span> : null}
+          <span className="ml-auto">{formatStudentDateTime(item.created_at)}</span>
+        </span>
+      </span>
+      {item.action_url ? (
+        <ArrowUpRight className="mt-1 size-4 shrink-0 text-slate-400" />
+      ) : null}
+    </>
+  );
+  const className = cn(
+    "flex w-full items-start gap-3 rounded-[1.2rem] border p-4 text-left transition",
+    isUnread
+      ? cn("border", presentation.borderClassName, presentation.surfaceClassName)
+      : "border-slate-200/75 bg-slate-50/50 opacity-80",
+    item.action_url && "hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.08)]",
+  );
+
+  if (item.action_url) {
+    return (
+      <Link href={item.action_url} onClick={onRead} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onRead} className={className}>
+      {content}
+    </button>
+  );
+}
+
+function getNotificationPresentation(item: StudentNotification): {
+  icon: LucideIcon;
+  iconClassName: string;
+  borderClassName: string;
+  surfaceClassName: string;
+} {
+  if (item.category === "security") {
+    return {
+      icon: KeyRound,
+      iconClassName: "bg-rose-100 text-rose-700",
+      borderClassName: "border-rose-200",
+      surfaceClassName: "bg-rose-50/70",
+    };
+  }
+  if (item.type === "attendance_corrected") {
+    return {
+      icon: MessageSquareWarning,
+      iconClassName: "bg-amber-100 text-amber-700",
+      borderClassName: "border-amber-200",
+      surfaceClassName: "bg-amber-50/70",
+    };
+  }
+  if (item.type === "attendance_reviewed") {
+    return {
+      icon: FileCheck2,
+      iconClassName: "bg-sky-100 text-sky-700",
+      borderClassName: "border-sky-200",
+      surfaceClassName: "bg-sky-50/70",
+    };
+  }
+  if (item.category === "submission") {
+    return {
+      icon: FileText,
+      iconClassName: "bg-violet-100 text-violet-700",
+      borderClassName: "border-violet-200",
+      surfaceClassName: "bg-violet-50/70",
+    };
+  }
+  if (item.priority === "success") {
+    return {
+      icon: CheckCircle2,
+      iconClassName: "bg-emerald-100 text-emerald-700",
+      borderClassName: "border-emerald-200",
+      surfaceClassName: "bg-emerald-50/70",
+    };
+  }
+  return {
+    icon: Bell,
+    iconClassName: "bg-slate-100 text-slate-600",
+    borderClassName: "border-slate-200",
+    surfaceClassName: "bg-slate-50/70",
+  };
+}
+
 function AttendanceSubmissionFeedback({
   stage,
   queueSeconds,
@@ -1320,7 +1481,7 @@ function InfoTile({
   const toneClassName = {
     profile: "bg-indigo-50 text-indigo-700 dark:bg-emerald-950/60 dark:text-emerald-300",
     class: "bg-violet-50 text-violet-700",
-    checkin: "bg-teal-50 text-teal-700",
+    checkin: "bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300",
     success: "bg-emerald-50 text-emerald-700",
     pending: "bg-amber-50 text-amber-700",
   }[tone];
@@ -1426,4 +1587,18 @@ function DashboardDetailsLoading({ label }: { label: string }) {
       {label}
     </div>
   );
+}
+
+function formatDashboardCheckIn(record?: StaffAttendanceRecord) {
+  if (record && !record.check_in_at && hasAttendanceStatusChange(record)) {
+    return "Status absen kamu sudah dikoreksi oleh walas";
+  }
+  return formatStudentTime(record?.check_in_at);
+}
+
+function formatDashboardAttendanceValue(record?: StaffAttendanceRecord) {
+  if (record && !record.check_in_at && hasAttendanceStatusChange(record)) {
+    return formatDisplayLabel(record.status);
+  }
+  return formatStudentTime(record?.check_in_at);
 }
