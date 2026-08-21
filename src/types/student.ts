@@ -81,10 +81,16 @@ export type StudentToday = {
 
 export type StudentNotification = {
   id: string;
+  type: string;
+  category: "attendance" | "submission" | "security" | "system" | string;
+  priority: "info" | "success" | "warning" | "critical" | string;
   title: string;
   description: string;
-  tone: string;
+  actor_name?: string;
+  actor_role?: string;
+  action_url?: string;
   created_at?: string;
+  read_at?: string;
 };
 
 export type StudentDashboard = {
@@ -93,6 +99,7 @@ export type StudentDashboard = {
   recent_attendance: StaffAttendanceRecord[];
   recent_submissions: StudentSubmission[];
   notifications: StudentNotification[];
+  unread_notifications: number;
 };
 
 export type StudentHistory = {

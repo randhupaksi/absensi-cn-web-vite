@@ -54,6 +54,24 @@ export async function getStudentDashboard() {
   }
 }
 
+export async function markStudentNotificationRead(notificationId: string) {
+  try {
+    await apiClient.patch<ApiEnvelope<null>>(
+      `/student/notifications/${notificationId}/read`,
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function markAllStudentNotificationsRead() {
+  try {
+    await apiClient.patch<ApiEnvelope<null>>("/student/notifications/read-all");
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
 export async function getStudentToday() {
   return getStudentTodayWithTimeout();
 }
