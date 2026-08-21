@@ -138,7 +138,7 @@ export function MapelSchedulePage() {
         assignmentsQuery.isLoading && !assignmentsQuery.data ? (
           <SchedulePageSkeleton />
         ) : assignmentsQuery.error ? (
-          <section className="rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+          <section className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[32px] sm:p-6">
             <EmptyState
               icon={CalendarDays}
               title="Jadwal belum bisa dimuat"
@@ -151,14 +151,14 @@ export function MapelSchedulePage() {
               href="/dashboard/teacher/subject/history"
               label="Kembali ke Sesi Mapel"
             />
-            <section className="relative overflow-hidden rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-5 shadow-[0_24px_52px_rgba(15,118,110,0.11)] sm:p-6">
+            <section className="relative overflow-hidden rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-4 shadow-[0_24px_52px_rgba(15,118,110,0.11)] dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none sm:rounded-[32px] sm:p-6">
               <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
                     <CalendarDays className="size-3.5" />
                     Jadwal Mengajar
                   </div>
-                  <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.1rem]">
+                  <h2 className="mt-4 text-[clamp(1.7rem,8vw,1.875rem)] font-semibold leading-tight tracking-tight text-slate-950 dark:text-slate-100 md:text-[2.1rem]">
                     Ritme mengajarmu minggu ini.
                   </h2>
                   <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
@@ -169,7 +169,7 @@ export function MapelSchedulePage() {
               </div>
             </section>
 
-            <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+            <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
               <ScheduleKpi
                 icon={BookOpenCheck}
                 label="Mapel Aktif"
@@ -198,7 +198,7 @@ export function MapelSchedulePage() {
             </section>
 
             {allTickets.length === 0 ? (
-              <section className="rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <section className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[32px] sm:p-6">
                 <EmptyState
                   icon={CalendarDays}
                   title="Belum ada jadwal aktif"
@@ -206,7 +206,7 @@ export function MapelSchedulePage() {
                 />
               </section>
             ) : (
-              <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] sm:p-6">
+              <section className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[32px] sm:p-6">
                 <div className="mb-6 space-y-4">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">

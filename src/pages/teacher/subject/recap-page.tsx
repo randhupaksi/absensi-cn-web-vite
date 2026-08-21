@@ -180,13 +180,10 @@ export function MapelRecapPage() {
               </div>
               <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_2fr]">
                 <div className="sm:col-span-2 lg:col-span-1">
-                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <div className="mb-1.5">
                     <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300">
                       1. Mata Pelajaran
                     </label>
-                    <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:border dark:border-emerald-700/70 dark:bg-emerald-950/60 dark:text-emerald-300">
-                      Wajib
-                    </span>
                   </div>
                   <RadixSelectField
                     value={selectedAssignmentId}
@@ -344,7 +341,7 @@ export function MapelRecapPage() {
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-slate-50 dark:divide-slate-800/80">
                           {pagedStudents.map((s, i) => (
                             <tr
                               key={s.student_id}
@@ -568,10 +565,10 @@ function DateFilterModeSwitch({
         type="button"
         variant="ghost"
         onClick={() => onChange("single")}
-        className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
+        className={`h-full rounded-[1rem] !border-transparent !ring-0 px-2 text-xs font-semibold focus-visible:!border-transparent focus-visible:!ring-0 ${
           value === "single"
             ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
-            : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
+            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!text-slate-300 dark:hover:!bg-emerald-950/40 dark:hover:!text-emerald-200"
         }`}
       >
         Tanggal
@@ -580,10 +577,10 @@ function DateFilterModeSwitch({
         type="button"
         variant="ghost"
         onClick={() => onChange("range")}
-        className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
+        className={`h-full rounded-[1rem] !border-transparent !ring-0 px-2 text-xs font-semibold focus-visible:!border-transparent focus-visible:!ring-0 ${
           value === "range"
             ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
-            : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
+            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!text-slate-300 dark:hover:!bg-emerald-950/40 dark:hover:!text-emerald-200"
         }`}
       >
         Rentang

@@ -363,31 +363,31 @@ export function MapelSessionPage() {
                 </Button>
               </section>
               {/* KPI row */}
-              <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+              <section className="grid grid-cols-2 items-start gap-3 sm:gap-4 xl:grid-cols-4">
                 {[
                   {
                     label: "Hadir",
                     value: stats.hadir,
                     icon: CheckCircle2,
-                    cls: "bg-emerald-50 text-emerald-700",
+                    cls: "border-2 border-slate-400 bg-transparent text-emerald-500 dark:border-slate-600 dark:text-emerald-300",
                   },
                   {
                     label: "Izin",
                     value: stats.izin,
                     icon: FilePenLine,
-                    cls: "bg-sky-50 text-sky-700",
+                    cls: "border-2 border-slate-400 bg-transparent text-sky-500 dark:border-slate-600 dark:text-sky-300",
                   },
                   {
                     label: "Sakit",
                     value: stats.sakit,
                     icon: AlertCircle,
-                    cls: "bg-violet-50 text-violet-700",
+                    cls: "border-2 border-slate-400 bg-transparent text-violet-500 dark:border-slate-600 dark:text-violet-300",
                   },
                   {
                     label: "Alfa",
                     value: stats.alfa,
                     icon: Clock3,
-                    cls: "bg-rose-50 text-rose-600",
+                    cls: "border-2 border-slate-400 bg-transparent text-rose-500 dark:border-slate-600 dark:text-rose-300",
                   },
                 ].map((item, i) => (
                   <motion.article
@@ -406,16 +406,16 @@ export function MapelSessionPage() {
                       </p>
                     </div>
                     <span
-                      className={`inline-flex size-14 items-center justify-center rounded-2xl ${item.cls}`}
+                      className={`inline-flex size-14 items-center justify-center rounded-full ${item.cls}`}
                     >
-                      <item.icon className="size-7" />
+                      <item.icon className="size-7 stroke-[1.8]" />
                     </span>
                   </motion.article>
                 ))}
               </section>
 
               {/* Attendance table */}
-              <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <section className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[32px] sm:p-5">
                 <p className="mb-4 text-lg font-semibold text-slate-950">
                   Daftar Hadir Siswa
                 </p>

@@ -1343,10 +1343,10 @@ function DateFilterModeSwitch({
         type="button"
         variant="ghost"
         onClick={() => onChange("single")}
-        className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
+        className={`h-full rounded-[1rem] !border-transparent !ring-0 px-2 text-xs font-semibold focus-visible:!border-transparent focus-visible:!ring-0 ${
           value === "single"
             ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
-            : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
+            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!text-slate-300 dark:hover:!bg-emerald-950/40 dark:hover:!text-emerald-200"
         }`}
       >
         Tanggal
@@ -1355,10 +1355,10 @@ function DateFilterModeSwitch({
         type="button"
         variant="ghost"
         onClick={() => onChange("range")}
-        className={`h-full rounded-[1rem] px-2 text-xs font-semibold ${
+        className={`h-full rounded-[1rem] !border-transparent !ring-0 px-2 text-xs font-semibold focus-visible:!border-transparent focus-visible:!ring-0 ${
           value === "range"
             ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
-            : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800"
+            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!text-slate-300 dark:hover:!bg-emerald-950/40 dark:hover:!text-emerald-200"
         }`}
       >
         Rentang
