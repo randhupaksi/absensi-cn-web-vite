@@ -110,7 +110,7 @@ function ScheduleRows({
             <select
               value={row.hari}
               onChange={(e) => update(i, "hari", e.target.value)}
-              className="w-28 shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
+              className="w-28 shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
             >
               {HARI_OPTIONS.map((h) => (
                 <option key={h.value} value={h.value}>
@@ -122,7 +122,7 @@ function ScheduleRows({
               type="time"
               value={row.jam_mulai}
               onChange={(e) => update(i, "jam_mulai", e.target.value)}
-              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
+              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
               placeholder="Mulai"
             />
             <span className="text-xs text-slate-400">–</span>
@@ -130,13 +130,13 @@ function ScheduleRows({
               type="time"
               value={row.jam_selesai}
               onChange={(e) => update(i, "jam_selesai", e.target.value)}
-              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
+              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
               placeholder="Selesai"
             />
             <button
               type="button"
               onClick={() => remove(i)}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-500"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-950/50 dark:hover:text-rose-300"
             >
               <Trash2 className="size-4" />
             </button>
@@ -146,7 +146,7 @@ function ScheduleRows({
         <button
           type="button"
           onClick={add}
-          className="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-xs font-medium text-slate-500 transition hover:border-emerald-400 hover:text-emerald-600"
+          className="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-xs font-medium text-slate-500 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-300"
         >
           <Plus className="size-3.5" />
           Tambah Jadwal

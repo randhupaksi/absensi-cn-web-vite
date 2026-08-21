@@ -189,7 +189,7 @@ export function SubjectFormModal({
             </label>
             <Textarea
               id="subject-description"
-              className="min-h-14 rounded-[1.25rem] border-slate-200/80 bg-white"
+              className="min-h-14 rounded-[1.25rem] border-slate-200/80 bg-white dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
               placeholder="Keterangan singkat mapel"
               {...form.register("description")}
             />
@@ -200,7 +200,7 @@ export function SubjectFormModal({
           <label className={premiumModalLabelClassName}>
             Program/Jurusan Khusus (opsional)
           </label>
-          <div className="grid max-h-36 gap-2 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-3 sm:grid-cols-2">
+          <div className="grid max-h-36 gap-2 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-3 dark:border-slate-600 dark:bg-slate-900 sm:grid-cols-2">
             {programs
               .filter((program) => program.is_active)
               .map((program) => {
@@ -208,7 +208,7 @@ export function SubjectFormModal({
                 return (
                   <label
                     key={program.id}
-                    className="flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-700 hover:bg-emerald-50"
+                    className="flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-slate-700 hover:bg-emerald-50 dark:text-slate-200 dark:hover:bg-emerald-950/60"
                   >
                     <Checkbox
                       checked={selected}
@@ -420,7 +420,7 @@ export function TeachingAssignmentFormModal({
         </div>
 
         {/* Slot Jadwal */}
-        <div className="rounded-[26px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,248,0.96)_100%)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.05)]">
+        <div className="rounded-[26px] border border-emerald-100/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(243,252,248,0.96)_100%)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.05)] dark:border-slate-700 dark:bg-slate-800 dark:bg-none dark:shadow-none">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <h3 className="text-base font-semibold text-slate-900">
@@ -433,7 +433,7 @@ export function TeachingAssignmentFormModal({
             <Button
               type="button"
               variant="outline"
-              className="h-10 gap-2.5 rounded-[18px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-3.5 text-sm font-semibold text-emerald-900 shadow-[0_10px_20px_rgba(15,23,42,0.04)] hover:border-emerald-300"
+              className="h-10 gap-2.5 rounded-[18px] border-emerald-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(238,252,245,0.98)_100%)] px-3.5 text-sm font-semibold text-emerald-900 shadow-[0_10px_20px_rgba(15,23,42,0.04)] hover:border-emerald-300 dark:border-emerald-700 dark:bg-slate-700 dark:bg-none dark:text-emerald-200 dark:shadow-none dark:hover:border-emerald-500 dark:hover:bg-slate-600"
               onClick={() =>
                 schedules.append({
                   hari: "senin",

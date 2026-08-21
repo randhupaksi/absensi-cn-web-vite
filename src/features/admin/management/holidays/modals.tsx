@@ -202,7 +202,7 @@ export function SchoolHolidayFormModal({
           </p>
           <Textarea
             id="holiday-description"
-            className="min-h-24 rounded-[1.25rem] border-slate-200/80 bg-white px-4 py-3"
+            className="min-h-24 rounded-[1.25rem] border-slate-200/80 bg-white px-4 py-3 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
             placeholder="Contoh: Berdasarkan kalender pendidikan tahun ajaran berjalan."
             {...form.register("description")}
           />

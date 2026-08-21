@@ -103,7 +103,7 @@ export function BKAssignmentModal({
                     return (
                       <label
                         key={unit.id}
-                        className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-4 text-sm text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50/40"
+                        className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-4 text-sm text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:bg-emerald-950/50"
                       >
                         <Checkbox
                           checked={selected}

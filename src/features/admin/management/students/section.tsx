@@ -584,15 +584,14 @@ export function StudentSection({
 
   return (
     <>
-      <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
-        <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl dark:border-slate-700 dark:bg-slate-950 dark:shadow-none sm:p-5 lg:p-6">
         <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as StudentTab)}
         >
-          <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 sm:gap-6">
+          <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-8 dark:border-slate-700 sm:gap-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
@@ -601,7 +600,7 @@ export function StudentSection({
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                  <h2 className="text-[clamp(1.65rem,8vw,2rem)] font-semibold leading-tight tracking-[-0.04em] text-slate-950 dark:text-slate-100 sm:text-[2.35rem]">
                     Manajemen Siswa
                   </h2>
                   <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
@@ -1004,7 +1003,7 @@ export function StudentSection({
                         badge={<StatusBadge isActive={rule.is_active} />}
                       />
                       <div className="mt-4 grid grid-cols-3 gap-2">
-                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                             Mulai
                           </p>
@@ -1012,7 +1011,7 @@ export function StudentSection({
                             {rule.check_in_start}
                           </p>
                         </div>
-                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                             Tepat
                           </p>
@@ -1020,7 +1019,7 @@ export function StudentSection({
                             {rule.on_time_until}
                           </p>
                         </div>
-                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2">
+                        <div className="rounded-[16px] border border-emerald-100 bg-white/80 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                             Cutoff
                           </p>
