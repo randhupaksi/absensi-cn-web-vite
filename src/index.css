@@ -15,6 +15,43 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind v4 renders translate-x-* and translate-y-* utilities via the
+   standalone CSS `translate` property, unsupported before Chrome/WebView 104 (~Aug 2022).
+   Older Android WebViews (e.g. budget devices still on outdated WebView)
+   silently ignore it, leaving the mobile sidebar stuck open and dialogs
+   pinned to the top-left instead of centered. `transform` has been supported
+   for over a decade, so this fallback only ever runs where `translate` does
+   not - modern browsers never see it. */
+@supports not (translate: 1px) {
+  .app-sidebar.translate-x-0 {
+    transform: translateX(0);
+  }
+
+  .app-sidebar.-translate-x-full {
+    transform: translateX(-100%);
+  }
+
+  /*
+   * Generic fallback for the "half-translate" centering trick used all over
+   * the app (search icons in inputs, the theme toggle thumb, the radio-group
+   * dot, dialog/modal centering, ...): `top-1/2`/`left-1/2` plus
+   * `-translate-x-1/2`/`-translate-y-1/2`. Matched by literal class name
+   * rather than per-component data-slots so newly written components get
+   * the same protection without needing their own fallback rule.
+   */
+  [class~="-translate-x-1/2"][class~="-translate-y-1/2"] {
+    transform: translate(-50%, -50%);
+  }
+
+  [class~="-translate-y-1/2"]:not([class~="-translate-x-1/2"]) {
+    transform: translateY(-50%);
+  }
+
+  [class~="-translate-x-1/2"]:not([class~="-translate-y-1/2"]) {
+    transform: translateX(-50%);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -109,6 +146,7 @@
   --chart-3: oklch(0.74 0.15 71);
   --chart-4: oklch(0.61 0.19 22);
   --chart-5: oklch(0.56 0.12 290);
+  --chart-empty: #dbe5ee;
   --radius: 1.2rem;
   --sidebar: oklch(0.997 0.004 230);
   --sidebar-foreground: oklch(0.24 0.04 245);
@@ -200,6 +238,7 @@
   --chart-3: oklch(0.8 0.13 82);
   --chart-4: oklch(0.72 0.15 24);
   --chart-5: oklch(0.74 0.1 302);
+  --chart-empty: #405268;
   --sidebar: oklch(0.22 0.03 248);
   --sidebar-foreground: oklch(0.97 0.01 240);
   --sidebar-primary: oklch(0.72 0.14 238);
@@ -297,6 +336,7 @@ html.dark .app-sidebar {
     #103d3b 54%,
     #0c302f 100%
   ) !important;
+  border-right: 1px solid rgb(148 163 184 / 28%) !important;
   box-shadow: 0 24px 64px rgb(2 24 28 / 38%) !important;
 }
 
@@ -527,6 +567,25 @@ html.dark .staff-login-form-shell {
   backdrop-filter: none !important;
 }
 
+/* Auth surfaces must commit their palette together. The student portal used
+ * a desktop translucent layer without the staff portal's explicit dark
+ * override, which made the form and badge repaint one frame later and kept a
+ * backdrop-filter compositor active during the theme switch. */
+html.dark .student-login-form-shell {
+  background-color: #142231 !important;
+  background-image: none !important;
+  border-color: rgb(52 211 153 / 0.48) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.theme-switching .auth-theme-surface,
+html.theme-switching .auth-theme-surface * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 /*
  * Many established sections compose their own action controls with arbitrary
  * light gradients. Make every interactive control a real dark surface even
@@ -575,10 +634,85 @@ html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="sele
   color: #e0f2fe !important;
 }
 
-html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:hover"]):is([class*="hover:bg-rose-"], [class*="hover:bg-red-"]):hover {
+html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not(.staff-logout-button):not([class*="dark:hover"]):is([class*="hover:bg-rose-"], [class*="hover:bg-red-"]):hover {
   background-color: rgb(136 19 55 / 58%) !important;
   border-color: rgb(251 113 133 / 52%) !important;
   color: #ffe4e6 !important;
+}
+
+/*
+ * The staff logout control owns its peach/red interaction states. Keep it
+ * outside the generic dark-mode hover fallback above so route changes or a
+ * retained pointer/focus cannot make it look like a stale pressed state.
+ */
+html.dark .staff-logout-button {
+  background-color: #512238 !important;
+  background-image: none !important;
+  border-color: rgb(251 113 133 / 24%) !important;
+  color: #fda4af !important;
+  box-shadow: none !important;
+}
+
+html.dark .staff-logout-button:hover {
+  background-color: #6b2946 !important;
+  border-color: rgb(251 113 133 / 42%) !important;
+  color: #ffe4e6 !important;
+  box-shadow: none !important;
+}
+
+html.dark .staff-logout-button:active {
+  background-color: #7f1d3a !important;
+  border-color: rgb(253 164 175 / 52%) !important;
+  color: #ffe4e6 !important;
+  transform: scale(0.98);
+}
+
+html:not(.dark) .staff-sidebar-divider {
+  background-color: rgb(255 255 255 / 14%) !important;
+  box-shadow: none !important;
+}
+
+html.dark .staff-sidebar-divider {
+  background-color: rgb(255 255 255 / 22%) !important;
+  box-shadow: none !important;
+}
+
+/*
+ * Admin management screens still contain a few light-only emerald borders
+ * from the migrated table/card primitives. Their white surfaces are covered
+ * by the legacy dark fallback above, but these divider colours otherwise stay
+ * bright and read like stray white lines on the dark workspace. Keep the
+ * semantic border token as the single dark-mode source of truth.
+ */
+html.dark .admin-workspace :is(
+  [class~="border-emerald-50"],
+  [class~="border-emerald-100"],
+  [class~="border-emerald-200"],
+  [class~="border-emerald-300"],
+  [class^="border-emerald-50/"],
+  [class*=" border-emerald-50/"],
+  [class^="border-emerald-100/"],
+  [class*=" border-emerald-100/"],
+  [class^="border-emerald-200/"],
+  [class*=" border-emerald-200/"],
+  [class^="border-emerald-300/"],
+  [class*=" border-emerald-300/"]
+) {
+  border-color: var(--border) !important;
+}
+
+html.dark .admin-workspace :is(
+  [class~="divide-emerald-50"],
+  [class~="divide-emerald-100"],
+  [class~="divide-slate-100"],
+  [class~="divide-slate-200"]
+) > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+html.dark .staff-logout-button:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none !important;
 }
 
 html.dark :is(button, a, [role="button"], [data-slot="button"], [data-slot="select-trigger"], [data-slot="popover-trigger"]):not(.landingPage *):not([class*="dark:active"]):is([class*="active:bg-"]):active {
@@ -686,11 +820,26 @@ html.dark {
 }
 
 /*
- * Mobile does not use a full-page View Transition because its snapshot is
- * costly on many phone GPUs. Temporarily suppress per-component transitions
- * instead, so the new palette commits as one responsive visual update rather
- * than a delayed cascade of cards, inputs, and charts.
+ * Theme changes use one lightweight overlay on every device. The palette is
+ * committed while the page is covered, then the overlay fades away. This
+ * keeps cards, charts, dialogs, and controls visually synchronized without
+ * asking each component to animate independently or taking a mobile snapshot.
  */
+html.theme-switching::after {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  content: "";
+  background: var(--theme-transition-overlay, transparent);
+  opacity: 1;
+}
+
+html.theme-switching-fade::after {
+  opacity: 0;
+  transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 html.theme-switching-instant,
 html.theme-switching-instant *,
 html.theme-switching-instant *::before,
@@ -728,41 +877,9 @@ html.dark [data-slot="loading-shell"] {
   background-image: none !important;
 }
 
-/*
- * Keep a theme change visually synchronized. The View Transition API captures
- * the old and new page once, then crossfades those two frames instead of
- * asking every card, badge, icon, and chart to animate independently.
- */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 180ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-::view-transition-old(root) {
-  animation-name: theme-fade-out;
-}
-
-::view-transition-new(root) {
-  animation-name: theme-fade-in;
-}
-
-@keyframes theme-fade-out {
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes theme-fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 0.01ms;
+  html.theme-switching-fade::after {
+    transition-duration: 1ms;
   }
 }
 
@@ -962,6 +1079,20 @@ body[data-input-method="pointer"] [data-slot="button"]:focus-visible {
   outline: none;
   box-shadow: none;
   border-color: transparent;
+}
+
+/*
+ * Recharts elements (the outer SVG and individual bar/sector shapes) can
+ * still take native focus on click even with accessibilityLayer disabled,
+ * and the browser draws its default outline around whichever one is
+ * focused. `[class*="recharts"]` catches every internal Recharts class
+ * (wrapper, surface, bar-rectangle, sector, ...) without depending on their
+ * exact names. Suppress it only for pointer input, same as the button rule
+ * above; real keyboard (Tab) navigation still shows it.
+ */
+body[data-input-method="pointer"] [class*="recharts"]:focus,
+body[data-input-method="pointer"] [class*="recharts"]:focus-visible {
+  outline: none;
 }
 
 @keyframes skeleton-shimmer {
@@ -1232,4 +1363,144 @@ html.dark .correction-attendance-modal [data-modal-scroll-area] {
 html.dark .correction-attendance-modal > :last-child {
   background-color: #142231 !important;
   background-image: none !important;
+}
+
+/* Wali Kelas surfaces use the same dark-mode hierarchy as Subject Mapel.
+   The homeroom pages historically carried light-only utility classes, so keep
+   this compatibility layer scoped to the walas workspace instead of changing
+   shared components or data behavior. */
+html.dark .staff-walas-surface [class*="bg-white"],
+html.dark .staff-walas-surface [class*="bg-[linear-gradient"] {
+  background-color: #162433 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html.dark .staff-walas-surface [class*="bg-slate-50"] {
+  background-color: #1b2a3a !important;
+}
+
+html.dark .staff-walas-surface [class*="text-slate-950"],
+html.dark .staff-walas-surface [class*="text-slate-900"],
+html.dark .staff-walas-surface [class*="text-slate-800"],
+html.dark .staff-walas-surface [class*="text-slate-700"] {
+  color: #e5edf5 !important;
+}
+
+html.dark .staff-walas-surface [class*="text-slate-600"] {
+  color: #b4c1d0 !important;
+}
+
+html.dark .staff-walas-surface [class*="text-slate-500"],
+html.dark .staff-walas-surface [class*="text-slate-400"] {
+  color: #91a3b7 !important;
+}
+
+html.dark .staff-walas-surface [class*="border-white"],
+html.dark .staff-walas-surface [class*="border-slate-100"],
+html.dark .staff-walas-surface [class*="border-slate-200"],
+html.dark .staff-walas-surface [class*="border-slate-300"],
+html.dark .staff-walas-surface [class*="border-emerald-100"] {
+  border-color: rgb(71 85 105 / 0.58) !important;
+}
+
+html.dark .staff-walas-surface [class*="border-b"] {
+  border-bottom-color: rgb(71 85 105 / 0.52) !important;
+}
+
+html.dark .staff-walas-surface [class*="border-t"] {
+  border-top-color: rgb(71 85 105 / 0.52) !important;
+}
+
+html.dark .staff-walas-surface [class*="bg-emerald-50"],
+html.dark .staff-walas-surface [class*="bg-emerald-100"] {
+  background-color: rgb(6 78 59 / 0.58) !important;
+}
+
+html.dark .staff-walas-surface [class*="bg-sky-50"] {
+  background-color: rgb(7 89 133 / 0.52) !important;
+}
+
+html.dark .staff-walas-surface [class*="bg-rose-50"] {
+  background-color: rgb(136 19 55 / 0.52) !important;
+}
+
+html.dark .staff-walas-surface [class*="bg-violet-50"] {
+  background-color: rgb(76 29 149 / 0.5) !important;
+}
+
+html.dark .staff-walas-surface [class*="bg-amber-50"] {
+  background-color: rgb(120 53 15 / 0.52) !important;
+}
+
+html.dark .staff-walas-surface [class*="text-emerald-800"],
+html.dark .staff-walas-surface [class*="text-emerald-700"] {
+  color: #6ee7b7 !important;
+}
+
+html.dark .staff-walas-surface [class*="text-sky-700"] {
+  color: #7dd3fc !important;
+}
+
+html.dark .staff-walas-surface [class*="text-rose-700"] {
+  color: #fda4af !important;
+}
+
+html.dark .staff-walas-surface [class*="text-violet-700"] {
+  color: #c4b5fd !important;
+}
+
+html.dark .staff-walas-surface [class*="text-amber-700"] {
+  color: #fcd34d !important;
+}
+
+html.dark .walas-modal-surface [class*="bg-white"],
+html.dark .walas-modal-surface [class*="bg-[linear-gradient"] {
+  background-color: #162433 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html.dark .walas-modal-surface [class*="text-slate-950"],
+html.dark .walas-modal-surface [class*="text-slate-900"],
+html.dark .walas-modal-surface [class*="text-slate-800"],
+html.dark .walas-modal-surface [class*="text-slate-700"] {
+  color: #e5edf5 !important;
+}
+
+html.dark .walas-modal-surface [class*="text-slate-600"] {
+  color: #b4c1d0 !important;
+}
+
+html.dark .walas-modal-surface [class*="text-slate-500"],
+html.dark .walas-modal-surface [class*="text-slate-400"] {
+  color: #91a3b7 !important;
+}
+
+html.dark .walas-modal-surface [class*="text-emerald-800"],
+html.dark .walas-modal-surface [class*="text-emerald-700"] {
+  color: #6ee7b7 !important;
+}
+
+html.dark .walas-modal-surface [class*="text-sky-700"] {
+  color: #7dd3fc !important;
+}
+
+html.dark .walas-modal-surface [class*="text-rose-700"] {
+  color: #fda4af !important;
+}
+
+html.dark .walas-modal-surface [class*="text-violet-700"] {
+  color: #c4b5fd !important;
+}
+
+html.dark .walas-modal-surface [class*="text-amber-700"] {
+  color: #fcd34d !important;
+}
+
+html.dark .walas-modal-surface [class*="border-white"],
+html.dark .walas-modal-surface [class*="border-slate-100"],
+html.dark .walas-modal-surface [class*="border-slate-200"],
+html.dark .walas-modal-surface [class*="border-emerald-100"] {
+  border-color: rgb(71 85 105 / 0.62) !important;
 }
