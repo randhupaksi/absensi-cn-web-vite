@@ -65,11 +65,11 @@ const quickActions = [
 
 export function GreetingCard({ adminName }: GreetingCardProps) {
   return (
-    <article className="overflow-hidden rounded-[34px] border border-white/75 bg-[linear-gradient(135deg,#fffdf9_0%,#f8f4ea_48%,#eef9f3_100%)] p-6 shadow-[0_24px_60px_rgba(150,163,184,0.14)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
-      <div className="grid items-start gap-6 lg:grid-cols-[1.1fr_0.72fr]">
+    <article className="overflow-hidden rounded-[26px] border border-white/75 bg-[linear-gradient(135deg,#fffdf9_0%,#f8f4ea_48%,#eef9f3_100%)] p-4 shadow-[0_24px_60px_rgba(150,163,184,0.14)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[34px] sm:p-6">
+      <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[1.1fr_0.72fr]">
         <div className="space-y-5">
           <div className="space-y-3">
-            <p className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 md:text-[2.15rem]">
+            <p className="text-[clamp(1.7rem,8vw,1.875rem)] font-semibold leading-tight tracking-tight text-slate-950 dark:text-slate-100 md:text-[2.15rem]">
               Halo, {adminName}!
             </p>
             <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:text-[15px]">

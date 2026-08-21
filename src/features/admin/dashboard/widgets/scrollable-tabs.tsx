@@ -36,7 +36,7 @@ export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
         onClick={() =>
           scrollRef.current?.scrollBy({ left: -200, behavior: "smooth" })
         }
-        className={`xl:hidden absolute left-0 top-[calc(50%-10px)] z-20 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-emerald-200 bg-white/95 transition-[background-color,border-color,opacity,transform] duration-200 hover:border-emerald-300 hover:bg-emerald-50 active:scale-95 ${canScrollLeft ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`xl:hidden absolute left-0 top-[calc(50%-10px)] z-20 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-emerald-200 bg-white/95 transition-[background-color,border-color,opacity,transform] duration-200 hover:border-emerald-300 hover:bg-emerald-50 active:scale-95 dark:border-emerald-700 dark:bg-slate-800 dark:hover:border-emerald-500 dark:hover:bg-emerald-950/60 ${canScrollLeft ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <ChevronLeft className="size-4 text-emerald-600" />
       </button>
@@ -54,7 +54,7 @@ export function ScrollableTabsWrapper({ children }: { children: ReactNode }) {
         onClick={() =>
           scrollRef.current?.scrollBy({ left: 200, behavior: "smooth" })
         }
-        className={`xl:hidden absolute right-0 top-[calc(50%-10px)] z-20 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-emerald-200 bg-white/95 transition-[background-color,border-color,opacity,transform] duration-200 hover:border-emerald-300 hover:bg-emerald-50 active:scale-95 ${canScrollRight ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`xl:hidden absolute right-0 top-[calc(50%-10px)] z-20 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-emerald-200 bg-white/95 transition-[background-color,border-color,opacity,transform] duration-200 hover:border-emerald-300 hover:bg-emerald-50 active:scale-95 dark:border-emerald-700 dark:bg-slate-800 dark:hover:border-emerald-500 dark:hover:bg-emerald-950/60 ${canScrollRight ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
         <ChevronRight className="size-4 text-emerald-600" />
       </button>
