@@ -6,9 +6,11 @@ import type {
   AdminAnalyticsPerformance,
   AdminAttendanceAnalytics,
 } from "@/types/admin";
-import { Activity, BarChart3, ChartPie } from "lucide-react";
+import { Activity, BarChart3, ChartPie, ClipboardCheck, Layers } from "lucide-react";
 import type { ReactNode } from "react";
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -18,6 +20,9 @@ import {
   LineChart,
   Pie,
   PieChart,
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
   Tooltip,
   XAxis,
   YAxis,
@@ -120,7 +125,12 @@ export function AnalyticsTrendChart({
       ) : (
         <MeasuredChart className="h-[310px] min-w-0 sm:h-[340px]">
           {({ width, height }) => (
-            <LineChart width={width} height={height} data={data}>
+            <LineChart
+              width={width}
+              height={height}
+              data={data}
+              accessibilityLayer={false}
+            >
               <CartesianGrid
                 stroke={COLORS.grid}
                 strokeDasharray="4 4"
@@ -140,7 +150,7 @@ export function AnalyticsTrendChart({
                 tick={{ fill: COLORS.tick, fontSize: 11 }}
                 tickFormatter={(value) => `${value}%`}
               />
-              <Tooltip content={<AnalyticsTooltip />} />
+              <Tooltip content={<AnalyticsTooltip />} cursor={false} />
               <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
               <Line
                 type="monotone"
@@ -162,6 +172,106 @@ export function AnalyticsTrendChart({
                 activeDot={{ r: 5 }}
               />
             </LineChart>
+          )}
+        </MeasuredChart>
+      )}
+    </AnalyticsChartCard>
+  );
+}
+
+export function AnalyticsStatusTrendChart({
+  data,
+}: {
+  data: AdminAttendanceAnalytics["trend"];
+}) {
+  return (
+    <AnalyticsChartCard
+      eyebrow="Komposisi harian"
+      title="Rincian status per hari"
+      description="Jumlah siswa pada tiap status kehadiran, hari demi hari."
+    >
+      {data.length === 0 ? (
+        <EmptyState
+          icon={Layers}
+          compact
+          title="Belum ada rincian harian"
+          description="Tidak ada hari sekolah pada periode dan filter yang dipilih."
+        />
+      ) : (
+        <MeasuredChart className="h-[300px] min-w-0 sm:h-[330px]">
+          {({ width, height }) => (
+            <AreaChart
+              width={width}
+              height={height}
+              data={data}
+              accessibilityLayer={false}
+            >
+              <CartesianGrid
+                stroke={COLORS.grid}
+                strokeDasharray="4 4"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                minTickGap={22}
+                tick={{ fill: COLORS.tick, fontSize: 11 }}
+              />
+              <YAxis
+                allowDecimals={false}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: COLORS.tick, fontSize: 11 }}
+              />
+              <Tooltip content={<AnalyticsTooltip />} cursor={false} />
+              <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+              <Area
+                type="monotone"
+                dataKey="present"
+                name="Hadir"
+                stackId="status"
+                stroke={COLORS.present}
+                fill={COLORS.present}
+                fillOpacity={0.75}
+              />
+              <Area
+                type="monotone"
+                dataKey="permission"
+                name="Izin"
+                stackId="status"
+                stroke={COLORS.permission}
+                fill={COLORS.permission}
+                fillOpacity={0.75}
+              />
+              <Area
+                type="monotone"
+                dataKey="sick"
+                name="Sakit"
+                stackId="status"
+                stroke={COLORS.sick}
+                fill={COLORS.sick}
+                fillOpacity={0.75}
+              />
+              <Area
+                type="monotone"
+                dataKey="alpha"
+                name="Alfa"
+                stackId="status"
+                stroke={COLORS.alpha}
+                fill={COLORS.alpha}
+                fillOpacity={0.85}
+              />
+              <Area
+                type="monotone"
+                dataKey="not_attended"
+                name="Belum Absen"
+                stackId="status"
+                stroke={COLORS.notAttended}
+                fill={COLORS.notAttended}
+                fillOpacity={0.55}
+              />
+            </AreaChart>
           )}
         </MeasuredChart>
       )}
@@ -203,7 +313,11 @@ export function AnalyticsStatusChart({
         <>
           <MeasuredChart className="h-[250px] min-w-0">
             {({ width, height }) => (
-              <PieChart width={width} height={height}>
+              <PieChart
+                width={width}
+                height={height}
+                accessibilityLayer={false}
+              >
                 <Pie
                   data={chartData}
                   dataKey="value"
@@ -217,7 +331,7 @@ export function AnalyticsStatusChart({
                     <Cell key={item.name} fill={item.color} />
                   ))}
                 </Pie>
-                <Tooltip content={<AnalyticsTooltip />} />
+                <Tooltip content={<AnalyticsTooltip />} cursor={false} />
               </PieChart>
             )}
           </MeasuredChart>
@@ -273,7 +387,12 @@ export function AnalyticsComparisonChart({
       ) : (
         <MeasuredChart className="h-[300px] min-w-0">
           {({ width, height }) => (
-            <BarChart width={width} height={height} data={data}>
+            <BarChart
+              width={width}
+              height={height}
+              data={data}
+              accessibilityLayer={false}
+            >
               <CartesianGrid
                 stroke={COLORS.grid}
                 strokeDasharray="4 4"
@@ -293,7 +412,7 @@ export function AnalyticsComparisonChart({
                 tick={{ fill: COLORS.tick, fontSize: 11 }}
                 tickFormatter={(value) => `${value}%`}
               />
-              <Tooltip content={<AnalyticsTooltip />} />
+              <Tooltip content={<AnalyticsTooltip />} cursor={false} />
               <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
               <Bar
                 dataKey="attendance_percentage"
@@ -312,6 +431,101 @@ export function AnalyticsComparisonChart({
             </BarChart>
           )}
         </MeasuredChart>
+      )}
+    </AnalyticsChartCard>
+  );
+}
+
+export function AnalyticsValidationChart({
+  operational,
+}: {
+  operational: AdminAttendanceAnalytics["operational"];
+}) {
+  const gaugeData = [{ value: operational.validation_percentage }];
+  const chips = [
+    { name: "Total Sesi", value: operational.total_subject_sessions, color: COLORS.tick },
+    {
+      name: "Tervalidasi",
+      value: operational.finalized_subject_sessions,
+      color: COLORS.present,
+    },
+    {
+      name: "Menunggu",
+      value: operational.pending_subject_sessions,
+      color: COLORS.notAttended,
+    },
+  ];
+  return (
+    <AnalyticsChartCard
+      eyebrow="Validasi operasional"
+      title="Validasi sesi mapel"
+      description="Progres finalisasi sesi mapel yang tercatat pada periode ini."
+    >
+      {operational.total_subject_sessions === 0 ? (
+        <EmptyState
+          icon={ClipboardCheck}
+          compact
+          title="Belum ada sesi mapel"
+          description="Belum ada sesi mapel tercatat pada periode dan filter yang dipilih."
+        />
+      ) : (
+        <>
+          <div className="relative">
+            <MeasuredChart className="h-[200px] min-w-0">
+              {({ width, height }) => (
+                <RadialBarChart
+                  width={width}
+                  height={height}
+                  accessibilityLayer={false}
+                  innerRadius="72%"
+                  outerRadius="100%"
+                  barSize={16}
+                  data={gaugeData}
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  <PolarAngleAxis
+                    type="number"
+                    domain={[0, 100]}
+                    angleAxisId={0}
+                    tick={false}
+                  />
+                  <RadialBar
+                    dataKey="value"
+                    fill={COLORS.usage}
+                    background={{ fill: COLORS.grid }}
+                    cornerRadius={999}
+                  />
+                </RadialBarChart>
+              )}
+            </MeasuredChart>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <p className="text-3xl font-semibold text-slate-950">
+                {operational.validation_percentage}%
+              </p>
+              <p className="text-xs font-medium text-slate-500">Tervalidasi</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {chips.map((item) => (
+              <div
+                key={item.name}
+                className="rounded-[var(--radius-md)] border border-slate-100 bg-slate-50/75 px-3 py-2.5"
+              >
+                <span className="flex items-center gap-2 text-xs text-slate-500">
+                  <span
+                    className="size-2.5 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  {item.name}
+                </span>
+                <p className="mt-1 text-lg font-semibold text-slate-900">
+                  {item.value.toLocaleString("id-ID")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </AnalyticsChartCard>
   );
