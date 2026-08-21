@@ -15,6 +15,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { TableSkeleton as DetailedTableSkeleton } from "@/components/loading/loading-system";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { getAccentTone } from "@/lib/ui/accent-tone";
 import type { LucideIcon } from "lucide-react";
 import {
   ChevronLeft,
@@ -341,7 +342,7 @@ export function DataTablePagination({
               {totalItems === 0 ? "0" : `${rangeStart}–${rangeEnd}`}
             </span>
           </div>
-          <span className="h-8 w-px bg-emerald-100" />
+          <span className="h-8 w-px bg-emerald-100 dark:bg-slate-700" />
           <div className="flex flex-col items-start gap-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               Total
@@ -595,7 +596,7 @@ export function MobileDataSection({
 
 export function MobileDataFooter({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-3 flex items-center justify-end gap-2 border-t border-emerald-50 pt-3">
+    <div className="mt-3 flex items-center justify-end gap-2 border-t border-emerald-50 pt-3 dark:border-slate-700">
       {children}
     </div>
   );
@@ -613,22 +614,22 @@ export function StatCard({
   accentClass: string;
 }) {
   return (
-    <div className="group relative min-w-0 overflow-hidden rounded-[26px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-3.5 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none dark:hover:shadow-none sm:p-4">
-      <div className="absolute right-[-10px] top-[-26px] h-24 w-24 rounded-full bg-emerald-100/40 blur-2xl transition duration-300 group-hover:scale-110" />
+    <div className="group relative min-w-0 overflow-hidden rounded-[26px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-3.5 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none dark:hover:shadow-none sm:p-4">
+      <div className="absolute right-[-10px] top-[-26px] h-24 w-24 rounded-full bg-emerald-100/40 blur-2xl transition duration-300 group-hover:scale-110 dark:hidden" />
       <div className="relative flex items-start justify-between gap-2.5 sm:gap-4">
         <div className="min-w-0 space-y-2">
           <p className="break-words text-[10px] font-semibold uppercase leading-[1.35] tracking-[0.14em] text-slate-400 sm:text-[12px] sm:tracking-[0.18em]">
             {label}
           </p>
-          <p className="text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-slate-100 sm:text-[2.15rem]">
+          <p className="text-[clamp(1.65rem,8vw,1.875rem)] font-semibold leading-tight tracking-[-0.04em] text-slate-950 dark:text-slate-100 sm:text-[2.15rem]">
             {value}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-center text-right">
           <span
-            className={`inline-flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br ${accentClass} text-white shadow-[0_14px_28px_rgba(15,23,42,0.16)] sm:size-12`}
+            className={`inline-flex size-10 items-center justify-center rounded-full border-2 bg-transparent shadow-none sm:size-12 ${getAccentTone(accentClass)}`}
           >
-            <Icon className="size-4 sm:size-5" />
+            <Icon className="size-4 stroke-[1.8] sm:size-5" />
           </span>
         </div>
       </div>
@@ -764,8 +765,8 @@ export function StatusBadge({ isActive }: { isActive: boolean }) {
       variant="outline"
       className={
         isActive
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-slate-200 bg-slate-100 text-slate-500"
+          ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+          : "border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
       }
     >
       {isActive ? "Aktif" : "Nonaktif"}

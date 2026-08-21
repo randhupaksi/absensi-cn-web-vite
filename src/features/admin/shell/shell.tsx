@@ -16,6 +16,7 @@ export function AdminShell({ children }: AdminShellProps) {
       sidebarItems={adminSidebarItems}
       userLabel="Administrator"
       resolveTitle={getAdminSectionTitle}
+      surfaceClassName="admin-workspace"
     >
       {children}
     </StaffShell>
