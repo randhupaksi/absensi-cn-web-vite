@@ -412,7 +412,7 @@ export default function HomePage() {
                   </div>
                   <h2
                     id="attendance-steps-title"
-                    className={`${styles.landingInkText} mt-5 w-full max-w-none whitespace-nowrap font-heading text-[1.95rem] font-bold leading-[1.08] tracking-[-0.055em] md:max-w-[480px] md:whitespace-normal md:text-[3.35rem]`}
+                    className={`${styles.landingInkText} mt-5 w-full max-w-none font-heading text-[clamp(1.75rem,9vw,1.95rem)] font-bold leading-[1.08] tracking-[-0.055em] [overflow-wrap:anywhere] md:max-w-[480px] md:text-[3.35rem]`}
                   >
                     Absen masuk
                     <span
@@ -559,6 +559,7 @@ export default function HomePage() {
                               <span
                                 className={`${styles.landingMajorTopBadge} inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em]`}
                               >
+                              
                                 {major.label}
                               </span>
                               <span
