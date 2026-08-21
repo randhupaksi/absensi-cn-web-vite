@@ -19,6 +19,7 @@ import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AdminShell } from "@/features/admin/shell/shell";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import dynamic from "@/lib/dynamic";
+import { getAccentTone } from "@/lib/ui/accent-tone";
 import {
   getAdminAttendanceAnalytics,
   getAdminClasses,
@@ -40,6 +41,7 @@ import {
   CheckCircle2,
   CircleGauge,
   FileSpreadsheet,
+  Info,
   RefreshCw,
   Search,
   Users,
@@ -71,8 +73,56 @@ const AnalyticsComparisonChart = dynamic(
   { ssr: false, fallback: <ChartSkeleton /> },
 );
 
+const AnalyticsStatusTrendChart = dynamic(
+  () =>
+    import("@/features/admin/analytics/analytics-charts").then((module) => ({
+      default: module.AnalyticsStatusTrendChart,
+    })),
+  { ssr: false, fallback: <ChartSkeleton /> },
+);
+
+const AnalyticsValidationChart = dynamic(
+  () =>
+    import("@/features/admin/analytics/analytics-charts").then((module) => ({
+      default: module.AnalyticsValidationChart,
+    })),
+  { ssr: false, fallback: <ChartSkeleton type="donut" /> },
+);
+
 const today = formatInputDate(new Date());
-const defaultFrom = formatInputDate(addDays(new Date(), -6));
+const ANALYTICS_LAUNCH_DATE = "2026-08-18";
+const defaultFrom = [
+  ANALYTICS_LAUNCH_DATE,
+  formatInputDate(addDays(new Date(), -6)),
+].sort()[1];
+
+const QUICK_DATE_RANGES: Record<string, { label: string; from: string; to: string }> = {
+  today: { label: "Hari ini", from: today, to: today },
+  "3d": {
+    label: "3 hari terakhir",
+    from: formatInputDate(addDays(new Date(), -2)),
+    to: today,
+  },
+  "7d": { label: "1 minggu terakhir", from: defaultFrom, to: today },
+};
+
+type StudentSortValue = NonNullable<AdminAttendanceAnalyticsFilters["sort"]> | "";
+
+const STUDENT_SORT_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "default", label: "Standar (nama)" },
+  { value: "usage_desc", label: "Penggunaan tertinggi" },
+  { value: "usage_asc", label: "Penggunaan terendah" },
+  { value: "attendance_desc", label: "Kehadiran tertinggi" },
+  { value: "attendance_asc", label: "Kehadiran terendah" },
+];
+
+function resolveQuickDateRangeValue(dateFrom: string, dateTo: string) {
+  return (
+    Object.entries(QUICK_DATE_RANGES).find(
+      ([, range]) => range.from === dateFrom && range.to === dateTo,
+    )?.[0] ?? ""
+  );
+}
 
 export function AdminAnalyticsPage() {
   const [dateFrom, setDateFrom] = useState(defaultFrom);
@@ -82,8 +132,12 @@ export function AdminAnalyticsPage() {
   const [majorID, setMajorID] = useState("");
   const [classID, setClassID] = useState("");
   const [studentQuery, setStudentQuery] = useState("");
+  const [studentSort, setStudentSort] = useState<StudentSortValue>("");
+  const [studentGrade, setStudentGrade] = useState("");
+  const [studentMajorID, setStudentMajorID] = useState("");
+  const [studentClassID, setStudentClassID] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
   const debouncedStudentQuery = useDebouncedValue(studentQuery.trim(), 350);
 
@@ -120,6 +174,10 @@ export function AdminAnalyticsPage() {
     majorID,
     classID,
     debouncedStudentQuery,
+    studentSort,
+    studentGrade,
+    studentMajorID,
+    studentClassID,
   ]);
 
   const filters = useMemo<AdminAttendanceAnalyticsFilters>(
@@ -131,25 +189,73 @@ export function AdminAnalyticsPage() {
       major_id: majorID || undefined,
       class_id: classID || undefined,
       student_query: debouncedStudentQuery || undefined,
-      page,
-      page_size: pageSize,
     }),
-    [
-      classID,
-      dateFrom,
-      dateTo,
-      debouncedStudentQuery,
-      grade,
-      majorID,
-      page,
-      pageSize,
-      schoolYearID,
-    ],
+    [classID, dateFrom, dateTo, debouncedStudentQuery, grade, majorID, schoolYearID],
   );
 
   const analyticsQuery = useQuery({
     queryKey: ["admin-attendance-analytics", filters],
     queryFn: () => getAdminAttendanceAnalytics(filters),
+    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo),
+    placeholderData: (previous) => previous,
+    staleTime: 30_000,
+  });
+
+  // Peringkat kelas tidak mengikuti filter tingkat/jurusan/kelas/pencarian,
+  // tetapi tetap mengikuti periode yang sedang dilihat. Tanpa periode ini,
+  // API akan memakai fallback tujuh hari kalender dan dapat memasukkan hari
+  // sebelum sistem web mulai digunakan.
+  const overallAnalyticsQuery = useQuery({
+    queryKey: [
+      "admin-attendance-analytics",
+      "overall",
+      schoolYearID,
+      dateFrom,
+      dateTo,
+    ],
+    queryFn: () =>
+      getAdminAttendanceAnalytics({
+        school_year_id: schoolYearID,
+        date_from: dateFrom,
+        date_to: dateTo,
+      }),
+    enabled: Boolean(schoolYearID && dateFrom && dateTo && dateFrom <= dateTo),
+    staleTime: 5 * 60_000,
+  });
+
+  // Tabel siswa punya kontrol urutkan/tingkat/jurusan/kelas sendiri, terpisah
+  // dari filter analitik di atas, jadi butuh query khusus (masih berbagi
+  // periode tanggal & tahun ajaran dengan halaman).
+  const studentTableFilters = useMemo<AdminAttendanceAnalyticsFilters>(
+    () => ({
+      date_from: dateFrom,
+      date_to: dateTo,
+      school_year_id: schoolYearID || undefined,
+      grade: studentGrade || undefined,
+      major_id: studentMajorID || undefined,
+      class_id: studentClassID || undefined,
+      student_query: debouncedStudentQuery || undefined,
+      sort: studentSort || undefined,
+      page,
+      page_size: pageSize,
+    }),
+    [
+      dateFrom,
+      dateTo,
+      schoolYearID,
+      studentGrade,
+      studentMajorID,
+      studentClassID,
+      debouncedStudentQuery,
+      studentSort,
+      page,
+      pageSize,
+    ],
+  );
+
+  const studentTableQuery = useQuery({
+    queryKey: ["admin-attendance-analytics", "students", studentTableFilters],
+    queryFn: () => getAdminAttendanceAnalytics(studentTableFilters),
     enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo),
     placeholderData: (previous) => previous,
     staleTime: 30_000,
@@ -182,6 +288,23 @@ export function AdminAnalyticsPage() {
           (!majorID || item.major_id === majorID),
       ),
     [allClasses, grade, majorID],
+  );
+  const studentVisibleMajors = useMemo(() => {
+    const majorIDs = new Set(
+      allClasses
+        .filter((item) => !studentGrade || item.grade === studentGrade)
+        .map((item) => item.major_id),
+    );
+    return (majorsQuery.data ?? []).filter((item) => majorIDs.has(item.id));
+  }, [allClasses, studentGrade, majorsQuery.data]);
+  const studentVisibleClasses = useMemo(
+    () =>
+      allClasses.filter(
+        (item) =>
+          (!studentGrade || item.grade === studentGrade) &&
+          (!studentMajorID || item.major_id === studentMajorID),
+      ),
+    [allClasses, studentGrade, studentMajorID],
   );
 
   const analytics = analyticsQuery.data;
@@ -226,27 +349,24 @@ export function AdminAnalyticsPage() {
             onExport={handleExport}
             isExporting={isExporting}
             canExport={Boolean(analytics?.summary.total_students)}
+            period={analytics?.period}
           />
 
           <AnalyticsFilters
             dateFrom={dateFrom}
             dateTo={dateTo}
-            schoolYearID={schoolYearID}
             grade={grade}
             majorID={majorID}
             classID={classID}
             studentQuery={studentQuery}
-            years={yearsQuery.data ?? []}
             grades={gradeOptions}
             majors={visibleMajors}
             classes={visibleClasses}
             onDateFromChange={setDateFrom}
             onDateToChange={setDateTo}
-            onSchoolYearChange={(value) => {
-              setSchoolYearID(value);
-              setGrade("");
-              setMajorID("");
-              setClassID("");
+            onQuickRangeChange={(from, to) => {
+              setDateFrom(from);
+              setDateTo(to);
             }}
             onGradeChange={(value) => {
               setGrade(value);
@@ -260,7 +380,7 @@ export function AdminAnalyticsPage() {
             onClassChange={setClassID}
             onStudentQueryChange={setStudentQuery}
             onReset={() => {
-              setDateFrom(defaultFrom);
+              setDateFrom(today);
               setDateTo(today);
               setGrade("");
               setMajorID("");
@@ -293,6 +413,29 @@ export function AdminAnalyticsPage() {
           ) : analytics ? (
             <AnalyticsContent
               analytics={analytics}
+              overall={overallAnalyticsQuery.data}
+              studentTable={studentTableQuery.data}
+              setPage={setPage}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
+              studentSort={studentSort}
+              onStudentSortChange={setStudentSort}
+              studentGrade={studentGrade}
+              onStudentGradeChange={(value) => {
+                setStudentGrade(value);
+                setStudentMajorID("");
+                setStudentClassID("");
+              }}
+              studentMajorID={studentMajorID}
+              onStudentMajorChange={(value) => {
+                setStudentMajorID(value);
+                setStudentClassID("");
+              }}
+              studentClassID={studentClassID}
+              onStudentClassChange={setStudentClassID}
+              studentGrades={gradeOptions}
+              studentMajors={studentVisibleMajors}
+              studentClasses={studentVisibleClasses}
             />
           ) : null}
         </div>
@@ -305,13 +448,15 @@ function AnalyticsHero({
   onExport,
   isExporting,
   canExport,
+  period,
 }: {
   onExport: () => void;
   isExporting: boolean;
   canExport: boolean;
+  period?: AdminAttendanceAnalytics["period"];
 }) {
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-emerald-200/75 bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.34),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(236,253,245,0.9)_100%)] p-5 shadow-[0_22px_60px_rgba(16,94,70,0.08)] sm:p-7">
+    <section className="overflow-hidden rounded-[2rem] border border-emerald-200/75 bg-[linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(236,253,245,0.9)_100%)] p-5 shadow-[0_22px_60px_rgba(16,94,70,0.08)] sm:p-7">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
@@ -324,6 +469,12 @@ function AnalyticsHero({
             Pantau adopsi sistem, performa kelas, serta siswa yang perlu
             ditindaklanjuti dari satu laporan terukur.
           </p>
+          {period ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+              <Info className="size-3.5 shrink-0" />
+              <span>Dibuat pada {formatDisplayDateTime(period.generated_at)}</span>
+            </div>
+          ) : null}
         </div>
         <AsyncButton
           className="h-13 w-full rounded-[1.15rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-none hover:bg-emerald-800 hover:shadow-none lg:w-auto"
@@ -343,18 +494,16 @@ function AnalyticsHero({
 type FilterProps = {
   dateFrom: string;
   dateTo: string;
-  schoolYearID: string;
   grade: string;
   majorID: string;
   classID: string;
   studentQuery: string;
-  years: Array<{ id: string; name: string }>;
   grades: string[];
   majors: Array<{ id: string; code: string; name: string }>;
   classes: Array<{ id: string; display_name: string }>;
   onDateFromChange: (value: string) => void;
   onDateToChange: (value: string) => void;
-  onSchoolYearChange: (value: string) => void;
+  onQuickRangeChange: (from: string, to: string) => void;
   onGradeChange: (value: string) => void;
   onMajorChange: (value: string) => void;
   onClassChange: (value: string) => void;
@@ -383,6 +532,20 @@ function AnalyticsFilters(props: FilterProps) {
         </Button>
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <FilterField label="Periode cepat">
+          <RadixSelectField
+            value={resolveQuickDateRangeValue(props.dateFrom, props.dateTo)}
+            onValueChange={(value) => {
+              const range = QUICK_DATE_RANGES[value];
+              if (range) props.onQuickRangeChange(range.from, range.to);
+            }}
+            placeholder="Pilih periode cepat"
+            options={Object.entries(QUICK_DATE_RANGES).map(([value, range]) => ({
+              value,
+              label: range.label,
+            }))}
+          />
+        </FilterField>
         <FilterField label="Dari tanggal">
           <AnalyticsDatePicker
             value={props.dateFrom}
@@ -396,17 +559,6 @@ function AnalyticsFilters(props: FilterProps) {
             min={props.dateFrom}
             max={today}
             onChange={props.onDateToChange}
-          />
-        </FilterField>
-        <FilterField label="Tahun ajaran">
-          <RadixSelectField
-            value={props.schoolYearID}
-            onValueChange={props.onSchoolYearChange}
-            placeholder="Pilih tahun ajaran"
-            options={props.years.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
           />
         </FilterField>
         <FilterField label="Tingkat">
@@ -548,13 +700,46 @@ function AnalyticsDatePicker({
 
 function AnalyticsContent({
   analytics,
+  overall,
+  studentTable,
+  setPage,
+  pageSize,
+  setPageSize,
+  studentSort,
+  onStudentSortChange,
+  studentGrade,
+  onStudentGradeChange,
+  studentMajorID,
+  onStudentMajorChange,
+  studentClassID,
+  onStudentClassChange,
+  studentGrades,
+  studentMajors,
+  studentClasses,
 }: {
   analytics: AdminAttendanceAnalytics;
+  overall?: AdminAttendanceAnalytics;
+  studentTable?: AdminAttendanceAnalytics;
+  setPage: (page: number) => void;
+  pageSize: number;
+  setPageSize: (size: number) => void;
+  studentSort: StudentSortValue;
+  onStudentSortChange: (value: StudentSortValue) => void;
+  studentGrade: string;
+  onStudentGradeChange: (value: string) => void;
+  studentMajorID: string;
+  onStudentMajorChange: (value: string) => void;
+  studentClassID: string;
+  onStudentClassChange: (value: string) => void;
+  studentGrades: string[];
+  studentMajors: Array<{ id: string; code: string; name: string }>;
+  studentClasses: Array<{ id: string; display_name: string }>;
 }) {
-  const lowestClass = analytics.classes[0];
-  const bestClass = [...analytics.classes].sort(
-    (a, b) => b.system_usage_percentage - a.system_usage_percentage,
-  )[0];
+  const overallClasses = overall?.classes ?? [];
+  const lowestClasses = overallClasses.slice(0, 3);
+  const highestClasses = [...overallClasses]
+    .sort((a, b) => b.system_usage_percentage - a.system_usage_percentage)
+    .slice(0, 3);
   const majorCodes = new Map(
     analytics.classes.map((item) => [item.major_id, item.major_code]),
   );
@@ -606,32 +791,27 @@ function AnalyticsContent({
         </section>
       ) : (
         <>
-          <section className="grid gap-4 md:grid-cols-3">
-            <InsightCard
+          <SectionHeading
+            eyebrow="Peringkat kelas"
+            title="Kelas dengan penggunaan sistem tertinggi & terendah"
+            description={
+              overall
+                ? `Dihitung dari seluruh ${overall.summary.total_classes.toLocaleString("id-ID")} kelas pada tahun ajaran ${overall.filters.school_year_name}, terhitung periode ${formatDisplayDate(parseInputDate(overall.period.date_from))} sampai ${formatDisplayDate(parseInputDate(overall.period.date_to))}`
+                : "Memuat data keseluruhan tahun ajaran..."
+            }
+          />
+          <section className="grid gap-4 md:grid-cols-2">
+            <RankedClassList
               eyebrow="Perlu perhatian"
-              title={lowestClass?.name ?? "Belum tersedia"}
-              description={
-                lowestClass
-                  ? `Penggunaan sistem ${lowestClass.system_usage_percentage}% dengan ${lowestClass.not_attended} kehadiran belum tercatat.`
-                  : "Belum ada kelas untuk dibandingkan."
-              }
+              title="Penggunaan sistem terendah"
+              items={lowestClasses}
               tone="amber"
             />
-            <InsightCard
+            <RankedClassList
               eyebrow="Adopsi terbaik"
-              title={bestClass?.name ?? "Belum tersedia"}
-              description={
-                bestClass
-                  ? `Penggunaan sistem mencapai ${bestClass.system_usage_percentage}% pada periode ini.`
-                  : "Belum ada kelas untuk dibandingkan."
-              }
+              title="Penggunaan sistem tertinggi"
+              items={highestClasses}
               tone="emerald"
-            />
-            <InsightCard
-              eyebrow="Validasi sesi mapel"
-              title={`${analytics.operational.validation_percentage}% selesai`}
-              description={`${analytics.operational.pending_subject_sessions} dari ${analytics.operational.total_subject_sessions} sesi masih perlu divalidasi.`}
-              tone="sky"
             />
           </section>
           <section className="grid gap-5 xl:grid-cols-2">
@@ -648,11 +828,32 @@ function AnalyticsContent({
               description="Temukan jurusan yang paling konsisten dan yang perlu pendampingan."
             />
           </section>
-          <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+          <section className="grid gap-5 xl:grid-cols-2">
             <AnalyticsTrendChart data={analytics.trend} />
+            <AnalyticsStatusTrendChart data={analytics.trend} />
+          </section>
+          <section className="grid gap-5 xl:grid-cols-2">
             <AnalyticsStatusChart data={analytics.status_breakdown} />
+            <AnalyticsValidationChart operational={analytics.operational} />
           </section>
           <ClassPerformanceTable rows={analytics.classes} />
+          <StudentPerformanceTable
+            students={studentTable?.students}
+            setPage={setPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            sort={studentSort}
+            onSortChange={onStudentSortChange}
+            grade={studentGrade}
+            onGradeChange={onStudentGradeChange}
+            majorID={studentMajorID}
+            onMajorChange={onStudentMajorChange}
+            classID={studentClassID}
+            onClassChange={onStudentClassChange}
+            grades={studentGrades}
+            majors={studentMajors}
+            classes={studentClasses}
+          />
         </>
       )}
     </>
@@ -660,10 +861,10 @@ function AnalyticsContent({
 }
 
 const tones = {
-  emerald: "bg-emerald-100 text-emerald-700",
-  sky: "bg-sky-100 text-sky-700",
-  amber: "bg-amber-100 text-amber-700",
-  rose: "bg-rose-100 text-rose-700",
+  emerald: "emerald",
+  sky: "sky",
+  amber: "amber",
+  rose: "rose",
 };
 
 function MetricCard({
@@ -680,44 +881,43 @@ function MetricCard({
   tone: keyof typeof tones;
 }) {
   return (
-    <article className="rounded-[1.65rem] border border-white/80 bg-white/88 p-4 shadow-[0_16px_38px_rgba(15,23,42,0.06)] sm:p-5">
-      <div className="flex items-start justify-between gap-3">
+    <article className="rounded-[26px] border border-slate-200/70 bg-white/82 p-4 shadow-[0_16px_34px_rgba(150,163,184,0.12)] backdrop-blur transition-transform duration-200 ease-out hover:-translate-y-[3px] motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-none sm:p-5">
+      <div className="flex items-center gap-3 xl:gap-4">
+        <span
+          className={`flex size-10 shrink-0 items-center justify-center rounded-full border-2 bg-transparent shadow-none xl:size-12 ${getAccentTone(tones[tone])}`}
+        >
+          <Icon className="size-4 stroke-[1.8] xl:size-5" />
+        </span>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-xs">
+          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400 xl:text-xs">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
+          <p className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 xl:text-[1.75rem]">
             {value}
           </p>
         </div>
-        <span
-          className={`flex size-10 shrink-0 items-center justify-center rounded-2xl sm:size-12 ${tones[tone]}`}
-        >
-          <Icon className="size-5" />
-        </span>
       </div>
-      <p className="mt-3 text-xs leading-5 text-slate-500 sm:text-sm">
+      <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400 sm:text-sm">
         {helper}
       </p>
     </article>
   );
 }
 
-function InsightCard({
+function RankedClassList({
   eyebrow,
   title,
-  description,
+  items,
   tone,
 }: {
   eyebrow: string;
   title: string;
-  description: string;
-  tone: "amber" | "emerald" | "sky";
+  items: Array<AdminAnalyticsPerformance & { grade: string; major_code: string }>;
+  tone: "amber" | "emerald";
 }) {
   const styles = {
     amber: "border-amber-200 bg-amber-50/75 text-amber-800",
     emerald: "border-emerald-200 bg-emerald-50/75 text-emerald-800",
-    sky: "border-sky-200 bg-sky-50/75 text-sky-800",
   }[tone];
   return (
     <article className={`rounded-[1.5rem] border p-5 ${styles}`}>
@@ -725,7 +925,40 @@ function InsightCard({
         {eyebrow}
       </p>
       <h3 className="mt-2 text-lg font-semibold text-slate-950">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+      {items.length === 0 ? (
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          Belum ada kelas untuk dibandingkan.
+        </p>
+      ) : (
+        <ol className="mt-3 space-y-2">
+          {items.map((item, index) => (
+            <li
+              key={item.id}
+              className="flex items-center justify-between gap-3 rounded-[1rem] bg-white/70 px-3 py-2.5"
+            >
+              <span className="flex min-w-0 items-center gap-2.5">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-slate-500">
+                  {index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium text-slate-800">
+                    {item.name}
+                  </span>
+                  <span className="block text-xs text-slate-500">
+                    dari {item.total_students.toLocaleString("id-ID")} siswa
+                  </span>
+                </span>
+              </span>
+              <span className="flex shrink-0 flex-col items-end gap-1">
+                <RateBadge value={item.system_usage_percentage} />
+                <span className="text-[10px] font-medium text-slate-400">
+                  penggunaan sistem
+                </span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
     </article>
   );
 }
@@ -772,22 +1005,24 @@ function ClassPerformanceTable({
           emptyTitle="Belum ada performa kelas"
           emptyDescription="Belum ada kelas pada filter ini."
           isLoading={false}
-          columnCount={7}
+          columnCount={9}
           isEmpty={rows.length === 0}
         >
-          <table className="w-full min-w-[900px] text-left text-sm">
+          <table className="w-full min-w-[980px] text-left text-sm">
             <thead className="bg-emerald-50/80 text-xs uppercase tracking-[0.1em] text-slate-500">
               <tr>
                 <Th>Kelas</Th>
                 <Th>Siswa</Th>
                 <Th>Hadir</Th>
+                <Th>Izin</Th>
+                <Th>Sakit</Th>
                 <Th>Alfa</Th>
                 <Th>Belum Absen</Th>
                 <Th>Kehadiran</Th>
                 <Th>Penggunaan</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {rows.map((row) => (
                 <tr key={row.id} className="bg-white/70 hover:bg-emerald-50/40">
                   <Td>
@@ -798,6 +1033,204 @@ function ClassPerformanceTable({
                   </Td>
                   <Td>{row.total_students}</Td>
                   <Td>{row.present}</Td>
+                  <Td>{row.permission}</Td>
+                  <Td>{row.sick}</Td>
+                  <Td>{row.alpha}</Td>
+                  <Td>{row.not_attended}</Td>
+                  <Td>
+                    <RateBadge value={row.attendance_percentage} />
+                  </Td>
+                  <Td>
+                    <RateBadge value={row.system_usage_percentage} />
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </DataTableCard>
+      </div>
+    </section>
+  );
+}
+
+function StudentPerformanceTable({
+  students,
+  setPage,
+  pageSize,
+  setPageSize,
+  sort,
+  onSortChange,
+  grade,
+  onGradeChange,
+  majorID,
+  onMajorChange,
+  classID,
+  onClassChange,
+  grades,
+  majors,
+  classes,
+}: {
+  students?: AdminAttendanceAnalytics["students"];
+  setPage: (page: number) => void;
+  pageSize: number;
+  setPageSize: (size: number) => void;
+  sort: StudentSortValue;
+  onSortChange: (value: StudentSortValue) => void;
+  grade: string;
+  onGradeChange: (value: string) => void;
+  majorID: string;
+  onMajorChange: (value: string) => void;
+  classID: string;
+  onClassChange: (value: string) => void;
+  grades: string[];
+  majors: Array<{ id: string; code: string; name: string }>;
+  classes: Array<{ id: string; display_name: string }>;
+}) {
+  const rangeStart =
+    !students || students.total_items === 0
+      ? 0
+      : (students.page - 1) * students.page_size + 1;
+  const rangeEnd = students
+    ? Math.min(students.page * students.page_size, students.total_items)
+    : 0;
+  const compactTriggerClassName = "h-10 rounded-[0.85rem] px-3 text-xs";
+  return (
+    <section className="rounded-[2rem] border border-white/80 bg-white/88 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.06)] sm:p-6">
+      <SectionHeading
+        eyebrow="Performa siswa"
+        title="Detail per siswa"
+        description="Gunakan kolom pencarian pada filter di atas untuk mempersempit daftar berdasarkan nama, NIS, atau kelas."
+      />
+      <div className="mt-4 flex flex-wrap gap-2">
+        <div className="w-52">
+          <RadixSelectField
+            value={sort || "default"}
+            onValueChange={(value) =>
+              onSortChange(value === "default" ? "" : (value as StudentSortValue))
+            }
+            placeholder="Urutkan"
+            triggerClassName={compactTriggerClassName}
+            options={STUDENT_SORT_OPTIONS}
+          />
+        </div>
+        <div className="w-40">
+          <RadixSelectField
+            value={grade || "ALL"}
+            onValueChange={(value) =>
+              onGradeChange(value === "ALL" ? "" : value)
+            }
+            placeholder="Semua tingkat"
+            triggerClassName={compactTriggerClassName}
+            options={[
+              { value: "ALL", label: "Semua tingkat" },
+              ...grades.map((item) => ({
+                value: item,
+                label: `Kelas ${item}`,
+              })),
+            ]}
+          />
+        </div>
+        <div className="w-44">
+          <RadixSelectField
+            value={majorID || "ALL"}
+            onValueChange={(value) =>
+              onMajorChange(value === "ALL" ? "" : value)
+            }
+            placeholder="Semua jurusan"
+            triggerClassName={compactTriggerClassName}
+            options={[
+              { value: "ALL", label: "Semua jurusan" },
+              ...majors.map((item) => ({
+                value: item.id,
+                label: item.code,
+                description: item.name,
+              })),
+            ]}
+          />
+        </div>
+        <div className="w-56">
+          <RadixSelectField
+            searchable
+            value={classID || "ALL"}
+            onValueChange={(value) =>
+              onClassChange(value === "ALL" ? "" : value)
+            }
+            placeholder="Semua kelas"
+            searchPlaceholder="Cari kelas..."
+            triggerClassName={compactTriggerClassName}
+            options={[
+              { value: "ALL", label: "Semua kelas" },
+              ...classes.map((item) => ({
+                value: item.id,
+                label: item.display_name,
+              })),
+            ]}
+          />
+        </div>
+      </div>
+      <div className="mt-5">
+        <DataTableCard
+          icon={Users}
+          emptyTitle="Belum ada data siswa"
+          emptyDescription="Belum ada siswa pada filter atau pencarian ini."
+          isLoading={!students}
+          columnCount={9}
+          isEmpty={!students || students.rows.length === 0}
+          pagination={
+            students
+              ? {
+                  page: students.page,
+                  setPage,
+                  pageSize,
+                  setPageSize: (size: number) => {
+                    setPageSize(size);
+                    setPage(1);
+                  },
+                  totalItems: students.total_items,
+                  totalPages: students.total_pages,
+                  rangeStart,
+                  rangeEnd,
+                }
+              : undefined
+          }
+        >
+          <table className="w-full min-w-[980px] text-left text-sm">
+            <thead className="bg-emerald-50/80 text-xs uppercase tracking-[0.1em] text-slate-500">
+              <tr>
+                <Th>Siswa</Th>
+                <Th>Kelas</Th>
+                <Th>Hadir</Th>
+                <Th>Izin</Th>
+                <Th>Sakit</Th>
+                <Th>Alfa</Th>
+                <Th>Belum Absen</Th>
+                <Th>Kehadiran</Th>
+                <Th>Penggunaan</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {(students?.rows ?? []).map((row) => (
+                <tr
+                  key={row.student_id}
+                  className="bg-white/70 hover:bg-emerald-50/40"
+                >
+                  <Td>
+                    <p className="font-semibold text-slate-900">
+                      {row.student_name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      NIS {row.nis}
+                    </p>
+                  </Td>
+                  <Td>
+                    <p className="text-slate-700">{row.class_name}</p>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Tingkat {row.grade} - {row.major_code}
+                    </p>
+                  </Td>
+                  <Td>{row.present}</Td>
+                  <Td>{row.permission}</Td>
+                  <Td>{row.sick}</Td>
                   <Td>{row.alpha}</Td>
                   <Td>{row.not_attended}</Td>
                   <Td>
@@ -877,4 +1310,16 @@ function formatDisplayDate(value: Date) {
     month: "short",
     year: "numeric",
   }).format(value);
+}
+
+function formatDisplayDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }

@@ -41,6 +41,7 @@ export type AdminAttendanceAnalyticsFilters = {
   major_id?: string;
   class_id?: string;
   student_query?: string;
+  sort?: "attendance_asc" | "attendance_desc" | "usage_asc" | "usage_desc";
   page?: number;
   page_size?: number;
 };
