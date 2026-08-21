@@ -57,7 +57,7 @@ export function PremiumInput({
             transition={{ duration: 0.24, ease: "easeOut" }}
           />
           <motion.div
-            className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"
+            className="pointer-events-none absolute inset-x-12 top-0 hidden h-px bg-gradient-to-r from-transparent via-white/80 to-transparent md:block"
             animate={{ opacity: focused ? 1 : hovered ? 0.82 : 0.48 }}
           />
         </>
@@ -90,7 +90,7 @@ export function PremiumInput({
           onPointerLeave?.(event);
         }}
         className={cn(
-          "relative z-[1] h-12 appearance-none rounded-[1.2rem] border border-white/60 bg-white pl-11 text-[14px] text-slate-700 caret-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] [-webkit-appearance:none] transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:caret-emerald-300 dark:shadow-none dark:placeholder:text-slate-500 dark:hover:border-emerald-500/70 dark:hover:bg-slate-800 dark:focus-visible:bg-slate-800 dark:focus-visible:ring-emerald-400/25",
+          "relative z-[1] h-12 appearance-none rounded-[1.2rem] border border-white/60 bg-white pl-11 text-base text-slate-700 caret-emerald-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] [-webkit-appearance:none] transition duration-300 placeholder:text-slate-400 hover:border-emerald-300/85 hover:bg-white focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:caret-emerald-300 dark:shadow-none dark:placeholder:text-slate-500 dark:hover:border-emerald-500/70 dark:hover:bg-slate-800 dark:focus-visible:bg-slate-800 dark:focus-visible:ring-emerald-400/25 sm:text-[14px]",
           trailing ? "pr-12" : "",
           className,
         )}

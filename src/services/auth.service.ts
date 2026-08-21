@@ -82,7 +82,12 @@ export async function login(payload: LoginSchema) {
   } catch (error) {
     const rateLimitError = getLoginRateLimitError(error);
     if (rateLimitError) throw rateLimitError;
-    throw new Error(getUserErrorMessage(error, "login"));
+    throw new Error(
+      getUserErrorMessage(
+        error,
+        payload.portal === "student" ? "student" : "login",
+      ),
+    );
   }
 }
 

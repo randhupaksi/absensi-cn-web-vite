@@ -7,7 +7,7 @@ export const loginSchema = z
     portal: portalSchema,
     nis: z.string().optional(),
     username: z.string().optional(),
-    password: z.string().min(1, "Password wajib diisi."),
+    password: z.string().min(1, "Password wajib diisi"),
   })
   .superRefine((values, ctx) => {
     if (values.portal === "student") {
@@ -15,13 +15,13 @@ export const loginSchema = z
         ctx.addIssue({
           code: "custom",
           path: ["nis"],
-          message: "NIS wajib diisi.",
+          message: "NIS wajib diisi",
         });
       } else if (!/^\d{8,10}$/.test(values.nis.trim())) {
         ctx.addIssue({
           code: "custom",
           path: ["nis"],
-          message: "NIS harus berupa angka yang valid.",
+          message: "NIS harus berupa angka yang valid",
         });
       }
     }
@@ -31,7 +31,7 @@ export const loginSchema = z
         ctx.addIssue({
           code: "custom",
           path: ["username"],
-          message: "Nama pengguna wajib diisi.",
+          message: "Nama pengguna wajib diisi",
         });
       }
     }

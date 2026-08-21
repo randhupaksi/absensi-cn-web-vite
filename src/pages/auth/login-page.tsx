@@ -29,7 +29,7 @@ export default function LoginPage({ portal }: LoginPageProps) {
           className="absolute left-5 top-4 z-20 lg:hidden sm:left-6 sm:top-5"
         />
       )}
-      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-7xl items-center px-5 py-6 supports-[min-height:100dvh]:min-h-[100dvh] sm:px-6 lg:px-10">
+      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-7xl items-center px-3 pb-4 pt-16 supports-[min-height:100dvh]:min-h-[100dvh] min-[380px]:px-4 sm:px-6 sm:py-6 lg:px-10">
         <div
           className={
             isStaffPortal

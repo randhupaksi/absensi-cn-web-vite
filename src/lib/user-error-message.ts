@@ -8,19 +8,19 @@ type ApiErrorBody = {
   errors?: Record<string, string>;
 };
 
+// Copy sementara selama maintenance terjadwal. Kembalikan ke pesan gangguan
+// per konteks setelah update sistem selesai.
+const temporarySystemUpdateMessage =
+  "Sistem sedang melakukan update. Mohon tunggu 30 detik, lalu coba lagi.";
+
 const fallbackMessages: Record<ErrorContext, string> = {
-  login: "Ada gangguan pada sistem login. Silakan coba lagi beberapa saat.",
-  student:
-    "Ada gangguan pada sistem portal siswa. Silakan coba lagi beberapa saat.",
-  staff:
-    "Ada gangguan pada sistem dashboard staff. Silakan coba lagi beberapa saat.",
-  admin:
-    "Ada gangguan pada sistem dashboard admin. Silakan coba lagi beberapa saat.",
-  attendance:
-    "Ada gangguan pada sistem absensi. Silakan coba lagi beberapa saat.",
-  upload:
-    "Ada gangguan pada sistem unggah berkas. Silakan coba lagi beberapa saat.",
-  report: "Ada gangguan pada sistem laporan. Silakan coba lagi beberapa saat.",
+  login: temporarySystemUpdateMessage,
+  student: temporarySystemUpdateMessage,
+  staff: temporarySystemUpdateMessage,
+  admin: temporarySystemUpdateMessage,
+  attendance: temporarySystemUpdateMessage,
+  upload: temporarySystemUpdateMessage,
+  report: temporarySystemUpdateMessage,
 };
 
 function looksTechnical(message: string) {
@@ -149,8 +149,8 @@ export function getUserErrorMessage(
     if (status === 401) {
       if (context === "login" || endpoint.includes("/auth/login")) {
         return endpoint.includes("/student") || context === "student"
-          ? "NIS atau password salah."
-          : "Username atau password salah.";
+          ? "NIS atau password salah"
+          : "Username atau password salah";
       }
       return "Sesi login sudah berakhir. Silakan masuk kembali.";
     }

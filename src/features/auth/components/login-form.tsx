@@ -40,20 +40,20 @@ const formContent = {
   student: {
     identifierLabel: "NIS",
     identifierPlaceholder: "Masukkan NIS",
-    identifierHelper: "Gunakan NIS sesuai data sekolah.",
-    passwordHelper: "Masukkan password dari akun siswa anda.",
+    identifierHelper: "Gunakan NIS sesuai data sekolah",
+    passwordHelper: "Masukkan password dari akun siswa anda",
     submitLabel: "Masuk sebagai Siswa",
-    submittingLabel: "Memproses absensi...",
+    submittingLabel: "Memproses absensi",
     buttonClass:
       "border-emerald-300/40 bg-[linear-gradient(135deg,#149a73_0%,#50b98c_56%,#a8d38a_100%)] shadow-[0_18px_44px_rgba(20,154,115,0.24)] hover:shadow-[0_22px_56px_rgba(20,154,115,0.3)]",
   },
   staff: {
     identifierLabel: "Username Staff",
     identifierPlaceholder: "Masukkan username staff",
-    identifierHelper: "Untuk wali kelas, BK, dan admin.",
-    passwordHelper: "Gunakan password staff yang sudah terdaftar.",
+    identifierHelper: "Untuk wali kelas, guru mapel, dan guru BK",
+    passwordHelper: "Gunakan password akun yang sudah terdaftar",
     submitLabel: "Masuk ke Portal Staff",
-    submittingLabel: "Memverifikasi staff...",
+    submittingLabel: "Memverifikasi staff",
     buttonClass:
       "border-teal-300/45 bg-[linear-gradient(135deg,#0f766e_0%,#149a73_52%,#65c586_100%)] shadow-[0_18px_44px_rgba(15,118,110,0.22)] hover:shadow-[0_22px_56px_rgba(15,118,110,0.28)]",
   },
@@ -104,7 +104,7 @@ export function LoginForm({ portal }: LoginFormProps) {
       const welcomeName =
         portal === "student" ? formattedName.split(" ")[0] : formattedName;
       toast.success("Berhasil masuk", {
-        description: `Selamat datang, ${welcomeName}.`,
+        description: `Selamat datang, ${welcomeName}`,
       });
 
       if (typeof window !== "undefined") {
@@ -122,7 +122,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         description:
           error instanceof Error
             ? error.message
-            : "Terjadi kesalahan saat menghubungkan ke server.",
+            : "Terjadi kesalahan saat menghubungkan ke server",
       });
     }
   };
@@ -265,14 +265,13 @@ export function LoginForm({ portal }: LoginFormProps) {
           <p>
             <span className="font-semibold">
               {rateLimitKind === "locked"
-                ? "Terlalu banyak percobaan login."
-                : "Server sedang ramai menerima login."}
+                ? "Terlalu banyak percobaan login"
+                : "Server sedang ramai menerima login"}
             </span>{" "}
             Coba lagi dalam{" "}
             <span className="font-semibold tabular-nums">
               {formatCountdown(rateLimitSeconds)}
             </span>
-            .
           </p>
         </div>
       ) : null}
