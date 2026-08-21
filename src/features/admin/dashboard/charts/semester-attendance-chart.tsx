@@ -56,7 +56,12 @@ export function SemesterAttendanceChart({
       <div className="mt-6 rounded-[28px] bg-[linear-gradient(180deg,#fffefb_0%,#fbfaf4_100%)] p-4 dark:bg-none dark:bg-slate-950/70">
         <MeasuredChart className="h-[300px] min-w-0">
           {({ width, height }) => (
-            <AreaChart width={width} height={height} data={chartData}>
+            <AreaChart
+              width={width}
+              height={height}
+              data={chartData}
+              accessibilityLayer={false}
+            >
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="var(--border)"
@@ -75,6 +80,7 @@ export function SemesterAttendanceChart({
                 allowDecimals={false}
               />
               <Tooltip
+                cursor={false}
                 contentStyle={{
                   borderRadius: 18,
                   border: "1px solid var(--border)",

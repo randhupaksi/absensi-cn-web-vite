@@ -78,7 +78,7 @@ export function AttendanceDonutChart({
   const chartData =
     total > 0
       ? data.filter((item) => item.value > 0)
-      : [{ name: "Belum ada data", value: 1, color: "var(--color-slate-200)" }];
+      : [{ name: "Belum ada data", value: 1, color: "var(--chart-empty)" }];
 
   return (
     <article className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900/95 dark:shadow-none">
@@ -101,7 +101,11 @@ export function AttendanceDonutChart({
               const innerRadius = Math.max(outerRadius - 24, 48);
 
               return (
-                <PieChart width={width} height={height}>
+                <PieChart
+                  width={width}
+                  height={height}
+                  accessibilityLayer={false}
+                >
                   <Pie
                     data={chartData}
                     dataKey="value"
@@ -118,6 +122,7 @@ export function AttendanceDonutChart({
                     ))}
                   </Pie>
                   <Tooltip
+                    cursor={false}
                     formatter={(value, name) => {
                       const count = Number(value ?? 0);
                       const share =

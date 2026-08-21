@@ -41,6 +41,7 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
               height={height}
               data={chartData}
               barCategoryGap={24}
+              accessibilityLayer={false}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -60,6 +61,7 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
                 domain={[0, 100]}
               />
               <Tooltip
+                cursor={false}
                 formatter={(value) => [`${Number(value ?? 0)}%`, "Kehadiran"]}
                 labelFormatter={(label) => `Kelas ${label}`}
                 contentStyle={{
