@@ -19,6 +19,10 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import dynamic from "@/lib/dynamic";
 import { formatPersonName } from "@/lib/format-person-name";
 import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
+import {
+  AttendanceStatusChangeNotice,
+  hasAttendanceStatusChange,
+} from "@/features/attendance/components/attendance-status-change-notice";
 import { StudentSubmissionEvidenceModal } from "@/features/student/components/submission-evidence-modal";
 import {
   formatStudentDate,
@@ -147,17 +151,17 @@ export function StudentHistoryPage() {
           <HistoryPageSkeleton />
         ) : (
           <div className="space-y-5">
-            <section className="rounded-[2rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+            <section className="rounded-[1.6rem] border border-white/82 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbf8_58%,#eaf8f1_100%)] p-4 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:rounded-[2rem] sm:p-5">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-3xl">
                   <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/78 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
                     <History className="size-4" />
                     Riwayat Absensi Siswa
                   </span>
-                  <h1 className="mt-7 text-[2.45rem] font-semibold leading-tight tracking-[-0.04em] text-slate-950">
+                  <h1 className="mt-5 text-[clamp(2rem,10vw,2.45rem)] font-semibold leading-tight tracking-[-0.04em] text-slate-950 sm:mt-7">
                     Histori Absen
                   </h1>
-                  <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600">
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 min-[380px]:text-base min-[380px]:leading-8">
                     Riwayat absensi, izin, sakit, bukti foto, dan hasil validasi
                     walas dalam satu tempat.
                   </p>
@@ -189,7 +193,7 @@ export function StudentHistoryPage() {
                 </div>
               </div>
 
-              <div className="mt-7 grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+              <div className="mt-6 grid grid-cols-2 items-start gap-3 sm:mt-7 sm:gap-4 xl:grid-cols-4">
                 <KpiCard
                   label="Total Absensi"
                   value={String(stats?.total_attendance ?? 0)}
@@ -278,7 +282,7 @@ export function StudentHistoryPage() {
 
                   {records.length > 0 ? (
                     <>
-                      <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block dark:border-b dark:border-slate-700 dark:border-x-0 dark:border-t-0">
+                      <div className="mt-5 hidden overflow-x-auto rounded-[1.45rem] border border-emerald-100 md:block dark:!border-slate-700">
                         <div className="min-w-[560px]">
                           <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 bg-emerald-50 px-5 py-4 text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                             <span>Aktivitas</span>
@@ -304,7 +308,7 @@ export function StudentHistoryPage() {
                           )}
                         </div>
                       </div>
-                      <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100 dark:border-b dark:border-slate-700 dark:border-x-0 dark:border-t-0">
+                      <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-emerald-100 dark:!border-slate-700">
                         <MobileDataList>
                           {records.map((item) =>
                             item.kind === "attendance" ? (
@@ -373,7 +377,7 @@ function StudentHistoryOverview({
   return (
     <div className="space-y-5">
       <section className="grid gap-5 lg:grid-cols-[1.06fr_0.94fr]">
-        <article className="rounded-[2rem] border border-emerald-100 bg-[linear-gradient(135deg,#f7fffb_0%,#ecfdf5_58%,#ffffff_100%)] p-5 shadow-[0_18px_48px_rgba(5,120,91,0.08)] dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none">
+        <article className="rounded-[1.6rem] border border-slate-200/80 bg-[linear-gradient(135deg,#f7fffb_0%,#ecfdf5_58%,#ffffff_100%)] p-4 shadow-[0_18px_48px_rgba(5,120,91,0.08)] dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none sm:rounded-[2rem] sm:p-5">
           <div className="flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.22)]">
               <LayoutPanelTop className="size-5" />
@@ -405,7 +409,7 @@ function StudentHistoryOverview({
           </div>
         </article>
 
-        <article className="rounded-[2rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
+        <article className="rounded-[1.6rem] border border-slate-200/80 bg-white/92 p-4 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[2rem] sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
@@ -422,7 +426,7 @@ function StudentHistoryOverview({
               <ChartLine className="size-5" />
             </span>
           </div>
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-300/85 ring-1 ring-inset ring-slate-400/25 dark:bg-slate-700 dark:ring-slate-600/40">
             <div
               className="h-full rounded-full bg-[linear-gradient(90deg,#059669,#34d399)] transition-[width] duration-500 dark:!bg-emerald-500 dark:bg-none"
               style={{ width: `${attendanceRate}%` }}
@@ -569,6 +573,49 @@ function OverviewStat({
   );
 }
 
+function getHistoryValidationLabel(record: StaffAttendanceRecord) {
+  if (record.verified_at) return "Sudah direview";
+  if (record.status.toLowerCase() === "hadir") return "Terkirim";
+
+  const [year, month, day] = record.attendance_date.split("-").map(Number);
+  if (!year || !month || !day) return "Menunggu";
+
+  const today = new Date();
+  const attendanceDate = new Date(year, month - 1, day);
+  const currentDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+
+  return attendanceDate < currentDate ? "Terkirim" : "Menunggu";
+}
+
+function HistoryValidationCell({
+  record,
+}: {
+  record: StaffAttendanceRecord;
+}) {
+  const label = getHistoryValidationLabel(record);
+
+  if (label === "Terkirim") {
+    return (
+      <div className="flex min-h-12 items-center">
+        <p className="font-medium text-slate-800">{label}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="font-medium text-slate-800">{label}</p>
+      <p className="mt-1 line-clamp-1 text-slate-500">
+        {record.verification_note || record.verified_by || "-"}
+      </p>
+    </div>
+  );
+}
+
 function AttendanceRow({
   record,
   onOpen,
@@ -577,7 +624,7 @@ function AttendanceRow({
   onOpen: (record: StaffAttendanceRecord) => void;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm dark:border-slate-700">
+    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm dark:border-slate-700/80">
       <div>
         <p className="font-semibold text-slate-950">Absensi Harian</p>
         <p className="mt-1 line-clamp-2 text-slate-500">
@@ -589,24 +636,16 @@ function AttendanceRow({
           {formatStudentDate(record.attendance_date)}
         </p>
         <p className="mt-1 text-slate-500">
-          {formatStudentTime(record.check_in_at, "Tidak ada waktu")}
+          {formatHistoryCheckIn(record)}
         </p>
       </div>
       <div className="flex items-center">
-        <StudentStatusPill status={record.status} />
+        <div>
+          <StudentStatusPill status={record.status} />
+          <AttendanceStatusChangeNotice record={record} compact />
+        </div>
       </div>
-      <div>
-        <p className="font-medium text-slate-800">
-          {record.verified_at
-            ? "Sudah direview"
-            : record.status.toLowerCase() === "hadir"
-              ? "Terkirim"
-              : "Menunggu"}
-        </p>
-        <p className="mt-1 line-clamp-1 text-slate-500">
-          {record.verification_note || record.verified_by || "-"}
-        </p>
-      </div>
+      <HistoryValidationCell record={record} />
       <div className="flex justify-center">
         {record.photo_url ? (
           <button
@@ -640,19 +679,14 @@ function MobileAttendanceCard({
         badge={<StudentStatusPill status={record.status} />}
       />
       <div className="mt-4 grid gap-3">
+        <AttendanceStatusChangeNotice record={record} />
         <MobileDataField
           label="Waktu"
-          value={formatStudentTime(record.check_in_at, "Tidak ada waktu")}
+          value={formatHistoryCheckIn(record)}
         />
         <MobileDataField
           label="Validasi"
-          value={
-            record.verified_at
-              ? "Sudah direview"
-              : record.status.toLowerCase() === "hadir"
-                ? "Terkirim"
-                : "Menunggu"
-          }
+          value={getHistoryValidationLabel(record)}
         />
       </div>
       <MobileDataSection label="Catatan">
@@ -685,7 +719,7 @@ function SubmissionRow({
   onOpen: (submission: StudentSubmission) => void;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm dark:border-slate-700">
+    <div className="grid grid-cols-[1fr_0.72fr_0.62fr_0.84fr_0.4fr] gap-4 border-t border-slate-100 px-5 py-4 text-sm dark:border-slate-700/80">
       <div>
         <div className="flex items-center gap-2">
           <StudentSubmissionPill value={submission.type} />
@@ -809,4 +843,11 @@ function getMonthlyAttendanceSummary(
         ? Math.round((item.present / item.total) * 100)
         : 0,
     }));
+}
+
+function formatHistoryCheckIn(record: StaffAttendanceRecord) {
+  if (!record.check_in_at && hasAttendanceStatusChange(record)) {
+    return "Status absen kamu sudah dikoreksi oleh walas";
+  }
+  return formatStudentTime(record.check_in_at, "Tidak ada waktu");
 }
