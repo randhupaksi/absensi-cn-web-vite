@@ -28,7 +28,7 @@ import type {
 import { format, parseISO } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { BadgeCheck, ImageIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const reviewStatusOptions = [
   { value: "hadir", label: "Hadir" },
@@ -66,16 +66,16 @@ export function AttendanceStatusPill({
   compact?: boolean;
 }) {
   const normalized = status.toLowerCase();
-  let className = "border-slate-200 bg-slate-100 text-slate-600";
+  let className = "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
 
   if (normalized === "hadir") {
-    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
+    className = "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300";
   } else if (normalized === "alfa") {
-    className = "border-rose-200 bg-rose-50 text-rose-700";
+    className = "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300";
   } else if (normalized === "izin") {
-    className = "border-sky-200 bg-sky-50 text-sky-700";
+    className = "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300";
   } else if (normalized === "sakit") {
-    className = "border-violet-200 bg-violet-50 text-violet-700";
+    className = "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/60 dark:text-violet-300";
   }
 
   const compactLabel: Record<string, string> = {
@@ -113,6 +113,11 @@ export function AttendanceReviewModal({
   const [verificationNote, setVerificationNote] = useState(
     record?.verification_note || record?.notes || "",
   );
+  useEffect(() => {
+    setStatus(record?.id ? record.status.toLowerCase() : "");
+    setVerificationNote(record?.verification_note || record?.notes || "");
+    setErrors({});
+  }, [record]);
   const [errors, setErrors] = useState<
     FieldErrors<"status" | "verification_note">
   >({});
@@ -152,7 +157,7 @@ export function AttendanceReviewModal({
           : "Perbarui status absensi bila hasil panggil nama atau pengecekan guru berbeda dengan status otomatis."
       }
       icon={BadgeCheck}
-      className="sm:!max-w-[760px]"
+      className="walas-modal-surface sm:!max-w-[760px]"
     >
       {record ? (
         <div className="grid gap-5">
@@ -267,7 +272,7 @@ export function AttendanceProofModal({
       title={record ? `Bukti ${record.student_name}` : "Bukti Absensi"}
       description="Pratinjau foto absensi siswa tanpa membuka tab baru."
       icon={ImageIcon}
-      className="sm:!max-w-[760px]"
+      className="walas-modal-surface sm:!max-w-[760px]"
     >
       {record ? (
         <div className="grid gap-4">

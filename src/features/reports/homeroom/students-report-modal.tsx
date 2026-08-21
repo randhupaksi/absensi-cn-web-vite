@@ -865,7 +865,7 @@ export function WalasSiswaReportModal({ open, onOpenChange, homeroom }: Props) {
       title="Export Laporan Siswa Kelas"
       description="Pilih PDF siap cetak atau Excel bergaya untuk rekap wali kelas."
       icon={Printer}
-      className="sm:!max-w-[620px]"
+      className="walas-modal-surface sm:!max-w-[620px]"
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />

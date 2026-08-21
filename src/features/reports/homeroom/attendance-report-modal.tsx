@@ -667,7 +667,7 @@ export function WalasAbsensiReportModal({
       title="Export Laporan Absensi Kelas"
       description="Pilih PDF siap cetak atau Excel bergaya, lalu tentukan tipe dan periode laporan."
       icon={Printer}
-      className="sm:!max-w-[660px]"
+      className="walas-modal-surface sm:!max-w-[660px]"
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />

@@ -91,7 +91,7 @@ export function AttendanceHero({
                 Halaman Kehadiran Walas
               </div>
               <div className="space-y-2">
-                <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                <h2 className="text-[clamp(1.65rem,8vw,2rem)] font-semibold leading-tight tracking-[-0.04em] text-slate-950 dark:text-slate-100 sm:text-[2.35rem]">
                   Absensi Kelas
                 </h2>
                 <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">

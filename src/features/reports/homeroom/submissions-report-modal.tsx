@@ -370,7 +370,7 @@ export function WalasPengajuanReportModal({
       title="Export Laporan Pengajuan Kelas"
       description="Pilih PDF siap cetak atau Excel bergaya untuk mengolah rekap pengajuan."
       icon={Printer}
-      className="sm:!max-w-[640px]"
+      className="walas-modal-surface sm:!max-w-[640px]"
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />

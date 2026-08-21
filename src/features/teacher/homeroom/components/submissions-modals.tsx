@@ -126,7 +126,7 @@ export function SubmissionDetailModal({
       }
       description="Lihat alasan pengajuan, lampiran, dan riwayat tanggapan wali kelas secara lengkap."
       icon={Eye}
-      className="sm:!max-w-[920px]"
+      className="walas-modal-surface sm:!max-w-[920px]"
     >
       {submission ? (
         <div className="grid items-start gap-4 lg:grid-cols-[1.08fr_0.92fr]">
@@ -306,7 +306,7 @@ export function SubmissionReviewModal({
       }
       description="Berikan keputusan dan tanggapan wali kelas untuk pengajuan izin atau sakit."
       icon={PencilLine}
-      className="sm:!max-w-[760px]"
+      className="walas-modal-surface sm:!max-w-[760px]"
     >
       {submission ? (
         <div className="grid gap-5">

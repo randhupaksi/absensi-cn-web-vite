@@ -181,7 +181,7 @@ export function StudentDetailModal({
       title={student ? `Detail ${student.name}` : "Detail Siswa Kelas"}
       description="Lihat identitas siswa, ringkasan kehadiran, dan histori terbaru langsung dari data walas."
       icon={UserRound}
-      className="sm:!max-w-[980px]"
+      className="walas-modal-surface sm:!max-w-[980px]"
     >
       <div className="grid gap-5">
         {errorMessage ? (

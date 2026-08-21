@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "@/lib/dynamic";
+import { getAccentTone } from "@/lib/ui/accent-tone";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
   ActionIconButton,
@@ -150,7 +151,6 @@ export function WalasStudentsPage() {
       {() => (
         <>
           <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:p-5 lg:p-6">
-            <div className="pointer-events-none absolute right-[-80px] top-[-110px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
             <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
 
             <div className="relative flex flex-col gap-5 border-b border-slate-200/80 pb-5 sm:gap-6">
@@ -162,7 +162,7 @@ export function WalasStudentsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <h2 className="text-[2rem] font-semibold tracking-[-0.04em] text-slate-950 sm:text-[2.35rem]">
+                    <h2 className="text-[clamp(1.65rem,8vw,2rem)] font-semibold leading-tight tracking-[-0.04em] text-slate-950 dark:text-slate-100 sm:text-[2.35rem]">
                       Siswa Kelas
                     </h2>
                     <p className="max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base">
@@ -473,7 +473,7 @@ function StaffStatCard({
   accentClass: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[26px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-4 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)]">
+    <div className="group relative overflow-hidden rounded-[26px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-4 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)]">
       <div className="absolute right-[-10px] top-[-26px] h-24 w-24 rounded-full bg-emerald-100/40 blur-2xl transition duration-300 group-hover:scale-110" />
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-2">
@@ -486,9 +486,9 @@ function StaffStatCard({
         </div>
         <div className="flex shrink-0 flex-col items-center text-right">
           <span
-            className={`inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${accentClass} text-white shadow-[0_14px_28px_rgba(15,23,42,0.16)]`}
+            className={`inline-flex size-12 items-center justify-center rounded-full border-2 bg-transparent shadow-none ${getAccentTone(accentClass)}`}
           >
-            <Icon className="size-5" />
+            <Icon className="size-5 stroke-[1.8]" />
           </span>
         </div>
       </div>

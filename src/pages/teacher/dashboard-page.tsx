@@ -209,7 +209,7 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
         />
       </section>
 
-      <section className="grid grid-cols-2 items-start gap-4 xl:grid-cols-4">
+      <section className="grid grid-cols-2 items-start gap-3 sm:gap-4 xl:grid-cols-4">
         <KpiCard
           label="Peran Aktif"
           value={String(roleCount)}
@@ -310,7 +310,7 @@ function TeacherDashboardContent({ session }: { session: AuthSession }) {
         !hasSubjectAssignments &&
         !hasBKScope &&
         !teacherMeQuery.isLoading && (
-          <section className="rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+          <section className="rounded-[24px] border border-white/70 bg-white/88 p-4 shadow-[0_24px_52px_rgba(150,163,184,0.12)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[32px] sm:p-6">
             <EmptyState
               icon={GraduationCap}
               title="Ruang kerja belum memiliki penugasan"
@@ -378,14 +378,14 @@ function TeacherHero({
   }>;
 
   return (
-    <article className="h-fit self-start overflow-hidden rounded-[34px] border border-white/75 bg-[radial-gradient(circle_at_top_right,rgba(255,212,132,0.3),transparent_24%),linear-gradient(135deg,#fffdf9_0%,#f7f5ee_38%,#ebf8f0_100%)] p-5 shadow-[0_24px_60px_rgba(150,163,184,0.14)] md:p-6">
+    <article className="h-fit self-start overflow-hidden rounded-[26px] border border-white/75 bg-[radial-gradient(circle_at_top_right,rgba(255,212,132,0.3),transparent_24%),linear-gradient(135deg,#fffdf9_0%,#f7f5ee_38%,#ebf8f0_100%)] p-4 shadow-[0_24px_60px_rgba(150,163,184,0.14)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:rounded-[34px] sm:p-5 md:p-6">
       <div className="space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
           <LayoutPanelTop className="size-3.5" />
           Halaman Guru
         </div>
         <div>
-          <p className="text-3xl font-semibold tracking-tight text-slate-950 md:text-[2.1rem]">
+          <p className="text-[clamp(1.7rem,8vw,1.875rem)] font-semibold leading-tight tracking-tight text-slate-950 dark:text-slate-100 md:text-[2.1rem]">
             Halo, {name}!
           </p>
           <p className="mt-2.5 max-w-2xl text-sm leading-7 text-slate-600 md:text-[15px]">
