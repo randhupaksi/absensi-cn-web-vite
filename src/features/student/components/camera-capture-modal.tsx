@@ -200,19 +200,9 @@ export function CameraCaptureModal({
               }`}
             />
             {!videoReady || isStartingCamera ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/92 p-6 text-center">
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-950/92 p-6 text-center">
                 <Skeleton className="absolute inset-0 rounded-none bg-slate-800/80" />
-                <span className="relative flex size-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
-                  <Camera className="size-5" />
-                </span>
-                <div className="relative">
-                  <p className="text-sm font-semibold text-white">
-                    Menyiapkan kamera
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Browser sedang memeriksa izin dan perangkat kamera.
-                  </p>
-                </div>
+                <RefreshCw className="relative size-8 animate-spin text-emerald-300 motion-reduce:animate-none" />
               </div>
             ) : null}
           </div>
@@ -224,7 +214,7 @@ export function CameraCaptureModal({
         ) : null}
         <canvas ref={canvasRef} className="hidden" />
 
-        <div className={premiumModalActionsClassName}>
+        <div className={`${premiumModalActionsClassName} before:hidden`}>
           <Button
             type="button"
             variant="outline"
@@ -263,7 +253,7 @@ export function CameraCaptureModal({
               type="button"
               data-modal-submit
               isPending={!videoReady || isStartingCamera || isCapturing}
-              pendingLabel="Menyiapkan kamera..."
+              pendingLabel=""
               icon={Camera}
               onClick={handleCapture}
               className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 disabled:bg-slate-300 sm:flex-none sm:px-5"
