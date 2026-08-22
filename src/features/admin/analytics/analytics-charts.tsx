@@ -39,6 +39,8 @@ const COLORS = {
   tick: "var(--color-slate-500)",
 };
 
+const PERCENTAGE_TOOLTIP_LABELS = new Set(["Kehadiran", "Penggunaan sistem"]);
+
 type AnalyticsChartCardProps = {
   eyebrow: string;
   title: string;
@@ -96,7 +98,11 @@ function AnalyticsTooltip({
               />
               {item.name}
             </span>
-            <span className="font-semibold text-slate-800">{item.value}</span>
+            <span className="font-semibold text-slate-800">
+              {PERCENTAGE_TOOLTIP_LABELS.has(item.name ?? "")
+                ? `${item.value}%`
+                : item.value}
+            </span>
           </div>
         ))}
       </div>
