@@ -169,7 +169,10 @@ export async function submitStudentDailyReport(
         if (payload.location.captured_at) {
           formData.append("location_captured_at", payload.location.captured_at);
         }
-        formData.append("location_client_status", payload.location.client_status);
+        formData.append(
+          "location_client_status",
+          payload.location.client_status,
+        );
 
         return apiClient.post<ApiEnvelope<StudentToday>>(
           "/student/daily-report",
@@ -208,8 +211,18 @@ export async function submitStudentDailyReport(
 }
 
 function isUncertainAttendanceSubmission(error: unknown) {
-  if (!axios.isAxiosError(error)) return false;
+  if (!axios.isAxiosError<{ code?: string }>(error)) return false;
   if (!error.response) return true;
+  if (
+    error.response.status === 409 &&
+    ["ATTENDANCE_ALREADY_RECORDED", "ATTENDANCE_ALREADY_SUBMITTED"].includes(
+      error.response.data?.code ?? "",
+    )
+  ) {
+    // A previous timed-out upload may have reached the API successfully.
+    // Reconcile /today instead of showing a false failure or submitting again.
+    return true;
+  }
   return [429, 502, 503, 504].includes(error.response.status);
 }
 
