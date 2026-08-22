@@ -15,6 +15,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { getStoredTheme, subscribeToTheme, type AppTheme } from "@/lib/theme";
+import { SystemStatusAlert } from "@/components/errors/system-status-alert";
 
 const Toaster = lazy(() =>
   import("sonner").then((module) => ({ default: module.Toaster })),
@@ -134,6 +135,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
+      <SystemStatusAlert />
       <Suspense fallback={null}>
         <ThemeAwareToaster />
       </Suspense>

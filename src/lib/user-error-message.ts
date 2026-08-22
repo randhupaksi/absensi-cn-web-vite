@@ -4,23 +4,61 @@ export type ErrorContext =
   "login" | "student" | "staff" | "admin" | "attendance" | "upload" | "report";
 
 type ApiErrorBody = {
+  code?: string;
   message?: string;
   errors?: Record<string, string>;
+  request_id?: string;
 };
 
-// Copy sementara selama maintenance terjadwal. Kembalikan ke pesan gangguan
-// per konteks setelah update sistem selesai.
-const temporarySystemUpdateMessage =
-  "Sistem sedang melakukan update. Mohon tunggu 30 detik, lalu coba lagi.";
-
 const fallbackMessages: Record<ErrorContext, string> = {
-  login: temporarySystemUpdateMessage,
-  student: temporarySystemUpdateMessage,
-  staff: temporarySystemUpdateMessage,
-  admin: temporarySystemUpdateMessage,
-  attendance: temporarySystemUpdateMessage,
-  upload: temporarySystemUpdateMessage,
-  report: temporarySystemUpdateMessage,
+  login: "Login belum dapat diproses. Silakan coba lagi.",
+  student: "Data siswa belum dapat dimuat. Silakan coba lagi.",
+  staff: "Permintaan belum dapat diproses. Silakan coba lagi.",
+  admin: "Permintaan admin belum dapat diproses. Silakan coba lagi.",
+  attendance: "Absensi belum dapat diproses. Silakan coba lagi.",
+  upload: "Berkas belum berhasil dikirim. Silakan coba lagi.",
+  report: "Laporan belum dapat diproses. Silakan coba lagi.",
+};
+
+const codeMessages: Record<string, string> = {
+  ACCESS_DENIED: "Kamu tidak memiliki izin untuk melakukan tindakan ini.",
+  ATTENDANCE_ALREADY_RECORDED: "Absensi hari ini sudah tercatat.",
+  ATTENDANCE_ALREADY_SUBMITTED: "Absensi hari ini sudah dikirim.",
+  ATTENDANCE_DATA_UNAVAILABLE:
+    "Data absensi sedang belum dapat diakses. Silakan coba lagi.",
+  ATTENDANCE_HOLIDAY: "Absensi tidak dibuka pada hari libur.",
+  ATTENDANCE_LOCATION_INVALID:
+    "Data lokasi belum valid. Aktifkan lokasi lalu coba lagi.",
+  ATTENDANCE_NOT_OPEN: "Absensi belum dibuka atau sudah ditutup.",
+  ATTENDANCE_PHOTO_INVALID:
+    "Foto absensi belum valid. Ambil foto baru lalu coba lagi.",
+  ATTENDANCE_PHOTO_REQUIRED: "Foto absensi wajib diambil sebelum dikirim.",
+  ATTENDANCE_PHOTO_TOO_LARGE:
+    "Ukuran foto terlalu besar. Ambil foto baru dengan kualitas standar.",
+  ATTENDANCE_REASON_REQUIRED: "Keterangan wajib diisi untuk izin atau sakit.",
+  ATTENDANCE_TYPE_INVALID: "Jenis absensi belum valid.",
+  AUTHENTICATION_REQUIRED: "Sesi login sudah berakhir. Silakan masuk kembali.",
+  BAD_GATEWAY: "Layanan sekolah belum dapat dijangkau. Silakan coba lagi.",
+  GATEWAY_TIMEOUT: "Respons server terlalu lama. Silakan coba lagi.",
+  INTERNAL_ERROR: "Sistem mengalami kendala saat memproses permintaan.",
+  PAYLOAD_TOO_LARGE:
+    "Ukuran berkas terlalu besar. Pilih berkas yang lebih kecil.",
+  RATE_LIMITED: "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",
+  RESOURCE_NOT_FOUND: "Data yang diminta tidak ditemukan.",
+  SERVER_BUSY:
+    "Server sedang menerima banyak permintaan. Tunggu sebentar lalu coba lagi.",
+  SERVICE_UNAVAILABLE: "Layanan sedang tidak tersedia. Silakan coba lagi.",
+  SYSTEM_MAINTENANCE:
+    "Sistem sedang melakukan pembaruan. Tunggu sekitar 30 detik lalu coba lagi.",
+  VALIDATION_FAILED: "Ada data yang belum sesuai. Periksa kembali isian kamu.",
+};
+
+export type UserErrorDetails = {
+  message: string;
+  code?: string;
+  status?: number;
+  requestId?: string;
+  retryAfterSeconds?: number;
 };
 
 function looksTechnical(message: string) {
@@ -65,7 +103,7 @@ function readRequestValue(data: unknown, field: string) {
 }
 
 function quoted(value: string | undefined) {
-  return value ? ` \"${value}\"` : "";
+  return value ? ` "${value}"` : "";
 }
 
 function duplicateMessage(
@@ -75,7 +113,7 @@ function duplicateMessage(
 ) {
   const value = message.toLowerCase();
   const duplicateEntry = message
-    .match(/duplicate entry ['\"]?([^'\"]+)/i)?.[1]
+    .match(/duplicate entry ['"]?([^'"]+)/i)?.[1]
     ?.trim();
   const nis = readRequestValue(requestData, "nis") ?? duplicateEntry;
   const username = readRequestValue(requestData, "username") ?? duplicateEntry;
@@ -140,31 +178,86 @@ export function getUserErrorMessage(
   error: unknown,
   context: ErrorContext = "staff",
 ) {
+  return getUserErrorDetails(error, context).message;
+}
+
+export function getUserErrorDetails(
+  error: unknown,
+  context: ErrorContext = "staff",
+): UserErrorDetails {
   if (axios.isAxiosError<ApiErrorBody>(error)) {
     const status = error.response?.status;
     const body = error.response?.data;
+    const code = body?.code;
     const endpoint = error.config?.url ?? "";
     const requestData = error.config?.data;
+    const requestId =
+      body?.request_id ?? readHeader(error.response?.headers?.["x-request-id"]);
+    const retryAfterSeconds = readPositiveNumber(
+      error.response?.headers?.["retry-after"],
+    );
 
     if (status === 401) {
       if (context === "login" || endpoint.includes("/auth/login")) {
-        return endpoint.includes("/student") || context === "student"
-          ? "NIS atau password salah"
-          : "Username atau password salah";
+        return {
+          message:
+            endpoint.includes("/student") || context === "student"
+              ? "NIS atau password salah"
+              : "Username atau password salah",
+          code,
+          status,
+          requestId,
+        };
       }
-      return "Sesi login sudah berakhir. Silakan masuk kembali.";
+      return {
+        message: codeMessages.AUTHENTICATION_REQUIRED,
+        code,
+        status,
+        requestId,
+      };
+    }
+    if (code && codeMessages[code]) {
+      return {
+        message: codeMessages[code],
+        code,
+        status,
+        requestId,
+        retryAfterSeconds,
+      };
     }
     if (status === 403)
-      return "Anda tidak memiliki izin untuk melakukan tindakan ini.";
-    if (status === 404) return "Data yang diminta tidak ditemukan.";
+      return { message: codeMessages.ACCESS_DENIED, code, status, requestId };
+    if (status === 404)
+      return {
+        message: codeMessages.RESOURCE_NOT_FOUND,
+        code,
+        status,
+        requestId,
+      };
     if (status === 409) {
       const message = body?.message ?? "";
-      return duplicateMessage(message, endpoint, requestData);
+      return {
+        message: duplicateMessage(message, endpoint, requestData),
+        code,
+        status,
+        requestId,
+      };
     }
     if (status === 413)
-      return "Ukuran berkas terlalu besar. Silakan pilih berkas yang lebih kecil.";
+      return {
+        message: codeMessages.PAYLOAD_TOO_LARGE,
+        code,
+        status,
+        requestId,
+      };
     if (status === 429)
-      return "Terlalu banyak percobaan. Silakan tunggu sebentar lalu coba lagi.";
+      return {
+        message: codeMessages.RATE_LIMITED,
+        code,
+        status,
+        requestId,
+        retryAfterSeconds,
+      };
 
     const validationMessage = Object.entries(body?.errors ?? {})
       .map(([field, value]) =>
@@ -179,13 +272,28 @@ export function getUserErrorMessage(
         undefined,
         requestData,
       ) ?? validationMessage;
-    if (message) return message;
-    return fallbackMessages[context];
+    if (message) return { message, code, status, requestId, retryAfterSeconds };
+    return {
+      message: fallbackMessages[context],
+      code,
+      status,
+      requestId,
+      retryAfterSeconds,
+    };
   }
 
   if (error instanceof Error) {
     const message = humanizeMessage(error.message, context);
-    if (message) return message;
+    if (message) return { message };
   }
-  return fallbackMessages[context];
+  return { message: fallbackMessages[context] };
+}
+
+function readHeader(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function readPositiveNumber(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }

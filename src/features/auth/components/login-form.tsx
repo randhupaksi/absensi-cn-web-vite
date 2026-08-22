@@ -4,6 +4,7 @@ import { PremiumInput } from "@/features/auth/components/premium-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { getDashboardPathForUser, saveAuthSession } from "@/lib/auth";
+import { getCurrentSystemIssue } from "@/lib/system-status-events";
 import {
   loginSchema,
   type LoginSchema,
@@ -118,6 +119,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         setRateLimitSeconds(error.retryAfterSeconds);
         return;
       }
+      if (getCurrentSystemIssue()) return;
       toast.error("Gagal masuk", {
         description:
           error instanceof Error

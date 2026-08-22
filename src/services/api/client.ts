@@ -5,6 +5,7 @@ import {
   getAuthSession,
   getLoginPathForCurrentContext,
 } from "@/lib/auth";
+import { reportApiFailure, reportApiSuccess } from "@/lib/system-status-events";
 
 export const apiClient = axios.create({
   baseURL: siteConfig.apiBaseUrl,
@@ -24,8 +25,12 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    reportApiSuccess();
+    return response;
+  },
   (error) => {
+    reportApiFailure(error);
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       const requestUrl = error.config?.url ?? "";
       const isLoginRequest = requestUrl.includes("/auth/login");
