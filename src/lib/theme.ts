@@ -51,27 +51,25 @@ export function setAppTheme(theme: AppTheme) {
   );
   root.classList.remove("theme-switching-fade");
   root.classList.add("theme-switching", "theme-switching-instant");
-  void root.offsetWidth;
 
-  // Give the browser one paint to place the cover above tables, headers,
-  // charts, and dialogs before their colors change.
+  // Commit the palette in the same task as the click. Waiting for a frame and
+  // forcing layout here was noticeably slower on dashboard pages with charts,
+  // tables, and many themed surfaces.
+  applyTheme();
+
   window.requestAnimationFrame(() => {
     if (transitionId !== themeTransitionId) return;
-    applyTheme();
-    window.requestAnimationFrame(() => {
+    root.classList.add("theme-switching-fade");
+    themeTransitionTimer = window.setTimeout(() => {
       if (transitionId !== themeTransitionId) return;
-      root.classList.add("theme-switching-fade");
-      themeTransitionTimer = window.setTimeout(() => {
-        if (transitionId !== themeTransitionId) return;
-        root.classList.remove(
-          "theme-switching",
-          "theme-switching-fade",
-          "theme-switching-instant",
-        );
-        root.style.removeProperty("--theme-transition-overlay");
-        themeTransitionTimer = undefined;
-      }, 220);
-    });
+      root.classList.remove(
+        "theme-switching",
+        "theme-switching-fade",
+        "theme-switching-instant",
+      );
+      root.style.removeProperty("--theme-transition-overlay");
+      themeTransitionTimer = undefined;
+    }, 220);
   });
 }
 
