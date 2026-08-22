@@ -1,6 +1,5 @@
 "use client";
 
-import { AsyncButton } from "@/components/ui/async-button";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,7 @@ import {
   PageSkeleton,
 } from "@/components/loading/loading-system";
 import { DataTableCard } from "@/features/admin/management/shared/section-ui";
+import { AttendanceAnalyticsReportModal } from "@/features/admin/analytics/attendance-analytics-report-modal";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AdminShell } from "@/features/admin/shell/shell";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -47,7 +47,6 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { toast } from "sonner";
 
 const AnalyticsTrendChart = dynamic(
   () =>
@@ -138,7 +137,7 @@ export function AdminAnalyticsPage() {
   const [studentClassID, setStudentClassID] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const debouncedStudentQuery = useDebouncedValue(studentQuery.trim(), 350);
 
   const yearsQuery = useQuery({
@@ -308,37 +307,29 @@ export function AdminAnalyticsPage() {
   );
 
   const analytics = analyticsQuery.data;
-  async function handleExport() {
-    if (!analytics) return;
-    setIsExporting(true);
-    try {
-      const exportFilters = { ...filters, page: 1, page_size: 2500 };
-      const first = await getAdminAttendanceAnalytics(exportFilters);
-      const rows = [...first.students.rows];
-      for (
-        let nextPage = 2;
-        nextPage <= first.students.total_pages;
-        nextPage += 1
-      ) {
-        const next = await getAdminAttendanceAnalytics({
-          ...exportFilters,
-          page: nextPage,
-        });
-        rows.push(...next.students.rows);
-      }
-      const { exportAttendanceAnalytics } =
-        await import("@/features/admin/analytics/export-attendance-analytics");
-      await exportAttendanceAnalytics(first, rows);
-      toast.success("Laporan analitik berhasil dibuat.");
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Laporan analitik belum berhasil dibuat.",
-      );
-    } finally {
-      setIsExporting(false);
+  async function loadAnalyticsForExport(exportDateFrom: string, exportDateTo: string) {
+    return getAdminAttendanceAnalytics({
+      ...filters,
+      date_from: exportDateFrom,
+      date_to: exportDateTo,
+    });
+  }
+
+  async function loadAllStudentsForExport(exportDateFrom = dateFrom, exportDateTo = dateTo) {
+    const exportFilters = {
+      ...filters,
+      date_from: exportDateFrom,
+      date_to: exportDateTo,
+      page: 1,
+      page_size: 2500,
+    };
+    const first = await getAdminAttendanceAnalytics(exportFilters);
+    const rows = [...first.students.rows];
+    for (let nextPage = 2; nextPage <= first.students.total_pages; nextPage += 1) {
+      const next = await getAdminAttendanceAnalytics({ ...exportFilters, page: nextPage });
+      rows.push(...next.students.rows);
     }
+    return rows;
   }
 
   return (
@@ -346,10 +337,18 @@ export function AdminAnalyticsPage() {
       {() => (
         <div className="space-y-5">
           <AnalyticsHero
-            onExport={handleExport}
-            isExporting={isExporting}
+            onExport={() => setIsExportModalOpen(true)}
             canExport={Boolean(analytics?.summary.total_students)}
             period={analytics?.period}
+          />
+
+          <AttendanceAnalyticsReportModal
+            open={isExportModalOpen}
+            onOpenChange={setIsExportModalOpen}
+            analytics={analytics}
+            fullPeriod={{ dateFrom: ANALYTICS_LAUNCH_DATE, dateTo: today }}
+            onLoadAnalytics={loadAnalyticsForExport}
+            onLoadStudents={loadAllStudentsForExport}
           />
 
           <AnalyticsFilters
@@ -446,12 +445,10 @@ export function AdminAnalyticsPage() {
 
 function AnalyticsHero({
   onExport,
-  isExporting,
   canExport,
   period,
 }: {
   onExport: () => void;
-  isExporting: boolean;
   canExport: boolean;
   period?: AdminAttendanceAnalytics["period"];
 }) {
@@ -476,16 +473,14 @@ function AnalyticsHero({
             </div>
           ) : null}
         </div>
-        <AsyncButton
+        <Button
+          type="button"
           className="h-13 w-full rounded-[1.15rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-none hover:bg-emerald-800 hover:shadow-none lg:w-auto"
-          icon={FileSpreadsheet}
-          isPending={isExporting}
-          pendingLabel="Menyiapkan Excel..."
           disabled={!canExport}
           onClick={onExport}
         >
-          Export Analitik
-        </AsyncButton>
+          <FileSpreadsheet className="size-4" /> Export Analitik
+        </Button>
       </div>
     </section>
   );
