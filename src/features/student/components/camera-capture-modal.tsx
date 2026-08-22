@@ -7,6 +7,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { AsyncButton } from "@/components/ui/async-button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  classifyCameraError,
+  getCameraDiagnostic,
+  type CameraIssue,
+  unsupportedCameraIssue,
+} from "@/lib/camera/camera-error";
 import { Camera, RefreshCw, ShieldAlert, SwitchCamera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,11 +28,10 @@ export function CameraCaptureModal({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [cameraError, setCameraError] = useState<string | null>(null);
+  const cameraRequestRef = useRef(0);
+  const [cameraError, setCameraError] = useState<CameraIssue | null>(null);
   const [videoReady, setVideoReady] = useState(false);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">(
-    "user",
-  );
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [isStartingCamera, setIsStartingCamera] = useState(true);
   const [cameraNotice, setCameraNotice] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -35,9 +40,8 @@ export function CameraCaptureModal({
     let cancelled = false;
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraError(
-        "Browser ini tidak menyediakan akses kamera. Absensi hadir harus menggunakan kamera langsung.",
-      );
+      setIsStartingCamera(false);
+      setCameraError(unsupportedCameraIssue());
       return () => {
         cancelled = true;
         stopStream();
@@ -55,6 +59,7 @@ export function CameraCaptureModal({
   function stopStream() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
   }
 
   async function startCamera(
@@ -64,26 +69,16 @@ export function CameraCaptureModal({
     if (!navigator.mediaDevices?.getUserMedia) return;
 
     stopStream();
+    const requestID = ++cameraRequestRef.current;
     setVideoReady(false);
     setIsStartingCamera(true);
     setCameraError(null);
     setCameraNotice(null);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          // `ideal` asks for the selected camera without rejecting older
-          // Android WebViews that only expose a generic video source.
-          facingMode: { ideal: nextFacingMode },
-          // A modest preview avoids an unnecessarily large frame/canvas on
-          // Android Go while remaining more than sufficient for face proof.
-          width: { ideal: 960 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+      const stream = await openCamera(nextFacingMode);
 
-      if (isCancelled()) {
+      if (isCancelled() || requestID !== cameraRequestRef.current) {
         stream.getTracks().forEach((track) => track.stop());
         return;
       }
@@ -97,16 +92,43 @@ export function CameraCaptureModal({
         );
       }
       streamRef.current = stream;
-      setFacingMode(nextFacingMode);
+      setFacingMode(
+        activeFacingMode === "environment" || activeFacingMode === "user"
+          ? activeFacingMode
+          : nextFacingMode,
+      );
       if (videoRef.current) videoRef.current.srcObject = stream;
-    } catch {
-      if (!isCancelled()) {
-        setCameraError(
-          "Kamera tidak dapat diakses. Pastikan izin kamera sudah diaktifkan di browser.",
-        );
+    } catch (error) {
+      if (!isCancelled() && requestID === cameraRequestRef.current) {
+        const issue = classifyCameraError(error);
+        console.warn("Camera session failed", getCameraDiagnostic(issue));
+        setCameraError(issue);
       }
     } finally {
-      if (!isCancelled()) setIsStartingCamera(false);
+      if (!isCancelled() && requestID === cameraRequestRef.current) {
+        setIsStartingCamera(false);
+      }
+    }
+  }
+
+  async function openCamera(nextFacingMode: "user" | "environment") {
+    try {
+      return await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: nextFacingMode },
+          width: { ideal: 960 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+    } catch (error) {
+      const issue = classifyCameraError(error);
+      if (!issue.canRetryWithBasicConstraints) throw error;
+
+      setCameraNotice(
+        "Mode kamera utama belum tersedia. Portal mencoba mode kompatibilitas.",
+      );
+      return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     }
   }
 
@@ -116,15 +138,25 @@ export function CameraCaptureModal({
     if (!video || !canvas) return;
 
     if (!video.videoWidth || !video.videoHeight) {
-      setCameraError("Kamera belum siap. Coba tunggu sebentar lalu ambil foto.");
+      setCameraError({
+        code: "CAMERA_SESSION_INACTIVE",
+        title: "Kamera belum siap",
+        message: "Tunggu sebentar lalu coba ambil foto lagi.",
+        canRetry: true,
+        canRetryWithBasicConstraints: false,
+      });
       return;
     }
 
     const context = canvas.getContext("2d");
     if (!context || typeof canvas.toBlob !== "function") {
-      setCameraError(
-        "Browser tidak dapat menyiapkan foto kamera. Silakan buka ulang kamera atau gunakan browser terbaru.",
-      );
+      setCameraError({
+        code: "CAMERA_UNSUPPORTED",
+        title: "Foto belum dapat disiapkan",
+        message: "Buka ulang kamera atau gunakan browser terbaru.",
+        canRetry: true,
+        canRetryWithBasicConstraints: false,
+      });
       return;
     }
 
@@ -146,9 +178,13 @@ export function CameraCaptureModal({
       (blob) => {
         if (!blob) {
           setIsCapturing(false);
-          setCameraError(
-            "Foto belum berhasil dibuat dari kamera. Silakan coba ambil foto lagi.",
-          );
+          setCameraError({
+            code: "CAMERA_ABORTED",
+            title: "Foto belum berhasil dibuat",
+            message: "Coba buka kamera dan ambil foto lagi.",
+            canRetry: true,
+            canRetryWithBasicConstraints: false,
+          });
           return;
         }
         const file = new File([blob], "absensi.jpg", {
@@ -165,6 +201,7 @@ export function CameraCaptureModal({
   }
 
   function handleClose() {
+    cameraRequestRef.current += 1;
     stopStream();
     onClose();
   }
@@ -181,11 +218,30 @@ export function CameraCaptureModal({
     >
       <div className="space-y-4">
         {cameraError ? (
-          <div className="flex flex-col items-center gap-3 rounded-[1.3rem] border border-rose-200 bg-rose-50/60 p-6 text-center">
-            <ShieldAlert className="size-8 text-rose-500" />
-            <p className="text-[0.88rem] font-medium text-rose-700">
-              {cameraError}
-            </p>
+          <div className="flex flex-col items-center gap-3 rounded-[1.3rem] border border-rose-200 bg-rose-50/60 p-6 text-center dark:border-rose-400/20 dark:bg-rose-950/20">
+            <ShieldAlert className="size-8 text-rose-500 dark:text-rose-300" />
+            <div>
+              <p className="text-sm font-semibold text-rose-800 dark:text-rose-100">
+                {cameraError.title}
+              </p>
+              <p className="mt-1 text-[0.78rem] leading-5 text-rose-700/80 dark:text-rose-100/65">
+                {cameraError.message}
+              </p>
+            </div>
+            {cameraError.canRetry ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void startCamera(facingMode)}
+                disabled={isStartingCamera}
+                className="mt-1 min-h-10 rounded-[var(--radius-md)] border-rose-300 bg-white/70 text-rose-700 hover:bg-rose-100 dark:border-rose-400/25 dark:bg-rose-950/30 dark:text-rose-100 dark:hover:bg-rose-950/55"
+              >
+                <RefreshCw
+                  className={`size-4 ${isStartingCamera ? "animate-spin motion-reduce:animate-none" : ""}`}
+                />
+                Coba lagi
+              </Button>
+            ) : null}
           </div>
         ) : (
           <div className="relative overflow-hidden rounded-[1.3rem] border border-emerald-200/70 bg-slate-950">
@@ -234,9 +290,7 @@ export function CameraCaptureModal({
               }
               className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-emerald-200 px-3 text-sm font-semibold text-emerald-700 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 active:scale-[0.96] sm:flex-none sm:px-4"
               onClick={() =>
-                void startCamera(
-                  facingMode === "user" ? "environment" : "user",
-                )
+                void startCamera(facingMode === "user" ? "environment" : "user")
               }
               disabled={isStartingCamera}
             >
