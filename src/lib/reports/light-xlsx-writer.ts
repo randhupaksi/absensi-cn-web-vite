@@ -779,9 +779,10 @@ function createSummarySheet<Row>(definition: ExcelReportDefinition<Row>) {
       }),
     },
   ];
+  const metricsOnRight = definition.summaryMetricsOnRight === true;
   info.forEach((item, index) => {
     const row = 8 + Math.floor(index / 2) * 3;
-    const start = index % 2 === 0 ? 2 : 5;
+    const start = metricsOnRight ? 2 : index % 2 === 0 ? 2 : 5;
     merge(sheet, row, start, row, start + 1);
     merge(sheet, row + 1, start, row + 1, start + 1);
     setCell(sheet, row, start, item.label.toUpperCase(), {
@@ -811,16 +812,15 @@ function createSummarySheet<Row>(definition: ExcelReportDefinition<Row>) {
   });
 
   const metrics = definition.metrics ?? automaticMetrics(definition);
-  const metricsStart = 9 + Math.ceil(info.length / 2) * 3;
-  sectionTitle(
-    sheet,
-    metricsStart,
-    "RINGKASAN DATA",
-    "Angka utama untuk pembacaan cepat",
-  );
+  const metricsStart = metricsOnRight ? 7 : 9 + Math.ceil(info.length / 2) * 3;
+  if (metricsOnRight) {
+    sectionTitleAt(sheet, metricsStart, "RINGKASAN DATA", 5);
+  } else {
+    sectionTitle(sheet, metricsStart, "RINGKASAN DATA", "Angka utama untuk pembacaan cepat");
+  }
   metrics.forEach((metric, index) => {
-    const row = metricsStart + 1 + Math.floor(index / 2) * 3;
-    const start = index % 2 === 0 ? 2 : 5;
+    const row = metricsStart + 1 + (metricsOnRight ? index : Math.floor(index / 2)) * 3;
+    const start = metricsOnRight ? 5 : index % 2 === 0 ? 2 : 5;
     const tone = metricTone(metric.tone ?? "emerald");
     merge(sheet, row, start, row, start + 1);
     merge(sheet, row + 1, start, row + 1, start + 1);
@@ -906,7 +906,8 @@ function createDataSheet<Row>(definition: ExcelReportDefinition<Row>) {
     1,
     "DATA TERPERINCI  /  " +
       definition.rows.length.toLocaleString("id-ID") +
-      " BARIS",
+      " BARIS" +
+      (definition.dataNote ? "  ·  " + definition.dataNote : ""),
     {
       font: { size: 8, bold: true, color: COLORS.emerald700 },
       alignment: { vertical: "center" },
@@ -1041,11 +1042,13 @@ function addDataTotalRow<Row>(
     const value =
       columnIndex === nameColumnIndex
         ? "Total"
-        : column.kind === "attendance"
-          ? values.reduce((sum, item) => sum + item, 0)
-          : isPercentage && values.length
-            ? values.reduce((sum, item) => sum + item, 0) / values.length
-            : null;
+        : column.totalValue !== undefined
+          ? column.totalValue
+          : column.kind === "attendance"
+            ? values.reduce((sum, item) => sum + item, 0)
+            : isPercentage && values.length
+              ? values.reduce((sum, item) => sum + item, 0) / values.length
+              : null;
 
     setCell(sheet, totalRow, columnIndex + 1, value, {
       font: { size: 10, bold: true, color: tone?.text ?? COLORS.emerald700 },
@@ -1216,6 +1219,20 @@ function sectionTitle(
   setCell(sheet, row, 5, description, {
     font: { size: 8.5, color: COLORS.slate500 },
     alignment: { vertical: "center", horizontal: "right", wrapText: true },
+  });
+  sheet.heights.set(row, 28);
+}
+
+function sectionTitleAt(
+  sheet: Sheet,
+  row: number,
+  title: string,
+  startColumn: number,
+) {
+  merge(sheet, row, startColumn, row, startColumn + 1);
+  setCell(sheet, row, startColumn, title, {
+    font: { size: 9, bold: true, color: COLORS.emerald700 },
+    alignment: { vertical: "center", horizontal: "left" },
   });
   sheet.heights.set(row, 28);
 }

@@ -10,6 +10,7 @@ export type ExcelReportColumn<Row> = {
   width?: number;
   kind?: "text" | "number" | "date" | "status" | "attendance";
   numberFormat?: string;
+  totalValue?: ExcelReportValue;
 };
 
 export type ExcelReportMetric = {
@@ -28,6 +29,8 @@ export type ExcelReportDefinition<Row> = {
   metrics?: ExcelReportMetric[];
   dataSheetName?: string;
   showColumnFilters?: boolean;
+  dataNote?: string;
+  summaryMetricsOnRight?: boolean;
   includeStatisticsSheet?: boolean;
   footerLabel?: string;
   groupBy?: (row: Row) => string;
