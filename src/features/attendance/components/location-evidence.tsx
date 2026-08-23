@@ -91,7 +91,7 @@ export function AttendanceLocationEvidence({
     : undefined;
 
   return (
-    <section className={cn("border-t border-slate-200/75 pt-6", className)}>
+    <section className={cn(className)}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
@@ -130,7 +130,7 @@ export function AttendanceLocationEvidence({
 
       {!isLoading &&
       (hasCoordinates || evidence.location_accuracy_meters !== undefined) ? (
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="mt-5 flex flex-wrap gap-3 border-t border-slate-200/75 pt-5">
           <LocationMetric
             icon={Crosshair}
             label="Jarak"
@@ -191,13 +191,13 @@ function LocationMetric({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-slate-50/80 px-4 py-3.5">
+    <div className="flex w-fit max-w-full items-center gap-3 rounded-xl bg-slate-50/80 px-4 py-3.5">
       <Icon className="size-4.5 shrink-0 text-emerald-600" />
       <div className="min-w-0">
         <p className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-slate-400">
           {label}
         </p>
-        <p className="truncate text-sm font-semibold text-slate-700">{value}</p>
+        <p className="break-words text-sm font-semibold text-slate-700">{value}</p>
       </div>
     </div>
   );

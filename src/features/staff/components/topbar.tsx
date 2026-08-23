@@ -21,7 +21,7 @@ export function StaffTopbar({
   onToggleSidebar,
 }: StaffTopbarProps) {
   return (
-    <header className="sticky top-4 z-20 mx-1.5 rounded-[24px] border border-white/70 bg-white px-3.5 py-3 shadow-[0_20px_55px_rgba(153,161,179,0.12)] dark:border-slate-700/80 dark:bg-slate-900 dark:shadow-[0_20px_55px_rgba(0,0,0,0.28)] sm:mx-0 sm:rounded-[30px] sm:p-4">
+    <header className="staff-topbar sticky top-4 z-20 mx-1.5 rounded-[24px] border border-emerald-200/80 bg-white px-3.5 py-3 shadow-[0_20px_55px_rgba(153,161,179,0.12)] dark:border-emerald-700/70 dark:bg-slate-900 dark:shadow-[0_20px_55px_rgba(0,0,0,0.28)] sm:mx-0 sm:rounded-[30px] sm:p-4">
       <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <button
@@ -42,7 +42,7 @@ export function StaffTopbar({
         </div>
         <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
           <ThemeToggle className="hidden sm:inline-flex" />
-          <div className="hidden max-w-[136px] items-center gap-2 rounded-full border border-slate-200/80 bg-white px-2 py-1.5 shadow-[0_12px_24px_rgba(148,163,184,0.12)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-[0_12px_24px_rgba(0,0,0,0.2)] sm:flex sm:max-w-none sm:gap-3 sm:px-3 sm:py-2">
+          <div className="hidden min-w-0 max-w-[136px] items-center gap-2 rounded-full border border-slate-200/80 bg-white px-2 py-1.5 shadow-[0_12px_24px_rgba(148,163,184,0.12)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-[0_12px_24px_rgba(0,0,0,0.2)] sm:flex sm:max-w-[240px] sm:gap-3 sm:px-3 sm:py-2">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/60 sm:size-11">
               <Image
                 src="/images/optimized/logo-sma-smk-yatkj-ui.png"
