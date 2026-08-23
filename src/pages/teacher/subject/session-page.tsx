@@ -167,7 +167,24 @@ export function MapelSessionPage() {
   const buildOverrides = () =>
     records.flatMap((record) => {
       const status = pendingOverrides[record.student_id] ?? record.status_mapel;
-      if (!status || status === "belum_absen" || status === record.status_pagi) {
+      const hasPendingOverride = Object.prototype.hasOwnProperty.call(
+        pendingOverrides,
+        record.student_id,
+      );
+      const hasPersistedOverride = Boolean(
+        record.override_id || record.is_edited,
+      );
+
+      // Keep persisted overrides even when their status matches the morning
+      // attendance status. Their correction reason/history must not disappear
+      // just because the teacher edits the session topic or notes.
+      if (
+        !status ||
+        status === "belum_absen" ||
+        (!hasPendingOverride &&
+          !hasPersistedOverride &&
+          status === record.status_pagi)
+      ) {
         return [];
       }
 
