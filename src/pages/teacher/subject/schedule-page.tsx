@@ -2,6 +2,7 @@ import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { AppLink as Link } from "@/components/router/app-link";
 import dynamic from "@/lib/dynamic";
 import {
@@ -239,15 +240,14 @@ export function MapelSchedulePage() {
                         triggerClassName="h-14 rounded-[22px] pl-4"
                       />
                     </div>
-                    <Button
-                      type="button"
-                      disabled={tickets.length === 0}
-                      onClick={() => setReportModalOpen(true)}
-                      className="h-14 w-full shrink-0 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800 hover:!shadow-none focus:!border-emerald-700 focus:!bg-emerald-700 focus:!text-white focus:!ring-emerald-300/70 active:!bg-emerald-800 sm:w-auto"
-                    >
-                      <Printer className="size-4" />
-                      Export Jadwal
-                    </Button>
+                    <ExportImportActions
+                      exportAction={{
+                        onClick: () => setReportModalOpen(true),
+                        label: "Export Jadwal",
+                        hideOutline: true,
+                        disabled: tickets.length === 0,
+                      }}
+                    />
                   </div>
                 </div>
 
