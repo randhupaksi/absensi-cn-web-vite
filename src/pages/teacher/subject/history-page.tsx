@@ -3,11 +3,17 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
   actionIconButtonClass,
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   DataTablePagination,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { AsyncButton } from "@/components/ui/async-button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -72,6 +78,10 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   },
   diedit: { label: "Diedit", cls: "bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-300" },
 };
+
+function isFinalizedSubjectSession(status: string) {
+  return status === "sudah_divalidasi" || status === "diedit";
+}
 
 const HARI_LABEL: Record<string, string> = {
   senin: "Senin",
@@ -317,19 +327,17 @@ export function MapelHistoryPage() {
                 <p className="text-lg font-semibold text-slate-950">
                   Filter Sesi Mapel
                 </p>
-                <Button
-                  type="button"
-                  disabled={
-                    !selectedAssignmentId ||
-                    sessions.length === 0 ||
-                    sessionsQuery.isLoading
-                  }
-                  onClick={() => setReportModalOpen(true)}
-                  className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800 focus:!border-emerald-700 focus:!bg-emerald-700 focus:!text-white focus:!ring-emerald-300/70 active:!bg-emerald-800"
-                >
-                  <Printer className="size-4" />
-                  Export Laporan
-                </Button>
+                <ExportImportActions
+                  exportAction={{
+                    onClick: () => setReportModalOpen(true),
+                    label: "Export Laporan",
+                    hideOutline: true,
+                    disabled:
+                      !selectedAssignmentId ||
+                      sessions.length === 0 ||
+                      sessionsQuery.isLoading,
+                  }}
+                />
               </div>
               <div className="grid min-w-0 items-start gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,1.5fr)_minmax(10rem,12rem)_minmax(11rem,13rem)_minmax(18rem,1.15fr)]">
                 <div className="min-w-0">
@@ -445,7 +453,8 @@ export function MapelHistoryPage() {
                 />
               </section>
             ) : (
-              <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+              <section className="overflow-hidden rounded-[32px] border border-white/70 bg-white/88 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
+                <div className="px-5 pt-5 sm:px-6 sm:pt-6">
                 <p className="mb-4 text-lg font-semibold text-slate-950">
                   Sesi Mapel
                   <span className="ml-2 text-sm font-normal text-slate-500">
@@ -463,67 +472,60 @@ export function MapelHistoryPage() {
                     {statusLabel}
                   </span>
                 </p>
+                </div>
 
-                <div className="hidden overflow-x-auto md:block">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 dark:border-slate-800">
-                        <th className="pb-3 pr-4">Tanggal</th>
-                        <th className="pb-3 pr-4">Hari / Jam</th>
-                        <th className="pb-3 pr-4">Konteks Mapel</th>
-                        <th className="pb-3 pr-4">Topik</th>
-                        <th className="pb-3 pr-4 text-center text-emerald-600">
-                          H
-                        </th>
-                        <th className="pb-3 pr-4 text-center text-slate-600">
-                          I
-                        </th>
-                        <th className="pb-3 pr-4 text-center text-sky-600">
-                          S
-                        </th>
-                        <th className="pb-3 pr-4 text-center text-rose-600">
-                          A
-                        </th>
-                        <th className="pb-3 pr-4 text-center">Status</th>
-                        <th className="pb-3 text-center">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800/80">
+                <div className="hidden overflow-x-auto border-t border-emerald-100/80 md:block dark:border-slate-700">
+                  <DataTable>
+                    <DataTableHeadRow
+                      labels={[
+                        "Tanggal",
+                        "Hari / Jam",
+                        "Konteks Mapel",
+                        "Topik",
+                        "H",
+                        "I",
+                        "S",
+                        "A",
+                        "Status",
+                        "Aksi",
+                      ]}
+                      centerLabels={["H", "I", "S", "A", "Status"]}
+                    />
+                    <DataTableBody>
                       {pagedSessions.map((sess, i) => {
                         const statusInfo = STATUS_MAP[sess.status] ?? {
                           label: sess.status,
                           cls: "bg-slate-100 text-slate-600",
                         };
                         return (
-                          <tr
+                          <DataTableRow
                             key={sess.session_id}
                             className="content-enter-up-4"
-                            style={{ animationDelay: `${i * 20}ms` }}
                           >
-                            <td className="py-3 pr-4 font-semibold text-slate-950">
+                            <DataTableCell className="font-semibold text-slate-950">
                               {formatDisplayDate(sess.tanggal)}
-                            </td>
-                            <td className="py-3 pr-4 text-slate-600">
+                            </DataTableCell>
+                            <DataTableCell>
                               <span className="font-medium text-slate-800">
                                 {HARI_LABEL[sess.hari] ?? sess.hari}
                               </span>
                               <span className="mt-0.5 block text-xs text-slate-500">
                                 {sess.jam_mulai}-{sess.jam_selesai}
                               </span>
-                            </td>
-                            <td className="py-3 pr-4">
+                            </DataTableCell>
+                            <DataTableCell>
                               <p className="font-medium text-slate-900">
                                 {selectedAssignment?.subject_name ?? "Mapel"}
                               </p>
                               <p className="mt-0.5 text-xs text-slate-500">
                                 {sess.class_name ?? "Kelas belum tersedia"}
                               </p>
-                            </td>
-                            <td className="max-w-[240px] py-3 pr-4 text-slate-600">
+                            </DataTableCell>
+                            <DataTableCell className="max-w-[240px]">
                               <span className="line-clamp-2">
                                 {sess.topic || "Belum ada topik"}
                               </span>
-                            </td>
+                            </DataTableCell>
                             <HistoryMetric
                               value={sess.hadir}
                               cls="text-emerald-700 bg-emerald-50"
@@ -540,30 +542,32 @@ export function MapelHistoryPage() {
                               value={sess.alfa}
                               cls="text-rose-700 bg-rose-50"
                             />
-                            <td className="py-3 pr-4 text-center">
+                            <DataTableCell className="text-center">
                               <div className="flex flex-wrap justify-center gap-1.5">
                                 <span
                                   className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.cls}`}
                                 >
                                   {statusInfo.label}
                                 </span>
-                                {sess.opened_late ? (
-                                  <span className="inline-flex rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700">
+                                {sess.opened_late && !isFinalizedSubjectSession(sess.status) ? (
+                                  <span className="inline-flex rounded-full border border-rose-200 bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:border-rose-800 dark:bg-rose-950/70 dark:text-rose-300">
                                     Dibuka terlambat
                                   </span>
                                 ) : null}
                               </div>
-                            </td>
-                            <td className="py-3 text-center">
+                            </DataTableCell>
+                            <DataTableCell className="text-center">
                               {sess.is_recorded ? (
-                                <Link
-                                  href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
-                                  aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
-                                  title="Lihat sesi"
-                                  className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
-                                >
-                                  <Eye className="size-4" />
-                                </Link>
+                                <div className="flex items-center justify-center gap-2">
+                                  <Link
+                                    href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
+                                    aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
+                                    title="Lihat sesi"
+                                    className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
+                                  >
+                                    <Eye className="size-4" />
+                                  </Link>
+                                </div>
                               ) : sess.can_open_late ? (
                                 <button
                                   type="button"
@@ -587,15 +591,15 @@ export function MapelHistoryPage() {
                                   <Eye className="size-4" />
                                 </span>
                               )}
-                            </td>
-                          </tr>
+                            </DataTableCell>
+                          </DataTableRow>
                         );
                       })}
-                    </tbody>
-                  </table>
+                    </DataTableBody>
+                  </DataTable>
                 </div>
 
-                <div className="space-y-3 md:hidden">
+                <div className="space-y-3 p-5 md:hidden">
                   {pagedSessions.map((sess, i) => {
                     const statusInfo = STATUS_MAP[sess.status] ?? {
                       label: sess.status,
@@ -653,8 +657,8 @@ export function MapelHistoryPage() {
                             >
                               {statusInfo.label}
                             </span>
-                            {sess.opened_late ? (
-                              <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-semibold text-orange-700">
+                            {sess.opened_late && !isFinalizedSubjectSession(sess.status) ? (
+                              <span className="rounded-full border border-rose-200 bg-rose-100 px-2.5 py-1 text-[10px] font-semibold text-rose-700 dark:border-rose-800 dark:bg-rose-950/70 dark:text-rose-300">
                                 Dibuka terlambat
                               </span>
                             ) : null}
@@ -665,14 +669,16 @@ export function MapelHistoryPage() {
                             {sess.topic || "Belum ada topik"}
                           </p>
                           {sess.is_recorded ? (
-                            <Link
-                              href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
-                              aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
-                              title="Lihat sesi"
-                              className={`inline-flex shrink-0 items-center justify-center ${actionIconButtonClass("emerald")}`}
-                            >
-                              <Eye className="size-4" />
-                            </Link>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <Link
+                                href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
+                                aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
+                                title="Lihat sesi"
+                                className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
+                              >
+                                <Eye className="size-4" />
+                              </Link>
+                            </div>
                           ) : sess.can_open_late ? (
                             <button
                               type="button"
@@ -787,9 +793,11 @@ export function MapelHistoryPage() {
                     />
                   </div>
 
-                  <div className="rounded-[1.2rem] border border-amber-200 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950">
-                    <p className="font-semibold">Review sesi yang terlewat</p>
-                    <p className="mt-1 text-amber-800">
+                  <div className="rounded-[1.2rem] bg-amber-50/80 p-4 text-sm leading-6 text-amber-950">
+                    <p className="font-semibold text-rose-700 dark:text-rose-300">
+                      Review sesi yang terlewat
+                    </p>
+                    <p className="mt-1 text-amber-800 dark:text-amber-200">
                       Sesi akan dibuka dengan status{" "}
                       <span className="font-semibold">Belum Divalidasi</span>{" "}
                       dan penanda{" "}
@@ -818,7 +826,7 @@ function ReviewSessionDetail({
   value: string;
 }) {
   return (
-    <div className="rounded-[1.15rem] border border-emerald-100/80 bg-white/80 px-3.5 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
+    <div className="rounded-[1.15rem] bg-white/80 px-3.5 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-slate-400">
         <Icon className="size-3.5 text-emerald-600" />
         {label}
@@ -1053,7 +1061,7 @@ function TodaySessionCard({
     : format(new Date(), "EEEE, d MMMM yyyy", { locale: localeID });
 
   return (
-    <section className="relative overflow-hidden rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-5 shadow-[0_24px_52px_rgba(15,118,110,0.11)] sm:p-6">
+    <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-center gap-4">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.24)]">
@@ -1253,13 +1261,13 @@ function buildScheduleTimestamp(date: Date, time: string) {
 
 function HistoryMetric({ value, cls }: { value: number; cls: string }) {
   return (
-    <td className="py-3 pr-4 text-center">
+    <DataTableCell className="text-center">
       <span
         className={`inline-flex min-w-8 justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${value > 0 ? cls : "bg-slate-50 text-slate-300"}`}
       >
         {value || "-"}
       </span>
-    </td>
+    </DataTableCell>
   );
 }
 
