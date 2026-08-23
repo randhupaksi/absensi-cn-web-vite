@@ -78,7 +78,7 @@ export function KoreksiModal({
             ) : (
               <Save className="size-4" />
             )}
-            {isPending ? "Menyimpan..." : "Simpan Koreksi"}
+            {isPending ? "Menyiapkan..." : "Terapkan Koreksi"}
           </Button>
         </div>
       }

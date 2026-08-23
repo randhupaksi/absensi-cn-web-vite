@@ -357,6 +357,7 @@ export type StaffSubjectValidationPayload = {
     status: string;
     keterangan: string;
     foto_url: string;
+    alasan_edit?: string;
   }[];
 };
 
@@ -385,6 +386,8 @@ export type StaffSubjectRecapStudentRow = {
   student_id: string;
   student_name: string;
   nis: string;
+  class_id: string;
+  class_name: string;
   hadir: number;
   izin: number;
   sakit: number;

@@ -1,7 +1,14 @@
 "use client";
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import {
+  actionIconButtonClass,
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   MobileDataCard,
   MobileDataField,
   MobileDataFooter,
@@ -21,7 +28,6 @@ import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
-  overrideTeacherSubjectAttendance,
   saveTeacherSubjectSessionDraft,
   submitTeacherSubjectValidation,
 } from "@/services/staff.service";
@@ -41,7 +47,7 @@ import {
   Save,
   Users,
 } from "lucide-react";
-import { useSearchParams } from "@/lib/router";
+import { useRouter, useSearchParams } from "@/lib/router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/loading/loading-system";
@@ -75,7 +81,7 @@ const STATUS_PAGI_CLS: Record<string, string> = {
   hadir: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300",
   alfa: "bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300",
   sakit: "bg-sky-100 text-sky-700 dark:bg-sky-950/70 dark:text-sky-300",
-  izin: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+  izin: "bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-300",
   belum_absen: "border border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400",
 };
 
@@ -83,15 +89,16 @@ const STATUS_MAPEL_CLS: Record<string, string> = {
   hadir: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300",
   alfa: "bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300",
   sakit: "bg-sky-100 text-sky-700 dark:bg-sky-950/70 dark:text-sky-300",
-  izin: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+  izin: "bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-300",
   belum_absen: "border border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400",
 };
 
 const sessionDetailInputClassName =
-  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm text-slate-800 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] placeholder:text-slate-400";
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm text-slate-800 placeholder:text-slate-400 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:!border-slate-700 dark:!bg-slate-800 dark:!text-white dark:!placeholder:text-slate-400 dark:hover:!border-emerald-400 dark:hover:!bg-slate-800 dark:hover:!shadow-[0_0_0_3px_rgba(52,211,153,0.14)] dark:active:!border-emerald-400 dark:active:!bg-slate-800 dark:active:!shadow-[0_0_0_3px_rgba(52,211,153,0.14)] dark:focus-visible:!border-emerald-400 dark:focus-visible:!ring-emerald-400/25";
 
 export function MapelSessionPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const explicitSessionId = searchParams.get("session_id");
 
   const now = new Date();
@@ -121,6 +128,9 @@ export function MapelSessionPage() {
   const [pendingOverrides, setPendingOverrides] = useState<
     Record<string, string>
   >({});
+  const [pendingOverrideReasons, setPendingOverrideReasons] = useState<
+    Record<string, string>
+  >({});
   const [koreksiTarget, setKoreksiTarget] =
     useState<StaffSubjectAttendanceRecord | null>(null);
   const [koreksiStatus, setKoreksiStatus] = useState("");
@@ -139,24 +149,6 @@ export function MapelSessionPage() {
     });
   };
 
-  const koreksiMutation = useMutation({
-    mutationFn: () =>
-      overrideTeacherSubjectAttendance({
-        session_id: sessionId!,
-        student_id: koreksiTarget!.student_id,
-        status: koreksiStatus,
-        keterangan: "",
-        foto_url: "",
-        alasan_koreksi: koreksiAlasan,
-      }),
-    onSuccess: () => {
-      setKoreksiTarget(null);
-      setKoreksiAlasan("");
-      setKoreksiStatus("");
-      invalidate();
-    },
-  });
-
   const session = overviewQuery.data?.session ?? autoSessionQuery.data ?? null;
   const records = useMemo(
     () =>
@@ -169,6 +161,8 @@ export function MapelSessionPage() {
   );
   const isValidated =
     session?.status === "sudah_divalidasi" || session?.status === "diedit";
+  const isEditingFinalizedSession =
+    isValidated && searchParams.get("mode") === "edit";
 
   const buildOverrides = () =>
     records.flatMap((record) => {
@@ -183,6 +177,10 @@ export function MapelSessionPage() {
           status,
           keterangan: "",
           foto_url: "",
+          alasan_edit:
+            pendingOverrideReasons[record.student_id] ??
+            record.alasan_edit ??
+            "",
         },
       ];
     });
@@ -220,10 +218,44 @@ export function MapelSessionPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const sessionEditMutation = useMutation({
+    mutationFn: () =>
+      saveTeacherSubjectSessionDraft(sessionId!, {
+        topic,
+        notes: sessionNotes,
+        overrides: buildOverrides(),
+      }),
+    onSuccess: () => {
+      setPendingOverrides({});
+      setPendingOverrideReasons({});
+      toast.success("Perubahan sesi berhasil disimpan.");
+      invalidate();
+      router.replace(`/dashboard/teacher/subject/session?session_id=${sessionId}`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   useEffect(() => {
     setTopic(session?.topic ?? "");
     setSessionNotes(session?.notes ?? "");
   }, [session?.session_id, session?.notes, session?.topic]);
+
+  const handleCancelEdit = () => {
+    // Discard every unsaved local change before leaving edit mode.
+    setTopic(session?.topic ?? "");
+    setSessionNotes(session?.notes ?? "");
+    setPendingOverrides({});
+    setPendingOverrideReasons({});
+    setKoreksiTarget(null);
+    setKoreksiStatus("");
+    setKoreksiAlasan("");
+    toast.success(
+      "Mode edit dibatalkan. Seluruh perubahan dikembalikan ke data sebelumnya.",
+    );
+    router.replace(
+      `/dashboard/teacher/subject/session?session_id=${session?.session_id ?? sessionId}`,
+    );
+  };
 
   const stats = useMemo(() => {
     const statuses = records.map(
@@ -267,7 +299,7 @@ export function MapelSessionPage() {
             <motion.section
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-[28px] border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-teal-50 p-5"
+              className="rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -284,8 +316,8 @@ export function MapelSessionPage() {
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <SessionStatusBadge status={session.status} />
-                  {session.opened_late ? (
-                    <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                  {session.opened_late && !isValidated ? (
+                    <span className="rounded-full border border-rose-200 bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:border-rose-800 dark:bg-rose-950/70 dark:text-rose-300">
                       Dibuka terlambat
                     </span>
                   ) : null}
@@ -306,6 +338,48 @@ export function MapelSessionPage() {
                       Validasi & Tutup
                     </button>
                   )}
+                  {isValidated && !isEditingFinalizedSession ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/teacher/subject/session?session_id=${session.session_id}&mode=edit`,
+                        )
+                      }
+                      className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-700 active:scale-[0.96] disabled:opacity-60"
+                    >
+                      <Pencil className="size-4" />
+                      Edit Sesi
+                    </button>
+                  ) : null}
+                  {isEditingFinalizedSession ? (
+                    <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        disabled={
+                          sessionEditMutation.isPending ||
+                          draftMutation.isPending
+                        }
+                        className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-[0.96] disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                      >
+                        Batal Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => sessionEditMutation.mutate()}
+                        disabled={sessionEditMutation.isPending}
+                        className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-emerald-700 active:scale-[0.96] disabled:opacity-60"
+                      >
+                        {sessionEditMutation.isPending ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Save className="size-4" />
+                        )}
+                        Simpan Perubahan
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </motion.section>
@@ -313,6 +387,18 @@ export function MapelSessionPage() {
 
           {session && (
             <>
+              {session.status === "diedit" ? (
+                <div className="flex items-start gap-3 rounded-[24px] border border-violet-200/80 bg-violet-50/80 px-4 py-3 text-sm text-violet-900 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-200">
+                  <Pencil className="mt-0.5 size-4 shrink-0" />
+                  <div>
+                    <p className="font-semibold">Sesi sudah diedit</p>
+                    <p className="mt-0.5 text-xs leading-5 text-violet-700 dark:text-violet-300">
+                      Perubahan detail sesi atau koreksi kehadiran telah dicatat
+                      dan status sesi diperbarui menjadi Diedit.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
               <section className="grid items-end gap-4 rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_auto]">
                 <div className={premiumModalFieldClassName}>
                   <label
@@ -326,7 +412,7 @@ export function MapelSessionPage() {
                     value={topic}
                     onChange={(event) => setTopic(event.target.value)}
                     placeholder="Contoh: Persamaan kuadrat"
-                    disabled={isValidated}
+                    disabled={isValidated && !isEditingFinalizedSession}
                     className={sessionDetailInputClassName}
                   />
                 </div>
@@ -343,7 +429,7 @@ export function MapelSessionPage() {
                     value={sessionNotes}
                     onChange={(event) => setSessionNotes(event.target.value)}
                     placeholder="Catatan materi, tugas, atau kendala kelas"
-                    disabled={isValidated}
+                    disabled={isValidated && !isEditingFinalizedSession}
                     className={sessionDetailInputClassName}
                   />
                 </div>
@@ -352,13 +438,18 @@ export function MapelSessionPage() {
                   type="button"
                   className="h-14 w-full shrink-0 rounded-[1.25rem] bg-emerald-700 px-6 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 lg:w-auto"
                   disabled={
-                    isValidated ||
+                    (!isEditingFinalizedSession && isValidated) ||
                     draftMutation.isPending ||
-                    validateMutation.isPending
+                    validateMutation.isPending ||
+                    sessionEditMutation.isPending
                   }
                   onClick={() => draftMutation.mutate()}
                 >
-                  <Save className="size-4" />
+                  {draftMutation.isPending ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Save className="size-4" />
+                  )}
                   {draftMutation.isPending ? "Menyimpan..." : "Simpan Draft"}
                 </Button>
               </section>
@@ -369,48 +460,40 @@ export function MapelSessionPage() {
                     label: "Hadir",
                     value: stats.hadir,
                     icon: CheckCircle2,
-                    cls: "border-2 border-slate-400 bg-transparent text-emerald-500 dark:border-slate-600 dark:text-emerald-300",
+                    cls: "emerald",
                   },
                   {
                     label: "Izin",
                     value: stats.izin,
                     icon: FilePenLine,
-                    cls: "border-2 border-slate-400 bg-transparent text-sky-500 dark:border-slate-600 dark:text-sky-300",
+                    cls: "sky",
                   },
                   {
                     label: "Sakit",
                     value: stats.sakit,
                     icon: AlertCircle,
-                    cls: "border-2 border-slate-400 bg-transparent text-violet-500 dark:border-slate-600 dark:text-violet-300",
+                    cls: "violet",
                   },
                   {
                     label: "Alfa",
                     value: stats.alfa,
                     icon: Clock3,
-                    cls: "border-2 border-slate-400 bg-transparent text-rose-500 dark:border-slate-600 dark:text-rose-300",
+                    cls: "rose",
                   },
                 ].map((item, i) => (
-                  <motion.article
+                  <motion.div
                     key={item.label}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04 }}
-                    className="grid min-h-[118px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-[24px] border border-white/70 bg-white/88 p-5 shadow-sm"
                   >
-                    <div className="min-w-0">
-                      <p className="text-3xl font-bold leading-none text-slate-950">
-                        {item.value}
-                      </p>
-                      <p className="mt-2 text-sm font-medium text-slate-500">
-                        {item.label}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-flex size-14 items-center justify-center rounded-full ${item.cls}`}
-                    >
-                      <item.icon className="size-7 stroke-[1.8]" />
-                    </span>
-                  </motion.article>
+                    <KpiCard
+                      label={item.label}
+                      value={String(item.value)}
+                      icon={item.icon}
+                      accentClass={item.cls}
+                    />
+                  </motion.div>
                 ))}
               </section>
 
@@ -431,40 +514,38 @@ export function MapelSessionPage() {
                 ) : (
                   <>
                     <div className="hidden overflow-x-auto md:block">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-slate-100 dark:border-slate-700/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            <th className="pb-3 pr-4">Siswa</th>
-                            <th className="pb-3 pr-4">NIS</th>
-                            <th className="pb-3 pr-4">Konteks Sesi</th>
-                            <th className="pb-3 pr-4 text-center">
-                              Status Pagi
-                            </th>
-                            <th className="pb-3 pr-4 text-center">
-                              Status Mapel
-                            </th>
-                            <th className="pb-3 pr-4">Keterangan</th>
-                            <th className="pb-3 text-center">Koreksi</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50 dark:divide-slate-700/70">
+                      <DataTable>
+                        <DataTableHeadRow
+                          labels={[
+                            "Siswa",
+                            "NIS",
+                            "Konteks Sesi",
+                            "Status Pagi",
+                            "Status Mapel",
+                            "Keterangan",
+                            "Aksi",
+                          ]}
+                          centerLabels={["Status Pagi", "Status Mapel"]}
+                          roundedCells
+                        />
+                        <DataTableBody>
                           {records.map((r) => {
                             const effective =
                               pendingOverrides[r.student_id] ?? r.status_mapel;
                             return (
-                              <tr key={r.student_id}>
-                                <td className="py-3 pr-4 font-medium text-slate-900">
+                              <DataTableRow key={r.student_id}>
+                                <DataTableCell className="font-medium text-slate-900">
                                   {r.student_name}
                                   {r.is_edited && (
                                     <span className="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
-                                      EDIT
+                                      Diedit
                                     </span>
                                   )}
-                                </td>
-                                <td className="py-3 pr-4 text-slate-500">
+                                </DataTableCell>
+                                <DataTableCell className="text-slate-500">
                                   {r.nis}
-                                </td>
-                                <td className="py-3 pr-4">
+                                </DataTableCell>
+                                <DataTableCell>
                                   <p className="font-medium text-slate-800">
                                     {session.assignment.subject_name}
                                   </p>
@@ -472,23 +553,23 @@ export function MapelSessionPage() {
                                     {session.assignment.class_name} ·{" "}
                                     {session.tanggal}
                                   </p>
-                                </td>
-                                <td className="py-3 pr-4 text-center">
+                                </DataTableCell>
+                                <DataTableCell className="text-center">
                                   <span
                                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_PAGI_CLS[r.status_pagi] ?? "bg-slate-100 text-slate-600"}`}
                                   >
                                     {STATUS_LABELS[r.status_pagi] ??
                                       r.status_pagi}
                                   </span>
-                                </td>
-                                <td className="py-3 pr-4 text-center">
+                                </DataTableCell>
+                                <DataTableCell className="text-center">
                                   <span
                                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_MAPEL_CLS[effective] ?? "bg-slate-100 text-slate-600"}`}
                                   >
                                     {STATUS_LABELS[effective] ?? effective}
                                   </span>
-                                </td>
-                                <td className="max-w-[260px] py-3 pr-4 text-sm text-slate-600">
+                                </DataTableCell>
+                                <DataTableCell className="max-w-[260px] whitespace-normal text-sm">
                                   {r.is_edited ? (
                                     <span className="line-clamp-2">
                                       {r.alasan_edit ||
@@ -503,10 +584,10 @@ export function MapelSessionPage() {
                                       Tidak ada catatan
                                     </span>
                                   )}
-                                </td>
-                                <td className="py-3 text-center">
+                                </DataTableCell>
+                                <DataTableCell className="text-center">
                                   {isValidated ? (
-                                    r.is_editable ? (
+                                    isEditingFinalizedSession && r.is_editable ? (
                                       <button
                                         type="button"
                                         onClick={() => {
@@ -518,7 +599,7 @@ export function MapelSessionPage() {
                                           );
                                           setKoreksiAlasan("");
                                         }}
-                                        className="inline-flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:border-emerald-200 hover:bg-emerald-100"
+                                        className={`inline-flex items-center justify-center ${actionIconButtonClass("sky")}`}
                                         aria-label={`Koreksi ${r.student_name}`}
                                         title="Koreksi"
                                       >
@@ -527,7 +608,9 @@ export function MapelSessionPage() {
                                     ) : (
                                       <span className="inline-flex items-center justify-center gap-1 text-xs text-slate-400">
                                         <Lock className="size-3.5" />
-                                        Terkunci
+                                        {isEditingFinalizedSession
+                                          ? "Terkunci"
+                                          : "Pilih Edit"}
                                       </span>
                                     )
                                   ) : r.is_editable ? (
@@ -556,12 +639,12 @@ export function MapelSessionPage() {
                                       Terkunci
                                     </span>
                                   )}
-                                </td>
-                              </tr>
+                                </DataTableCell>
+                              </DataTableRow>
                             );
                           })}
-                        </tbody>
-                      </table>
+                        </DataTableBody>
+                      </DataTable>
                     </div>
                     <MobileDataList>
                       {records.map((r) => {
@@ -575,7 +658,7 @@ export function MapelSessionPage() {
                                   {r.student_name}
                                   {r.is_edited ? (
                                     <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
-                                      EDIT
+                                      Diedit
                                     </span>
                                   ) : null}
                                 </span>
@@ -627,7 +710,7 @@ export function MapelSessionPage() {
                             </div>
                             <MobileDataFooter>
                               {isValidated ? (
-                                r.is_editable ? (
+                                isEditingFinalizedSession && r.is_editable ? (
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -648,7 +731,9 @@ export function MapelSessionPage() {
                                 ) : (
                                   <span className="inline-flex items-center gap-1 text-xs text-slate-400">
                                     <Lock className="size-3.5" />
-                                    Terkunci
+                                    {isEditingFinalizedSession
+                                      ? "Terkunci"
+                                      : "Pilih Edit"}
                                   </span>
                                 )
                               ) : r.is_editable ? (
@@ -702,16 +787,29 @@ export function MapelSessionPage() {
               }
               alasan={koreksiAlasan}
               newStatus={koreksiStatus}
-              isPending={koreksiMutation.isPending}
-              error={
-                koreksiMutation.isError
-                  ? koreksiMutation.error.message
-                  : undefined
-              }
+              isPending={false}
               onAlasanChange={setKoreksiAlasan}
               onStatusChange={setKoreksiStatus}
               onCancel={() => setKoreksiTarget(null)}
-              onSubmit={() => koreksiMutation.mutate()}
+              onSubmit={() => {
+                if (!koreksiTarget || !koreksiStatus || !koreksiAlasan.trim()) {
+                  return;
+                }
+                setPendingOverrides((prev) => ({
+                  ...prev,
+                  [koreksiTarget.student_id]: koreksiStatus,
+                }));
+                setPendingOverrideReasons((prev) => ({
+                  ...prev,
+                  [koreksiTarget.student_id]: koreksiAlasan.trim(),
+                }));
+                setKoreksiTarget(null);
+                setKoreksiAlasan("");
+                setKoreksiStatus("");
+                toast.success(
+                  "Koreksi ditahan sementara. Klik Simpan Perubahan untuk menerapkannya.",
+                );
+              }}
             />
           )}
         </>
