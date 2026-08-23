@@ -15,6 +15,7 @@ import {
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StudentShell } from "@/features/student/components/shell";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import dynamic from "@/lib/dynamic";
 import { formatPersonName } from "@/lib/format-person-name";
@@ -178,18 +179,13 @@ export function StudentHistoryPage() {
                       {history?.profile.school_year_name ?? "-"}
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setReportModalOpen(true)}
-                    disabled={(history?.attendance.length ?? 0) === 0}
-                    className="h-14 min-w-0 w-full gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(236,253,245,0.98)_100%)] px-3 text-xs font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(220,252,231,1)_100%)] hover:text-emerald-950 sm:w-auto sm:gap-2 sm:px-5 sm:text-sm"
-                  >
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
-                      <Printer className="size-4" />
-                    </span>
-                    Export Laporan
-                  </Button>
+                  <ExportImportActions
+                    exportAction={{
+                      onClick: () => setReportModalOpen(true),
+                      label: "Export Laporan",
+                      disabled: (history?.attendance.length ?? 0) === 0,
+                    }}
+                  />
                 </div>
               </div>
 

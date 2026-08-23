@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -17,7 +17,6 @@ import { DataTableCard } from "@/features/admin/management/shared/section-ui";
 import { AttendanceAnalyticsReportModal } from "@/features/admin/analytics/attendance-analytics-report-modal";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AdminShell } from "@/features/admin/shell/shell";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import dynamic from "@/lib/dynamic";
 import { getAccentTone } from "@/lib/ui/accent-tone";
 import {
@@ -43,7 +42,6 @@ import {
   FileSpreadsheet,
   Info,
   RefreshCw,
-  Search,
   Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -130,7 +128,6 @@ export function AdminAnalyticsPage() {
   const [grade, setGrade] = useState("");
   const [majorID, setMajorID] = useState("");
   const [classID, setClassID] = useState("");
-  const [studentQuery, setStudentQuery] = useState("");
   const [studentSort, setStudentSort] = useState<StudentSortValue>("");
   const [studentGrade, setStudentGrade] = useState("");
   const [studentMajorID, setStudentMajorID] = useState("");
@@ -138,7 +135,6 @@ export function AdminAnalyticsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const debouncedStudentQuery = useDebouncedValue(studentQuery.trim(), 350);
 
   const yearsQuery = useQuery({
     queryKey: ["admin-school-years", "analytics"],
@@ -172,7 +168,6 @@ export function AdminAnalyticsPage() {
     grade,
     majorID,
     classID,
-    debouncedStudentQuery,
     studentSort,
     studentGrade,
     studentMajorID,
@@ -187,9 +182,8 @@ export function AdminAnalyticsPage() {
       grade: grade || undefined,
       major_id: majorID || undefined,
       class_id: classID || undefined,
-      student_query: debouncedStudentQuery || undefined,
     }),
-    [classID, dateFrom, dateTo, debouncedStudentQuery, grade, majorID, schoolYearID],
+    [classID, dateFrom, dateTo, grade, majorID, schoolYearID],
   );
 
   const analyticsQuery = useQuery({
@@ -233,7 +227,6 @@ export function AdminAnalyticsPage() {
       grade: studentGrade || undefined,
       major_id: studentMajorID || undefined,
       class_id: studentClassID || undefined,
-      student_query: debouncedStudentQuery || undefined,
       sort: studentSort || undefined,
       page,
       page_size: pageSize,
@@ -245,7 +238,6 @@ export function AdminAnalyticsPage() {
       studentGrade,
       studentMajorID,
       studentClassID,
-      debouncedStudentQuery,
       studentSort,
       page,
       pageSize,
@@ -357,7 +349,6 @@ export function AdminAnalyticsPage() {
             grade={grade}
             majorID={majorID}
             classID={classID}
-            studentQuery={studentQuery}
             grades={gradeOptions}
             majors={visibleMajors}
             classes={visibleClasses}
@@ -377,14 +368,12 @@ export function AdminAnalyticsPage() {
               setClassID("");
             }}
             onClassChange={setClassID}
-            onStudentQueryChange={setStudentQuery}
             onReset={() => {
               setDateFrom(today);
               setDateTo(today);
               setGrade("");
               setMajorID("");
               setClassID("");
-              setStudentQuery("");
             }}
           />
 
@@ -473,14 +462,13 @@ function AnalyticsHero({
             </div>
           ) : null}
         </div>
-        <Button
-          type="button"
-          className="h-13 w-full rounded-[1.15rem] bg-emerald-700 px-5 text-sm font-semibold text-white shadow-none hover:bg-emerald-800 hover:shadow-none lg:w-auto"
-          disabled={!canExport}
-          onClick={onExport}
-        >
-          <FileSpreadsheet className="size-4" /> Export Analitik
-        </Button>
+        <ExportImportActions
+          exportAction={{
+            onClick: onExport,
+            label: "Export Analitik",
+            disabled: !canExport,
+          }}
+        />
       </div>
     </section>
   );
@@ -492,7 +480,6 @@ type FilterProps = {
   grade: string;
   majorID: string;
   classID: string;
-  studentQuery: string;
   grades: string[];
   majors: Array<{ id: string; code: string; name: string }>;
   classes: Array<{ id: string; display_name: string }>;
@@ -502,7 +489,6 @@ type FilterProps = {
   onGradeChange: (value: string) => void;
   onMajorChange: (value: string) => void;
   onClassChange: (value: string) => void;
-  onStudentQueryChange: (value: string) => void;
   onReset: () => void;
 };
 
@@ -606,19 +592,6 @@ function AnalyticsFilters(props: FilterProps) {
               })),
             ]}
           />
-        </FilterField>
-        <FilterField label="Cari pada tabel siswa" className="md:col-span-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              value={props.studentQuery}
-              onChange={(event) =>
-                props.onStudentQueryChange(event.target.value)
-              }
-              placeholder="Nama, NIS, atau kelas..."
-              className="h-14 rounded-[1.25rem] border-slate-300/80 bg-white pl-11 pr-4"
-            />
-          </div>
         </FilterField>
       </div>
     </section>
