@@ -324,7 +324,7 @@ export function DataTablePagination({
   rangeEnd,
 }: PaginationControls) {
   return (
-    <div className="mx-2 mb-2 flex min-w-0 flex-col gap-3 rounded-[22px] border border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-3 py-3.5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] sm:mx-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none">
+    <div className="mx-2 mb-2 flex min-w-0 flex-col gap-3 rounded-[22px] border border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-3 py-3.5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] sm:mx-3 sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none">
       <div className="flex items-center justify-center gap-2 sm:justify-start sm:gap-4">
         <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-none">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -415,7 +415,7 @@ function PaginationNavButton({
       aria-label={ariaLabel}
       onClick={onClick}
       disabled={disabled}
-      className="flex size-9 flex-1 items-center justify-center rounded-[11px] text-emerald-700 transition-all duration-150 hover:bg-emerald-50 active:scale-90 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:active:scale-100 dark:text-emerald-300 dark:hover:bg-emerald-950/60 dark:disabled:text-slate-600 dark:disabled:hover:bg-transparent sm:flex-none"
+      className="pagination-nav-button flex size-9 flex-1 items-center justify-center rounded-[11px] text-emerald-700 transition-all duration-150 hover:bg-emerald-50 hover:text-emerald-800 active:scale-90 active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:hover:text-slate-300 disabled:active:scale-100 dark:text-emerald-300 dark:hover:bg-emerald-950/80 dark:hover:text-emerald-100 dark:active:bg-emerald-900/80 dark:active:text-white dark:disabled:bg-slate-950/70 dark:disabled:text-slate-600 dark:disabled:hover:bg-slate-950/70 dark:disabled:hover:text-slate-600 dark:disabled:active:scale-100 sm:flex-none"
     >
       {children}
     </button>
@@ -696,23 +696,37 @@ export function DataTable({ children }: { children: ReactNode }) {
 export function DataTableHeadRow({
   labels,
   centerLabels = [],
+  roundedCells = false,
 }: {
   labels: string[];
   centerLabels?: string[];
+  roundedCells?: boolean;
 }) {
   return (
-    <thead className="bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] text-left text-slate-700 dark:bg-none dark:bg-slate-800 dark:text-slate-200">
+    <thead className={cn(
+      "text-left text-slate-700 dark:text-slate-200",
+      roundedCells
+        ? "bg-transparent"
+        : "bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] dark:bg-none dark:bg-slate-800",
+    )}>
       <tr>
         {labels.map((label) => (
           <th
             key={label}
             className={cn(
-              "whitespace-nowrap px-5 py-4 font-semibold",
+              "whitespace-nowrap font-semibold",
+              roundedCells ? "p-1" : "px-5 py-4",
               (label === "Aksi" || centerLabels.includes(label)) &&
                 "text-center",
             )}
           >
-            {label}
+            {roundedCells ? (
+              <span className="block rounded-xl bg-slate-100 px-4 py-3 dark:bg-slate-800">
+                {label}
+              </span>
+            ) : (
+              label
+            )}
           </th>
         ))}
       </tr>
@@ -722,7 +736,7 @@ export function DataTableHeadRow({
 
 export function DataTableBody({ children }: { children: ReactNode }) {
   return (
-    <tbody className="divide-y divide-emerald-50 bg-white/92 dark:divide-slate-700 dark:bg-slate-900">{children}</tbody>
+    <tbody className="divide-y divide-emerald-50 bg-white/92 dark:divide-slate-700 dark:!bg-slate-900">{children}</tbody>
   );
 }
 
@@ -734,7 +748,9 @@ export function DataTableRow({
   className?: string;
 }) {
   return (
-    <tr className={`transition-colors hover:bg-emerald-50/45 dark:hover:bg-slate-800 ${className}`}>
+    <tr
+      className={`!bg-white transition-colors hover:!bg-emerald-50 dark:!bg-slate-900 dark:hover:!bg-emerald-950/45 ${className}`}
+    >
       {children}
     </tr>
   );
