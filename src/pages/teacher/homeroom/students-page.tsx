@@ -20,6 +20,7 @@ import {
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Badge } from "@/components/ui/badge";
 import {
   formatGender,
@@ -241,16 +242,13 @@ export function WalasStudentsPage() {
                     />
                   </div>
 
-                  <Button
-                    variant="outline"
-                    className="h-14 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-5 text-sm font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950"
-                    onClick={() => setReportModalOpen(true)}
-                  >
-                    <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)]">
-                      <Printer className="size-4" />
-                    </span>
-                    Export Laporan
-                  </Button>
+                  <ExportImportActions
+                    exportAction={{
+                      onClick: () => setReportModalOpen(true),
+                      label: "Export Laporan",
+                      hideOutline: true,
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -266,7 +264,7 @@ export function WalasStudentsPage() {
               </div>
             ) : null}
 
-            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-emerald-100/80">
+            <div className="content-enter-up-12 mt-5 overflow-hidden rounded-[24px] border border-slate-200/80 dark:border-slate-700">
               {studentsQuery.isLoading || homeroomQuery.isLoading ? (
                 <div className="overflow-x-auto">
                   <LoadingTable columnCount={9} />
@@ -300,7 +298,10 @@ export function WalasStudentsPage() {
                       />
                       <DataTableBody>
                         {pageStudents.map((student) => (
-                          <DataTableRow key={student.id}>
+                          <DataTableRow
+                            key={student.id}
+                            className="!bg-white hover:!bg-emerald-50 dark:!bg-slate-900 dark:hover:!bg-emerald-950/45"
+                          >
                             <DataTableCell>
                               <div className="flex items-center gap-3">
                                 <span className="flex size-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,#effcf6_0%,#dff7eb_100%)] text-sm font-semibold text-emerald-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
@@ -473,8 +474,7 @@ function StaffStatCard({
   accentClass: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[26px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-4 shadow-[0_18px_34px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_54px_rgba(15,23,42,0.1)]">
-      <div className="absolute right-[-10px] top-[-26px] h-24 w-24 rounded-full bg-emerald-100/40 blur-2xl transition duration-300 group-hover:scale-110" />
+    <div className="group relative overflow-hidden rounded-[26px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-4 shadow-none transition duration-300 hover:-translate-y-1 hover:shadow-none">
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-2">
           <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -506,16 +506,16 @@ function AttendanceMetricPill({
   tone: "success" | "warning" | "danger" | "info" | "violet";
 }) {
   const toneClass = {
-    success: "border-emerald-100 bg-emerald-50 text-emerald-700",
-    warning: "border-amber-100 bg-amber-50 text-amber-700",
-    danger: "border-rose-100 bg-rose-50 text-rose-700",
-    info: "border-sky-100 bg-sky-50 text-sky-700",
-    violet: "border-violet-100 bg-violet-50 text-violet-700",
+    success: "bg-emerald-50 text-emerald-700",
+    warning: "bg-amber-50 text-amber-700",
+    danger: "bg-rose-50 text-rose-700",
+    info: "bg-sky-50 text-sky-700",
+    violet: "bg-violet-50 text-violet-700",
   }[tone];
 
   return (
     <span
-      className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-semibold ${toneClass}`}
+      className={`inline-flex h-9 items-center gap-2 rounded-full px-3 text-xs font-semibold ${toneClass}`}
     >
       <span className="text-slate-500">{label}</span>
       <span className="tabular-nums text-slate-950">{value}</span>

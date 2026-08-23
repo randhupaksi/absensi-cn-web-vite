@@ -30,6 +30,7 @@ import {
   SubmissionTypePill,
 } from "@/features/teacher/homeroom/components/submissions-modals";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   getTeacherHomeroomSubmissionsOverview,
@@ -272,16 +273,13 @@ export function WalasSubmissionsPage() {
                   />
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="h-14 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-5 text-sm font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950"
-                  onClick={() => setReportModalOpen(true)}
-                >
-                  <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)]">
-                    <Printer className="size-4" />
-                  </span>
-                  Export Laporan
-                </Button>
+                <ExportImportActions
+                  exportAction={{
+                    onClick: () => setReportModalOpen(true),
+                    label: "Export Laporan",
+                    hideOutline: true,
+                  }}
+                />
               </div>
 
               <SearchFilterBar

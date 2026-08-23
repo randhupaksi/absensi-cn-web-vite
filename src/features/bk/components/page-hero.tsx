@@ -1,5 +1,6 @@
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { LayoutPanelTop, Printer } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
@@ -46,16 +47,9 @@ export function BkPageHero({
           </div>
         </div>
         <div className={actionClassName}>
-          <Button
-            variant="outline"
-            className="h-12 w-full rounded-[18px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-4 text-sm font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 dark:border-emerald-700 dark:bg-slate-900 dark:text-emerald-300 dark:shadow-none sm:h-14 sm:w-auto sm:rounded-[22px] sm:px-5"
-            onClick={onOpenReport}
-          >
-            <span className="flex size-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)]">
-              <Printer className="size-4" />
-            </span>
-            Export Laporan
-          </Button>
+          <ExportImportActions
+            exportAction={{ onClick: onOpenReport, label: "Export Laporan" }}
+          />
         </div>
       </div>
 
