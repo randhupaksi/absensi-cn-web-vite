@@ -82,7 +82,7 @@ export function Topbar() {
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <Input
             placeholder="Cari siswa, kelas, atau data absensi..."
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-11"
+            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-11 text-slate-700 placeholder:text-slate-400 transition-[border-color,background-color,box-shadow] duration-150 hover:border-emerald-400 hover:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-300/40 focus-visible:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-300/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400 dark:hover:border-emerald-400 dark:hover:bg-slate-700 dark:focus:border-emerald-300 dark:focus:bg-slate-800 dark:focus:ring-emerald-400/25 dark:focus-visible:border-emerald-300 dark:focus-visible:bg-slate-800 dark:focus-visible:ring-2 dark:focus-visible:ring-emerald-400/25"
           />
         </div>
 

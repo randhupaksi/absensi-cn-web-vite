@@ -30,7 +30,14 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  startTransition,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 type ActionIconTone = "emerald" | "sky" | "rose" | "slate";
 
@@ -92,20 +99,38 @@ export function SearchFilterBar({
   className?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastCommittedValueRef = useRef(value);
+  const [draftValue, setDraftValue] = useState(value);
+
+  useEffect(() => {
+    const commitTimer = window.setTimeout(() => {
+      if (draftValue === value) return;
+      lastCommittedValueRef.current = draftValue;
+      startTransition(() => onChange(draftValue));
+    }, 90);
+
+    return () => window.clearTimeout(commitTimer);
+  }, [draftValue, onChange, value]);
+
+  useEffect(() => {
+    if (value === lastCommittedValueRef.current) return;
+    lastCommittedValueRef.current = value;
+    setDraftValue(value);
+  }, [value]);
 
   return (
     <div
       onClick={() => inputRef.current?.focus()}
-      className={`flex h-14 cursor-text items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 focus-within:border-emerald-500 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] active:border-emerald-500 active:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-600 dark:bg-slate-900/90 dark:shadow-none dark:hover:border-emerald-400 dark:hover:bg-slate-800 dark:focus-within:border-emerald-400 dark:focus-within:bg-slate-800 dark:focus-within:shadow-[0_0_0_3px_rgba(52,211,153,0.18)] dark:active:border-emerald-400 dark:active:bg-slate-800 ${className}`}
+      className={`flex h-14 cursor-text items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 focus-within:border-emerald-500 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] active:border-emerald-500 active:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-600 dark:bg-slate-900 dark:shadow-none dark:hover:!border-emerald-400/70 dark:hover:!bg-slate-900 dark:hover:!shadow-[0_0_0_2px_rgba(52,211,153,0.08)] dark:focus-within:!border-emerald-400/75 dark:focus-within:!bg-slate-900 dark:focus-within:!shadow-[0_0_0_2px_rgba(52,211,153,0.15)] dark:active:!border-emerald-400/75 dark:active:!bg-slate-900 ${className}`}
     >
       <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)] dark:bg-none dark:bg-slate-800 dark:text-slate-300 dark:shadow-none">
         <SlidersHorizontal className="size-4" />
       </span>
-      <Search className="size-4 shrink-0 text-slate-400" />
+      <Search className="size-4 shrink-0 text-slate-400 dark:text-slate-300" />
       <input
         ref={inputRef}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
+        value={draftValue}
+        onChange={(event) => setDraftValue(event.target.value)}
         placeholder={placeholder}
         className="w-full min-w-0 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
       />
@@ -113,14 +138,16 @@ export function SearchFilterBar({
         type="button"
         aria-label="Hapus pencarian"
         title="Hapus pencarian"
-        tabIndex={value ? 0 : -1}
+        tabIndex={draftValue ? 0 : -1}
         onClick={(event) => {
           event.stopPropagation();
-          onChange("");
+          setDraftValue("");
+          lastCommittedValueRef.current = "";
+          startTransition(() => onChange(""));
           inputRef.current?.focus();
         }}
-        className={`flex size-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-all duration-200 hover:bg-emerald-100 hover:text-emerald-700 focus-visible:bg-emerald-100 focus-visible:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 active:scale-90 dark:text-slate-400 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-200 dark:focus-visible:bg-emerald-950/60 dark:focus-visible:text-emerald-200 dark:focus-visible:ring-emerald-400/30 ${value ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        aria-hidden={!value}
+        className={`flex size-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-all duration-200 hover:bg-emerald-100 hover:text-emerald-700 focus-visible:bg-emerald-100 focus-visible:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 active:scale-90 dark:text-slate-400 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-200 dark:focus-visible:bg-emerald-950/60 dark:focus-visible:text-emerald-200 dark:focus-visible:ring-emerald-400/30 ${draftValue ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        aria-hidden={!draftValue}
       >
         <X className="size-4" />
       </button>
