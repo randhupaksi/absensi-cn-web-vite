@@ -38,6 +38,7 @@ import { BKAssignmentModal } from "@/features/admin/management/teachers/bk-assig
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
@@ -622,33 +623,21 @@ export function TeacherSection({
                 </div>
               </div>
 
-              <div className="flex flex-row gap-2 sm:flex-row sm:gap-3 lg:justify-end">
-                {activeTab === "profiles" && (
-                  <Button
-                    variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-teal-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.98)_100%)] px-2 text-[11px] font-semibold text-teal-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-teal-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(230,252,248,1)_100%)] hover:text-teal-950 dark:border-teal-800 dark:bg-slate-800 dark:text-teal-200 dark:shadow-none dark:hover:border-teal-600 dark:hover:bg-slate-700 dark:hover:text-teal-100 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                    onClick={() => setImportModalOpen(true)}
-                  >
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.2)] sm:size-8">
-                      <FileSpreadsheet className="size-4" />
-                    </span>
-                    Import Excel
-                  </Button>
-                )}
-
-                {activeTab === "profiles" && (
-                  <Button
-                    variant="outline"
-                  className="h-14 min-w-0 flex-1 gap-1.5 rounded-[22px] border-emerald-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(240,253,244,0.98)_100%)] px-2 text-[11px] font-semibold text-emerald-800 shadow-[0_16px_30px_rgba(15,23,42,0.04),inset_0_1px_0_rgba(255,255,255,0.96)] hover:border-emerald-300 hover:bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(236,253,245,1)_100%)] hover:text-emerald-950 dark:border-emerald-800 dark:bg-slate-800 dark:text-emerald-200 dark:shadow-none dark:hover:border-emerald-600 dark:hover:bg-slate-700 dark:hover:text-emerald-100 sm:flex-none sm:gap-2 sm:px-5 sm:text-sm"
-                    onClick={() => setReportModalOpen(true)}
-                  >
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_10px_20px_rgba(5,150,105,0.2)] sm:size-8">
-                      <Printer className="size-4" />
-                    </span>
-                    Export Laporan
-                  </Button>
-                )}
-              </div>
+              <ExportImportActions
+                exportAction={
+                  activeTab === "profiles"
+                    ? {
+                        onClick: () => setReportModalOpen(true),
+                        label: "Export Laporan",
+                      }
+                    : undefined
+                }
+                importAction={
+                  activeTab === "profiles"
+                    ? { onClick: () => setImportModalOpen(true) }
+                    : undefined
+                }
+              />
             </div>
 
             <div className="grid grid-cols-2 items-start gap-3 xl:grid-cols-4">
