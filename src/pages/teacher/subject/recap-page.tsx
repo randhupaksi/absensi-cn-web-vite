@@ -2,6 +2,11 @@
 
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHeadRow,
+  DataTableRow,
   DataTablePagination,
   MobileDataCard,
   MobileDataHeader,
@@ -10,6 +15,7 @@ import {
 } from "@/features/admin/management/shared/section-ui";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { Button } from "@/components/ui/button";
+import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -57,6 +63,7 @@ export function MapelRecapPage() {
   );
   const [rangeDateTo, setRangeDateTo] = useState<Date | undefined>(undefined);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState("all");
 
   const dateFromStr =
     dateFilterMode === "single"
@@ -106,8 +113,22 @@ export function MapelRecapPage() {
       ),
     [recap?.students],
   );
-  const { pageItems: pagedStudents, pagination: studentsPagination } =
-    usePagination(sortedStudents, 10);
+  const classGroups = useMemo(() => {
+    const groups = new Map<string, { id: string; name: string; students: StaffSubjectRecapStudentRow[] }>();
+    for (const student of sortedStudents) {
+      if (selectedClassId !== "all" && student.class_id !== selectedClassId) {
+        continue;
+      }
+      const id = student.class_id || "unknown";
+      const name = student.class_name || "Kelas belum tersedia";
+      const group = groups.get(id) ?? { id, name, students: [] };
+      group.students.push(student);
+      groups.set(id, group);
+    }
+    return [...groups.values()].sort((first, second) =>
+      first.name.localeCompare(second.name, "id", { sensitivity: "base" }),
+    );
+  }, [selectedClassId, sortedStudents]);
   const periodeLabel = buildPeriodLabel(
     dateFromStr,
     dateToStr,
@@ -119,6 +140,14 @@ export function MapelRecapPage() {
     value: a.id,
     label: `${a.subject_name} - ${a.class_name} (${a.school_year_name})`,
   }));
+
+  const classOptions = [
+    { value: "all", label: "Semua kelas" },
+    ...(recap?.assignment.classes ?? []).map((item) => ({
+      value: item.id,
+      label: item.name,
+    })),
+  ];
 
   const filterStep = !selectedAssignmentId
     ? 1
@@ -151,19 +180,17 @@ export function MapelRecapPage() {
                 <p className="text-lg font-semibold text-slate-950">
                   Filter Rekap
                 </p>
-                <Button
-                  type="button"
-                  disabled={
-                    !recap ||
-                    recap.students.length === 0 ||
-                    recapQuery.isLoading
-                  }
-                  onClick={() => setReportModalOpen(true)}
-                  className="h-11 rounded-[1rem] bg-emerald-700 px-4 text-white shadow-[0_14px_28px_rgba(5,150,105,0.18)] hover:bg-emerald-800"
-                >
-                  <Printer className="size-4" />
-                  Export Laporan
-                </Button>
+                <ExportImportActions
+                  exportAction={{
+                    onClick: () => setReportModalOpen(true),
+                    label: "Export Laporan",
+                    hideOutline: true,
+                    disabled:
+                      !recap ||
+                      recap.students.length === 0 ||
+                      recapQuery.isLoading,
+                  }}
+                />
               </div>
               <div className="mb-5 flex items-center gap-3 rounded-[20px] border border-emerald-100 bg-emerald-50/55 px-4 py-3.5 dark:border-emerald-800/70 dark:bg-emerald-950/45">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-[13px] bg-emerald-600 text-sm font-bold text-white shadow-[0_8px_18px_rgba(5,150,105,0.18)]">
@@ -189,6 +216,7 @@ export function MapelRecapPage() {
                     value={selectedAssignmentId}
                     onValueChange={(value) => {
                       setSelectedAssignmentId(value);
+                      setSelectedClassId("all");
                       setDateFilterMode(null);
                       setSingleDate(undefined);
                       setRangeDateFrom(undefined);
@@ -308,6 +336,17 @@ export function MapelRecapPage() {
                       </span>
                     </p>
                   </div>
+                  <div className="w-full sm:w-56">
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      Filter kelas
+                    </label>
+                    <RadixSelectField
+                      value={selectedClassId}
+                      onValueChange={setSelectedClassId}
+                      options={classOptions}
+                      placeholder="Pilih kelas"
+                    />
+                  </div>
                 </div>
 
                 {recap.students.length === 0 ? (
@@ -318,138 +357,16 @@ export function MapelRecapPage() {
                   />
                 ) : (
                   <>
-                    <div className="hidden overflow-x-auto md:block">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            <th className="pb-3 pr-4">Siswa</th>
-                            <th className="pb-3 pr-4">NIS</th>
-                            <th className="pb-3 pr-4 text-center text-emerald-600">
-                              Hadir
-                            </th>
-                            <th className="pb-3 pr-4 text-center text-sky-600">
-                              Izin
-                            </th>
-                            <th className="pb-3 pr-4 text-center text-violet-600">
-                              Sakit
-                            </th>
-                            <th className="pb-3 pr-4 text-center text-rose-600">
-                              Alfa
-                            </th>
-                            <th className="pb-3 text-center text-emerald-700">
-                              Persentase Hadir
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50 dark:divide-slate-800/80">
-                          {pagedStudents.map((s, i) => (
-                            <tr
-                              key={s.student_id}
-                              className="content-enter-up-4"
-                              style={{ animationDelay: `${i * 20}ms` }}
-                            >
-                              <td className="py-3 pr-4 font-medium text-slate-900">
-                                {s.student_name}
-                              </td>
-                              <td className="py-3 pr-4 text-slate-500">
-                                {s.nis}
-                              </td>
-                              <RecapCell
-                                value={s.hadir}
-                                cls="text-emerald-700 bg-emerald-50"
-                              />
-                              <RecapCell
-                                value={s.izin}
-                                cls="text-sky-700 bg-sky-50"
-                              />
-                              <RecapCell
-                                value={s.sakit}
-                                cls="text-violet-700 bg-violet-50"
-                              />
-                              <RecapCell
-                                value={s.alfa}
-                                cls="text-rose-700 bg-rose-50"
-                              />
-                              <AttendancePercentageCell
-                                hadir={s.hadir}
-                                totalPertemuan={recap.total_pertemuan}
-                              />
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot>
-                          <tr className="border-t-2 border-slate-100">
-                            <td
-                              colSpan={2}
-                              className="py-3 text-xs font-semibold text-slate-500"
-                            >
-                              Total ({recap.students.length} siswa)
-                            </td>
-                            <SumCell
-                              rows={recap.students}
-                              field="hadir"
-                              cls="text-emerald-700"
-                            />
-                            <SumCell
-                              rows={recap.students}
-                              field="izin"
-                              cls="text-sky-700"
-                            />
-                            <SumCell
-                              rows={recap.students}
-                              field="sakit"
-                              cls="text-violet-700"
-                            />
-                            <SumCell
-                              rows={recap.students}
-                              field="alfa"
-                              cls="text-rose-700"
-                            />
-                            <TotalAttendancePercentageCell
-                              rows={recap.students}
-                              totalPertemuan={recap.total_pertemuan}
-                            />
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                    <MobileDataList>
-                      {pagedStudents.map((s) => (
-                        <MobileDataCard key={s.student_id}>
-                          <MobileDataHeader
-                            title={s.student_name}
-                            subtitle={s.nis}
-                          />
-                          <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
-                            <RecapMetric
-                              label="Hadir"
-                              value={s.hadir}
-                              cls="text-emerald-700 bg-emerald-50"
-                            />
-                            <RecapMetric
-                              label="Izin"
-                              value={s.izin}
-                              cls="text-sky-700 bg-sky-50"
-                            />
-                            <RecapMetric
-                              label="Sakit"
-                              value={s.sakit}
-                              cls="text-violet-700 bg-violet-50"
-                            />
-                            <RecapMetric
-                              label="Alfa"
-                              value={s.alfa}
-                              cls="text-rose-700 bg-rose-50"
-                            />
-                            <RecapPercentageMetric
-                              hadir={s.hadir}
-                              totalPertemuan={recap.total_pertemuan}
-                            />
-                          </div>
-                        </MobileDataCard>
+                    <div className="space-y-6">
+                      {classGroups.map((group) => (
+                        <RecapClassTable
+                          key={group.id}
+                          className={group.name}
+                          students={group.students}
+                          totalPertemuan={recap.total_pertemuan}
+                        />
                       ))}
-                    </MobileDataList>
-                    <DataTablePagination {...studentsPagination} />
+                    </div>
                   </>
                 )}
               </section>
@@ -552,6 +469,92 @@ function DatePickerButton({
   );
 }
 
+function RecapClassTable({
+  className,
+  students,
+  totalPertemuan,
+}: {
+  className: string;
+  students: StaffSubjectRecapStudentRow[];
+  totalPertemuan: number;
+}) {
+  const { pageItems, pagination } = usePagination(students, 10);
+
+  return (
+    <section className="overflow-hidden rounded-[24px] border border-emerald-100/80 bg-white/70 dark:border-slate-700 dark:bg-slate-900/70">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-100/80 px-5 py-4 dark:border-slate-700">
+        <div>
+          <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+            {className}
+          </p>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Fokus rekap kehadiran kelas ini
+          </p>
+        </div>
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+          {students.length} siswa
+        </span>
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
+        <DataTable>
+          <DataTableHeadRow
+            labels={["Siswa", "NIS", "Kelas", "Hadir", "Izin", "Sakit", "Alfa", "Persentase Hadir"]}
+            centerLabels={["Hadir", "Izin", "Sakit", "Alfa", "Persentase Hadir"]}
+          />
+          <DataTableBody>
+            {pageItems.map((student) => (
+              <DataTableRow key={student.student_id}>
+                <DataTableCell className="font-semibold text-slate-900">
+                  {student.student_name}
+                </DataTableCell>
+                <DataTableCell>{student.nis}</DataTableCell>
+                <DataTableCell>{student.class_name || className}</DataTableCell>
+                <RecapCell value={student.hadir} cls="text-emerald-700 bg-emerald-50" />
+                <RecapCell value={student.izin} cls="text-sky-700 bg-sky-50" />
+                <RecapCell value={student.sakit} cls="text-violet-700 bg-violet-50" />
+                <RecapCell value={student.alfa} cls="text-rose-700 bg-rose-50" />
+                <AttendancePercentageCell hadir={student.hadir} totalPertemuan={totalPertemuan} />
+              </DataTableRow>
+            ))}
+          </DataTableBody>
+          <tfoot className="border-t border-emerald-100/80 dark:border-slate-700">
+            <tr>
+              <DataTableCell colSpan={3} className="text-xs font-semibold text-slate-500">
+                Total ({students.length} siswa)
+              </DataTableCell>
+              <SumCell rows={students} field="hadir" cls="text-emerald-700" />
+              <SumCell rows={students} field="izin" cls="text-sky-700" />
+              <SumCell rows={students} field="sakit" cls="text-violet-700" />
+              <SumCell rows={students} field="alfa" cls="text-rose-700" />
+              <TotalAttendancePercentageCell rows={students} totalPertemuan={totalPertemuan} />
+            </tr>
+          </tfoot>
+        </DataTable>
+      </div>
+
+      <MobileDataList>
+        {pageItems.map((student) => (
+          <MobileDataCard key={student.student_id}>
+            <MobileDataHeader
+              title={student.student_name}
+              subtitle={`${student.nis} · ${student.class_name || className}`}
+            />
+            <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
+              <RecapMetric label="Hadir" value={student.hadir} cls="text-emerald-700 bg-emerald-50" />
+              <RecapMetric label="Izin" value={student.izin} cls="text-sky-700 bg-sky-50" />
+              <RecapMetric label="Sakit" value={student.sakit} cls="text-violet-700 bg-violet-50" />
+              <RecapMetric label="Alfa" value={student.alfa} cls="text-rose-700 bg-rose-50" />
+              <RecapPercentageMetric hadir={student.hadir} totalPertemuan={totalPertemuan} />
+            </div>
+          </MobileDataCard>
+        ))}
+      </MobileDataList>
+      <DataTablePagination {...pagination} />
+    </section>
+  );
+}
+
 function DateFilterModeSwitch({
   value,
   onChange,
@@ -591,7 +594,7 @@ function DateFilterModeSwitch({
 
 function RecapCell({ value, cls }: { value: number; cls: string }) {
   return (
-    <td className="py-3 pr-4 text-center">
+    <DataTableCell className="text-center">
       {value > 0 ? (
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
@@ -601,7 +604,7 @@ function RecapCell({ value, cls }: { value: number; cls: string }) {
       ) : (
         <span className="text-xs text-slate-300">-</span>
       )}
-    </td>
+    </DataTableCell>
   );
 }
 
@@ -658,9 +661,9 @@ function SumCell({
 }) {
   const total = rows.reduce((sum, r) => sum + (r[field] as number), 0);
   return (
-    <td className={`py-3 pr-4 text-center text-xs font-bold ${cls}`}>
+    <DataTableCell className={`text-center text-xs font-bold ${cls}`}>
       {total}
-    </td>
+    </DataTableCell>
   );
 }
 
@@ -672,9 +675,9 @@ function AttendancePercentageCell({
   totalPertemuan: number;
 }) {
   return (
-    <td className="py-3 text-center text-xs font-bold text-emerald-700">
+    <DataTableCell className="text-center text-xs font-bold text-emerald-700">
       {formatAttendancePercentage(hadir, totalPertemuan)}
-    </td>
+    </DataTableCell>
   );
 }
 
@@ -687,9 +690,9 @@ function TotalAttendancePercentageCell({
 }) {
   const totalHadir = rows.reduce((sum, row) => sum + row.hadir, 0);
   return (
-    <td className="py-3 text-center text-xs font-bold text-emerald-700">
+    <DataTableCell className="text-center text-xs font-bold text-emerald-700">
       {formatAttendancePercentage(totalHadir, totalPertemuan * rows.length)}
-    </td>
+    </DataTableCell>
   );
 }
 
