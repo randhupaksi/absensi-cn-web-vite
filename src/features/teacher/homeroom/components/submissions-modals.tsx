@@ -9,6 +9,7 @@ import {
   premiumModalFieldClassName,
   premiumModalHelperClassName,
   premiumModalLabelClassName,
+  premiumModalSubmitButtonClassName,
   premiumModalSurfaceClassName,
 } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
@@ -74,7 +75,13 @@ export function normalizeSubmissionAttachment(attachment: string) {
   return resolveApiAssetUrl(attachment);
 }
 
-export function SubmissionTypePill({ type }: { type: string }) {
+export function SubmissionTypePill({
+  type,
+  bordered = true,
+}: {
+  type: string;
+  bordered?: boolean;
+}) {
   const normalized = type.toUpperCase();
   let className = "border-slate-200 bg-slate-100 text-slate-600";
   if (normalized === "IZIN")
@@ -84,14 +91,20 @@ export function SubmissionTypePill({ type }: { type: string }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${bordered ? "border" : ""} ${className}`}
     >
       {formatDisplayLabel(type)}
     </span>
   );
 }
 
-export function SubmissionStatusPill({ status }: { status: string }) {
+export function SubmissionStatusPill({
+  status,
+  bordered = true,
+}: {
+  status: string;
+  bordered?: boolean;
+}) {
   const normalized = normalizeSubmissionStatus(status);
   let className = "border-slate-200 bg-slate-100 text-slate-600";
   if (normalized === "menunggu")
@@ -103,7 +116,7 @@ export function SubmissionStatusPill({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${bordered ? "border" : ""} ${className}`}
     >
       {formatDisplayLabel(status)}
     </span>
@@ -138,8 +151,14 @@ export function SubmissionDetailModal({
                     <h3 className="text-xl font-semibold tracking-tight text-slate-950">
                       {submission.student_name}
                     </h3>
-                    <SubmissionStatusPill status={submission.status} />
-                    <SubmissionTypePill type={submission.type} />
+                    <SubmissionStatusPill
+                      status={submission.status}
+                      bordered={false}
+                    />
+                    <SubmissionTypePill
+                      type={submission.type}
+                      bordered={false}
+                    />
                   </div>
                   <p className="text-sm text-slate-500">
                     {submission.nis} •{" "}
@@ -381,7 +400,7 @@ export function SubmissionReviewModal({
             </Button>
             <Button
               type="button"
-              className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white hover:bg-emerald-800"
+              className={premiumModalSubmitButtonClassName}
               disabled={isPending}
               onClick={handleSubmit}
             >

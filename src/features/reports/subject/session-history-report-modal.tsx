@@ -225,33 +225,6 @@ export function SubjectSessionHistoryReportModal({
         </QuestionBlock>
 
         <QuestionBlock
-          icon={Database}
-          label="Data laporan"
-          answered={recapsQuery.isSuccess && hasData}
-        >
-          <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
-            {recapsQuery.isLoading ? (
-              <p>Menyiapkan rekap siswa...</p>
-            ) : recapsQuery.error ? (
-              <p className="text-rose-600">{recapsQuery.error.message}</p>
-            ) : (
-              <>
-                <p className="font-semibold text-slate-900">
-                  {scope === "all"
-                    ? `${recaps.length} mapel siap diekspor`
-                    : (selectedReportAssignment?.subject_name ??
-                      "Mapel belum dipilih")}
-                </p>
-                <p className="mt-1">Periode: {periodeLabel}</p>
-                <p>
-                  {totalStudents} baris siswa · hanya sesi yang sudah divalidasi
-                </p>
-              </>
-            )}
-          </div>
-        </QuestionBlock>
-
-        <QuestionBlock
           icon={Columns3}
           label="Kolom yang ingin ditampilkan"
           answered
@@ -288,6 +261,33 @@ export function SubjectSessionHistoryReportModal({
                 onClick={() => setSortBy(option.value)}
               />
             ))}
+          </div>
+        </QuestionBlock>
+
+        <QuestionBlock
+          icon={Database}
+          label="Data laporan"
+          answered={recapsQuery.isSuccess && hasData}
+        >
+          <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
+            {recapsQuery.isLoading ? (
+              <p>Menyiapkan rekap siswa...</p>
+            ) : recapsQuery.error ? (
+              <p className="text-rose-600">{recapsQuery.error.message}</p>
+            ) : (
+              <>
+                <p className="font-semibold text-slate-900">
+                  {scope === "all"
+                    ? `${recaps.length} mapel siap diekspor`
+                    : (selectedReportAssignment?.subject_name ??
+                      "Mapel belum dipilih")}
+                </p>
+                <p className="mt-1">Periode: {periodeLabel}</p>
+                <p>
+                  {totalStudents} baris siswa · hanya sesi yang sudah divalidasi
+                </p>
+              </>
+            )}
           </div>
         </QuestionBlock>
 

@@ -38,7 +38,7 @@ export const premiumModalActionsClassName =
   "relative mt-6 flex flex-row items-center justify-between gap-2 pt-5 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(90deg,rgba(16,185,129,0.06)_0%,rgba(16,185,129,0.22)_22%,rgba(148,163,184,0.2)_52%,rgba(16,185,129,0.22)_78%,rgba(16,185,129,0.06)_100%)] [&>*]:min-w-0 [&>*]:flex-1 sm:justify-end sm:gap-3 sm:[&>*]:flex-none";
 
 export const premiumModalSubmitButtonClassName =
-  "h-12 rounded-[1.1rem] !bg-emerald-700 px-5 text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:!bg-emerald-800 active:scale-[0.96] active:!bg-emerald-900";
+  "h-12 rounded-[1.1rem] !bg-emerald-700 px-5 text-white !shadow-none transition-all duration-200 hover:!bg-emerald-800 hover:!shadow-none active:scale-[0.96] active:!bg-emerald-900 active:!shadow-none focus-visible:!shadow-none";
 
 export function PremiumModal({
   open,
@@ -122,7 +122,7 @@ export function PremiumModal({
         </div>
 
         {footer ? (
-          <div className="relative shrink-0 bg-[linear-gradient(180deg,rgba(244,250,246,0.9)_0%,rgba(255,255,255,0.96)_100%)] px-[1.3rem] py-[1.1rem] dark:bg-slate-900/90">
+          <div className="relative shrink-0 bg-transparent px-[1.3rem] py-[1.1rem]">
             {footer}
           </div>
         ) : null}

@@ -16,6 +16,7 @@ import {
   premiumModalFieldClassName,
   premiumModalHelperClassName,
   premiumModalLabelClassName,
+  premiumModalSubmitButtonClassName,
   premiumModalSurfaceClassName,
 } from "@/components/modals/premium-modal";
 import { Button } from "@/components/ui/button";
@@ -339,7 +340,7 @@ export function CounselingNoteCreateModal({
           </Button>
           <Button
             type="button"
-            className="h-12 rounded-[18px] bg-emerald-700 px-5 text-white hover:bg-emerald-800"
+            className={premiumModalSubmitButtonClassName}
             disabled={isPending}
             onClick={handleSubmit}
           >
