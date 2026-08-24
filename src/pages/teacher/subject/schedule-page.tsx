@@ -7,11 +7,12 @@ import { AppLink as Link } from "@/components/router/app-link";
 import dynamic from "@/lib/dynamic";
 import {
   getTeacherSubjectAssignments,
+  getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
   getTeacherSubjectScheduleDayStatus,
 } from "@/services/staff.service";
 import type { StaffSubjectAssignment } from "@/types/staff";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import {
@@ -60,6 +61,7 @@ type ScheduleTicket = {
 };
 
 export function MapelSchedulePage() {
+  const queryClient = useQueryClient();
   const [dayFilter, setDayFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -67,6 +69,14 @@ export function MapelSchedulePage() {
   const today = format(now, "yyyy-MM-dd");
   const currentDay = getDayKey(now);
   const currentTime = format(now, "HH:mm");
+
+  const prefetchSessionDetail = (sessionId: string) => {
+    void queryClient.prefetchQuery({
+      queryKey: ["subject-attendance-overview", sessionId],
+      queryFn: () => getTeacherSubjectAttendance(sessionId),
+      staleTime: 30_000,
+    });
+  };
 
   const assignmentsQuery = useQuery({
     queryKey: ["teacher-subject-assignments"],
@@ -152,7 +162,7 @@ export function MapelSchedulePage() {
               href="/dashboard/teacher/subject/history"
               label="Kembali ke Sesi Mapel"
             />
-            <section className="relative overflow-hidden rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-4 shadow-[0_24px_52px_rgba(15,118,110,0.11)] dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none sm:rounded-[32px] sm:p-6">
+            <section className="relative overflow-hidden rounded-[24px] border !border-emerald-300/70 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-4 shadow-[0_24px_52px_rgba(15,118,110,0.11)] dark:!border-emerald-400/55 dark:bg-slate-900 dark:bg-none dark:shadow-none sm:rounded-[32px] sm:p-6">
               <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl">
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
@@ -160,7 +170,7 @@ export function MapelSchedulePage() {
                     Jadwal Mengajar
                   </div>
                   <h2 className="mt-4 text-[clamp(1.7rem,8vw,1.875rem)] font-semibold leading-tight tracking-tight text-slate-950 dark:text-slate-100 md:text-[2.1rem]">
-                    Ritme mengajarmu minggu ini.
+                    Ritme mengajarmu minggu ini
                   </h2>
                   <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
                     Lihat semua jadwal aktif, pantau sesi terdekat, lalu masuk
@@ -347,6 +357,7 @@ export function MapelSchedulePage() {
                                     ? activeSession.session_id
                                     : null
                                 }
+                                onPrefetchSession={prefetchSessionDetail}
                               />
                             ))}
                           </div>
@@ -473,9 +484,11 @@ function ScheduleKpi({
 function ScheduleTicketCard({
   ticket,
   sessionId,
+  onPrefetchSession,
 }: {
   ticket: ScheduleTicket;
   sessionId: string | null;
+  onPrefetchSession: (sessionId: string) => void;
 }) {
   const state = {
     active: {
@@ -534,6 +547,9 @@ function ScheduleTicketCard({
         {ticket.state === "active" && sessionId ? (
           <Link
             href={`/dashboard/teacher/subject/session?session_id=${sessionId}`}
+            onFocus={() => onPrefetchSession(sessionId)}
+            onPointerEnter={() => onPrefetchSession(sessionId)}
+            onTouchStart={() => onPrefetchSession(sessionId)}
             className="group inline-flex h-10 shrink-0 items-center gap-2 rounded-[14px] bg-emerald-700 px-3.5 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(5,150,105,0.18)] transition hover:bg-emerald-800"
           >
             Masuk
