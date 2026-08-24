@@ -29,6 +29,7 @@ import {
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
   getTeacherSubjectAssignments,
+  getTeacherSubjectAttendance,
   getTeacherSubjectCurrentSession,
   getTeacherSubjectScheduleDayStatus,
   getTeacherSubjectSessions,
@@ -120,6 +121,14 @@ export function MapelHistoryPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const defaultAssignment = searchParams.get("assignment_id") ?? "";
+
+  const prefetchSessionDetail = (sessionId: string) => {
+    void queryClient.prefetchQuery({
+      queryKey: ["subject-attendance-overview", sessionId],
+      queryFn: () => getTeacherSubjectAttendance(sessionId),
+      staleTime: 30_000,
+    });
+  };
 
   const [selectedAssignmentId, setSelectedAssignmentId] =
     useState(defaultAssignment);
@@ -561,6 +570,13 @@ export function MapelHistoryPage() {
                                 <div className="flex items-center justify-center gap-2">
                                   <Link
                                     href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
+                                    onFocus={() => prefetchSessionDetail(sess.session_id)}
+                                    onPointerEnter={() =>
+                                      prefetchSessionDetail(sess.session_id)
+                                    }
+                                    onTouchStart={() =>
+                                      prefetchSessionDetail(sess.session_id)
+                                    }
                                     aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
                                     title="Lihat sesi"
                                     className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
@@ -672,6 +688,13 @@ export function MapelHistoryPage() {
                             <div className="flex shrink-0 items-center gap-2">
                               <Link
                                 href={`/dashboard/teacher/subject/session?session_id=${sess.session_id}`}
+                                onFocus={() => prefetchSessionDetail(sess.session_id)}
+                                onPointerEnter={() =>
+                                  prefetchSessionDetail(sess.session_id)
+                                }
+                                onTouchStart={() =>
+                                  prefetchSessionDetail(sess.session_id)
+                                }
                                 aria-label={`Lihat sesi ${formatDisplayDate(sess.tanggal)}`}
                                 title="Lihat sesi"
                                 className={`inline-flex items-center justify-center ${actionIconButtonClass("emerald")}`}
