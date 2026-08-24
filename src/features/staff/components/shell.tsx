@@ -27,6 +27,7 @@ import {
 } from "./sidebar";
 import { StaffTopbar } from "./topbar";
 import { DashboardRouteSkeleton } from "@/components/loading/loading-system";
+import { AppErrorBoundary } from "@/components/errors/app-error-boundary";
 
 type StaffShellProps = {
   expectedRole: DashboardRole;
@@ -124,7 +125,7 @@ export function StaffShell({
             onToggleSidebar={() => setMobileSidebarOpen(true)}
           />
 
-          {children(session)}
+          <AppErrorBoundary key={pathname}>{children(session)}</AppErrorBoundary>
         </main>
       </div>
     </div>
