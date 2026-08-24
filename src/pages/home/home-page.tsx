@@ -255,7 +255,7 @@ export default function HomePage() {
                       Citra Negara Attendance System
                     </p>
                     <h1
-                      className={`${styles.landingReveal} ${styles.landingHeroTitleReveal} font-heading text-[2.8rem] font-bold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}
+                      className={`${styles.landingReveal} ${styles.landingHeroTitleReveal} font-heading text-[2.8rem] font-semibold leading-[1.04] tracking-[-0.07em] text-white drop-shadow-[0_14px_30px_rgba(0,0,0,0.28)] md:text-[4.7rem] md:leading-[1.06] xl:text-[5.6rem] xl:leading-[1.06]`}
                     >
                       Satu langkah hadir,
                       <span className={`${styles.landingHeroTitle} block`}>
@@ -263,7 +263,7 @@ export default function HomePage() {
                       </span>
                     </h1>
                     <p
-                      className={`${styles.landingReveal} ${styles.landingHeroDescriptionReveal} mx-auto max-w-[760px] text-base font-medium leading-8 text-white/82 md:text-[1.18rem]`}
+                      className={`${styles.landingReveal} ${styles.landingHeroDescriptionReveal} mx-auto max-w-[760px] text-base font-normal leading-8 text-white/82 md:text-[1.18rem]`}
                     >
                       Satu sistem untuk absensi yang lebih tertib, pemantauan
                       yang lebih cepat, dan pengelolaan data yang lebih mudah.
