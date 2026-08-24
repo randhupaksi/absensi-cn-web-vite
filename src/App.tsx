@@ -165,8 +165,10 @@ const RandhuPage = lazy(() =>
 );
 
 function PageBoundary({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+
   return (
-    <AppErrorBoundary>
+    <AppErrorBoundary key={pathname}>
       <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>
     </AppErrorBoundary>
   );
