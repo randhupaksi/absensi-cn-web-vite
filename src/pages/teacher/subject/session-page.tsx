@@ -121,7 +121,7 @@ export function MapelSessionPage() {
     queryFn: () => getTeacherSubjectAttendance(sessionId!),
     enabled: !!sessionId,
     refetchInterval: 30_000,
-    staleTime: 0,
+    staleTime: 30_000,
   });
 
   const queryClient = useQueryClient();
@@ -287,6 +287,10 @@ export function MapelSessionPage() {
   }, [records, pendingOverrides]);
 
   const isAutoLoading = !explicitSessionId && autoSessionQuery.isLoading;
+  const isExplicitSessionLoading =
+    Boolean(explicitSessionId) &&
+    !overviewQuery.data &&
+    overviewQuery.isLoading;
 
   return (
     <WalasShell>
@@ -297,11 +301,13 @@ export function MapelSessionPage() {
             label="Kembali ke Sesi Mapel"
           />
           {/* Session header */}
-          {isAutoLoading ? (
+          {isAutoLoading || isExplicitSessionLoading ? (
             <section className="flex items-center gap-3 rounded-[28px] border border-white/70 bg-white/88 p-5">
               <Loader2 className="size-5 animate-spin text-emerald-600" />
               <p className="text-sm text-slate-500">
-                Mendeteksi sesi mapel aktif...
+                {isExplicitSessionLoading
+                  ? "Memuat detail sesi mapel..."
+                  : "Mendeteksi sesi mapel aktif..."}
               </p>
             </section>
           ) : !session ? (
