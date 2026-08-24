@@ -24,6 +24,23 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 600,
+    rolldownOptions: {
+      output: {
+        // Default splitting emitted 62 chunks under 1 KB (mostly one file per
+        // Lucide icon, the smallest being 124 bytes). Each of those still costs
+        // a full HTTP request whose headers dwarf the payload, which is the
+        // expensive part on high-latency mobile connections. Merging them into
+        // their consumers trades a little duplication for far fewer requests.
+        advancedChunks: {
+          groups: [
+            {
+              name: "lucide-icons",
+              test: /node_modules[\\/]lucide-react[\\/]/,
+            },
+          ],
+        },
+      },
+    },
   },
   server: {
     proxy: {
