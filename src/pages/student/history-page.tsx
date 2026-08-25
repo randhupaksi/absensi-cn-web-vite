@@ -206,13 +206,13 @@ export function StudentHistoryPage() {
                   label="Alfa"
                   value={String(stats?.alpha ?? 0)}
                   icon={ShieldAlert}
-                  accentClass="bg-amber-100 text-amber-700"
+                  accentClass="bg-rose-100 text-rose-700"
                 />
                 <KpiCard
-                  label="Izin Sakit"
+                  label="Pengajuan"
                   value={String((stats?.permission ?? 0) + (stats?.sick ?? 0))}
                   icon={FileText}
-                  accentClass="bg-rose-100 text-rose-700"
+                  accentClass="bg-amber-100 text-amber-700"
                 />
               </div>
             </section>
@@ -570,7 +570,11 @@ function OverviewStat({
 }
 
 function getHistoryValidationLabel(record: StaffAttendanceRecord) {
-  if (record.verified_at) return "Sudah direview";
+  if (record.verified_at) {
+    return record.verified_by_role?.trim().toUpperCase() === "TEACHER"
+      ? "Sudah direview walas"
+      : "Sudah direview";
+  }
   if (record.status.toLowerCase() === "hadir") return "Terkirim";
 
   const [year, month, day] = record.attendance_date.split("-").map(Number);
