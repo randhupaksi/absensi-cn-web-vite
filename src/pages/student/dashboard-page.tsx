@@ -785,7 +785,9 @@ export function StudentDashboardPage() {
                           isHoliday
                             ? "Tidak diperlukan"
                             : today?.attendance?.verified_at
-                              ? "Sudah direview"
+                              ? isTeacherReviewer(today.attendance)
+                                ? "Sudah direview walas"
+                                : "Sudah direview"
                               : "Menunggu"
                         }
                         tone={
@@ -1074,7 +1076,7 @@ export function StudentDashboardPage() {
                             Foto absensi siswa
                           </p>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[0.68rem] font-semibold text-emerald-700">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[0.68rem] font-semibold text-emerald-700 dark:!border-emerald-500/60 dark:!bg-emerald-950/70 dark:!text-emerald-300">
                           <BadgeCheck className="size-3.5" />
                           Privasi foto terjaga
                         </span>
@@ -1195,7 +1197,7 @@ export function StudentDashboardPage() {
                           <FieldError message={errors.reason} />
                         </div>
                       ) : (
-                        <div className="rounded-[1.1rem] border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800">
+                        <div className="rounded-[1.1rem] border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800 dark:!border-emerald-500/60 dark:!bg-emerald-950/70 dark:!text-emerald-300">
                           Untuk status hadir, foto akan langsung masuk sebagai
                           data absensi dan menunggu validasi walas.
                         </div>
@@ -1590,15 +1592,41 @@ function DashboardDetailsLoading({ label }: { label: string }) {
 }
 
 function formatDashboardCheckIn(record?: StaffAttendanceRecord) {
-  if (record && !record.check_in_at && hasAttendanceStatusChange(record)) {
-    return "Status absen kamu sudah dikoreksi oleh walas";
+  if (record && !record.check_in_at) {
+    if (hasAttendanceStatusChange(record)) {
+      return formatDashboardStaffActionTime(record, "Dikoreksi walas");
+    }
+    if (record.verified_at) {
+      return formatDashboardStaffActionTime(
+        record,
+        isTeacherReviewer(record) ? "Direview walas" : "Direview",
+      );
+    }
   }
   return formatStudentTime(record?.check_in_at);
 }
 
 function formatDashboardAttendanceValue(record?: StaffAttendanceRecord) {
-  if (record && !record.check_in_at && hasAttendanceStatusChange(record)) {
-    return formatDisplayLabel(record.status);
+  if (record && !record.check_in_at) {
+    const actionTime = hasAttendanceStatusChange(record)
+      ? record.status_changed_at
+      : record.verified_at;
+    if (actionTime) return formatStudentTime(actionTime);
   }
   return formatStudentTime(record?.check_in_at);
+}
+
+function formatDashboardStaffActionTime(
+  record: StaffAttendanceRecord,
+  label: "Dikoreksi walas" | "Direview walas" | "Direview",
+) {
+  const actionTime = hasAttendanceStatusChange(record)
+    ? record.status_changed_at
+    : record.verified_at;
+  const formattedTime = formatStudentTime(actionTime, "-");
+  return `${label} pada ${formattedTime}`;
+}
+
+function isTeacherReviewer(record: StaffAttendanceRecord) {
+  return record.verified_by_role?.trim().toUpperCase() === "TEACHER";
 }
