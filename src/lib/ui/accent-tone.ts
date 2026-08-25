@@ -1,6 +1,6 @@
 export function getAccentTone(accentClass: string) {
   if (accentClass.includes("amber") || accentClass.includes("orange")) {
-    return "border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-400/60 dark:bg-amber-500/15 dark:text-amber-300";
+    return "border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-400/60 dark:bg-transparent dark:text-amber-300";
   }
   if (accentClass.includes("rose") || accentClass.includes("red")) {
     return "border-rose-200 bg-rose-100 text-rose-700 dark:border-rose-400/60 dark:bg-transparent dark:text-rose-300";
