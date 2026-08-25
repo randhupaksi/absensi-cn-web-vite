@@ -79,7 +79,7 @@ function EvidenceStatus({ status }: { status: string }) {
   const normalized = status.toLowerCase();
   const className =
     normalized === "hadir"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      ? "border-0 bg-emerald-50 text-emerald-700"
       : normalized === "alfa"
         ? "border-rose-200 bg-rose-50 text-rose-700"
         : normalized === "sakit"

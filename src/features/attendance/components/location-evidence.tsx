@@ -155,7 +155,7 @@ export function AttendanceLocationEvidence({
             <Button
               type="button"
               variant="outline"
-              className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-emerald-200 bg-white px-3 text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 sm:flex-none sm:px-5 sm:text-sm"
+              className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-slate-300 bg-white px-3 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-800 dark:!border-slate-600/70 dark:!bg-slate-800/80 dark:!text-slate-200 dark:hover:!bg-slate-700/80 sm:flex-none sm:px-5 sm:text-sm"
               onClick={() =>
                 window.open(mapUrl, "_blank", "noopener,noreferrer")
               }
@@ -168,7 +168,7 @@ export function AttendanceLocationEvidence({
             <Button
               type="button"
               variant="outline"
-              className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-slate-200 bg-white px-3 text-xs hover:bg-slate-50 sm:flex-none sm:px-5 sm:text-sm"
+              className="h-11 min-w-0 flex-1 whitespace-nowrap rounded-[var(--radius-md)] border-slate-200 bg-white px-3 text-xs hover:bg-slate-50 dark:!border-transparent dark:!bg-slate-800/80 dark:!text-slate-200 dark:hover:!bg-slate-700/80 sm:flex-none sm:px-5 sm:text-sm"
               onClick={onRetry}
             >
               <RefreshCw className="size-4" />
