@@ -201,8 +201,10 @@ frontend juga berubah.
 | `/dashboard/admin/students` | Profil dan penempatan kelas siswa. |
 | `/dashboard/admin/subjects` | Mapel, assignment, jadwal, ruangan, dan perubahan jadwal. |
 
-Routing memakai SPA. Membuka ulang URL dashboard secara langsung tetap didukung
-oleh konfigurasi rewrite di `vercel.json` ketika dideploy ke Vercel.
+Routing memakai SPA. Membuka ulang URL dashboard secara langsung membutuhkan
+rewrite ke `index.html`; konfigurasi Nginx aaPanel pada paket deployment sudah
+menyediakan `try_files` untuk kebutuhan tersebut. `vercel.json` tetap tersedia
+untuk deployment Vercel bila diperlukan.
 
 ## Struktur folder penting
 
@@ -266,7 +268,15 @@ Production build dibuat dengan:
 npm run build
 ```
 
-Hasilnya berada di folder `dist/`. Untuk deployment Vercel:
+Hasilnya berada di folder `dist/`. Untuk VPS aaPanel, arsipkan isi folder
+tersebut dengan perintah berikut dari PowerShell laptop:
+
+```powershell
+tar -czf "..\aaPanel-deploy\frontend-dist.tar.gz" -C dist .
+```
+
+Upload arsip ke document root website dan extract isinya langsung di sana.
+Frontend tidak membutuhkan Node.js di server. Untuk deployment Vercel:
 
 1. Hubungkan repository atau deploy folder frontend ini.
 2. Tambahkan environment variable `VITE_API_BASE_URL` yang mengarah ke API
