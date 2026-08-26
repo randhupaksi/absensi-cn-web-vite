@@ -177,6 +177,98 @@ origin through `VITE_API_BASE_URL` before building; do not put secrets in it.
 For the complete API build, upload, restart, backup, rollback, and verification
 procedure, read [OPERATIONS.md](../docs/OPERATIONS.md).
 
+## Frontend architecture
+
+The frontend is organized around role-aware pages and reusable domain features.
+`App.tsx` owns route registration and lazy loading, providers own application
+state, services own API communication, and UI components remain focused on
+presentation and interaction. New pages should reuse existing tokens, cards,
+modal patterns, icons, and form controls before introducing new visual rules.
+
+TanStack Query is the preferred source for server state. Mutations should
+invalidate the smallest affected query keys and must not manually fabricate
+attendance data when the API response is available. Local state is appropriate
+for modal visibility, form drafts, filters, and temporary UI transitions.
+
+## Data and API integration rules
+
+- Keep `VITE_API_BASE_URL` environment-specific; never hardcode production URLs.
+- Preserve API payload names, status values, identifiers, pagination metadata,
+  and error status codes.
+- Treat the API as the authority for roles, scopes, attendance status, review
+  identity, corrected times, and notification history.
+- Abort or ignore stale requests when filters, routes, or selected records change.
+- Invalidate related queries after attendance submission, teacher correction,
+  validation, profile updates, imports, and academic structure changes.
+- Do not place secrets, database credentials, JWT signing keys, or private upload
+  credentials in `VITE_*` variables because they are shipped to the browser.
+
+## User experience states
+
+Every data-driven section should account for these states:
+
+1. Initial loading: show a local skeleton or spinner within the relevant section.
+2. Success: render the server data and its timestamp/context where useful.
+3. Empty: explain what is absent and what the user can do next.
+4. Recoverable error: keep the relevant page visible in the background and show
+   a contextual modal or alert with one clear action.
+5. Offline/server failure: distinguish an unavailable server from invalid input;
+   do not tell users that their data is safe when they were only trying to log in.
+6. Retry: prevent duplicate mutations and preserve safe form input where possible.
+
+Error-boundary messages must identify the affected page or section. Test-only
+error triggers must never be shipped in a production build.
+
+## Responsive and accessibility guidelines
+
+- Design from the smallest supported mobile width, then enhance for desktop.
+- Use fluid typography with sensible maximum sizes; headings must not overflow
+  cards or push essential actions off-screen.
+- Keep related status, time, badge, and action elements aligned as one responsive
+  group. On narrow cards, stack intentionally rather than relying on accidental
+  wrapping.
+- Tables may become readable cards on mobile, but preserve column meaning and
+  status context.
+- Maintain visible focus states, keyboard access, semantic buttons, readable
+  contrast in both light and dark themes, and labels for icon-only controls.
+- Camera, location, and file-upload flows must explain permission requirements,
+  loading, denied, unsupported, and retry states.
+
+## Theme and visual system
+
+Dark and light themes share semantic tokens rather than isolated hardcoded colors.
+Borders, dividers, icon rings, badges, progress tracks, focus states, and modal
+backdrops must be checked in both themes. Prefer soft neutral borders in dark mode
+and reserve strong color for semantic states: success, warning, danger, and info.
+
+Theme switching should update synchronously at the root and avoid delayed click
+feedback. Components must not assume that a dark theme always means a green
+border or that a light theme always means a shadow.
+
+## Reports and exports
+
+Report dialogs should make scope and time period explicit before export. A report
+can be scoped to the full available range, a specific day, a date range, class,
+major, level, or student detail depending on the API permission. The UI should
+also expose format (PDF or Excel), detail level, and ordering where supported.
+
+Export labels must state the selected scope, period, row count, and ordering so a
+download can be interpreted later without reopening the application. Never make
+the browser calculate authoritative attendance totals when the API provides them.
+
+## Testing strategy
+
+Before a frontend release, verify at least:
+
+- Student, staff, and admin login success/failure behavior.
+- Expired session and unauthorized route handling.
+- Student check-in, duplicate-submit prevention, photo/location permission denial,
+  and corrected attendance display.
+- Teacher validation/correction and notification refresh behavior.
+- Admin filters, imports, pagination, report scope, and PDF/Excel actions.
+- Light/dark themes, mobile widths, keyboard focus, and reduced-motion behavior.
+- API-down, timeout, offline, empty, and error-boundary states.
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Solution |
