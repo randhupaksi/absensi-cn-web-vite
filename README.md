@@ -1,247 +1,159 @@
 # Absensi CN Web
 
-Frontend web untuk **Absensi CN**, sistem manajemen kehadiran sekolah bagi SMP,
-SMA, dan SMK Citra Negara. Aplikasi ini menyediakan landing page, dua portal
-login, dan dashboard sesuai peran untuk siswa, guru mata pelajaran, wali kelas,
-BK, serta admin.
+Frontend application for **Absensi CN**, the school attendance management system
+for SMP, SMA, and SMK Citra Negara. It provides the landing page, separate login
+portals, and role-aware dashboards for students, teachers, homeroom teachers, BK,
+and administrators.
 
-Project ini dibuat oleh **Randhu Paksi Membumi** sebagai Fullstack Developer,
-System Analyst, UI/UX Designer, Frontend Engineer, dan Backend Engineer.
+Built by **Randhu Paksi Membumi** as Fullstack Developer, System Analyst, UI/UX
+Designer, Frontend Engineer, and Backend Engineer.
 
-## Teknologi utama
+## Documentation
 
-- **React 19** dan **TypeScript** untuk antarmuka aplikasi.
-- **Vite 8** untuk development server dan production build.
-- **React Router** untuk routing SPA dan navigasi antar halaman.
-- **Tailwind CSS 4** untuk sistem styling dan design token.
-- **TanStack Query** untuk pengambilan, cache, serta invalidasi data API.
-- **React Hook Form + Zod** untuk form dan validasi input.
+- [System architecture](../docs/ARCHITECTURE.md)
+- [API reference](../docs/API-REFERENCE.md)
+- [Operations and aaPanel deployment](../docs/OPERATIONS.md)
+- [Contribution guide](../docs/CONTRIBUTING.md)
 
-Library utama lain yang digunakan adalah Radix Select dan Base UI untuk kontrol
-interaktif, Motion untuk animasi, Recharts untuk visualisasi dashboard, Sonner
-untuk notifikasi, jsPDF untuk laporan, dan Axios sebagai HTTP client.
+## Technology stack
 
-## Fitur yang tersedia
+- React 19 and TypeScript
+- Vite 8 and React Router
+- Tailwind CSS 4
+- TanStack Query for fetching, caching, and invalidation
+- Axios for HTTP communication
+- React Hook Form and Zod for forms and validation
+- Radix Select, Base UI, Motion, Recharts, Sonner, and jsPDF
 
-### Umum dan autentikasi
+## Features
 
-- Landing page sistem kehadiran sekolah.
-- Portal login yang dipisahkan untuk siswa dan staff.
-- Redirect dashboard berdasarkan role pengguna setelah login.
-- Logout yang kembali ke portal login sesuai peran sebelumnya.
-- Scroll kembali ke atas ketika berpindah section atau halaman.
-- Responsive layout untuk desktop dan mobile, termasuk tampilan tabel menjadi
-  kartu informasi pada area yang membutuhkan keterbacaan mobile.
+### Shared and authentication
 
-### Siswa
+- School attendance landing page.
+- Separate student and staff login portals.
+- Role-aware redirects and logout behavior.
+- Responsive desktop/mobile layouts, including mobile-friendly data cards.
+- Theme switching, loading states, error boundaries, system alerts, and notifications.
 
-- Dashboard kehadiran harian.
-- Check-in berbasis foto dengan dukungan lokasi perangkat sebagai bukti tambahan.
-- Riwayat absensi dan status kehadiran.
-- Profil siswa.
-- Pengajuan izin, sakit, atau dispensasi berikut dokumen/foto pendukung.
+### Student portal
 
-### Guru dan wali kelas
+- Daily attendance dashboard and attendance history.
+- Photo check-in with device location evidence and geofence feedback.
+- Student profile and personal password setup.
+- Permission, sick-leave, and dispensation submissions with supporting files.
+- Attendance correction status, validation status, and activity notifications.
 
-- Dashboard kerja guru yang menyesuaikan peran guru mapel dan wali kelas.
-- Daftar siswa kelas dan ringkasan kehadiran.
-- Absensi kelas serta proses review wali kelas.
-- Sesi mapel aktif untuk validasi kehadiran selama jam pelajaran.
-- Rekap kehadiran mapel dan riwayat sesi mapel.
-- Detail sesi, koreksi status kehadiran, topik pertemuan, dan catatan pengajaran.
-- Cetak laporan untuk rekap mapel dan sesi mapel.
-- Review pengajuan siswa sesuai otorisasi wali kelas.
+### Teacher, homeroom, and BK portals
 
-### BK
+- Teacher workspace with subject and homeroom access based on scope.
+- Class student lists, attendance tickets, validation, review, and correction.
+- Active subject sessions, session history, recaps, teaching topics, and notes.
+- BK monitoring across authorized classes, attendance review, submissions, and counseling notes.
 
-- Dashboard dan monitoring siswa lintas kelas sesuai scope BK.
-- Tinjauan absensi, detail siswa, dan riwayat kehadiran.
-- Review absensi serta pengajuan yang memerlukan tindak lanjut.
-- Catatan konseling siswa.
+### Admin portal
 
-### Admin
+- Operational dashboard, analytics, charts, filters, and search.
+- Student, staff, user, class, subject, schedule, room, and assignment management.
+- School units, majors, school years, homeroom assignments, and holiday calendars.
+- Excel import and PDF/Excel reporting workflows.
 
-- Dashboard operasional sekolah.
-- Manajemen profil siswa, penempatan kelas, guru, pengguna, dan admin.
-- Struktur akademik: unit sekolah SMP/SMA/SMK, jurusan/program, tahun ajaran,
-  kelas, wali kelas, dan assignment mapel.
-- Pengelolaan mapel, jadwal, ruangan, dan perubahan jadwal.
-- Filter, pencarian, pagination, modal CRUD, import Excel, serta cetak laporan.
-- Filter kelas menurut jenjang dan program/jurusan.
+## Prerequisites
 
-## Prasyarat
-
-Sebelum menjalankan frontend, siapkan:
-
-| Kebutuhan | Keterangan |
+| Requirement | Recommendation |
 | --- | --- |
-| Node.js | Wajib. Gunakan Node.js LTS terbaru, **v22 atau lebih baru direkomendasikan**. |
-| npm | Sudah terpasang bersama Node.js. |
-| Backend API | Wajib untuk login dan data nyata. Jalankan `absensi-cn-api` pada port yang sesuai. |
-| Git | Opsional bila project diperoleh melalui clone repository. |
+| Node.js | LTS, v22 or newer recommended |
+| npm | Included with Node.js |
+| Backend API | Required for login and real data |
+| Git | Optional when cloned from a repository |
 
-Verifikasi Node.js dan npm di PowerShell:
+This project does not require PHP or XAMPP. XAMPP may be used only to run MySQL
+for the Go API.
+
+Verify Node.js:
 
 ```powershell
 node --version
 npm --version
 ```
 
-Jika perintah tersebut tidak ditemukan, instal Node.js LTS terlebih dahulu dari
-website resmi Node.js, lalu tutup dan buka kembali terminal.
+## Local development
 
-> Project ini tidak memakai PHP. Tidak perlu menginstal XAMPP untuk menjalankan
-> frontend. XAMPP hanya dapat dipakai bila Anda memilih menggunakannya sebagai
-> cara menjalankan MySQL untuk backend Go.
-
-## Menjalankan frontend dari nol
-
-Langkah berikut ditulis untuk Windows PowerShell.
-
-### 1. Jalankan backend API terlebih dahulu
-
-Buka terminal pertama:
+Start the API in a separate terminal first:
 
 ```powershell
-cd C:\path\ke\absensi-cn-web\absensi-cn-api
+cd C:\path\to\absensi-cn-web\absensi-cn-api
 go run ./cmd/api
 ```
 
-Pastikan health check API dapat diakses:
-
-```text
-http://localhost:8080/api/v1/health
-```
-
-Baca [README API](../absensi-cn-api/README.md) untuk panduan instalasi Go,
-MySQL, database, dan seed lokal.
-
-### 2. Masuk ke folder frontend
-
-Buka terminal kedua:
+Then run the frontend:
 
 ```powershell
-cd C:\path\ke\absensi-cn-web\absensi-cn-web-vite
-```
-
-### 3. Buat file environment
-
-Salin template environment:
-
-```powershell
+cd C:\path\to\absensi-cn-web\absensi-cn-web-vite
 Copy-Item .env.example .env
-```
-
-Isi `.env` untuk mengarah ke API lokal:
-
-```env
-VITE_API_BASE_URL=http://localhost:8080/api/v1
-```
-
-`VITE_*` dibaca oleh browser dan masuk ke production bundle. Jangan menyimpan
-password, JWT secret, API key rahasia, atau kredensial database di file `.env`
-frontend.
-
-### 4. Instal dependency
-
-Gunakan `npm ci` untuk instalasi yang konsisten berdasarkan `package-lock.json`:
-
-```powershell
 npm ci
-```
-
-Gunakan `npm install` hanya bila Anda memang menambah, menghapus, atau mengubah
-dependency di `package.json`.
-
-### 5. Jalankan development server
-
-```powershell
 npm run dev
 ```
 
-Vite akan menampilkan URL lokal, umumnya:
-
-```text
-http://localhost:5173
-```
-
-Buka URL tersebut di browser. Jangan tutup terminal development server selama
-aplikasi masih digunakan.
-
-## Alur menjalankan seluruh project
-
-Gunakan dua terminal agar frontend dan API berjalan bersamaan.
-
-| Terminal | Folder | Perintah | Alamat |
-| --- | --- | --- | --- |
-| API | `absensi-cn-api` | `go run ./cmd/api` | `http://localhost:8080` |
-| Web | `absensi-cn-web-vite` | `npm run dev` | `http://localhost:5173` |
-
-Hubungan keduanya ditentukan oleh:
+Set this value in `.env`:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080/api/v1
 ```
 
-Jika port API diubah, misalnya menjadi `8081`, ubah nilai ini menjadi
-`http://localhost:8081/api/v1` dan ubah `APP_ALLOWED_ORIGINS` pada API bila URL
-frontend juga berubah.
+Never store passwords, JWT secrets, private API keys, or database credentials in
+frontend environment variables. `VITE_*` values are visible in the browser bundle.
 
-## Rute utama
+The usual local URLs are:
 
-| Rute | Kegunaan |
+| Service | URL |
 | --- | --- |
-| `/` | Landing page. |
-| `/login/student` | Login khusus siswa menggunakan NIS dan password. |
-| `/login/staff` | Login khusus guru, wali kelas, BK, dan admin. |
-| `/dashboard/siswa` | Dashboard siswa. |
-| `/dashboard/teacher` | Dashboard guru dengan akses mapel/wali kelas/BK sesuai role. |
-| `/dashboard/admin` | Dashboard admin. |
-| `/dashboard/admin/classes` | Struktur akademik, unit sekolah, jurusan, dan kelas. |
-| `/dashboard/admin/students` | Profil dan penempatan kelas siswa. |
-| `/dashboard/admin/subjects` | Mapel, assignment, jadwal, ruangan, dan perubahan jadwal. |
+| API | `http://localhost:8080` |
+| Frontend | `http://localhost:5173` |
 
-Routing memakai SPA. Membuka ulang URL dashboard secara langsung membutuhkan
-rewrite ke `index.html`; konfigurasi Nginx aaPanel pada paket deployment sudah
-menyediakan `try_files` untuk kebutuhan tersebut. `vercel.json` tetap tersedia
-untuk deployment Vercel bila diperlukan.
+## Main routes
 
-## Struktur folder penting
+| Route | Purpose |
+| --- | --- |
+| `/` | Landing page |
+| `/login/student` | Student login with NIS and password |
+| `/login/staff` | Teacher, homeroom, BK, and admin login |
+| `/dashboard/siswa` | Student dashboard |
+| `/dashboard/teacher` | Teacher workspace based on role and scope |
+| `/dashboard/admin` | Administrator dashboard |
+| `/dashboard/admin/classes` | Academic structure and classes |
+| `/dashboard/admin/students` | Student profiles and class placement |
+| `/dashboard/admin/subjects` | Subjects, assignments, schedules, and rooms |
+
+The app is an SPA. Direct dashboard URLs require a rewrite to `index.html`; the
+aaPanel deployment package includes the required Nginx `try_files` rule.
+
+## Important structure
 
 ```text
 src/
-  App.tsx                 # registry route, lazy loading, dan redirect
-  pages/                  # halaman per role
-  features/               # fitur berdasarkan domain dan role
-  components/             # komponen reusable, modal, UI, router adapter
-  services/               # API client dan service endpoint
-  providers/              # TanStack Query dan provider aplikasi
-  types/                  # type TypeScript bersama
-  lib/validations/        # schema Zod
-  index.css               # token visual dan CSS global
-public/                   # logo, favicon, dan asset statis
+  App.tsx                 # route registry, lazy loading, and redirects
+  pages/                  # role-based pages
+  features/               # domain and role features
+  components/             # reusable UI, modals, and adapters
+  services/               # API clients and endpoint services
+  providers/              # Query and application providers
+  types/                  # shared TypeScript types
+  lib/validations/        # Zod schemas
+  index.css               # visual tokens and global CSS
+public/                   # logos, favicon, and static assets
 ```
 
-## Perintah pengembangan dan validasi
+## Development and validation
 
 ```powershell
-# Menjalankan development server
 npm run dev
-
-# Memeriksa type TypeScript
 npm run typecheck
-
-# Menjalankan linter
 npm run lint
-
-# Membuat production build
 npm run build
-
-# Menjalankan hasil production build secara lokal
 npm run preview
 ```
 
-Urutan yang disarankan sebelum push perubahan frontend:
+Recommended pre-push sequence:
 
 ```powershell
 npm run typecheck
@@ -249,44 +161,36 @@ npm run lint
 npm run build
 ```
 
-## Troubleshooting
+## Build and aaPanel deployment
 
-| Gejala | Penyebab umum | Solusi |
-| --- | --- | --- |
-| `node` atau `npm` tidak dikenali | Node.js belum terinstal atau terminal belum dibuka ulang | Instal Node.js LTS, lalu buka terminal baru. |
-| Login gagal karena network error | API belum berjalan atau URL API salah | Jalankan API dan periksa `VITE_API_BASE_URL`. |
-| CORS error di browser | Origin frontend belum diizinkan API | Set `APP_ALLOWED_ORIGINS=http://localhost:5173` pada API lalu restart API. |
-| Halaman hanya kosong setelah update | Cache browser atau error runtime | Lihat console browser, pastikan `npm run typecheck` lulus, lalu hard refresh. |
-| Port `5173` sudah digunakan | Vite lain masih berjalan | Hentikan proses lama atau gunakan URL port baru yang ditampilkan Vite. |
-| Data tidak muncul | Database API belum siap atau frontend mengarah ke endpoint salah | Cek `GET /api/v1/health`, konfigurasi API, dan file `.env` frontend. |
-
-## Build dan deployment
-
-Production build dibuat dengan:
+Build the production bundle on the laptop:
 
 ```powershell
 npm run build
-```
-
-Hasilnya berada di folder `dist/`. Untuk VPS aaPanel, arsipkan isi folder
-tersebut dengan perintah berikut dari PowerShell laptop:
-
-```powershell
 tar -czf "..\aaPanel-deploy\frontend-dist.tar.gz" -C dist .
 ```
 
-Upload arsip ke document root website dan extract isinya langsung di sana.
-Frontend tidak membutuhkan Node.js di server. Untuk deployment Vercel:
+Upload the archive to the aaPanel website document root and extract it directly
+there. Node.js is not required on the production server. Configure the API
+origin through `VITE_API_BASE_URL` before building; do not put secrets in it.
 
-1. Hubungkan repository atau deploy folder frontend ini.
-2. Tambahkan environment variable `VITE_API_BASE_URL` yang mengarah ke API
-   deployment, misalnya `https://api.domain-sekolah.id/api/v1`.
-3. Tambahkan domain frontend deployment ke `APP_ALLOWED_ORIGINS` pada API.
-4. Deploy ulang frontend dan API setelah perubahan environment.
+For the complete API build, upload, restart, backup, rollback, and verification
+procedure, read [OPERATIONS.md](../docs/OPERATIONS.md).
 
-Jangan mengubah endpoint API, role permission, atau format payload hanya dari
-frontend. Kontrak API, otorisasi, dan validasi bisnis tetap ditentukan backend.
+## Troubleshooting
 
-## Kepemilikan
+| Symptom | Likely cause | Solution |
+| --- | --- | --- |
+| `node` or `npm` is not recognized | Node.js is missing or the terminal is old | Install Node.js LTS and open a new terminal. |
+| Network error during login | API is stopped or the API URL is wrong | Start the API and check `VITE_API_BASE_URL`. |
+| CORS error | Frontend origin is not allowed by the API | Update `APP_ALLOWED_ORIGINS` and restart the API. |
+| Blank page after an update | Browser cache or runtime error | Check the browser console, run typecheck, then hard refresh. |
+| Port `5173` is busy | Another Vite process is running | Stop it or use the port shown by Vite. |
+| Data is missing | API/database is unavailable | Check `/api/v1/health` and both environment files. |
+
+Do not change API payloads, routes, or authorization assumptions only from the
+frontend. The backend remains the source of truth for business rules and access.
+
+## Ownership
 
 Copyright 2026 Randhu Paksi Membumi. All rights reserved.
