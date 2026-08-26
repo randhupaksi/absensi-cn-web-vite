@@ -35,3 +35,5 @@ docs/guidebook/deliverables/*.docx
 docs/guidebook/deliverables/~$*.docx
 docs/guidebook/qa/
 docs/guidebook/*.docx
+# Local guidebook and PowerShell helper scripts
+*.ps1
