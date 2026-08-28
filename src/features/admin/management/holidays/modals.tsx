@@ -32,7 +32,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useEffect } from "react";
 
 const INPUT_CLASS =
-  "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:shadow-none";
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:border-slate-600 dark:bg-none dark:bg-slate-900 dark:text-slate-100 dark:shadow-none";
 
 const HOLIDAY_TYPE_OPTIONS = [
   {
@@ -247,7 +247,7 @@ function CalendarDateField({
         </PopoverTrigger>
         <PopoverContent
           sideOffset={8}
-          className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-3 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
+          className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-3 shadow-[0_24px_54px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none"
         >
           <Calendar
             mode="single"

@@ -66,7 +66,7 @@ type DeleteTarget = {
 };
 
 const inputClass =
-  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm placeholder:text-slate-400";
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
 
 export function AcademicStructureTabContent({
   activeTab,
