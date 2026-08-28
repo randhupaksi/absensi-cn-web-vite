@@ -87,7 +87,7 @@ export function AttendanceDateButton({
       </PopoverTrigger>
       <PopoverContent
         sideOffset={10}
-        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
+        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none"
       >
         <PopoverHeader className="px-2 pt-1 pb-2">
           <PopoverTitle className="text-sm font-semibold text-slate-900">
@@ -270,7 +270,7 @@ export function AttendanceProofModal({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[26px] border border-emerald-100/80 bg-[linear-gradient(180deg,#f8fffb_0%,#eefbf4_100%)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.92)]">
+          <div className="overflow-hidden rounded-[26px] border border-emerald-100/80 bg-[linear-gradient(180deg,#f8fffb_0%,#eefbf4_100%)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.92)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none">
             {photoUrl ? (
               <ProtectedApiImage
                 src={photoUrl}

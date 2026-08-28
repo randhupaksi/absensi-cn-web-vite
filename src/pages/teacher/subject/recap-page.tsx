@@ -437,7 +437,7 @@ function DatePickerButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={<Button type="button" variant="outline" />}
-        className="h-14 w-full justify-start rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)]"
+        className="h-14 w-full justify-start rounded-[1.25rem] border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] dark:border-slate-600 dark:bg-none dark:bg-slate-800 dark:text-slate-100 dark:shadow-none"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <CalendarDays className="size-4 shrink-0 text-emerald-600" />
@@ -452,7 +452,7 @@ function DatePickerButton({
       </PopoverTrigger>
       <PopoverContent
         sideOffset={8}
-        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
+        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none"
       >
         <Calendar
           mode="single"
