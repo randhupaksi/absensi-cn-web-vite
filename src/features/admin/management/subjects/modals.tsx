@@ -43,7 +43,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 
 const INPUT_CN =
-  "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:shadow-none";
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:border-slate-600 dark:bg-none dark:bg-slate-900 dark:text-slate-100 dark:shadow-none";
 
 const activeOptions = [
   { value: "true", label: "Aktif" },
@@ -457,7 +457,7 @@ export function TeachingAssignmentFormModal({
             {schedules.fields.map((field, index) => (
               <div
                 key={field.id}
-                className="grid gap-3 rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcfa_100%)] p-4 shadow-[0_6px_14px_rgba(15,23,42,0.03)] md:grid-cols-4 md:items-start"
+                className="grid gap-3 rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fcfa_100%)] p-4 shadow-[0_6px_14px_rgba(15,23,42,0.03)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none md:grid-cols-4 md:items-start"
               >
                 <div className={premiumModalFieldClassName}>
                   <label className={premiumModalLabelClassName}>Hari</label>
@@ -549,7 +549,7 @@ export function TeachingAssignmentFormModal({
                   variant="outline"
                   size="icon-sm"
                   aria-label={`Hapus slot jadwal ${index + 1}`}
-                  className="size-10 rounded-[14px] border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,242,242,0.98)_100%)] text-rose-500 shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-rose-300 hover:bg-rose-50 md:mt-7"
+                  className="size-10 rounded-[14px] border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,242,242,0.98)_100%)] text-rose-500 shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-rose-300 hover:bg-rose-50 dark:border-rose-700 dark:bg-none dark:bg-rose-950/50 dark:text-rose-300 dark:shadow-none md:mt-7"
                   onClick={() => schedules.remove(index)}
                 >
                   <Trash2 className="size-4" />
@@ -632,7 +632,7 @@ function DatePickerField({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={<Button type="button" variant="outline" />}
-          className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30"
+          className="h-14 w-full justify-start rounded-[22px] border-slate-200 bg-white px-4 text-left shadow-[0_8px_16px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-500 dark:hover:bg-emerald-950/60"
         >
           <div className="flex items-center gap-3">
             <span className="flex size-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">

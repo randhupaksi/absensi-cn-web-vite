@@ -32,7 +32,7 @@ import { Controller, useForm, type Control } from "react-hook-form";
 import { useEffect, useState } from "react";
 
 const inputClass =
-  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm";
+  "h-14 rounded-[1.25rem] border-slate-200/80 bg-white px-4 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500";
 
 function Footer({
   formId,
@@ -334,7 +334,7 @@ function DatePickerPopover({
       </PopoverTrigger>
       <PopoverContent
         sideOffset={8}
-        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)]"
+        className="w-auto rounded-[24px] border border-emerald-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f4fbf7_100%)] p-4 shadow-[0_24px_54px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none"
       >
         <Calendar
           mode="single"

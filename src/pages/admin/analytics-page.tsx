@@ -637,7 +637,7 @@ function AnalyticsDatePicker({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         type="button"
-        className="group flex h-14 w-full items-center justify-between gap-3 rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color] duration-150 hover:border-emerald-400 hover:bg-emerald-50/50 focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-open:border-emerald-500 data-open:ring-4 data-open:ring-emerald-200/80"
+        className="group flex h-14 w-full items-center justify-between gap-3 rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color] duration-150 hover:border-emerald-400 hover:bg-emerald-50/50 focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-open:border-emerald-500 data-open:ring-4 data-open:ring-emerald-200/80 dark:border-slate-600 dark:bg-none dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:hover:bg-slate-700 dark:focus-visible:ring-emerald-500/25"
       >
         <span className="truncate">
           {selectedDate ? formatDisplayDate(selectedDate) : "Pilih tanggal"}
