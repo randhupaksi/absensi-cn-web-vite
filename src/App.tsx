@@ -73,11 +73,6 @@ const AdminUsersPage = lazy(() =>
     default: module.AdminUsersPage,
   })),
 );
-const AdminPlaceholderPage = lazy(() =>
-  import("@/pages/admin/placeholder-page").then((module) => ({
-    default: module.AdminPlaceholderPage,
-  })),
-);
 const BKAttendancePage = lazy(() =>
   import("@/pages/bk/attendance-page").then((module) => ({
     default: module.BKAttendancePage,
@@ -327,17 +322,6 @@ export default function App() {
             element={<AdminTeachersPage />}
           />
           <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
-          <Route
-            path="/dashboard/admin/reports"
-            element={
-              <AdminPlaceholderPage
-                title="Laporan"
-                subtitle="Laporan dan rekap absensi"
-                description="Halaman laporan akan menampilkan rekap absensi, insight sekolah, dan kebutuhan ekspor data setelah halaman ini dibuat."
-              />
-            }
-          />
-
           <Route
             path="/dashboard/teacher"
             element={
