@@ -29,7 +29,6 @@ import {
   SubmissionStatusPill,
   SubmissionTypePill,
 } from "@/features/teacher/homeroom/components/submissions-modals";
-import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
@@ -49,7 +48,6 @@ import {
   GraduationCap,
   LayoutPanelTop,
   PencilLine,
-  Printer,
   ShieldAlert,
   Upload,
 } from "lucide-react";

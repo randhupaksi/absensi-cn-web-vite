@@ -1,7 +1,6 @@
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
-import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
-import { LayoutPanelTop, Printer } from "lucide-react";
+import { LayoutPanelTop } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 type BkPageHeroProps = {

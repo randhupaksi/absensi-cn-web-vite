@@ -1,7 +1,6 @@
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import { BackButton } from "@/components/ui/back-button";
-import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { AppLink as Link } from "@/components/router/app-link";
 import dynamic from "@/lib/dynamic";
@@ -23,7 +22,6 @@ import {
   Clock3,
   GraduationCap,
   Layers3,
-  Printer,
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";

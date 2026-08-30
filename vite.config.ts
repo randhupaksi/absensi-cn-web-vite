@@ -31,7 +31,7 @@ export default defineConfig({
         // a full HTTP request whose headers dwarf the payload, which is the
         // expensive part on high-latency mobile connections. Merging them into
         // their consumers trades a little duplication for far fewer requests.
-        advancedChunks: {
+        codeSplitting: {
           groups: [
             {
               name: "lucide-icons",

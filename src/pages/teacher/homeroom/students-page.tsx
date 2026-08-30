@@ -19,7 +19,6 @@ import {
   SearchFilterBar,
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
-import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -43,7 +42,6 @@ import {
   Eye,
   GraduationCap,
   LayoutPanelTop,
-  Printer,
   ShieldCheck,
   TriangleAlert,
   UsersRound,

@@ -50,7 +50,6 @@ import {
   Eye,
   FilePenLine,
   History,
-  Printer,
   Users,
 } from "lucide-react";
 import { AppLink as Link } from "@/components/router/app-link";
@@ -501,7 +500,7 @@ export function MapelHistoryPage() {
                       centerLabels={["H", "I", "S", "A", "Status"]}
                     />
                     <DataTableBody>
-                      {pagedSessions.map((sess, i) => {
+                      {pagedSessions.map((sess) => {
                         const statusInfo = STATUS_MAP[sess.status] ?? {
                           label: sess.status,
                           cls: "bg-slate-100 text-slate-600",

@@ -40,7 +40,6 @@ import {
   formatGender,
 } from "@/features/admin/management/students/profile-modals";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
-import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { exportStudentRosterExcel } from "@/lib/reports/student-roster-excel";
@@ -72,8 +71,6 @@ import {
   BookOpen,
   CalendarClock,
   FilePenLine,
-  FileDown,
-  FileSpreadsheet,
   GraduationCap,
   LayoutPanelTop,
   ShieldCheck,

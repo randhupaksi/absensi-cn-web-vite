@@ -37,7 +37,6 @@ import {
   CalendarDays,
   ChartColumnBig,
   LoaderCircle,
-  Printer,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";

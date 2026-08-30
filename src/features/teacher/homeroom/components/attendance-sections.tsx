@@ -48,7 +48,6 @@ import {
   GraduationCap,
   ImageIcon,
   LayoutPanelTop,
-  Printer,
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";

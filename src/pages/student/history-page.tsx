@@ -14,7 +14,6 @@ import {
 } from "@/features/admin/management/shared/section-ui";
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { StudentShell } from "@/features/student/components/shell";
-import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import dynamic from "@/lib/dynamic";
@@ -50,7 +49,6 @@ import {
   History,
   LayoutPanelTop,
   List,
-  Printer,
   ShieldAlert,
 } from "lucide-react";
 import { useMemo, useState } from "react";
