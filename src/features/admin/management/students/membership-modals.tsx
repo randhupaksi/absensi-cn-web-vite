@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Membership modal options, helpers, and UI share one feature contract. */
+
 import {
   FieldGroup,
   ModalActions,

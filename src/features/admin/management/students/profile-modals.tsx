@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Profile modal display helpers are intentionally colocated with their UI. */
+
 import {
   FieldGroup,
   ModalActions,

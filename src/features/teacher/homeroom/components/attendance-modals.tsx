@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Attendance modals share public formatters and options with their page composition. */
+
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
 import {

@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- This public UI module intentionally exports its components and variant helper together. */
+
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva, type VariantProps } from "class-variance-authority";
 

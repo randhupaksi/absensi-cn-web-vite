@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Shared management UI intentionally exposes components, hooks, and presentation helpers from one module. */
+
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { ScrollableTabsWrapper } from "@/features/admin/dashboard/widgets/scrollable-tabs";
 import { RadixSelectField } from "@/components/ui/radix-select";

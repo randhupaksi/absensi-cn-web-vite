@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Student UI primitives intentionally share their display helpers in this module. */
+
 import { Badge } from "@/components/ui/badge";
 import { resolveApiAssetUrl } from "@/lib/config/site";
 import { formatDisplayLabel } from "@/lib/utils";

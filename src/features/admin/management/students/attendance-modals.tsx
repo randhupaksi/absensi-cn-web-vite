@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Attendance-rule validation is intentionally colocated with its modal UI. */
+
 import {
   FieldGroup,
   ModalActions,

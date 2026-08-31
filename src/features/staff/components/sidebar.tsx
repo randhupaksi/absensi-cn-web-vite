@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- The sidebar component and role-aware navigation builders are one public module. */
+
 import { AppImage as Image } from "@/components/media/app-image";
 import { AppLink as Link } from "@/components/router/app-link";
 import { useLayoutEffect, useRef } from "react";

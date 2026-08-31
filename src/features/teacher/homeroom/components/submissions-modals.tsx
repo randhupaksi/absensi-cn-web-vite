@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Submission modal options and display helpers are intentionally colocated with their UI. */
+
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
 import { ProtectedApiImage } from "@/components/security/protected-api-asset";

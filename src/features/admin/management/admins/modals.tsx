@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Admin form validation is intentionally colocated with the modal components that consume it. */
+
 import {
   FieldGroup,
   ModalActions,

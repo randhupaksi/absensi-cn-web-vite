@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Shared BK UI primitives intentionally live with their display and attachment helpers. */
+
 import { Badge } from "@/components/ui/badge";
 import { resolveApiAssetUrl } from "@/lib/config/site";
 import { formatDisplayLabel } from "@/lib/utils";

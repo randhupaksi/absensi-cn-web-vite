@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- User form helpers are intentionally colocated with the modal components that consume them. */
+
 import {
   FieldGroup,
   ModalActions,

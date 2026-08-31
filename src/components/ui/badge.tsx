@@ -1,3 +1,5 @@
+/* oxlint-disable react/only-export-components -- This public UI module intentionally exports its component and variant helper together. */
+
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";

@@ -1,3 +1,5 @@
+/* oxlint-disable react/only-export-components -- This feature module intentionally exports its component and reusable status predicate together. */
+
 import { RefreshCw } from "lucide-react";
 import type { StaffAttendanceRecord } from "@/types/staff";
 import { formatDisplayLabel } from "@/lib/utils";

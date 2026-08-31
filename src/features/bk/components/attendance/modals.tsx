@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Attendance modal options are intentionally exported with the related UI. */
+
 import {
   AttendanceStatusPill,
   formatCheckInTime,

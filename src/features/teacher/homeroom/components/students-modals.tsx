@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- Student modal display helpers are intentionally colocated with their UI. */
+
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { PremiumModal } from "@/components/modals/premium-modal";
 import { Badge } from "@/components/ui/badge";

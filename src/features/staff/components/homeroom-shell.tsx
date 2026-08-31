@@ -1,5 +1,7 @@
 "use client";
 
+/* oxlint-disable react/only-export-components -- The shell and its route-title resolver form one public feature contract. */
+
 import type { ReactNode } from "react";
 import { StaffShell } from "./shell";
 import { buildWalasSidebarItems } from "./sidebar";
