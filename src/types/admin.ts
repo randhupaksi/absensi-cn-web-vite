@@ -451,6 +451,10 @@ export type AdminStudent = {
   nisn?: string;
   gender?: string;
   is_active: boolean;
+  must_change_password?: boolean;
+  password_changed_at?: string;
+  password_changed_by?: string;
+  password_change_source?: string;
 };
 
 export type AdminStudentPayload = {

@@ -725,7 +725,7 @@ export function StudentSection({
           <TabsContent value="profiles" className="mt-4">
             <DataTableCard
               isLoading={isLoading}
-              columnCount={6}
+              columnCount={7}
               isEmpty={filteredStudents.length === 0}
               emptyTitle="Belum ada siswa"
               emptyDescription="Tambahkan siswa baru agar data muncul pada daftar ini."
@@ -767,6 +767,25 @@ export function StudentSection({
                             label="Gender"
                             value={formatGender(student.gender)}
                           />
+                          <MobileDataField
+                            label="Password Terakhir Diubah"
+                            value={formatPasswordChangedAt(
+                              student.password_changed_at,
+                            )}
+                          />
+                          <MobileDataField
+                            label="Status Password"
+                            value={formatPasswordStatus(
+                              student.must_change_password,
+                            )}
+                          />
+                          <MobileDataField
+                            label="Diubah Oleh"
+                            value={formatPasswordActor(
+                              student.password_changed_by,
+                              student.password_change_source,
+                            )}
+                          />
                         </div>
                         <MobileDataFooter>
                           <ActionButtons
@@ -793,6 +812,7 @@ export function StudentSection({
                     "NIS / NISN",
                     "Kelas Aktif",
                     "Gender",
+                    "Password Diubah",
                     "Status",
                     "Aksi",
                   ]}
@@ -829,6 +849,20 @@ export function StudentSection({
                       </DataTableCell>
                       <DataTableCell>
                         {formatGender(student.gender)}
+                      </DataTableCell>
+                      <DataTableCell>
+                        <div className="space-y-1">
+                          <p>{formatPasswordChangedAt(student.password_changed_at)}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">
+                            {formatPasswordStatus(student.must_change_password)}
+                          </p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">
+                            {formatPasswordActor(
+                              student.password_changed_by,
+                              student.password_change_source,
+                            )}
+                          </p>
+                        </div>
                       </DataTableCell>
                       <DataTableCell>
                         <StatusBadge isActive={student.is_active} />
@@ -1205,6 +1239,34 @@ function getStudentDeleteTitle(target: StudentDeleteTarget | null) {
   if (target?.type === "membership") return "Hapus Penempatan Kelas?";
   if (target?.type === "rule") return "Hapus Aturan Absensi?";
   return "Konfirmasi Penghapusan";
+}
+
+function formatPasswordChangedAt(value?: string) {
+  if (!value) return "Belum tercatat";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleString("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function formatPasswordStatus(mustChangePassword?: boolean) {
+  if (mustChangePassword === true) return "Menunggu ganti password";
+  if (mustChangePassword === false) return "Password pribadi sudah diatur";
+  return "Belum tersedia";
+}
+
+function formatPasswordActor(name?: string, source?: string) {
+  const sourceLabel =
+    source === "SELF"
+      ? "Siswa sendiri"
+      : source === "ADMIN" || source === "INITIAL"
+        ? "Admin"
+        : source === "SYSTEM"
+          ? "Sistem"
+          : "Belum tersedia";
+  return name ? `${sourceLabel}: ${name}` : sourceLabel;
 }
 
 function getStudentDeleteDescription(target: StudentDeleteTarget | null) {
