@@ -81,9 +81,9 @@ export function SystemStatusAlert() {
         <p className={`mt-1 text-xs leading-5 ${tone.message}`}>
           {issue.message}
         </p>
-        {issue.requestId ? (
+        {issue.requestId || issue.traceId ? (
           <p className={`mt-2 font-mono text-[0.65rem] ${tone.requestId}`}>
-            ID bantuan: {issue.requestId}
+            ID bantuan: {issue.requestId ?? issue.traceId}
           </p>
         ) : null}
       </div>

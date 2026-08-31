@@ -15,7 +15,20 @@ export const apiClient = axios.create({
   },
 });
 
+function createTraceparent() {
+  const randomHex = (length: number) => {
+    const bytes = new Uint8Array(length / 2);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  };
+
+  return `00-${randomHex(32)}-${randomHex(16)}-01`;
+}
+
 apiClient.interceptors.request.use((config) => {
+  if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
+    config.headers.traceparent = createTraceparent();
+  }
   const session = getAuthSession();
   if (session?.accessToken) {
     config.headers.Authorization = `Bearer ${session.accessToken}`;

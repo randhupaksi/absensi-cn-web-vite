@@ -58,6 +58,7 @@ export type UserErrorDetails = {
   code?: string;
   status?: number;
   requestId?: string;
+  traceId?: string;
   retryAfterSeconds?: number;
 };
 
@@ -193,6 +194,7 @@ export function getUserErrorDetails(
     const requestData = error.config?.data;
     const requestId =
       body?.request_id ?? readHeader(error.response?.headers?.["x-request-id"]);
+    const traceId = readHeader(error.response?.headers?.["x-trace-id"]);
     const retryAfterSeconds = readPositiveNumber(
       error.response?.headers?.["retry-after"],
     );
@@ -207,6 +209,7 @@ export function getUserErrorDetails(
           code,
           status,
           requestId,
+          traceId,
         };
       }
       return {
@@ -214,6 +217,7 @@ export function getUserErrorDetails(
         code,
         status,
         requestId,
+        traceId,
       };
     }
     if (code && codeMessages[code]) {
@@ -222,17 +226,19 @@ export function getUserErrorDetails(
         code,
         status,
         requestId,
+        traceId,
         retryAfterSeconds,
       };
     }
     if (status === 403)
-      return { message: codeMessages.ACCESS_DENIED, code, status, requestId };
+      return { message: codeMessages.ACCESS_DENIED, code, status, requestId, traceId };
     if (status === 404)
       return {
         message: codeMessages.RESOURCE_NOT_FOUND,
         code,
         status,
         requestId,
+        traceId,
       };
     if (status === 409) {
       const message = body?.message ?? "";
@@ -241,6 +247,7 @@ export function getUserErrorDetails(
         code,
         status,
         requestId,
+        traceId,
       };
     }
     if (status === 413)
@@ -249,6 +256,7 @@ export function getUserErrorDetails(
         code,
         status,
         requestId,
+        traceId,
       };
     if (status === 429)
       return {
@@ -256,6 +264,7 @@ export function getUserErrorDetails(
         code,
         status,
         requestId,
+        traceId,
         retryAfterSeconds,
       };
 
@@ -272,12 +281,13 @@ export function getUserErrorDetails(
         undefined,
         requestData,
       ) ?? validationMessage;
-    if (message) return { message, code, status, requestId, retryAfterSeconds };
+    if (message) return { message, code, status, requestId, traceId, retryAfterSeconds };
     return {
       message: fallbackMessages[context],
       code,
       status,
       requestId,
+      traceId,
       retryAfterSeconds,
     };
   }

@@ -11,6 +11,7 @@ export type SystemIssue = {
   message: string;
   retryAfterSeconds?: number;
   requestId?: string;
+  traceId?: string;
 };
 
 const SYSTEM_STATUS_EVENT = "absensi-cn:system-status";
@@ -32,6 +33,7 @@ export function reportApiFailure(error: unknown) {
   const requestId =
     error.response?.data?.request_id ??
     readHeader(error.response?.headers?.["x-request-id"]);
+  const traceId = readHeader(error.response?.headers?.["x-trace-id"]);
   const retryAfterSeconds = readPositiveNumber(
     error.response?.headers?.["retry-after"],
   );
@@ -46,6 +48,7 @@ export function reportApiFailure(error: unknown) {
         "Tunggu sekitar 30 detik, lalu coba lagi.",
       retryAfterSeconds: retryAfterSeconds ?? 30,
       requestId,
+      traceId,
     });
     return;
   }
@@ -73,6 +76,7 @@ export function reportApiFailure(error: unknown) {
       : "Periksa koneksi Wi-Fi atau data seluler, lalu coba lagi.",
     retryAfterSeconds,
     requestId,
+    traceId,
   });
 }
 
