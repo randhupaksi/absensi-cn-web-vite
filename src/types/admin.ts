@@ -58,6 +58,9 @@ export type AdminAnalyticsPerformance = {
   not_attended: number;
   attendance_percentage: number;
   system_usage_percentage: number;
+  system_users?: number;
+  system_usage_consistency_percentage?: number;
+  system_action_days?: number;
 };
 
 export type AdminAttendanceAnalytics = {
@@ -81,8 +84,11 @@ export type AdminAttendanceAnalytics = {
     total_classes: number;
     attendance_opportunities: number;
     recorded_attendance: number;
+    system_users?: number;
     attendance_percentage: number;
     system_usage_percentage: number;
+    system_usage_consistency_percentage?: number;
+    system_action_days?: number;
     not_attended: number;
     alpha: number;
   };
@@ -104,6 +110,9 @@ export type AdminAttendanceAnalytics = {
     not_attended: number;
     attendance_percentage: number;
     system_usage_percentage: number;
+    system_users?: number;
+    system_usage_consistency_percentage?: number;
+    system_action_days?: number;
   }>;
   grades: AdminAnalyticsPerformance[];
   majors: AdminAnalyticsPerformance[];
@@ -132,6 +141,9 @@ export type AdminAttendanceAnalytics = {
       not_attended: number;
       attendance_percentage: number;
       system_usage_percentage: number;
+      system_users?: number;
+      system_usage_consistency_percentage?: number;
+      system_action_days?: number;
     }>;
     page: number;
     page_size: number;

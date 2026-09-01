@@ -131,6 +131,9 @@ export function AdminAnalyticsPage() {
   const [studentGrade, setStudentGrade] = useState("");
   const [studentMajorID, setStudentMajorID] = useState("");
   const [studentClassID, setStudentClassID] = useState("");
+  const [classTableGrade, setClassTableGrade] = useState("");
+  const [classTableMajorID, setClassTableMajorID] = useState("");
+  const [classTableClassID, setClassTableClassID] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -296,7 +299,6 @@ export function AdminAnalyticsPage() {
       ),
     [allClasses, studentGrade, studentMajorID],
   );
-
   const analytics = analyticsQuery.data;
   async function loadAnalyticsForExport(exportDateFrom: string, exportDateTo: string) {
     return getAdminAttendanceAnalytics({
@@ -423,6 +425,22 @@ export function AdminAnalyticsPage() {
               studentGrades={gradeOptions}
               studentMajors={studentVisibleMajors}
               studentClasses={studentVisibleClasses}
+              classFilterGrades={gradeOptions}
+              classFilterMajors={majorsQuery.data ?? []}
+              classFilterClasses={allClasses}
+              classTableGrade={classTableGrade}
+              onClassTableGradeChange={(value) => {
+                setClassTableGrade(value);
+                setClassTableMajorID("");
+                setClassTableClassID("");
+              }}
+              classTableMajorID={classTableMajorID}
+              onClassTableMajorChange={(value) => {
+                setClassTableMajorID(value);
+                setClassTableClassID("");
+              }}
+              classTableClassID={classTableClassID}
+              onClassTableClassChange={setClassTableClassID}
             />
           ) : null}
         </div>
@@ -451,8 +469,8 @@ function AnalyticsHero({
             Pahami pola kehadiran, bukan sekadar jumlah absen
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
-            Pantau adopsi sistem, performa kelas, serta siswa yang perlu
-            ditindaklanjuti dari satu laporan terukur.
+            Pantau seberapa rutin siswa melakukan absensi, performa kelas,
+            serta siswa yang perlu ditindaklanjuti dari satu laporan terukur.
           </p>
           {period ? (
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
@@ -683,6 +701,15 @@ function AnalyticsContent({
   studentGrades,
   studentMajors,
   studentClasses,
+  classFilterGrades,
+  classFilterMajors,
+  classFilterClasses,
+  classTableGrade,
+  onClassTableGradeChange,
+  classTableMajorID,
+  onClassTableMajorChange,
+  classTableClassID,
+  onClassTableClassChange,
 }: {
   analytics: AdminAttendanceAnalytics;
   overall?: AdminAttendanceAnalytics;
@@ -701,11 +728,61 @@ function AnalyticsContent({
   studentGrades: string[];
   studentMajors: Array<{ id: string; code: string; name: string }>;
   studentClasses: Array<{ id: string; display_name: string }>;
+  classFilterGrades: string[];
+  classFilterMajors: Array<{ id: string; code: string; name: string }>;
+  classFilterClasses: Array<{
+    id: string;
+    display_name: string;
+    grade: string;
+    major_id: string;
+  }>;
+  classTableGrade: string;
+  onClassTableGradeChange: (value: string) => void;
+  classTableMajorID: string;
+  onClassTableMajorChange: (value: string) => void;
+  classTableClassID: string;
+  onClassTableClassChange: (value: string) => void;
 }) {
-  const overallClasses = overall?.classes ?? [];
-  const lowestClasses = overallClasses.slice(0, 3);
+  const overallClasses = useMemo(
+    () => overall?.classes ?? analytics.classes,
+    [analytics.classes, overall?.classes],
+  );
+  const classTableVisibleMajors = useMemo(() => {
+    const majorIDs = new Set(
+      classFilterClasses
+        .filter(
+          (item) => !classTableGrade || item.grade === classTableGrade,
+        )
+        .map((item) => item.major_id),
+    );
+    return classFilterMajors.filter((item) => majorIDs.has(item.id));
+  }, [classFilterClasses, classFilterMajors, classTableGrade]);
+  const classTableVisibleClasses = useMemo(
+    () =>
+      classFilterClasses.filter(
+        (item) =>
+          (!classTableGrade || item.grade === classTableGrade) &&
+          (!classTableMajorID || item.major_id === classTableMajorID),
+      ),
+    [classFilterClasses, classTableGrade, classTableMajorID],
+  );
+  const classTableRows = useMemo(
+    () =>
+      overallClasses.filter(
+        (item) =>
+          (!classTableGrade || item.grade === classTableGrade) &&
+          (!classTableMajorID || item.major_id === classTableMajorID) &&
+          (!classTableClassID || item.id === classTableClassID),
+      ),
+    [classTableClassID, classTableGrade, classTableMajorID, overallClasses],
+  );
+  const usageScore = (item: AdminAnalyticsPerformance) =>
+    item.system_usage_consistency_percentage ?? item.system_usage_percentage;
+  const lowestClasses = [...overallClasses]
+    .sort((a, b) => usageScore(a) - usageScore(b))
+    .slice(0, 3);
   const highestClasses = [...overallClasses]
-    .sort((a, b) => b.system_usage_percentage - a.system_usage_percentage)
+    .sort((a, b) => usageScore(b) - usageScore(a))
     .slice(0, 3);
   const majorCodes = new Map(
     analytics.classes.map((item) => [item.major_id, item.major_code]),
@@ -715,6 +792,10 @@ function AnalyticsContent({
     name: majorCodes.get(item.id) || item.name,
   }));
   const hasScope = analytics.summary.total_students > 0;
+	const systemUsageHelper =
+		typeof analytics.summary.system_users === "number"
+			? `${analytics.summary.system_users.toLocaleString("id-ID")} dari ${analytics.summary.total_students.toLocaleString("id-ID")} siswa`
+			: "Data pengguna sistem sedang diperbarui";
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -726,9 +807,9 @@ function AnalyticsContent({
           tone="emerald"
         />
         <MetricCard
-          label="Penggunaan Sistem"
+          label="Cakupan Absensi"
           value={`${analytics.summary.system_usage_percentage}%`}
-          helper={`${analytics.summary.recorded_attendance.toLocaleString("id-ID")} absensi tercatat`}
+          helper={systemUsageHelper}
           icon={CircleGauge}
           tone="sky"
         />
@@ -760,23 +841,23 @@ function AnalyticsContent({
         <>
           <SectionHeading
             eyebrow="Peringkat kelas"
-            title="Kelas dengan penggunaan sistem tertinggi & terendah"
+            title="Konsistensi penggunaan per kelas"
             description={
               overall
-                ? `Dihitung dari seluruh ${overall.summary.total_classes.toLocaleString("id-ID")} kelas pada tahun ajaran ${overall.filters.school_year_name}, terhitung periode ${formatDisplayDate(parseInputDate(overall.period.date_from))} sampai ${formatDisplayDate(parseInputDate(overall.period.date_to))}`
+                ? `Diurutkan berdasarkan seberapa rutin siswa melakukan absensi pada ${overall.summary.total_classes.toLocaleString("id-ID")} kelas selama periode ${formatDisplayDate(parseInputDate(overall.period.date_from))} sampai ${formatDisplayDate(parseInputDate(overall.period.date_to))}. Persentase siswa yang pernah absen ditampilkan sebagai konteks.`
                 : "Memuat data keseluruhan tahun ajaran..."
             }
           />
           <section className="grid gap-4 md:grid-cols-2">
             <RankedClassList
               eyebrow="Perlu perhatian"
-              title="Penggunaan sistem terendah"
+              title="Konsistensi terendah"
               items={lowestClasses}
               tone="amber"
             />
             <RankedClassList
-              eyebrow="Adopsi terbaik"
-              title="Penggunaan sistem tertinggi"
+              eyebrow="Kinerja terbaik"
+              title="Konsistensi tertinggi"
               items={highestClasses}
               tone="emerald"
             />
@@ -786,13 +867,13 @@ function AnalyticsContent({
               data={analytics.grades}
               eyebrow="Perbandingan tingkat"
               title="Performa per tingkat"
-              description="Bandingkan kehadiran dan adopsi sistem di setiap tingkat kelas."
+              description="Bandingkan kehadiran dan konsistensi absensi di setiap tingkat kelas."
             />
             <AnalyticsComparisonChart
               data={majorChartData}
               eyebrow="Perbandingan jurusan"
               title="Performa per jurusan"
-              description="Temukan jurusan yang paling konsisten dan yang perlu pendampingan."
+              description="Bandingkan konsistensi absensi antarjurusan."
             />
           </section>
           <section className="grid gap-5 xl:grid-cols-2">
@@ -803,7 +884,18 @@ function AnalyticsContent({
             <AnalyticsStatusChart data={analytics.status_breakdown} />
             <AnalyticsValidationChart operational={analytics.operational} />
           </section>
-          <ClassPerformanceTable rows={analytics.classes} />
+          <ClassPerformanceTable
+            rows={classTableRows}
+            grade={classTableGrade}
+            onGradeChange={onClassTableGradeChange}
+            majorID={classTableMajorID}
+            onMajorChange={onClassTableMajorChange}
+            classID={classTableClassID}
+            onClassChange={onClassTableClassChange}
+            grades={classFilterGrades}
+            majors={classTableVisibleMajors}
+            classes={classTableVisibleClasses}
+          />
           <StudentPerformanceTable
             students={studentTable?.students}
             setPage={setPage}
@@ -897,36 +989,56 @@ function RankedClassList({
           Belum ada kelas untuk dibandingkan.
         </p>
       ) : (
-        <ol className="mt-3 space-y-2">
-          {items.map((item, index) => (
-            <li
-              key={item.id}
-              className="flex items-center justify-between gap-3 rounded-[1rem] bg-white/70 px-3 py-2.5"
-            >
-              <span className="flex min-w-0 items-center gap-2.5">
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-slate-500">
-                  {index + 1}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-slate-800">
-                    {item.name}
-                  </span>
-                  <span className="block text-xs text-slate-500">
-                    dari {item.total_students.toLocaleString("id-ID")} siswa
-                  </span>
-                </span>
-              </span>
-              <span className="flex shrink-0 flex-col items-end gap-1">
-                <RateBadge value={item.system_usage_percentage} />
-                <span className="text-[10px] font-medium text-slate-400">
-                  penggunaan sistem
-                </span>
-              </span>
-            </li>
-          ))}
-        </ol>
+        <RankedClassItems items={items} />
       )}
     </article>
+  );
+}
+
+function RankedClassItems({
+  items,
+}: {
+  items: Array<AdminAnalyticsPerformance & { grade: string; major_code: string }>;
+}) {
+  let previousScore: number | undefined;
+  let previousRank = 0;
+  return (
+    <ol className="mt-3 space-y-2">
+      {items.map((item, index) => {
+        const score = item.system_usage_consistency_percentage ?? item.system_usage_percentage;
+        const rank = score === previousScore ? previousRank : index + 1;
+        previousScore = score;
+        previousRank = rank;
+        const systemUsers = item.system_users ?? 0;
+        const adoption = item.system_usage_percentage;
+        return (
+          <li
+            key={item.id}
+            className="flex items-center justify-between gap-3 rounded-[1rem] bg-white/70 px-3 py-2.5"
+          >
+            <span className="flex min-w-0 items-center gap-2.5">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-slate-500">
+                {rank}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium text-slate-800">
+                  {item.name}
+                </span>
+                <span className="block text-xs text-slate-500">
+                  {systemUsers.toLocaleString("id-ID")}/{item.total_students.toLocaleString("id-ID")} siswa absen
+                </span>
+              </span>
+            </span>
+            <span className="flex shrink-0 flex-col items-end gap-1">
+              <RateBadge value={score} />
+              <span className="text-[10px] font-medium text-slate-400">
+                Cakupan siswa {adoption}%
+              </span>
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -954,61 +1066,125 @@ function SectionHeading({
 
 function ClassPerformanceTable({
   rows,
+  grade,
+  onGradeChange,
+  majorID,
+  onMajorChange,
+  classID,
+  onClassChange,
+  grades,
+  majors,
+  classes,
 }: {
   rows: Array<
     AdminAnalyticsPerformance & { grade: string; major_code: string }
   >;
+  grade: string;
+  onGradeChange: (value: string) => void;
+  majorID: string;
+  onMajorChange: (value: string) => void;
+  classID: string;
+  onClassChange: (value: string) => void;
+  grades: string[];
+  majors: Array<{ id: string; code: string; name: string }>;
+  classes: Array<{ id: string; display_name: string }>;
 }) {
+  const rankedRows = [...rows].sort((left, right) => {
+    const consistencyDifference =
+      (right.system_usage_consistency_percentage ?? right.system_usage_percentage) -
+      (left.system_usage_consistency_percentage ?? left.system_usage_percentage);
+    if (consistencyDifference !== 0) return consistencyDifference;
+    const adoptionDifference = right.system_usage_percentage - left.system_usage_percentage;
+    if (adoptionDifference !== 0) return adoptionDifference;
+    return left.name.localeCompare(right.name, "id", { sensitivity: "base" });
+  });
   return (
     <section className="rounded-[2rem] border border-white/80 bg-white/88 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.06)] sm:p-6">
       <SectionHeading
         eyebrow="Performa kelas"
-        title="Kelas yang perlu dipantau"
-        description="Diurutkan dari penggunaan sistem terendah agar tindak lanjut lebih cepat."
+        title="Peringkat performa kelas"
+        description="Diurutkan dari konsistensi absensi tertinggi. Persentase pernah absen menunjukkan cakupan siswa yang sudah melakukan absensi setidaknya sekali."
       />
+      <div className="mt-4 flex flex-wrap gap-2">
+        <div className="w-40">
+          <RadixSelectField
+            value={grade || "ALL"}
+            onValueChange={(value) => onGradeChange(value === "ALL" ? "" : value)}
+            placeholder="Semua tingkat"
+            triggerClassName="h-10 rounded-[0.85rem] px-3 text-xs"
+            options={[{ value: "ALL", label: "Semua tingkat" }, ...grades.map((item) => ({ value: item, label: `Kelas ${item}` }))]}
+          />
+        </div>
+        <div className="w-44">
+          <RadixSelectField
+            value={majorID || "ALL"}
+            onValueChange={(value) => onMajorChange(value === "ALL" ? "" : value)}
+            placeholder="Semua jurusan"
+            triggerClassName="h-10 rounded-[0.85rem] px-3 text-xs"
+            options={[{ value: "ALL", label: "Semua jurusan" }, ...majors.map((item) => ({ value: item.id, label: item.code, description: item.name }))]}
+          />
+        </div>
+        <div className="w-56">
+          <RadixSelectField
+            searchable
+            value={classID || "ALL"}
+            onValueChange={(value) => onClassChange(value === "ALL" ? "" : value)}
+            placeholder="Semua kelas"
+            searchPlaceholder="Cari kelas..."
+            triggerClassName="h-10 rounded-[0.85rem] px-3 text-xs"
+            options={[{ value: "ALL", label: "Semua kelas" }, ...classes.map((item) => ({ value: item.id, label: item.display_name }))]}
+          />
+        </div>
+      </div>
       <div className="mt-5">
         <DataTableCard
           icon={ChartNoAxesCombined}
           emptyTitle="Belum ada performa kelas"
           emptyDescription="Belum ada kelas pada filter ini."
           isLoading={false}
-          columnCount={9}
-          isEmpty={rows.length === 0}
+          columnCount={11}
+          isEmpty={rankedRows.length === 0}
         >
-          <table className="w-full min-w-[980px] text-left text-sm">
+          <table className="w-full min-w-[1100px] text-left text-sm">
             <thead className="bg-emerald-50/80 text-xs uppercase tracking-[0.1em] text-slate-500">
               <tr>
+                <Th className="text-center">Peringkat</Th>
                 <Th>Kelas</Th>
-                <Th>Siswa</Th>
-                <Th>Hadir</Th>
-                <Th>Izin</Th>
-                <Th>Sakit</Th>
-                <Th>Alfa</Th>
-                <Th>Belum Absen</Th>
-                <Th>Kehadiran</Th>
-                <Th>Penggunaan</Th>
+                <Th className="text-center">Siswa</Th>
+                <Th className="text-center">Hadir</Th>
+                <Th className="text-center">Izin</Th>
+                <Th className="text-center">Sakit</Th>
+                <Th className="text-center">Alfa</Th>
+                <Th className="text-center">Belum Absen</Th>
+                <Th className="text-center">Kehadiran</Th>
+                <Th className="text-center">Pernah Absen</Th>
+                <Th className="text-center">Konsistensi</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-              {rows.map((row) => (
+              {rankedRows.map((row, index) => (
                 <tr key={row.id} className="bg-white/70 hover:bg-emerald-50/40">
+                  <Td className="text-center">{index + 1}</Td>
                   <Td>
                     <p className="font-semibold text-slate-900">{row.name}</p>
                     <p className="mt-0.5 text-xs text-slate-400">
                       Tingkat {row.grade} - {row.major_code}
                     </p>
                   </Td>
-                  <Td>{row.total_students}</Td>
-                  <Td>{row.present}</Td>
-                  <Td>{row.permission}</Td>
-                  <Td>{row.sick}</Td>
-                  <Td>{row.alpha}</Td>
-                  <Td>{row.not_attended}</Td>
-                  <Td>
+                  <Td className="text-center">{row.total_students}</Td>
+                  <Td className="text-center">{row.present}</Td>
+                  <Td className="text-center">{row.permission}</Td>
+                  <Td className="text-center">{row.sick}</Td>
+                  <Td className="text-center">{row.alpha}</Td>
+                  <Td className="text-center">{row.not_attended}</Td>
+                  <Td className="text-center">
                     <RateBadge value={row.attendance_percentage} />
                   </Td>
-                  <Td>
+                  <Td className="text-center">
                     <RateBadge value={row.system_usage_percentage} />
+                  </Td>
+                  <Td className="text-center">
+                    <RateBadge value={row.system_usage_consistency_percentage ?? row.system_usage_percentage} />
                   </Td>
                 </tr>
               ))}
@@ -1141,7 +1317,7 @@ function StudentPerformanceTable({
           emptyTitle="Belum ada data siswa"
           emptyDescription="Belum ada siswa pada filter atau pencarian ini."
           isLoading={!students}
-          columnCount={9}
+          columnCount={10}
           isEmpty={!students || students.rows.length === 0}
           pagination={
             students
@@ -1172,7 +1348,8 @@ function StudentPerformanceTable({
                 <Th>Alfa</Th>
                 <Th>Belum Absen</Th>
                 <Th>Kehadiran</Th>
-                <Th>Penggunaan</Th>
+                <Th>Pernah Absen</Th>
+                <Th>Konsistensi</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -1206,6 +1383,9 @@ function StudentPerformanceTable({
                   <Td>
                     <RateBadge value={row.system_usage_percentage} />
                   </Td>
+                  <Td>
+                    <RateBadge value={row.system_usage_consistency_percentage ?? row.system_usage_percentage} />
+                  </Td>
                 </tr>
               ))}
             </tbody>
@@ -1216,13 +1396,13 @@ function StudentPerformanceTable({
   );
 }
 
-function Th({ children }: { children: ReactNode }) {
+function Th({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <th className="whitespace-nowrap px-4 py-3.5 font-semibold">{children}</th>
+    <th className={`whitespace-nowrap px-4 py-3.5 font-semibold ${className}`}>{children}</th>
   );
 }
-function Td({ children }: { children: ReactNode }) {
-  return <td className="px-4 py-3.5 text-slate-600">{children}</td>;
+function Td({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <td className={`px-4 py-3.5 text-slate-600 ${className}`}>{children}</td>;
 }
 function RateBadge({ value }: { value: number }) {
   const style =
