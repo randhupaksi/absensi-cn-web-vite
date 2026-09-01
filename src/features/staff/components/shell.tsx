@@ -91,6 +91,19 @@ export function StaffShell({
     }
   }, [isExpectedRole, pathname, router, session]);
 
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const syncSidebarState = () => {
+      // Do not carry an open mobile drawer into the desktop layout while the
+      // viewport crosses the responsive breakpoint during a resize.
+      if (desktopQuery.matches) setMobileSidebarOpen(false);
+    };
+
+    syncSidebarState();
+    desktopQuery.addEventListener("change", syncSidebarState);
+    return () => desktopQuery.removeEventListener("change", syncSidebarState);
+  }, []);
+
   if (!session || !isExpectedRole) {
     return <StaffShellFallback />;
   }

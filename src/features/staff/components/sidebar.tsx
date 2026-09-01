@@ -58,14 +58,14 @@ export function StaffSidebar({
       <div
         aria-hidden={!isOpen}
         onClick={onClose}
-        className={`fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-sm transition-opacity duration-300 lg:hidden lg:transition-none ${
           isOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
         }`}
       />
       <aside
-        className={`app-sidebar fixed inset-y-0 left-0 z-40 flex w-[278px] flex-col rounded-tr-[20px] rounded-br-[20px] bg-[linear-gradient(180deg,#1f7a65_0%,#176655_54%,#154f44_100%)] p-5 text-white shadow-[0_24px_64px_rgba(15,74,59,0.28)] transition-transform duration-300 ease-in-out will-change-transform lg:w-[272px] lg:translate-x-0 ${
+        className={`app-sidebar fixed inset-y-0 left-0 z-40 flex w-[278px] flex-col rounded-tr-[20px] rounded-br-[20px] bg-[linear-gradient(180deg,#1f7a65_0%,#176655_54%,#154f44_100%)] p-5 text-white shadow-[0_24px_64px_rgba(15,74,59,0.28)] transition-transform duration-300 ease-in-out will-change-transform lg:w-[272px] lg:translate-x-0 lg:transition-none ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
