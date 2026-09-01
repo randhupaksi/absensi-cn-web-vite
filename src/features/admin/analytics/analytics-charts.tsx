@@ -39,13 +39,18 @@ const COLORS = {
   tick: "var(--color-slate-500)",
 };
 
-const PERCENTAGE_TOOLTIP_LABELS = new Set(["Kehadiran", "Penggunaan sistem"]);
+const PERCENTAGE_TOOLTIP_LABELS = new Set([
+  "Kehadiran",
+  "Penggunaan sistem",
+  "Konsistensi penggunaan",
+]);
 
 type AnalyticsChartCardProps = {
   eyebrow: string;
   title: string;
   description: string;
   children: ReactNode;
+  className?: string;
 };
 
 function AnalyticsChartCard({
@@ -53,9 +58,10 @@ function AnalyticsChartCard({
   title,
   description,
   children,
+  className,
 }: AnalyticsChartCardProps) {
   return (
-    <article className="rounded-[var(--radius-2xl)] border border-white/75 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] sm:p-6">
+    <article className={`rounded-[var(--radius-2xl)] border border-white/75 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)] sm:p-6 ${className ?? ""}`}>
       <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
         {eyebrow}
       </p>
@@ -118,8 +124,8 @@ export function AnalyticsTrendChart({
   return (
     <AnalyticsChartCard
       eyebrow="Tren periode"
-      title="Kehadiran dan penggunaan sistem"
-      description="Bandingkan siswa yang hadir dengan siswa yang berhasil tercatat melalui web."
+      title="Kehadiran dan konsistensi penggunaan"
+      description="Bandingkan kehadiran dengan siswa yang melakukan check-in atau mengirim izin/sakit."
     >
       {data.length === 0 ? (
         <EmptyState
@@ -170,7 +176,7 @@ export function AnalyticsTrendChart({
               <Line
                 type="monotone"
                 dataKey="system_usage_percentage"
-                name="Penggunaan sistem"
+                name="Konsistensi penggunaan"
                 stroke={COLORS.usage}
                 strokeWidth={3}
                 strokeDasharray="7 5"
@@ -428,8 +434,8 @@ export function AnalyticsComparisonChart({
                 maxBarSize={34}
               />
               <Bar
-                dataKey="system_usage_percentage"
-                name="Penggunaan sistem"
+                dataKey="system_usage_consistency_percentage"
+                name="Konsistensi penggunaan"
                 fill={COLORS.usage}
                 radius={[8, 8, 3, 3]}
                 maxBarSize={34}
@@ -466,6 +472,7 @@ export function AnalyticsValidationChart({
       eyebrow="Validasi operasional"
       title="Validasi sesi mapel"
       description="Progres finalisasi sesi mapel yang tercatat pada periode ini."
+      className="h-fit self-start"
     >
       {operational.total_subject_sessions === 0 ? (
         <EmptyState

@@ -69,7 +69,9 @@ const performanceColumns = [
   { header: "Alfa", value: (row: AnalyticsExportRow) => row.alpha ?? 0, kind: "attendance" as const, width: 10 },
   { header: "Belum Absen", value: (row: AnalyticsExportRow) => row.not_attended ?? 0, kind: "status" as const, width: 15 },
   { header: "Kehadiran", value: (row: AnalyticsExportRow) => (row.attendance_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 14 },
-  { header: "Penggunaan Sistem", value: (row: AnalyticsExportRow) => (row.system_usage_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 19 },
+  { header: "Pengguna Sistem", value: (row: AnalyticsExportRow) => row.system_users ?? 0, kind: "number" as const, width: 17 },
+  { header: "Adopsi Sistem", value: (row: AnalyticsExportRow) => (row.system_usage_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 15 },
+  { header: "Konsistensi Penggunaan", value: (row: AnalyticsExportRow) => (row.system_usage_consistency_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 23 },
 ];
 
 const studentColumns = [
@@ -85,7 +87,9 @@ const studentColumns = [
   { header: "Alfa", value: (row: AnalyticsExportRow) => row.alpha ?? 0, kind: "attendance" as const, width: 10 },
   { header: "Belum Absen", value: (row: AnalyticsExportRow) => row.not_attended ?? 0, kind: "status" as const, width: 15 },
   { header: "Kehadiran", value: (row: AnalyticsExportRow) => (row.attendance_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 14 },
-  { header: "Penggunaan Sistem", value: (row: AnalyticsExportRow) => (row.system_usage_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 19 },
+  { header: "Pengguna Sistem", value: (row: AnalyticsExportRow) => row.system_users ?? 0, kind: "number" as const, width: 17 },
+  { header: "Adopsi Sistem", value: (row: AnalyticsExportRow) => (row.system_usage_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 15 },
+  { header: "Konsistensi Penggunaan", value: (row: AnalyticsExportRow) => (row.system_usage_consistency_percentage ?? 0) / 100, kind: "number" as const, numberFormat: "0.0%", width: 23 },
 ];
 
 export async function exportAttendanceAnalytics({ analytics, students, scope, format, includeStudentDetails, sort, reportType }: AttendanceAnalyticsExportOptions) {
@@ -176,7 +180,9 @@ async function exportAttendanceAnalyticsPdf(analytics: AdminAttendanceAnalytics,
       head: [["Indikator", "Nilai", "Indikator", "Nilai"]],
       body: [
         ["Total Siswa", String(analytics.summary.total_students), "Total Kelas", String(analytics.summary.total_classes)],
-        ["Kehadiran", percentage(analytics.summary.attendance_percentage), "Penggunaan Sistem", percentage(analytics.summary.system_usage_percentage)],
+        ["Kehadiran", percentage(analytics.summary.attendance_percentage), "Adopsi Sistem", percentage(analytics.summary.system_usage_percentage)],
+        ["Konsistensi Penggunaan", percentage(analytics.summary.system_usage_consistency_percentage ?? 0), "Pengguna Sistem", String(analytics.summary.system_users ?? 0)],
+        ["Absensi Tercatat", String(analytics.summary.recorded_attendance), "Aksi Siswa", String(analytics.summary.system_action_days ?? 0)],
         ["Belum Absen", String(analytics.summary.not_attended), "Alfa", String(analytics.summary.alpha)],
         ["Sesi Belum Divalidasi", String(analytics.operational.pending_subject_sessions), "Validasi Sesi", percentage(analytics.operational.validation_percentage)],
       ],
@@ -238,7 +244,8 @@ function createMetrics(analytics: AdminAttendanceAnalytics) {
       tone: "sky" as const,
     },
     { label: "Kehadiran", value: percentage(analytics.summary.attendance_percentage), tone: "emerald" as const },
-    { label: "Penggunaan Sistem", value: percentage(analytics.summary.system_usage_percentage), tone: "sky" as const },
+    { label: "Adopsi Sistem", value: `${(analytics.summary.system_users ?? 0).toLocaleString("id-ID")} siswa (${percentage(analytics.summary.system_usage_percentage)})`, tone: "sky" as const },
+    { label: "Konsistensi Penggunaan", value: percentage(analytics.summary.system_usage_consistency_percentage ?? 0), tone: "sky" as const },
     { label: "Belum Absen", value: analytics.summary.not_attended, tone: "amber" as const },
     { label: "Alfa", value: analytics.summary.alpha, tone: "rose" as const },
   ];
@@ -270,7 +277,7 @@ function sortRows<Row extends AnalyticsExportRow>(rows: Row[], sort: AnalyticsEx
     if (attendanceDifference !== 0) {
       return sort === "attendance_desc" ? attendanceDifference : -attendanceDifference;
     }
-    const usageDifference = (right.system_usage_percentage ?? 0) - (left.system_usage_percentage ?? 0);
+    const usageDifference = (right.system_usage_consistency_percentage ?? 0) - (left.system_usage_consistency_percentage ?? 0);
     if (usageDifference !== 0) return sort === "attendance_desc" ? usageDifference : -usageDifference;
     return compareText(rowName(left), rowName(right));
   });
@@ -305,8 +312,11 @@ function withSummaryTotals<Row>(
     if (column.header === "Kehadiran") {
       return { ...column, totalValue: analytics.summary.attendance_percentage / 100 };
     }
-    if (column.header === "Penggunaan Sistem") {
+    if (column.header === "Adopsi Sistem") {
       return { ...column, totalValue: analytics.summary.system_usage_percentage / 100 };
+    }
+    if (column.header === "Konsistensi Penggunaan") {
+      return { ...column, totalValue: (analytics.summary.system_usage_consistency_percentage ?? 0) / 100 };
     }
     return column;
   });
@@ -318,8 +328,8 @@ function addPerformanceTable(doc: any, autoTable: any, title: string, rows: Anal
   doc.setTextColor(6, 78, 59);
   doc.text(title, REPORT_PDF_MARGIN_X, startY);
   autoTable(doc, {
-    head: [["Nama", "Siswa", "Hadir", "Izin", "Sakit", "Alfa", "Belum", "Kehadiran", "Penggunaan"]],
-    body: rows.map((row) => [row.name ?? "-", String(row.total_students ?? 0), String(row.present ?? 0), String(row.permission ?? 0), String(row.sick ?? 0), String(row.alpha ?? 0), String(row.not_attended ?? 0), percentage(row.attendance_percentage ?? 0), percentage(row.system_usage_percentage ?? 0)]),
+    head: [["Nama", "Siswa", "Hadir", "Izin", "Sakit", "Alfa", "Belum", "Kehadiran", "Pengguna", "Adopsi", "Konsistensi"]],
+    body: rows.map((row) => [row.name ?? "-", String(row.total_students ?? 0), String(row.present ?? 0), String(row.permission ?? 0), String(row.sick ?? 0), String(row.alpha ?? 0), String(row.not_attended ?? 0), percentage(row.attendance_percentage ?? 0), String(row.system_users ?? 0), percentage(row.system_usage_percentage ?? 0), percentage(row.system_usage_consistency_percentage ?? 0)]),
     startY: startY + 4,
     margin: { left: REPORT_PDF_MARGIN_X, right: REPORT_PDF_MARGIN_X },
     ...REPORT_TABLE_STYLE,
