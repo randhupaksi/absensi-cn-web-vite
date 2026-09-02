@@ -1,5 +1,5 @@
-Project: Citra Negara Attendence System
+Project: Citra Negara Attendance System
 Creator: Randhu Paksi Membumi - Creator, Fullstack Developer, System Analyst, UI/UX Designer, Frontend Engineer, Backend Engineer
 Contributors: None
 Copyright: Copyright 2026 Randhu Paksi Membumi. All rights reserved.
-Statement: Citra Negara Attendence System dibuat sepenuhnya oleh Randhu Paksi Membumi.
+Statement: Citra Negara Attendance System dibuat sepenuhnya oleh Randhu Paksi Membumi.

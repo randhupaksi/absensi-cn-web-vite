@@ -1,6 +1,6 @@
 {
-  "name": "Citra Negara Attendence System",
-  "short_name": "CN Attendence",
+  "name": "Citra Negara Attendance System",
+  "short_name": "CN Attendance",
   "description": "Sistem absensi digital Sekolah Citra Negara",
   "start_url": "/",
   "display": "standalone",

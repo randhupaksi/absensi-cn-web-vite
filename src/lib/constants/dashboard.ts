@@ -81,11 +81,11 @@ export const roleDashboardConfig: Record<
     navigation: [
       {
         label: "Dashboard Siswa",
-        href: "/dashboard/siswa",
+        href: "/dashboard/student",
         icon: LayoutDashboard,
       },
-      { label: "Absensi Saya", href: "/dashboard/siswa", icon: ClipboardCheck },
-      { label: "Rekap Pribadi", href: "/dashboard/siswa", icon: ChartColumn },
+      { label: "Absensi Saya", href: "/dashboard/student", icon: ClipboardCheck },
+      { label: "Rekap Pribadi", href: "/dashboard/student", icon: ChartColumn },
     ],
   },
   walas: {

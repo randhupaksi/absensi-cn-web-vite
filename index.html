@@ -16,7 +16,7 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Absensi Citra Negara" />
     <meta name="twitter:description" content="Hadirkan pengalaman absensi sekolah yang lebih mudah, tertata, dan terhubung untuk seluruh warga sekolah." />
-    <meta name="theme-color" content="#047857" />
+    <meta name="theme-color" content="#101b2a" />
     <meta name="color-scheme" content="light dark" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <script>
@@ -37,14 +37,15 @@
     <script>
       (function () {
         try {
-          var theme = localStorage.getItem("absensi-cn-theme") === "dark" ? "dark" : "light";
+          var storedTheme = localStorage.getItem("absensi-cn-theme");
+          var theme = storedTheme === "light" ? "light" : "dark";
           document.documentElement.classList.toggle("dark", theme === "dark");
           document.documentElement.style.colorScheme = theme;
           var themeColor = document.querySelector('meta[name="theme-color"]');
           if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#101b2a" : "#047857");
         } catch (_) {
-          document.documentElement.classList.remove("dark");
-          document.documentElement.style.colorScheme = "light";
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
         }
       })();
     </script>
@@ -239,15 +240,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Fonts via <link> instead of CSS @import — loads in parallel with CSS, not sequentially -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&family=Space+Grotesk:wght@300..700&display=swap" />
-    <title>Citra Negara Attendence System</title>
+    <title>Citra Negara Attendance System</title>
   </head>
   <body class="min-h-full bg-background text-foreground">
-    <div id="initial-loader" role="status" aria-live="polite" aria-label="Menyiapkan Citra Negara Attendence System">
+    <div id="initial-loader" role="status" aria-live="polite" aria-label="Menyiapkan Citra Negara Attendance System">
       <div class="initial-loader__content">
         <div class="initial-loader__logo">
           <img src="/images/optimized/logo-sma-smk-yatkj-ui.png" alt="Logo Sekolah Citra Negara" width="60" height="60" />
         </div>
-        <p class="initial-loader__title">Menyiapkan Citra Negara Attendence System</p>
+        <p class="initial-loader__title">Menyiapkan Citra Negara Attendance System</p>
         <p class="initial-loader__subtitle">Memuat pengalaman sekolahmu...</p>
         <div class="initial-loader__track" aria-hidden="true">
           <span class="initial-loader__bar"></span>

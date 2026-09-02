@@ -145,7 +145,7 @@ export function RandhuPage() {
         >
           <motion.a className={styles.eyebrow} href="/" variants={heroItemVariants}>
             <span className={styles.statusDot} />
-            CITRA NEGARA ATTENDENCE SYSTEM
+            CITRA NEGARA ATTENDANCE SYSTEM
           </motion.a>
 
           <motion.p className={styles.kicker} variants={heroItemVariants}>
@@ -283,7 +283,7 @@ export function RandhuPage() {
           <span>02 / THE FOUNDATION</span>
           <h2>Sistem sekolah, standar produk</h2>
           <p>
-            Citra Negara Attendence System dirancang sebagai sistem operasional terhubung untuk
+            Citra Negara Attendance System dirancang sebagai sistem operasional terhubung untuk
             absensi harian-bukan sekadar kumpulan formulir yang terpisah.
           </p>
         </motion.div>

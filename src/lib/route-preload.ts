@@ -34,9 +34,9 @@ const routePreloaders: Record<string, RoutePreloader> = {
     import("@/pages/teacher/subject/recap-page"),
   "/dashboard/teacher/subject/session": () =>
     import("@/pages/teacher/subject/session-page"),
-  "/dashboard/siswa": () => import("@/pages/student/dashboard-page"),
-  "/dashboard/siswa/history": () => import("@/pages/student/history-page"),
-  "/dashboard/siswa/profile": () => import("@/pages/student/profile-page"),
+  "/dashboard/student": () => import("@/pages/student/dashboard-page"),
+  "/dashboard/student/history": () => import("@/pages/student/history-page"),
+  "/dashboard/student/profile": () => import("@/pages/student/profile-page"),
 };
 
 const pendingPreloads = new Map<string, Promise<unknown>>();

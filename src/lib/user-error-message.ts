@@ -38,6 +38,10 @@ const codeMessages: Record<string, string> = {
   ATTENDANCE_REASON_REQUIRED: "Keterangan wajib diisi untuk izin atau sakit.",
   ATTENDANCE_TYPE_INVALID: "Jenis absensi belum valid.",
   AUTHENTICATION_REQUIRED: "Sesi login sudah berakhir. Silakan masuk kembali.",
+  PASSWORD_CHANGE_REQUIRED:
+    "Silakan ganti password awal sebelum menggunakan layanan.",
+  PASSWORD_RESET_REQUIRED:
+    "Password akun direset oleh administrator. Silakan login ulang.",
   BAD_GATEWAY: "Layanan sekolah belum dapat dijangkau. Silakan coba lagi.",
   GATEWAY_TIMEOUT: "Respons server terlalu lama. Silakan coba lagi.",
   INTERNAL_ERROR: "Sistem mengalami kendala saat memproses permintaan.",

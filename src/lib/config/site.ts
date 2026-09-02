@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Citra Negara Attendence System",
+  name: "Citra Negara Attendance System",
   description:
     "Frontend web absensi sekolah untuk Sekolah Citra Negara dengan role siswa, walas, BK, dan admin.",
   apiBaseUrl:
