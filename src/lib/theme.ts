@@ -7,7 +7,7 @@ let themeTransitionTimer: number | undefined;
 let themeTransitionId = 0;
 
 export function getStoredTheme(): AppTheme {
-  if (typeof document === "undefined") return "light";
+  if (typeof document === "undefined") return "dark";
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 

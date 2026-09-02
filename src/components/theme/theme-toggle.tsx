@@ -10,7 +10,7 @@ type ThemeToggleProps = {
 };
 
 export function ThemeToggle({ className, placement = "inline" }: ThemeToggleProps) {
-  const theme = useSyncExternalStore(subscribeToTheme, getStoredTheme, () => "light");
+  const theme = useSyncExternalStore(subscribeToTheme, getStoredTheme, () => "dark");
   const isDark = theme === "dark";
 
   return (

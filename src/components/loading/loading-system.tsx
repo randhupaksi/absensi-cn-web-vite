@@ -21,7 +21,7 @@ export function RouteLoadingFallback() {
 }
 
 export function BrandedAppLoader({
-  label = "Menyiapkan Citra Negara Attendence System",
+  label = "Menyiapkan Citra Negara Attendance System",
 }: {
   label?: string;
 }) {
@@ -574,7 +574,7 @@ function StaffLoginRouteSkeleton() {
 }
 
 function getRouteVariant(pathname: string): PageSkeletonVariant {
-  if (pathname === "/dashboard/siswa") return "student-dashboard";
+  if (pathname === "/dashboard/student") return "student-dashboard";
   if (pathname.endsWith("/profile")) return "profile";
   if (pathname.endsWith("/history")) return "history";
   if (pathname === "/dashboard/admin" || pathname === "/dashboard/teacher")

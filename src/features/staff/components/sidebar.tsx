@@ -346,7 +346,7 @@ export const bkSidebarItems = [
 ] satisfies StaffSidebarItem[];
 
 export const studentSidebarItems = [
-  { label: "Dashboard", href: "/dashboard/siswa", icon: LayoutDashboard },
-  { label: "Histori Absen", href: "/dashboard/siswa/history", icon: History },
-  { label: "Profil", href: "/dashboard/siswa/profile", icon: UserRound },
+  { label: "Dashboard", href: "/dashboard/student", icon: LayoutDashboard },
+  { label: "Histori Absen", href: "/dashboard/student/history", icon: History },
+  { label: "Profil", href: "/dashboard/student/profile", icon: UserRound },
 ] satisfies StaffSidebarItem[];
