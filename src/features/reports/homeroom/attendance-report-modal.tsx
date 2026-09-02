@@ -67,11 +67,25 @@ function formatDisplayDate(v: string) {
   });
 }
 
+function formatGender(value?: string) {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === "l" || normalized === "laki-laki" || normalized === "male") {
+    return "L";
+  }
+  if (normalized === "p" || normalized === "perempuan" || normalized === "female") {
+    return "P";
+  }
+  return "-";
+}
+
 const todayStr = () => toDateInputValue(new Date());
 const todayDisplay = () => formatDisplayDate(todayStr());
+// The attendance web app went live on this date. Keeping the report boundary
+// here also stays within the API's maximum 370-day range validation.
+const AVAILABLE_DATA_START_DATE = "2026-08-18";
 
 type DateMode = "today" | "specific" | "range";
-type ReportType = "daily" | "cumulative";
+type ReportType = "daily" | "cumulative" | "all";
 type StatusFilter = "Semua" | "hadir" | "izin" | "sakit" | "alfa";
 type SortBy = "name" | "nis" | "status" | "checkin" | "h" | "i" | "s" | "a";
 type Columns = { nis: boolean; status: boolean; checkin: boolean };
@@ -84,11 +98,18 @@ type CumulativeRow = {
   i: number;
   s: number;
   a: number;
+  attendance_percentage: number;
 };
 type ReportTableCell =
   | string
   | { content: string; colSpan?: number; styles?: Record<string, unknown> };
 type SortOption = { value: SortBy; label: string };
+
+function getLastTableY(doc: unknown, fallback: number) {
+  const finalY = (doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable
+    ?.finalY;
+  return typeof finalY === "number" ? finalY : fallback;
+}
 
 const STATUS_LABELS: Record<StatusFilter, string> = {
   Semua: "Semua Status",
@@ -109,10 +130,10 @@ async function generateDailyWalasAbsensiPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Walas Absensi");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN ABSENSI KELAS",
     subtitle: "Laporan Wali Kelas",
   });
@@ -124,57 +145,228 @@ async function generateDailyWalasAbsensiPdf(
     `Total: ${records.length} record`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   const head: string[][] = [["No", "Nama Siswa", "Tanggal"]];
   if (columns.nis) head[0].push("NIS");
   if (columns.status) head[0].push("Status");
   if (columns.checkin) head[0].push("Absen Masuk");
 
-  const body = records.map((record, index) => {
-    const tanggal = record.attendance_date
-      ? new Date(`${record.attendance_date}T00:00:00`).toLocaleDateString(
-          "id-ID",
-          { day: "2-digit", month: "short", year: "numeric" },
-        )
-      : "-";
-    const row: string[] = [String(index + 1), record.student_name, tanggal];
-    if (columns.nis) row.push(record.nis);
-    if (columns.status) {
-      row.push(
-        record.status
-          ? record.status.charAt(0).toUpperCase() +
-              record.status.slice(1).toLowerCase()
-          : "-",
-      );
-    }
-    if (columns.checkin) {
-      row.push(
-        record.check_in_at
-          ? new Date(record.check_in_at).toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "-",
-      );
-    }
-    return row;
-  });
+  const buildBody = (dateRecords: StaffAttendanceRecord[]) =>
+    dateRecords.map((record, index) => {
+      const tanggal = record.attendance_date
+        ? new Date(`${record.attendance_date}T00:00:00`).toLocaleDateString(
+            "id-ID",
+            { day: "2-digit", month: "short", year: "numeric" },
+          )
+        : "-";
+      const row: string[] = [String(index + 1), record.student_name, tanggal];
+      if (columns.nis) row.push(record.nis);
+      if (columns.status) {
+        row.push(
+          record.status
+            ? record.status.charAt(0).toUpperCase() +
+                record.status.slice(1).toLowerCase()
+            : "-",
+        );
+      }
+      if (columns.checkin) {
+        row.push(
+          record.check_in_at
+            ? new Date(record.check_in_at).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "-",
+        );
+      }
+      return row;
+    });
 
-  autoTable(doc, {
-    head,
-    body,
-    startY: metaY + 8,
-    margin: { left: mx, right: mx },
-    ...REPORT_TABLE_STYLE,
+  const recordsByDate = new Map<string, StaffAttendanceRecord[]>();
+  for (const record of records) {
+    const date = record.attendance_date || "-";
+    const group = recordsByDate.get(date) ?? [];
+    group.push(record);
+    recordsByDate.set(date, group);
+  }
+
+  let startY = pillsBottomY + 3;
+  const groupedDates = Array.from(recordsByDate.entries());
+  const contentWidth = doc.internal.pageSize.getWidth() - mx * 2;
+  const isPortrait = contentWidth < 220;
+  const dailyFixedWidths = {
+    no: isPortrait ? 10 : 12,
+    date: isPortrait ? 25 : 32,
+    nis: columns.nis ? (isPortrait ? 25 : 36) : 0,
+    status: columns.status ? (isPortrait ? 30 : 43) : 0,
+    checkin: columns.checkin ? (isPortrait ? 30 : 45) : 0,
+  };
+  const dailyNameWidth =
+    contentWidth -
+    dailyFixedWidths.no -
+    dailyFixedWidths.date -
+    dailyFixedWidths.nis -
+    dailyFixedWidths.status -
+    dailyFixedWidths.checkin;
+
+  groupedDates.forEach(([date, dateRecords], groupIndex) => {
+    if (groupedDates.length > 1) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(6, 95, 70);
+      doc.text(
+        `Tanggal: ${date === "-" ? "Tidak tersedia" : formatDisplayDate(date)}`,
+        mx,
+        startY,
+      );
+      startY += 4;
+    }
+
+    autoTable(doc, {
+      head,
+      body: buildBody(dateRecords),
+      startY,
+      margin: { left: mx, right: mx },
+      tableWidth: "auto",
+      ...REPORT_TABLE_STYLE,
+      styles: {
+        ...REPORT_TABLE_STYLE.styles,
+        fontSize: 8,
+        cellPadding: { horizontal: 2.4, vertical: 2.8 },
+      },
+      columnStyles: {
+        0: {
+          cellWidth: dailyFixedWidths.no,
+          halign: "center",
+          fontStyle: "bold",
+        },
+        1: { cellWidth: dailyNameWidth },
+        2: { cellWidth: dailyFixedWidths.date, halign: "center" },
+        ...(columns.nis
+          ? { 3: { cellWidth: dailyFixedWidths.nis, halign: "center" } }
+          : {}),
+        ...(columns.status
+          ? {
+              [columns.nis ? 4 : 3]: {
+                cellWidth: dailyFixedWidths.status,
+                halign: "center",
+              },
+            }
+          : {}),
+        ...(columns.checkin
+          ? {
+              [2 + Number(columns.nis) + Number(columns.status)]: {
+                cellWidth: dailyFixedWidths.checkin,
+                halign: "center",
+              },
+            }
+          : {}),
+      },
+    });
+    startY =
+      getLastTableY(doc, startY) +
+      (groupIndex < groupedDates.length - 1 ? 9 : 0);
   });
 
   drawReportPdfFooter(
     doc,
-    `Laporan Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
+    `Laporan Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDANCE SYSTEM`,
   );
   doc.save(
     `Laporan-Walas-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,
+  );
+}
+
+async function generateRangeWalasAbsensiPdf(
+  records: StaffAttendanceRecord[],
+  homeroom: StaffHomeroomContext,
+  periodeLabel: string,
+) {
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  applyPdfCreditMetadata(doc, "Laporan Walas Absensi per Tanggal");
+  const mx = REPORT_PDF_MARGIN_X;
+  const { metaY } = await drawReportPdfHeader(doc, {
+    title: "LAPORAN ABSENSI KELAS",
+    subtitle: "Laporan Wali Kelas per Tanggal",
+  });
+  const pillsBottomY = drawReportPdfPills(
+    doc,
+    [
+      "Tipe: Per tanggal",
+      `Kelas: ${homeroom.class_name}`,
+      `Periode: ${periodeLabel}`,
+      `Total: ${records.length} record`,
+      "Urutan: Nama (A-Z)",
+    ],
+    metaY,
+  );
+
+  const recordsByDate = new Map<string, StaffAttendanceRecord[]>();
+  for (const record of records) {
+    const date = record.attendance_date || "-";
+    recordsByDate.set(date, [...(recordsByDate.get(date) ?? []), record]);
+  }
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const tableWidth = pageWidth - mx * 2;
+  const nameWidth = tableWidth - 10 - 31 - 15 - 31;
+  let startY = pillsBottomY + 5;
+
+  Array.from(recordsByDate.entries()).forEach(([date, dateRecords], index) => {
+    const sortedDateRecords = [...dateRecords].sort((first, second) =>
+      first.student_name.localeCompare(second.student_name, "id"),
+    );
+    if (index > 0) startY = getLastTableY(doc, startY) + 8;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(6, 95, 70);
+    doc.text(
+      `Tanggal: ${date === "-" ? "Tidak tersedia" : formatDisplayDate(date)}`,
+      mx,
+      startY,
+    );
+
+    autoTable(doc, {
+      head: [["No", "Nama Siswa", "NIS", "JK", "Kehadiran"]],
+      body: sortedDateRecords.map((record, recordIndex) => [
+        String(recordIndex + 1),
+        record.student_name,
+        record.nis,
+        formatGender(record.gender),
+        record.status
+          ? record.status.charAt(0).toUpperCase() +
+            record.status.slice(1).toLowerCase()
+          : "-",
+      ]),
+      startY: startY + 3,
+      margin: { left: mx, right: mx },
+      tableWidth: "auto",
+      ...REPORT_TABLE_STYLE,
+      styles: {
+        ...REPORT_TABLE_STYLE.styles,
+        fontSize: 8,
+        cellPadding: { horizontal: 2.5, vertical: 2.8 },
+      },
+      columnStyles: {
+        0: { cellWidth: 10, halign: "center", fontStyle: "bold" },
+        1: { cellWidth: nameWidth },
+        2: { cellWidth: 31, halign: "center" },
+        3: { cellWidth: 15, halign: "center" },
+        4: { cellWidth: 31, halign: "center" },
+      },
+    });
+  });
+
+  drawReportPdfFooter(
+    doc,
+    `Laporan Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDANCE SYSTEM`,
+  );
+  doc.save(
+    `Laporan-Walas-Absensi-Per-Tanggal-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,
   );
 }
 
@@ -184,29 +376,30 @@ async function generateCumulativeWalasAbsensiPdf(
   periodeLabel: string,
   sortLabel: string,
   columns: CumulativeColumns,
+  reportTypeLabel = "Rekap akumulatif",
 ) {
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Walas Rekap Absensi");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "REKAP ABSENSI KELAS",
     subtitle: "Laporan Akumulatif Wali Kelas",
   });
   const pills = [
-    "Tipe: Rekap akumulatif",
+    `Tipe: ${reportTypeLabel}`,
     `Kelas: ${homeroom.class_name}`,
     `Periode: ${periodeLabel}`,
     `Total: ${rows.length} siswa`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   const head: string[][] = [["No", "Nama Siswa"]];
   if (columns.nis) head[0].push("NIS");
-  head[0].push("H", "I", "S", "A");
+  head[0].push("H", "I", "S", "A", "Kehadiran");
 
   const totals = rows.reduce(
     (acc, row) => ({
@@ -226,6 +419,10 @@ async function generateCumulativeWalasAbsensiPdf(
       { content: String(row.i), styles: { halign: "center" } },
       { content: String(row.s), styles: { halign: "center" } },
       { content: String(row.a), styles: { halign: "center" } },
+      {
+        content: `${row.attendance_percentage}%`,
+        styles: { halign: "center" },
+      },
     );
     return cells;
   });
@@ -242,7 +439,9 @@ async function generateCumulativeWalasAbsensiPdf(
           ? "Total"
           : totalByHeader[header] !== undefined
             ? String(totalByHeader[header])
-            : "",
+            : header === "Kehadiran"
+              ? `${rows.length > 0 ? Math.round(rows.reduce((sum, row) => sum + row.attendance_percentage, 0) / rows.length) : 0}%`
+              : "",
       styles: {
         fillColor: [236, 253, 245],
         fontStyle: "bold",
@@ -255,14 +454,47 @@ async function generateCumulativeWalasAbsensiPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
+    tableWidth: "auto",
     ...REPORT_TABLE_STYLE,
+    styles: {
+      ...REPORT_TABLE_STYLE.styles,
+      fontSize: 8,
+      cellPadding: { horizontal: 2.5, vertical: 3 },
+    },
+    columnStyles: {
+      0: { cellWidth: 10, halign: "center", fontStyle: "bold" },
+      1: {
+        cellWidth: columns.nis ? 57 : 90,
+      },
+      ...(columns.nis ? { 2: { cellWidth: 25, halign: "center" } } : {}),
+      [columns.nis ? 3 : 2]: {
+        cellWidth: columns.nis ? 14 : 12,
+        halign: "center",
+      },
+      [columns.nis ? 4 : 3]: {
+        cellWidth: columns.nis ? 14 : 12,
+        halign: "center",
+      },
+      [columns.nis ? 5 : 4]: {
+        cellWidth: columns.nis ? 14 : 12,
+        halign: "center",
+      },
+      [columns.nis ? 6 : 5]: {
+        cellWidth: columns.nis ? 14 : 12,
+        halign: "center",
+      },
+      [columns.nis ? 7 : 6]: {
+        cellWidth: 34,
+        halign: "center",
+      },
+    },
   });
 
   drawReportPdfFooter(
     doc,
-    `Rekap Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
+    `Rekap Absensi Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDANCE SYSTEM`,
   );
   doc.save(
     `Laporan-Walas-Rekap-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,
@@ -352,11 +584,12 @@ async function generateCumulativeWalasAbsensiExcel(
   periodeLabel: string,
   sortLabel: string,
   columns: CumulativeColumns,
+  reportTypeLabel = "Rekap akumulatif",
 ) {
   await exportStyledExcelReport({
     filename: `Laporan-Walas-Rekap-Absensi-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}`,
     title: "REKAP ABSENSI KELAS",
-    subtitle: "Sekolah Citra Negara - Laporan Akumulatif Wali Kelas",
+    subtitle: `Sekolah Citra Negara - ${reportTypeLabel} Wali Kelas`,
     metadata: [
       { label: "Kelas", value: homeroom.class_name },
       { label: "Tahun ajaran", value: homeroom.school_year_name },
@@ -407,6 +640,7 @@ function buildCumulativeRows(records: StaffAttendanceRecord[]) {
       i: 0,
       s: 0,
       a: 0,
+      attendance_percentage: 0,
     };
 
     switch (record.status?.toLowerCase()) {
@@ -423,6 +657,9 @@ function buildCumulativeRows(records: StaffAttendanceRecord[]) {
         row.a += 1;
         break;
     }
+    const total = row.h + row.i + row.s + row.a;
+    row.attendance_percentage =
+      total > 0 ? Math.round((row.h / total) * 100) : 0;
     rowsByStudent.set(record.student_id, row);
   });
 
@@ -499,18 +736,27 @@ export function WalasAbsensiReportModal({
   const rangeValid = !rangeFrom || !rangeTo || rangeFrom <= rangeTo;
   const typeAnswered = reportType !== null;
   const periodAnswered =
-    dateMode === "today" ||
-    (dateMode === "specific" && specificDate !== "") ||
-    (dateMode === "range" && rangeFrom !== "" && rangeTo !== "" && rangeValid);
+    reportType === "all" ||
+    (reportType === "daily" &&
+      (dateMode === "today" ||
+        (dateMode === "specific" && specificDate !== ""))) ||
+    (reportType === "cumulative" &&
+      dateMode === "range" &&
+      rangeFrom !== "" &&
+      rangeTo !== "" &&
+      rangeValid);
 
   const showPeriod = typeAnswered;
   const showStatus = periodAnswered && reportType === "daily";
   const showColumns =
-    periodAnswered && (reportType === "cumulative" || statusFilter !== null);
+    periodAnswered &&
+    (reportType === "cumulative" ||
+      reportType === "all" ||
+      statusFilter !== null);
   const canDownload = format !== null && showColumns && sortBy !== null;
   const sortOptions = useMemo(
     () =>
-      reportType === "cumulative"
+      reportType === "cumulative" || reportType === "all"
         ? getCumulativeSortOptions(cumulativeColumns)
         : getDailySortOptions(columns),
     [columns, cumulativeColumns, reportType],
@@ -550,21 +796,52 @@ export function WalasAbsensiReportModal({
           : dateMode === "specific"
             ? specificDate
             : "";
+      const isFullPeriod = reportType === "all";
       const overview = await getTeacherHomeroomAttendanceOverview(
-        dateMode === "range"
-          ? { date_from: rangeFrom, date_to: rangeTo }
+        isFullPeriod || dateMode === "range"
+          ? {
+              date_from: isFullPeriod ? AVAILABLE_DATA_START_DATE : rangeFrom,
+              date_to: isFullPeriod ? todayStr() : rangeTo,
+            }
           : { date: dateParam },
       );
       const rawRecords = overview.records ?? [];
+      const firstAvailableDate = rawRecords.reduce((earliest, record) => {
+        const date = record.attendance_date?.trim();
+        if (!date) return earliest;
+        return !earliest || date < earliest ? date : earliest;
+      }, "");
+      const lastAvailableDate = rawRecords.reduce((latest, record) => {
+        const date = record.attendance_date?.trim();
+        if (!date) return latest;
+        return !latest || date > latest ? date : latest;
+      }, "");
+      const effectivePeriodEnd =
+        lastAvailableDate || (isFullPeriod ? todayStr() : rangeTo);
 
       const periodeLabel =
         dateMode === "today"
           ? `Hari ini (${todayDisplay()})`
           : dateMode === "specific"
             ? formatDisplayDate(specificDate)
-            : `${formatDisplayDate(rangeFrom)} - ${formatDisplayDate(rangeTo)}`;
+              : `${formatDisplayDate(
+                  firstAvailableDate ||
+                    (isFullPeriod ? AVAILABLE_DATA_START_DATE : rangeFrom),
+                )} - ${formatDisplayDate(effectivePeriodEnd)}`;
 
-      if (reportType === "cumulative") {
+      if (reportType === "cumulative" || reportType === "all") {
+        if (reportType === "cumulative" && dateMode === "range" && format === "pdf") {
+          if (rawRecords.length === 0) {
+            toast.warning("Tidak ada data absensi yang sesuai filter.");
+            return;
+          }
+          await generateRangeWalasAbsensiPdf(
+            rawRecords,
+            homeroom,
+            periodeLabel,
+          );
+          return;
+        }
         const cumulativeRows = buildCumulativeRows(rawRecords);
         if (cumulativeRows.length === 0) {
           toast.warning("Tidak ada data absensi yang sesuai filter.");
@@ -590,6 +867,7 @@ export function WalasAbsensiReportModal({
             periodeLabel,
             getSortLabel(sortBy),
             cumulativeColumns,
+            reportType === "all" ? "Sepanjang periode" : "Rekap akumulatif",
           );
         } else {
           await generateCumulativeWalasAbsensiPdf(
@@ -598,6 +876,7 @@ export function WalasAbsensiReportModal({
             periodeLabel,
             getSortLabel(sortBy),
             cumulativeColumns,
+            reportType === "all" ? "Sepanjang periode" : "Rekap akumulatif",
           );
         }
         return;
@@ -668,6 +947,21 @@ export function WalasAbsensiReportModal({
       description="Pilih PDF siap cetak atau Excel bergaya, lalu tentukan tipe dan periode laporan."
       icon={Printer}
       className="walas-modal-surface sm:!max-w-[660px]"
+      footer={
+        <ReportModalFooter
+          canDownload={canDownload}
+          generating={generating}
+          onCancel={() => handleClose(false)}
+          onDownload={handleDownload}
+          format={format}
+          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
+          downloadLabel={
+            format
+              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
+              : "Pilih format laporan"
+          }
+        />
+      }
     >
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
@@ -697,6 +991,20 @@ export function WalasAbsensiReportModal({
               badge="Total periode"
               onClick={() => {
                 setReportType("cumulative");
+                setDateMode("range");
+                setSpecificDate("");
+                setRangeFrom("");
+                setRangeTo("");
+                setStatusFilter(null);
+                setSortBy(null);
+              }}
+            />
+            <ReportRadio
+              selected={reportType === "all"}
+              label="Sepanjang periode"
+              badge="Ringkasan lengkap"
+              onClick={() => {
+                setReportType("all");
                 setDateMode(null);
                 setSpecificDate("");
                 setRangeFrom("");
@@ -719,45 +1027,45 @@ export function WalasAbsensiReportModal({
             >
               <QuestionBlock
                 icon={CalendarClock}
-                label="Pilih periode absensi"
+                label={
+                  reportType === "cumulative"
+                    ? "Pilih rentang tanggal"
+                    : "Pilih periode absensi"
+                }
                 answered={periodAnswered}
               >
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <ReportRadio
-                    selected={dateMode === "today"}
-                    label="Hari ini"
-                    badge={todayDisplay()}
-                    onClick={() => {
-                      setDateMode("today");
-                      setStatusFilter(null);
-                      setSortBy(null);
-                    }}
-                  />
-                  <ReportRadio
-                    selected={dateMode === "specific"}
-                    label="Tanggal tertentu"
-                    onClick={() => {
-                      setDateMode("specific");
-                      setSpecificDate("");
-                      setStatusFilter(null);
-                      setSortBy(null);
-                    }}
-                  />
-                  <ReportRadio
-                    selected={dateMode === "range"}
-                    label="Rentang tanggal"
-                    onClick={() => {
-                      setDateMode("range");
-                      setRangeFrom("");
-                      setRangeTo("");
-                      setStatusFilter(null);
-                      setSortBy(null);
-                    }}
-                  />
-                </div>
+                {reportType === "all" ? (
+                  <p className="rounded-[0.9rem] border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-sm leading-5 text-emerald-900">
+                    Seluruh data tahun ajaran dirangkum dalam satu tabel dengan
+                    persentase kehadiran dan rincian HISA.
+                  </p>
+                ) : reportType === "cumulative" ? null : (
+          <div className="grid gap-2 sm:grid-cols-2">
+                    <ReportRadio
+                      selected={dateMode === "today"}
+                      label="Hari ini"
+                      badge={todayDisplay()}
+                      onClick={() => {
+                        setDateMode("today");
+                        setStatusFilter(null);
+                        setSortBy(null);
+                      }}
+                    />
+                    <ReportRadio
+                      selected={dateMode === "specific"}
+                      label="Tanggal tertentu"
+                      onClick={() => {
+                        setDateMode("specific");
+                        setSpecificDate("");
+                        setStatusFilter(null);
+                        setSortBy(null);
+                      }}
+                    />
+                  </div>
+                )}
 
                 <AnimatePresence>
-                  {dateMode === "specific" && (
+                  {reportType !== "all" && dateMode === "specific" && (
                     <motion.div
                       key="specific"
                       initial={{ opacity: 0, height: 0 }}
@@ -811,7 +1119,7 @@ export function WalasAbsensiReportModal({
                 </AnimatePresence>
 
                 <AnimatePresence>
-                  {dateMode === "range" && (
+                  {reportType === "cumulative" && dateMode === "range" && (
                     <motion.div
                       key="range"
                       initial={{ opacity: 0, height: 0 }}
@@ -950,7 +1258,7 @@ export function WalasAbsensiReportModal({
                 label="Filter berdasarkan status kehadiran"
                 answered={statusFilter !== null}
               >
-                <div className="grid gap-2 sm:grid-cols-3">
+                <div className="grid grid-cols-3 gap-2">
                   {(
                     [
                       "Semua",
@@ -991,7 +1299,7 @@ export function WalasAbsensiReportModal({
                 answered
               >
                 <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-2">
-                  {reportType === "cumulative" ? (
+                  {reportType === "cumulative" || reportType === "all" ? (
                     <>
                       <ReportCheckbox
                         checked
@@ -1088,19 +1396,6 @@ export function WalasAbsensiReportModal({
           )}
         </AnimatePresence>
 
-        <ReportModalFooter
-          canDownload={canDownload}
-          generating={generating}
-          onCancel={() => handleClose(false)}
-          onDownload={handleDownload}
-          format={format}
-          generatingLabel={`Membuat ${format === "excel" ? "Excel" : "PDF"}...`}
-          downloadLabel={
-            format
-              ? `Unduh ${format === "excel" ? "Excel" : "PDF"}`
-              : "Pilih format laporan"
-          }
-        />
       </div>
     </PremiumModal>
   );

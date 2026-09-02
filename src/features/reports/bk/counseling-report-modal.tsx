@@ -82,10 +82,10 @@ async function generateBKKonselingPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Konseling BK");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN CATATAN KONSELING BK",
     subtitle: "Laporan Guru Bimbingan Konseling",
   });
@@ -95,7 +95,7 @@ async function generateBKKonselingPdf(
     `Total: ${records.length} catatan`,
     `Urutan: ${meta.urutan}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Build table
   const head: string[][] = [["No", "Nama Siswa"]];
@@ -120,12 +120,12 @@ async function generateBKKonselingPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Catatan Konseling BK - CITRA NEGARA ATTENDENCE SYSTEM");
+  drawReportPdfFooter(doc, "Laporan Catatan Konseling BK - CITRA NEGARA ATTENDANCE SYSTEM");
 
   doc.save(`Laporan-Konseling-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

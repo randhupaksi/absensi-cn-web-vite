@@ -95,10 +95,10 @@ async function generateBKPengajuanPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Pengajuan BK");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN PENGAJUAN SISWA - BK",
     subtitle: "Laporan Guru Bimbingan Konseling",
   });
@@ -109,7 +109,7 @@ async function generateBKPengajuanPdf(
     `Total: ${records.length} pengajuan`,
     `Urutan: ${meta.urutan}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Build table
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
@@ -136,12 +136,12 @@ async function generateBKPengajuanPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Pengajuan Siswa - BK CITRA NEGARA ATTENDENCE SYSTEM");
+  drawReportPdfFooter(doc, "Laporan Pengajuan Siswa - BK CITRA NEGARA ATTENDANCE SYSTEM");
 
   doc.save(`Laporan-Pengajuan-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

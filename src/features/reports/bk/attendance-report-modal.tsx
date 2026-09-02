@@ -147,10 +147,10 @@ async function generateBKAbsensiPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Absensi BK");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN ABSENSI LINTAS KELAS",
     subtitle: "Laporan Guru Bimbingan Konseling",
   });
@@ -161,7 +161,7 @@ async function generateBKAbsensiPdf(
     `Total: ${records.length} record`,
     `Urutan: ${meta.urutan}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Build table
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
@@ -187,12 +187,12 @@ async function generateBKAbsensiPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas - BK CITRA NEGARA ATTENDENCE SYSTEM");
+  drawReportPdfFooter(doc, "Laporan Absensi Lintas Kelas - BK CITRA NEGARA ATTENDANCE SYSTEM");
 
   doc.save(`Laporan-Absensi-BK-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

@@ -297,15 +297,15 @@ async function generateSchedulePdf(
 ) {
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Jadwal Mengajar");
 
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN JADWAL MENGAJAR",
     subtitle: "Jadwal Aktif Guru Mata Pelajaran",
   });
-  drawReportPdfPills(
+  const firstPillsBottomY = drawReportPdfPills(
     doc,
     [
       `Guru: ${teacherName}`,
@@ -314,7 +314,7 @@ async function generateSchedulePdf(
     ],
     metaY,
   );
-  drawReportPdfPills(
+  const pillsBottomY = drawReportPdfPills(
     doc,
     [
       `Mapel: ${summary.subjectCount}`,
@@ -323,7 +323,7 @@ async function generateSchedulePdf(
       `Total jam: ${formatDuration(summary.totalMinutes)}`,
       `Hari mengajar: ${summary.dayCount}`,
     ],
-    metaY + 7,
+    firstPillsBottomY + 2,
   );
 
   autoTable(doc, {
@@ -347,12 +347,12 @@ async function generateSchedulePdf(
       row.className,
       row.schoolYearName,
     ]),
-    startY: metaY + 16,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
 
-  drawReportPdfFooter(doc, `Jadwal Mengajar - ${teacherName} - CITRA NEGARA ATTENDENCE SYSTEM`);
+  drawReportPdfFooter(doc, `Jadwal Mengajar - ${teacherName} - CITRA NEGARA ATTENDANCE SYSTEM`);
   doc.save(
     `Jadwal-Mengajar-${toFilenamePart(teacherName)}-${new Date().toISOString().slice(0, 10)}.pdf`,
   );

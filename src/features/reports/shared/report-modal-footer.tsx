@@ -51,7 +51,12 @@ export function ReportModalFooter({
     );
 
   return (
-    <div className={premiumModalActionsClassName}>
+    <div
+      className={cn(
+        premiumModalActionsClassName,
+        "!mt-0 !pt-0 before:hidden",
+      )}
+    >
       {cancel}
       <AsyncButton
         type="button"

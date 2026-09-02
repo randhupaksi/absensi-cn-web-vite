@@ -19,7 +19,7 @@ import {
 } from "@/lib/reports/pdf-report-kit";
 import type { StaffAttendanceRecord } from "@/types/staff";
 import type { StudentProfile, StudentStats } from "@/types/student";
-import { CalendarDays, Columns3, Database, Printer } from "lucide-react";
+import { Columns3, Database, Printer, UserRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -106,26 +106,6 @@ export function StudentHistoryReportModal({
       <div className="space-y-4">
         <ReportFormatQuestion value={format} onChange={setFormat} />
 
-        <QuestionBlock
-          icon={Database}
-          label="Data laporan"
-          answered={Boolean(profile && sortedAttendance.length)}
-        >
-          <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600">
-            <p className="font-semibold text-slate-900">
-              {profile?.name ?? "Profil siswa belum tersedia"}
-            </p>
-            <p className="mt-1">
-              {profile?.class_name ?? "Kelas"} ·{" "}
-              {profile?.school_year_name ?? "Tahun ajaran"}
-            </p>
-            <p>
-              {sortedAttendance.length} riwayat absensi akan disusun kronologis
-              per bulan.
-            </p>
-          </div>
-        </QuestionBlock>
-
         <QuestionBlock icon={Columns3} label="Kolom histori" answered>
           <div className="grid gap-2 min-[520px]:grid-cols-2">
             <ReportCheckbox
@@ -158,11 +138,24 @@ export function StudentHistoryReportModal({
           </div>
         </QuestionBlock>
 
-        <QuestionBlock icon={CalendarDays} label="Susunan laporan" answered>
-          <p className="rounded-[0.9rem] border border-emerald-100 bg-white/80 px-4 py-3 text-sm leading-6 text-slate-600">
-            Ringkasan identitas dan persentase kehadiran ditampilkan lebih
-            dahulu, lalu histori diurutkan dari bulan terlama ke terbaru.
-          </p>
+        <QuestionBlock
+          icon={Database}
+          label="Data yang akan digunakan"
+          answered={Boolean(profile && sortedAttendance.length)}
+        >
+          <div className="rounded-[0.9rem] border border-white bg-white/80 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            <p className="font-semibold text-slate-900 dark:text-slate-100">
+              Periode: {getPeriodLabel(sortedAttendance)}
+            </p>
+            <p className="mt-1">
+              {profile?.name ?? "Profil siswa belum tersedia"} ·{" "}
+              {profile?.class_name ?? "Kelas belum tersedia"}
+            </p>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <UserRound className="size-3.5" aria-hidden="true" />
+              1 siswa · {sortedAttendance.length} riwayat absensi
+            </p>
+          </div>
         </QuestionBlock>
 
         <ReportModalFooter
@@ -309,14 +302,14 @@ async function generateStudentHistoryPdf(
 ) {
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Histori Absensi Siswa");
 
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN HISTORI ABSENSI",
     subtitle: "Rekap Kehadiran Siswa",
   });
-  drawReportPdfPills(
+  const pillsBottomY = drawReportPdfPills(
     doc,
     [
       `Siswa: ${profile.name}`,
@@ -328,7 +321,7 @@ async function generateStudentHistoryPdf(
     metaY,
   );
 
-  const head = [["No", "Bulan", "Tanggal", "Status"]];
+  const head = [["No", "Tanggal", "Status"]];
   if (columns.checkIn) head[0].push("Absen Masuk");
   if (columns.validation) head[0].push("Validasi");
   if (columns.notes) head[0].push("Catatan");
@@ -336,8 +329,7 @@ async function generateStudentHistoryPdf(
   const body = attendance.map((record, index) => {
     const row = [
       String(index + 1),
-      formatMonth(record.attendance_date),
-      formatDate(record.attendance_date),
+      formatFullDate(record.attendance_date),
       formatStatus(record.status),
     ];
     if (columns.checkIn) row.push(formatTime(record.check_in_at));
@@ -350,12 +342,32 @@ async function generateStudentHistoryPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: REPORT_PDF_MARGIN_X, right: REPORT_PDF_MARGIN_X },
+    columnStyles: Object.fromEntries(
+      head[0].map((label, index) => [
+        index,
+        {
+          cellWidth:
+            {
+              No: 10,
+              Tanggal: 43,
+              Status: 20,
+              "Absen Masuk": 37,
+              Validasi: 28,
+              Catatan: 34,
+            }[label] ?? "auto",
+        },
+      ]),
+    ),
     ...REPORT_TABLE_STYLE,
+    styles: {
+      ...REPORT_TABLE_STYLE.styles,
+      cellPadding: { horizontal: 2.5, vertical: 4 },
+    },
   });
 
-  drawReportPdfFooter(doc, `Histori Absensi ${profile.name} - CITRA NEGARA ATTENDENCE SYSTEM`);
+  drawReportPdfFooter(doc, `Histori Absensi ${profile.name} - CITRA NEGARA ATTENDANCE SYSTEM`);
   doc.save(
     `Histori-Absensi-${slugify(profile.name)}-${new Date().toISOString().slice(0, 10)}.pdf`,
   );
@@ -396,12 +408,13 @@ function formatMonth(value: string) {
     : "-";
 }
 
-function formatDate(value: string) {
+function formatFullDate(value: string) {
   const date = toDate(value);
   return date
     ? date.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "short",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
         year: "numeric",
       })
     : "-";

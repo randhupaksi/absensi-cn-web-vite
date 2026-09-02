@@ -67,10 +67,10 @@ async function generateWalasPengajuanPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Walas Pengajuan");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN PENGAJUAN KELAS",
     subtitle: "Laporan Wali Kelas",
   });
@@ -81,7 +81,7 @@ async function generateWalasPengajuanPdf(
     `Total: ${records.length} pengajuan`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   const head: string[][] = [["No", "Nama Siswa"]];
   if (columns.nis) head[0].push("NIS");
@@ -122,14 +122,14 @@ async function generateWalasPengajuanPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
 
   drawReportPdfFooter(
     doc,
-    `Laporan Pengajuan Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
+    `Laporan Pengajuan Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDANCE SYSTEM`,
   );
 
   doc.save(

@@ -34,12 +34,33 @@ type HeaderOptions = {
   marginX?: number;
 };
 
-export function drawReportPdfHeader(
+let reportPdfLogoDataUrl: Promise<string | null> | null = null;
+
+function loadReportPdfLogo() {
+  if (!reportPdfLogoDataUrl) {
+    reportPdfLogoDataUrl = fetch("/images/optimized/logo-sma-smk-yatkj-ui.png")
+      .then(async (response) => {
+        if (!response.ok) return null;
+        const blob = await response.blob();
+        return await new Promise<string | null>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () =>
+            resolve(typeof reader.result === "string" ? reader.result : null);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      })
+      .catch(() => null);
+  }
+  return reportPdfLogoDataUrl;
+}
+
+export async function drawReportPdfHeader(
   doc: jsPDF,
   {
     title,
     subtitle,
-    bandHeight = 22,
+    bandHeight = 20,
     marginX = REPORT_PDF_MARGIN_X,
   }: HeaderOptions,
 ) {
@@ -62,14 +83,23 @@ export function drawReportPdfHeader(
     2.5,
     "F",
   );
+  const logoDataUrl = await loadReportPdfLogo();
+  let contentLeft = marginX + 5;
+  if (logoDataUrl) {
+    const imageProperties = doc.getImageProperties(logoDataUrl);
+    const logoHeight = 15;
+    const logoWidth = logoHeight * (imageProperties.width / imageProperties.height);
+    doc.addImage(logoDataUrl, "PNG", marginX + 3.5, 12.5, logoWidth, logoHeight);
+    contentLeft = marginX + 3.5 + logoWidth + 5;
+  }
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(236, 253, 245);
-  doc.text("CITRA NEGARA ATTENDENCE SYSTEM", marginX + 5, 18);
+  doc.text("CITRA NEGARA ATTENDANCE SYSTEM", contentLeft, 18);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(167, 243, 208);
-  doc.text(subtitle, marginX + 5, 24);
+  doc.text(subtitle, contentLeft, 24);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(255, 255, 255);
@@ -88,19 +118,30 @@ export function drawReportPdfPills(
   metaY: number,
   marginX = REPORT_PDF_MARGIN_X,
 ) {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pillHeight = 5;
+  const horizontalGap = 4;
+  const verticalGap = 2.5;
+  const rightEdge = pageWidth - marginX;
   let pillX = marginX;
+  let pillY = metaY;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
   doc.setTextColor(6, 95, 70);
   pills.forEach((text) => {
     const pillWidth = doc.getTextWidth(text) + 8;
+    if (pillX !== marginX && pillX + pillWidth > rightEdge) {
+      pillX = marginX;
+      pillY += pillHeight + verticalGap;
+    }
     doc.setFillColor(240, 253, 244);
     doc.setDrawColor(110, 231, 183);
     doc.setLineWidth(0.3);
-    doc.roundedRect(pillX, metaY, pillWidth, 5, 1.2, 1.2, "FD");
-    doc.text(text, pillX + 4, metaY + 3.6);
-    pillX += pillWidth + 4;
+    doc.roundedRect(pillX, pillY, pillWidth, pillHeight, 1.2, 1.2, "FD");
+    doc.text(text, pillX + 4, pillY + 3.6);
+    pillX += pillWidth + horizontalGap;
   });
+  return pillY + pillHeight;
 }
 
 export function drawReportPdfFooter(

@@ -52,8 +52,8 @@ export function SubjectRecapReportModal({
   periodeLabel,
 }: Props) {
   const [format, setFormat] = useState<ReportFormat | null>(null);
-  const [columns, setColumns] = useState<Columns>({ nis: true });
-  const [sortBy, setSortBy] = useState<SortBy | null>("name");
+  const [columns, setColumns] = useState<Columns>({ nis: false });
+  const [sortBy, setSortBy] = useState<SortBy | null>(null);
   const [generating, setGenerating] = useState(false);
 
   const sortOptions = useMemo(
@@ -73,7 +73,11 @@ export function SubjectRecapReportModal({
   }, [sortBy, sortOptions]);
 
   function handleClose(isOpen: boolean) {
-    if (!isOpen) setFormat(null);
+    if (!isOpen) {
+      setFormat(null);
+      setColumns({ nis: false });
+      setSortBy(null);
+    }
     onOpenChange(isOpen);
   }
 
@@ -263,14 +267,14 @@ async function generateSubjectRecapPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Rekap Mapel");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN REKAP MAPEL",
     subtitle: "Rekap Kehadiran Guru Mapel",
   });
-  drawReportPdfPills(
+  const pillsBottomY = drawReportPdfPills(
     doc,
     [
       `Mapel: ${recap.assignment.subject_name}`,
@@ -330,14 +334,14 @@ async function generateSubjectRecapPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
 
   drawReportPdfFooter(
     doc,
-    `Rekap Mapel - ${recap.assignment.subject_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
+    `Rekap Mapel - ${recap.assignment.subject_name} - CITRA NEGARA ATTENDANCE SYSTEM`,
   );
   doc.save(
     `Laporan-Rekap-Mapel-${recap.assignment.subject_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,

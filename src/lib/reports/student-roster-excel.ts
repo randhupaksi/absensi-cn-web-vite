@@ -120,7 +120,7 @@ export async function exportStudentRosterExcel({
     title: "Data Siswa Per Tingkat dan Jurusan",
     subtitle: "Sekolah Citra Negara - Sistem Informasi Absensi Sekolah",
     sheets: majorSheets,
-    footerLabel: "CITRA NEGARA ATTENDENCE SYSTEM - Data siswa per tingkat dan jurusan",
+    footerLabel: "CITRA NEGARA ATTENDANCE SYSTEM - Data siswa per tingkat dan jurusan",
   });
   const blob = new Blob([buffer], { type: MIME_XLSX });
   downloadBlob(

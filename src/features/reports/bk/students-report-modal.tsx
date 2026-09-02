@@ -68,10 +68,10 @@ async function generateBKSiswaPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan BK Siswa");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN MONITORING SISWA",
     subtitle: "Laporan Guru Bimbingan Konseling",
   });
@@ -81,7 +81,7 @@ async function generateBKSiswaPdf(
     `Total: ${data.length} siswa`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Build table
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
@@ -137,7 +137,7 @@ async function generateBKSiswaPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
     didParseCell: (hook) => {
@@ -154,7 +154,7 @@ async function generateBKSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Monitoring Siswa - BK CITRA NEGARA ATTENDENCE SYSTEM");
+  drawReportPdfFooter(doc, "Laporan Monitoring Siswa - BK CITRA NEGARA ATTENDANCE SYSTEM");
 
   doc.save(`Laporan-BK-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

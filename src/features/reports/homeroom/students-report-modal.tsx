@@ -119,10 +119,10 @@ async function generateWalasSiswaPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Walas Siswa");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN SISWA KELAS",
     subtitle: "Laporan Wali Kelas",
   });
@@ -134,7 +134,7 @@ async function generateWalasSiswaPdf(
     `Total: ${data.length} siswa`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Table
   const head: string[][] = [["No", "Nama Siswa"]];
@@ -183,7 +183,7 @@ async function generateWalasSiswaPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
     didParseCell: (hook) => {
@@ -202,7 +202,7 @@ async function generateWalasSiswaPdf(
 
   drawReportPdfFooter(
     doc,
-    `Laporan Siswa Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDENCE SYSTEM`,
+    `Laporan Siswa Kelas - ${homeroom.class_name} - CITRA NEGARA ATTENDANCE SYSTEM`,
   );
 
   doc.save(
@@ -349,14 +349,14 @@ async function generateDailyWalasSiswaPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Walas Siswa Harian");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN SISWA KELAS",
     subtitle: "Laporan Periodik Wali Kelas",
   });
-  drawReportPdfPills(
+  const pillsBottomY = drawReportPdfPills(
     doc,
     [
       "Tipe: Periodik per hari",
@@ -411,13 +411,13 @@ async function generateDailyWalasSiswaPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     ...REPORT_TABLE_STYLE,
   });
   drawReportPdfFooter(
     doc,
-    `Laporan Siswa Kelas â€” ${homeroom.class_name} â€” CITRA NEGARA ATTENDENCE SYSTEM`,
+    `Laporan Siswa Kelas â€” ${homeroom.class_name} â€” CITRA NEGARA ATTENDANCE SYSTEM`,
   );
   doc.save(
     `Laporan-Walas-Siswa-Harian-${homeroom.class_name.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`,

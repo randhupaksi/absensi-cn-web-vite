@@ -61,7 +61,7 @@ export function ReportRadio({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex touch-manipulation items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:duration-75 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
+        "flex min-w-0 w-full touch-manipulation items-center gap-3 rounded-[0.9rem] border px-4 py-3 text-left text-sm outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.985] active:duration-75 focus-visible:ring-2 focus-visible:ring-emerald-500/30",
         selected
           ? "border-slate-200 bg-white text-emerald-900 dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-200"
           : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-emerald-700/70 dark:hover:bg-emerald-950/35",
@@ -77,7 +77,7 @@ export function ReportRadio({
       >
         {selected && <span className="size-2 rounded-full bg-white" />}
       </span>
-      <span className="flex-1 font-medium">{label}</span>
+      <span className="min-w-0 flex-1 font-medium">{label}</span>
       {badge !== undefined && (
         <span
           className={cn(

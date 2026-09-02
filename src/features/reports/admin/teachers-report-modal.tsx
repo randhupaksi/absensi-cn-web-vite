@@ -43,10 +43,10 @@ async function generateGuruPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Guru");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN DATA GURU",
     subtitle: "Sistem Informasi Absensi Sekolah",
     bandHeight: 20,
@@ -56,7 +56,7 @@ async function generateGuruPdf(
     `Total: ${data.length} guru`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Table columns
   const head: string[][] = [["No", "Nama Guru", "Username"]];
@@ -80,7 +80,7 @@ async function generateGuruPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     styles: {
       fontSize: 8,
@@ -103,7 +103,7 @@ async function generateGuruPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Data Guru - CITRA NEGARA ATTENDENCE SYSTEM");
+  drawReportPdfFooter(doc, "Laporan Data Guru - CITRA NEGARA ATTENDANCE SYSTEM");
 
   doc.save(`Laporan-Guru-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

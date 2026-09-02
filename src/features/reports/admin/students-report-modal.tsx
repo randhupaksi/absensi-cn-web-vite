@@ -43,10 +43,10 @@ async function generateSiswaPdf(
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   applyPdfCreditMetadata(doc, "Laporan Siswa");
   const mx = REPORT_PDF_MARGIN_X;
-  const { metaY } = drawReportPdfHeader(doc, {
+  const { metaY } = await drawReportPdfHeader(doc, {
     title: "LAPORAN DATA SISWA",
     subtitle: "Sistem Informasi Absensi Sekolah",
     bandHeight: 20,
@@ -56,7 +56,7 @@ async function generateSiswaPdf(
     `Total: ${data.length} siswa`,
     `Urutan: ${sortLabel}`,
   ];
-  drawReportPdfPills(doc, pills, metaY);
+  const pillsBottomY = drawReportPdfPills(doc, pills, metaY);
 
   // Table columns
   const head: string[][] = [["No", "Nama Siswa", "NIS"]];
@@ -80,7 +80,7 @@ async function generateSiswaPdf(
   autoTable(doc, {
     head,
     body,
-    startY: metaY + 8,
+    startY: pillsBottomY + 3,
     margin: { left: mx, right: mx },
     styles: {
       fontSize: 8,
@@ -104,7 +104,7 @@ async function generateSiswaPdf(
     },
   });
 
-  drawReportPdfFooter(doc, "Laporan Data Siswa - CITRA NEGARA ATTENDENCE SYSTEM");
+  drawReportPdfFooter(doc, "Laporan Data Siswa - CITRA NEGARA ATTENDANCE SYSTEM");
 
   doc.save(`Laporan-Siswa-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
