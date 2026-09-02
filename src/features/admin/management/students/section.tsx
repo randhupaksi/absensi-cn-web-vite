@@ -118,6 +118,7 @@ export function StudentSection({
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [unitFilter, setUnitFilter] = useState("all");
+  const [gradeFilter, setGradeFilter] = useState("all");
   const [majorFilter, setMajorFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
   const [activeTab, setActiveTab] = useState<StudentTab>("profiles");
@@ -158,7 +159,9 @@ export function StudentSection({
     const majors = new Map<string, string>();
     classes
       .filter(
-        (item) => unitFilter === "all" || item.school_unit_id === unitFilter,
+        (item) =>
+          (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+          (gradeFilter === "all" || item.grade === gradeFilter),
       )
       .forEach((item) =>
         majors.set(item.major_id, `${item.major_code} - ${item.major_name}`),
@@ -170,6 +173,27 @@ export function StudentSection({
         (left, right) => left.label.localeCompare(right.label, "id"),
       ),
     ];
+  }, [classes, gradeFilter, unitFilter]);
+
+  const gradeFilterOptions = useMemo(() => {
+    const grades = new Set(
+      classes
+        .filter(
+          (item) =>
+            unitFilter === "all" || item.school_unit_id === unitFilter,
+        )
+        .map((item) => item.grade)
+        .filter(Boolean),
+    );
+
+    return [
+      { value: "all", label: "Semua tingkat" },
+      ...Array.from(grades)
+        .sort((left, right) =>
+          left.localeCompare(right, "id", { numeric: true }),
+        )
+        .map((grade) => ({ value: grade, label: `Kelas ${grade}` })),
+    ];
   }, [classes, unitFilter]);
 
   const classFilterOptions = useMemo(() => {
@@ -180,6 +204,7 @@ export function StudentSection({
       .filter(
         (item) =>
           (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+          (gradeFilter === "all" || item.grade === gradeFilter) &&
           item.major_id === majorFilter,
       )
       .forEach((item) => classMap.set(item.id, item.display_name || item.name));
@@ -190,23 +215,27 @@ export function StudentSection({
         (left, right) => left.label.localeCompare(right.label, "id"),
       ),
     ];
-  }, [classes, majorFilter, unitFilter]);
+  }, [classes, gradeFilter, majorFilter, unitFilter]);
 
   const hasAcademicFilter =
-    unitFilter !== "all" || majorFilter !== "all" || classFilter !== "all";
+    unitFilter !== "all" ||
+    gradeFilter !== "all" ||
+    majorFilter !== "all" ||
+    classFilter !== "all";
   const matchingClassIDs = useMemo(
     () =>
       new Set(
         classes
           .filter(
               (item) =>
-                (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+              (unitFilter === "all" || item.school_unit_id === unitFilter) &&
+              (gradeFilter === "all" || item.grade === gradeFilter) &&
               (majorFilter === "all" || item.major_id === majorFilter) &&
               (classFilter === "all" || item.id === classFilter),
           )
           .map((item) => item.id),
       ),
-    [classes, classFilter, majorFilter, unitFilter],
+    [classes, classFilter, gradeFilter, majorFilter, unitFilter],
   );
 
   const createStudentMutation = useMutation({
@@ -680,11 +709,26 @@ export function StudentSection({
                     value={unitFilter}
                     onValueChange={(value) => {
                       setUnitFilter(value);
+                      setGradeFilter("all");
                       setMajorFilter("all");
                       setClassFilter("all");
                     }}
                     placeholder="Pilih jenjang"
                     options={unitFilterOptions}
+                    triggerClassName="h-14 rounded-[22px] pl-4"
+                  />
+                </div>
+
+                <div className="w-full sm:w-[210px]">
+                  <RadixSelectField
+                    value={gradeFilter}
+                    onValueChange={(value) => {
+                      setGradeFilter(value);
+                      setMajorFilter("all");
+                      setClassFilter("all");
+                    }}
+                    placeholder="Pilih tingkat"
+                    options={gradeFilterOptions}
                     triggerClassName="h-14 rounded-[22px] pl-4"
                   />
                 </div>

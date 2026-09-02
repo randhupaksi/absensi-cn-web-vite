@@ -93,6 +93,11 @@ const defaultFrom = [
 ].sort()[1];
 
 const QUICK_DATE_RANGES: Record<string, { label: string; from: string; to: string }> = {
+  all: {
+    label: "Sepanjang periode",
+    from: ANALYTICS_LAUNCH_DATE,
+    to: today,
+  },
   today: { label: "Hari ini", from: today, to: today },
   "3d": {
     label: "3 hari terakhir",

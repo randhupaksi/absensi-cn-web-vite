@@ -88,6 +88,7 @@ export type StaffAttendanceRecord = AttendanceLocationEvidence & {
   student_id: string;
   student_name: string;
   nis: string;
+  gender?: string;
   class_id: string;
   class_name: string;
   school_unit_id: string;
