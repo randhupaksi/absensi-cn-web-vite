@@ -21,6 +21,7 @@ type PremiumModalProps = {
   footer?: ReactNode;
   className?: string;
   disablePointerDismissal?: boolean;
+  hideCloseButton?: boolean;
 };
 
 export const premiumModalFieldClassName = "grid gap-2";
@@ -50,6 +51,7 @@ export function PremiumModal({
   footer,
   className,
   disablePointerDismissal = false,
+  hideCloseButton = true,
 }: PremiumModalProps) {
   useModalScrollLock(open);
 
@@ -64,7 +66,7 @@ export function PremiumModal({
       disablePointerDismissal={disablePointerDismissal}
     >
       <DialogContent
-        showCloseButton={false}
+          showCloseButton={!hideCloseButton}
         className={cn(
           "!fixed !left-1/2 !top-1/2 !flex !flex-col !items-stretch !w-[min(100%,980px)] !max-h-[calc(100dvh-0.75rem)] !max-w-[calc(100vw-0.75rem)] !-translate-x-1/2 !-translate-y-1/2 !gap-0 !overflow-hidden !overscroll-none !rounded-[1.35rem] border border-white/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,251,247,0.98)_100%)] p-0 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.18),0_6px_24px_rgba(16,185,129,0.08)] ring-0 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.2),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(187,247,208,0.18),transparent_28%)] dark:!border-slate-700 dark:!bg-slate-950 dark:!text-slate-100 dark:!shadow-[0_28px_80px_rgba(0,0,0,0.58)] dark:before:bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.13),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(20,184,166,0.09),transparent_28%)] sm:!max-h-[calc(100dvh-3rem)] sm:!max-w-[880px] sm:!rounded-[2rem]",
           className,
@@ -122,7 +124,7 @@ export function PremiumModal({
         </div>
 
         {footer ? (
-          <div className="relative shrink-0 bg-transparent px-[1.3rem] py-[1.1rem]">
+          <div className="relative z-10 w-full shrink-0 border-t border-slate-300/20 bg-white/95 px-[1.3rem] py-[1.1rem] backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/95">
             {footer}
           </div>
         ) : null}

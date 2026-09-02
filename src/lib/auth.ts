@@ -9,6 +9,7 @@ import type {
 
 const AUTH_STORAGE_KEY = "absensi-cn-auth";
 const AUTH_SESSION_EVENT = "absensi-cn-auth-change";
+const AUTH_SECURITY_NOTICE_EVENT = "absensi-cn-auth-security-notice";
 let cachedSessionRaw: string | null = null;
 let cachedSessionValue: AuthSession | null = null;
 
@@ -59,6 +60,37 @@ export function saveAuthSession(session: AuthSession) {
   cachedSessionRaw = serializedSession;
   cachedSessionValue = session;
   emitAuthSessionChange();
+}
+
+export type AuthSecurityNotice = {
+  kind: "password_reset";
+  resetBy?: string;
+  resetAt?: string;
+  loginPath: string;
+};
+
+export function publishAuthSecurityNotice(notice: AuthSecurityNotice) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent<AuthSecurityNotice>(AUTH_SECURITY_NOTICE_EVENT, {
+      detail: notice,
+    }),
+  );
+}
+
+export function subscribeAuthSecurityNotice(
+  onNotice: (notice: AuthSecurityNotice) => void,
+) {
+  if (typeof window === "undefined") return () => {};
+
+  const handleNotice = (event: Event) => {
+    const notice = (event as CustomEvent<AuthSecurityNotice>).detail;
+    if (notice) onNotice(notice);
+  };
+
+  window.addEventListener(AUTH_SECURITY_NOTICE_EVENT, handleNotice);
+  return () =>
+    window.removeEventListener(AUTH_SECURITY_NOTICE_EVENT, handleNotice);
 }
 
 export function getAuthSession(): AuthSession | null {
@@ -165,6 +197,9 @@ export function getDashboardPathForUser(user: AuthUser) {
   }
   if (user.role === "TEACHER") {
     return "/dashboard/teacher";
+  }
+  if (user.role === "STUDENT") {
+    return "/dashboard/student";
   }
   const dashboardRole = getDefaultDashboardRole(user);
   return `/dashboard/${dashboardRole}`;

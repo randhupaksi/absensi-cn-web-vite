@@ -6,6 +6,7 @@ import {
 import type { PortalType } from "@/lib/validations/login-schema";
 import { RouteLoadingFallback } from "@/components/loading/loading-system";
 import { AppErrorBoundary } from "@/components/errors/app-error-boundary";
+import { AuthSecurityNoticeModal } from "@/components/auth/auth-security-notice-modal";
 import {
   lazy,
   Suspense,
@@ -274,6 +275,7 @@ export default function App() {
     <BrowserRouter>
       <DismissInitialLoader />
       <ScrollToTopOnNavigate />
+      <AuthSecurityNoticeModal />
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />
@@ -364,7 +366,7 @@ export default function App() {
           />
 
           <Route
-            path="/dashboard/siswa"
+            path="/dashboard/student"
             element={
               <StudentRoute>
                 <StudentDashboardPage />
@@ -372,7 +374,7 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/siswa/history"
+            path="/dashboard/student/history"
             element={
               <StudentRoute>
                 <StudentHistoryPage />
@@ -380,12 +382,25 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/siswa/profile"
+            path="/dashboard/student/profile"
             element={
               <StudentRoute>
                 <StudentProfilePage />
               </StudentRoute>
             }
+          />
+
+          <Route
+            path="/dashboard/siswa"
+            element={<Navigate replace to="/dashboard/student" />}
+          />
+          <Route
+            path="/dashboard/siswa/history"
+            element={<Navigate replace to="/dashboard/student/history" />}
+          />
+          <Route
+            path="/dashboard/siswa/profile"
+            element={<Navigate replace to="/dashboard/student/profile" />}
           />
 
           <Route
