@@ -117,7 +117,7 @@ export function StudentProfilePage() {
                     <>
                       <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
                         <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
-                        Data profil tersinkron dengan Citra Negara Attendence System
+                        Data profil tersinkron dengan Citra Negara Attendance System
                       </div>
                       <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
                         <InfoRow

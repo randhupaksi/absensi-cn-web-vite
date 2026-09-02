@@ -67,6 +67,7 @@ import {
   BadgeCheck,
   Camera,
   CalendarDays,
+  CheckCheck,
   CheckCircle2,
   ClipboardCheck,
   FileCheck2,
@@ -137,7 +138,6 @@ export function StudentDashboardPage() {
   >({});
   const [cameraIssue, setCameraIssue] = useState<string | null>(null);
   const [dashboardRetrySeconds, setDashboardRetrySeconds] = useState(0);
-  const [loadDashboardDetails, setLoadDashboardDetails] = useState(false);
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [submissionStage, setSubmissionStage] =
@@ -169,10 +169,8 @@ export function StudentDashboardPage() {
   const dashboardQuery = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: getStudentDashboard,
-    // The details are useful but never block the attendance action. Delay and
-    // spread them out so thousands of dashboard visits do not hit the database
-    // at the exact same moment.
-    enabled: loadDashboardDetails,
+    // Fetch dashboard details in parallel with today's attendance so the KPI,
+    // history, and notification panels do not wait behind an artificial delay.
     staleTime: 5 * 60_000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -198,16 +196,6 @@ export function StudentDashboardPage() {
       );
     },
   });
-
-  useEffect(() => {
-    if (!todayQuery.isSuccess) return;
-    const delayMilliseconds = 1_500 + Math.floor(Math.random() * 3_500);
-    const timer = window.setTimeout(
-      () => setLoadDashboardDetails(true),
-      delayMilliseconds,
-    );
-    return () => window.clearTimeout(timer);
-  }, [todayQuery.isSuccess]);
 
   const submitMutation = useMutation({
     mutationFn: (payload: StudentDailyReportPayload) =>
@@ -384,9 +372,6 @@ export function StudentDashboardPage() {
     uploadProgress,
   });
   const SubmissionButtonIcon = submissionButton.icon;
-  const isDashboardDetailsLoading =
-    !dashboard && (!loadDashboardDetails || dashboardQuery.isLoading);
-
   function resetCaptureState() {
     locationCaptureSequenceRef.current += 1;
     setPhotoFile(null);
@@ -638,7 +623,7 @@ export function StudentDashboardPage() {
                     <div className="max-w-2xl space-y-3">
                       <h1 className="text-[clamp(2rem,10vw,2.6rem)] font-semibold leading-[1.02] tracking-[-0.03em] [overflow-wrap:anywhere] sm:text-[3.2rem]">
                         {alreadySubmitted
-                          ? "Absensi hari ini sudah terkirim."
+                          ? "Absensi hari ini sudah terkirim"
                           : isHoliday
                             ? "Hari ini libur"
                             : isWindowClosed
@@ -824,35 +809,25 @@ export function StudentDashboardPage() {
             <section className="grid grid-cols-2 items-start gap-3 sm:gap-4 xl:grid-cols-4">
               <KpiCard
                 label="Total Absen"
-                value={
-                  isDashboardDetailsLoading
-                    ? "…"
-                    : String(stats?.total_attendance ?? 0)
-                }
+                value={String(stats?.total_attendance ?? 0)}
                 icon={History}
                 accentClass="bg-emerald-100 text-emerald-700"
               />
               <KpiCard
                 label="Hadir"
-                value={
-                  isDashboardDetailsLoading ? "…" : String(stats?.present ?? 0)
-                }
+                value={String(stats?.present ?? 0)}
                 icon={CheckCircle2}
                 accentClass="bg-sky-100 text-sky-700"
               />
               <KpiCard
                 label="Alfa"
-                value={isDashboardDetailsLoading ? "…" : String(stats?.alpha ?? 0)}
+                value={String(stats?.alpha ?? 0)}
                 icon={ShieldAlert}
                 accentClass="bg-rose-100 text-rose-700"
               />
               <KpiCard
                 label="Pengajuan"
-                value={
-                  isDashboardDetailsLoading
-                    ? "…"
-                    : String(stats?.pending_requests ?? 0)
-                }
+                value={String(stats?.pending_requests ?? 0)}
                 icon={FileText}
                 accentClass="bg-amber-100 text-amber-700"
               />
@@ -870,7 +845,7 @@ export function StudentDashboardPage() {
                     </p>
                   </div>
                   <Link
-                    href="/dashboard/siswa/history"
+                    href="/dashboard/student/history"
                     className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:shadow-[0_10px_22px_rgba(16,185,129,0.12)]"
                   >
                     Lihat
@@ -879,15 +854,13 @@ export function StudentDashboardPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {isDashboardDetailsLoading ? (
-                    <DashboardDetailsLoading label="Memuat histori terbaru" />
-                  ) : (dashboard?.recent_attendance ?? []).length > 0 ? (
+                  {(dashboard?.recent_attendance ?? []).length > 0 ? (
                     (dashboard?.recent_attendance ?? [])
                       .slice(0, 5)
                       .map((record) => (
                         <div
                           key={record.id}
-                          className="flex flex-row items-start justify-between gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
+                          className="flex flex-row items-center justify-between gap-3 rounded-[1.2rem] border border-slate-200/75 bg-slate-50/70 p-4"
                         >
                           <div className="min-w-0 flex-1">
                             <p className="font-semibold text-slate-950">
@@ -956,23 +929,23 @@ export function StudentDashboardPage() {
                   </div>
                 </div>
 
-                {!isDashboardDetailsLoading && dashboard?.unread_notifications ? (
-                  <button
-                    type="button"
-                    onClick={() => markAllNotificationsReadMutation.mutate()}
-                    disabled={markAllNotificationsReadMutation.isPending}
-                    className="mt-4 text-sm font-semibold text-emerald-700 transition hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {markAllNotificationsReadMutation.isPending
-                      ? "Memperbarui..."
-                      : "Tandai semua sudah dibaca"}
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={() => markAllNotificationsReadMutation.mutate()}
+                  disabled={
+                    markAllNotificationsReadMutation.isPending ||
+                    !dashboard?.unread_notifications
+                  }
+                  className="mt-4 -ml-3 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 transition-[background-color,color,box-shadow,transform] duration-150 enabled:hover:-translate-y-0.5 enabled:hover:bg-emerald-100/80 enabled:hover:text-emerald-900 enabled:hover:shadow-[0_8px_18px_rgba(16,185,129,0.12)] enabled:active:translate-y-0 enabled:active:scale-[0.95] enabled:active:bg-emerald-200 enabled:active:shadow-[inset_0_2px_5px_rgba(16,185,129,0.16)] disabled:cursor-not-allowed disabled:opacity-45 dark:text-emerald-300 dark:enabled:hover:bg-emerald-950/70 dark:enabled:hover:text-emerald-100 dark:enabled:active:bg-emerald-900/80"
+                >
+                  <CheckCheck className="size-4.5" />
+                  {markAllNotificationsReadMutation.isPending
+                    ? "Memperbarui..."
+                    : "Tandai semua sudah dibaca"}
+                </button>
 
                 <div className="mt-5 space-y-3">
-                  {isDashboardDetailsLoading ? (
-                    <DashboardDetailsLoading label="Memuat informasi terbaru" />
-                  ) : (dashboard?.notifications ?? []).length === 0 ? (
+                  {(dashboard?.notifications ?? []).length === 0 ? (
                     <EmptyState
                       icon={Bell}
                       title="Belum ada notifikasi baru"
@@ -1365,7 +1338,7 @@ function getNotificationPresentation(item: StudentNotification): {
     return {
       icon: KeyRound,
       iconClassName: "bg-rose-100 text-rose-700",
-      borderClassName: "border-rose-200",
+      borderClassName: "border-rose-300/70 dark:border-rose-400/60",
       surfaceClassName: "bg-rose-50/70",
     };
   }
@@ -1373,7 +1346,7 @@ function getNotificationPresentation(item: StudentNotification): {
     return {
       icon: MessageSquareWarning,
       iconClassName: "bg-amber-100 text-amber-700",
-      borderClassName: "border-amber-200",
+      borderClassName: "border-amber-300/70 dark:border-amber-400/60",
       surfaceClassName: "bg-amber-50/70",
     };
   }
@@ -1381,7 +1354,7 @@ function getNotificationPresentation(item: StudentNotification): {
     return {
       icon: FileCheck2,
       iconClassName: "bg-sky-100 text-sky-700",
-      borderClassName: "border-sky-200",
+      borderClassName: "border-sky-300/70 dark:border-sky-400/60",
       surfaceClassName: "bg-sky-50/70",
     };
   }
@@ -1389,7 +1362,7 @@ function getNotificationPresentation(item: StudentNotification): {
     return {
       icon: FileText,
       iconClassName: "bg-violet-100 text-violet-700",
-      borderClassName: "border-violet-200",
+      borderClassName: "border-violet-300/70 dark:border-violet-400/60",
       surfaceClassName: "bg-violet-50/70",
     };
   }
@@ -1397,14 +1370,14 @@ function getNotificationPresentation(item: StudentNotification): {
     return {
       icon: CheckCircle2,
       iconClassName: "bg-emerald-100 text-emerald-700",
-      borderClassName: "border-emerald-200",
+      borderClassName: "border-emerald-300/70 dark:border-emerald-400/60",
       surfaceClassName: "bg-emerald-50/70",
     };
   }
   return {
     icon: Bell,
     iconClassName: "bg-slate-100 text-slate-600",
-    borderClassName: "border-slate-200",
+    borderClassName: "border-slate-300/70 dark:border-slate-500/60",
     surfaceClassName: "bg-slate-50/70",
   };
 }
@@ -1577,18 +1550,6 @@ function readPhotoAsDataUrl(file: File) {
     };
     reader.readAsDataURL(file);
   });
-}
-
-function DashboardDetailsLoading({ label }: { label: string }) {
-  return (
-    <div
-      className="flex min-h-28 items-center justify-center gap-2 rounded-[1.2rem] border border-dashed border-slate-200 bg-slate-50/70 px-4 text-sm font-medium text-slate-500"
-      role="status"
-    >
-      <LoaderCircle className="size-4 animate-spin text-emerald-600 motion-reduce:animate-none" />
-      {label}
-    </div>
-  );
 }
 
 function formatDashboardCheckIn(record?: StaffAttendanceRecord) {
