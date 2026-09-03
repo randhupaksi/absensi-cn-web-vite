@@ -64,6 +64,7 @@ export function saveAuthSession(session: AuthSession) {
 
 export type AuthSecurityNotice = {
   kind: "password_reset";
+  userName?: string;
   resetBy?: string;
   resetAt?: string;
   loginPath: string;

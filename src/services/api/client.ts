@@ -17,6 +17,7 @@ export const apiClient = axios.create({
 });
 
 let authRedirecting = false;
+let lastKnownUserName: string | undefined;
 
 function createTraceparent() {
   const randomHex = (length: number) => {
@@ -35,6 +36,7 @@ apiClient.interceptors.request.use((config) => {
   const session = getAuthSession();
   if (session?.accessToken) {
     config.headers.Authorization = `Bearer ${session.accessToken}`;
+    lastKnownUserName = session.user.name?.trim() || lastKnownUserName;
   }
 
   return config;
@@ -66,9 +68,11 @@ apiClient.interceptors.response.use(
         body?.code === "PASSWORD_RESET_REQUIRED" &&
         !isLoginRequest
       ) {
+        const sessionBeforeClear = getAuthSession();
         clearAuthSession();
         publishAuthSecurityNotice({
           kind: "password_reset",
+          userName: sessionBeforeClear?.user.name?.trim() || lastKnownUserName,
           resetBy: body.data?.reset_by,
           resetAt: body.data?.reset_at,
           loginPath,
