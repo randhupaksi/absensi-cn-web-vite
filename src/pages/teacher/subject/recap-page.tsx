@@ -41,10 +41,10 @@ import {
 import { useMemo, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
-const SubjectRecapReportModal = dynamic(
+const SubjectSessionHistoryReportModal = dynamic(
   () =>
-    import("@/features/reports/subject/subject-recap-report-modal").then(
-      (module) => module.SubjectRecapReportModal,
+    import("@/features/reports/subject/session-history-report-modal").then(
+      (module) => module.SubjectSessionHistoryReportModal,
     ),
   { ssr: false },
 );
@@ -185,9 +185,7 @@ export function MapelRecapPage() {
                     label: "Export Laporan",
                     hideOutline: true,
                     disabled:
-                      !recap ||
-                      recap.students.length === 0 ||
-                      recapQuery.isLoading,
+                      assignments.length === 0 || assignmentsQuery.isLoading,
                   }}
                 />
               </div>
@@ -380,10 +378,13 @@ export function MapelRecapPage() {
             )}
 
             {reportModalOpen ? (
-              <SubjectRecapReportModal
+              <SubjectSessionHistoryReportModal
                 open={reportModalOpen}
                 onOpenChange={setReportModalOpen}
-                recap={recap}
+                assignments={assignments}
+                selectedAssignmentId={selectedAssignmentId}
+                dateFrom={dateFromStr || undefined}
+                dateTo={dateToStr || undefined}
                 periodeLabel={periodeLabel}
               />
             ) : null}

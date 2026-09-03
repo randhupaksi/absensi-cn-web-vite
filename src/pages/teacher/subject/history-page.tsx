@@ -285,7 +285,7 @@ export function MapelHistoryPage() {
 
   const assignmentOptions = assignments.map((a) => ({
     value: a.id,
-    label: `${a.subject_name} - ${a.classes.map((item) => item.name).join(", ") || "Belum ada kelas"}`,
+    label: a.subject_name,
   }));
 
   const openLateMutation = useMutation({
@@ -347,7 +347,7 @@ export function MapelHistoryPage() {
                   }}
                 />
               </div>
-              <div className="grid min-w-0 items-start gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,1.5fr)_minmax(10rem,12rem)_minmax(11rem,13rem)_minmax(18rem,1.15fr)]">
+              <div className="grid min-w-0 items-start gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(16rem,1.25fr)_minmax(9rem,11rem)_minmax(10rem,12rem)_minmax(16rem,1fr)]">
                 <div className="min-w-0">
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
                     Mata Pelajaran
