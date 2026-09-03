@@ -699,9 +699,8 @@ export function StudentDashboardPage() {
                         )
                       ) : (
                         <>
-                          Batas hadir {formatClock(today?.window.on_time_until)}{" "}
-                          WIB. Absensi ditutup pukul{" "}
-                          {formatClock(today?.window.late_until)} WIB.
+                          Batas waktu absensi pukul{" "}
+                          {formatClock(today?.window.on_time_until)} WIB.
                         </>
                       )}
                     </div>
@@ -1306,11 +1305,10 @@ function StudentNotificationCard({
     </>
   );
   const className = cn(
-    "flex w-full items-start gap-3 rounded-[1.2rem] border p-4 text-left transition",
+    "flex w-full cursor-pointer items-start gap-3 rounded-[1.2rem] border p-4 text-left outline-none transition-[transform,box-shadow,background-color,border-color,filter] duration-180 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_12px_24px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.985] active:brightness-95 active:shadow-[inset_0_2px_8px_rgba(15,23,42,0.16)] focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
     isUnread
       ? cn("border", presentation.borderClassName, presentation.surfaceClassName)
       : "border-slate-200/75 bg-slate-50/50 opacity-80",
-    item.action_url && "hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.08)]",
   );
 
   if (item.action_url) {
