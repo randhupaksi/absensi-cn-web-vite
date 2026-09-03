@@ -157,7 +157,7 @@ export function WalasAttendancePage() {
       accentClass: "bg-emerald-100 text-emerald-700",
     },
     {
-      label: "Hadir Tepat Waktu",
+      label: "Hadir",
       value: String(summary.present),
       subtitle: "Masuk tepat waktu",
       icon: BadgeCheck,
@@ -171,7 +171,7 @@ export function WalasAttendancePage() {
       accentClass: "bg-amber-100 text-amber-700",
     },
     {
-      label: "Sudah Dikoreksi",
+      label: "Dikoreksi",
       value: String(reviewMetrics.reviewed),
       subtitle: "Status pernah diperbarui walas",
       icon: CheckCheck,
