@@ -24,6 +24,10 @@ import {
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
+const PublicSupportPage = lazy(() => import("@/pages/support/support-page"));
+const ResetPasswordPage = lazy(
+  () => import("@/pages/support/reset-password-page"),
+);
 const ChangePasswordPage = lazy(() =>
   import("@/pages/auth/change-password-page").then((module) => ({
     default: module.ChangePasswordPage,
@@ -74,6 +78,11 @@ const AdminUsersPage = lazy(() =>
     default: module.AdminUsersPage,
   })),
 );
+const AdminSupportPage = lazy(() =>
+  import("@/pages/admin/support-page").then((module) => ({
+    default: module.AdminSupportPage,
+  })),
+);
 const BKAttendancePage = lazy(() =>
   import("@/pages/bk/attendance-page").then((module) => ({
     default: module.BKAttendancePage,
@@ -109,9 +118,19 @@ const StudentProfilePage = lazy(() =>
     default: module.StudentProfilePage,
   })),
 );
+const StudentSupportPage = lazy(() =>
+  import("@/pages/student/support-page").then((module) => ({
+    default: module.StudentSupportPage,
+  })),
+);
 const TeacherDashboardPage = lazy(() =>
   import("@/pages/teacher/dashboard-page").then((module) => ({
     default: module.TeacherDashboardPage,
+  })),
+);
+const TeacherSupportPage = lazy(() =>
+  import("@/pages/teacher/support-page").then((module) => ({
+    default: module.TeacherSupportPage,
   })),
 );
 const WalasAttendancePage = lazy(() =>
@@ -281,6 +300,11 @@ export default function App() {
           <Route path="/" element={<HomeRoute />} />
           <Route path="/deveran" element={<DevFixLogPage />} />
           <Route path="/randhu" element={<RandhuPage />} />
+          <Route path="/support" element={<PublicSupportPage />} />
+          <Route
+            path="/support/reset-password"
+            element={<ResetPasswordPage />}
+          />
           <Route
             path="/login"
             element={<Navigate replace to="/login/student" />}
@@ -325,10 +349,22 @@ export default function App() {
           />
           <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
           <Route
+            path="/dashboard/admin/support"
+            element={<AdminSupportPage />}
+          />
+          <Route
             path="/dashboard/teacher"
             element={
               <TeacherRoute>
                 <TeacherDashboardPage />
+              </TeacherRoute>
+            }
+          />
+          <Route
+            path="/dashboard/teacher/support"
+            element={
+              <TeacherRoute>
+                <TeacherSupportPage />
               </TeacherRoute>
             }
           />
@@ -389,6 +425,14 @@ export default function App() {
               </StudentRoute>
             }
           />
+          <Route
+            path="/dashboard/student/support"
+            element={
+              <StudentRoute>
+                <StudentSupportPage />
+              </StudentRoute>
+            }
+          />
 
           <Route
             path="/dashboard/siswa"
@@ -401,6 +445,10 @@ export default function App() {
           <Route
             path="/dashboard/siswa/profile"
             element={<Navigate replace to="/dashboard/student/profile" />}
+          />
+          <Route
+            path="/dashboard/siswa/support"
+            element={<Navigate replace to="/dashboard/student/support" />}
           />
 
           <Route
