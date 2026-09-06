@@ -621,7 +621,7 @@ function SubmissionReviewModal({
             value={reviewNote}
             onChange={(event) => setReviewNote(event.target.value)}
             placeholder="Tulis tanggapan BK"
-            className="min-h-[140px] rounded-[20px]"
+            className="min-h-[140px] rounded-xl"
           />
           <FieldError message={errors.review_note} />
         </div>

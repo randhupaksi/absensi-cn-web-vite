@@ -110,7 +110,7 @@ export function KoreksiModal({
             onChange={(event) => onAlasanChange(event.target.value)}
             rows={4}
             placeholder="Tuliskan alasan koreksi data kehadiran..."
-            className="min-h-28 rounded-[1.25rem] border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-800 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:placeholder:text-slate-400"
+            className="min-h-28 rounded-xl border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-800 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:placeholder:text-slate-400"
           />
         </div>
 

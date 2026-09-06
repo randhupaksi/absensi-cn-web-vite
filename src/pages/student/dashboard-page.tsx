@@ -79,6 +79,7 @@ import {
   LogIn,
   LoaderCircle,
   MessageSquareWarning,
+  MessageSquareText,
   RotateCw,
   School,
   SendHorizontal,
@@ -1164,7 +1165,7 @@ export function StudentDashboardPage() {
                             value={reason}
                             onChange={(event) => setReason(event.target.value)}
                             placeholder="Tuliskan keterangan singkat dan jelas"
-                            className="min-h-[130px] resize-none"
+                            className="min-h-[130px] resize-none rounded-xl"
                           />
                           <FieldError message={errors.reason} />
                         </div>
@@ -1332,6 +1333,18 @@ function getNotificationPresentation(item: StudentNotification): {
   borderClassName: string;
   surfaceClassName: string;
 } {
+  if (
+    item.category === "support" ||
+    item.type === "support_reply" ||
+    item.type === "password_reset_approved"
+  ) {
+    return {
+      icon: MessageSquareText,
+      iconClassName: "bg-cyan-100 text-cyan-700",
+      borderClassName: "border-cyan-300/70 dark:border-cyan-400/60",
+      surfaceClassName: "bg-cyan-50/70",
+    };
+  }
   if (item.category === "security") {
     return {
       icon: KeyRound,

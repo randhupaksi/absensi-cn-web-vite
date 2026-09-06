@@ -386,7 +386,7 @@ export function SubmissionReviewModal({
               value={reviewNote}
               onChange={(event) => setReviewNote(event.target.value)}
               placeholder="Tulis tanggapan atau alasan keputusan walas"
-              className="min-h-[140px] rounded-[20px]"
+              className="min-h-[140px] rounded-xl"
             />
             <FieldError message={errors.review_note} />
           </div>
