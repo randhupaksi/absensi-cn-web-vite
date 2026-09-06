@@ -26,6 +26,7 @@ export default function LoginPage({ portal }: LoginPageProps) {
         <BackButton
           href="/"
           label="Kembali ke beranda"
+          fixed={false}
           className="absolute left-5 top-4 z-20 lg:hidden sm:left-6 sm:top-5"
         />
       )}

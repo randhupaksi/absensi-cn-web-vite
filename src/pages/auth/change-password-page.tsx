@@ -41,7 +41,7 @@ export function ChangePasswordPage() {
         href={loginPath}
         label="Kembali ke login"
         onClick={() => clearAuthSession()}
-        className="absolute left-5 top-4 z-20 sm:left-6 sm:top-5"
+        className="left-5 top-4 sm:left-6 sm:top-5"
       />
       <div className="relative mx-auto flex min-h-[100svh] w-full max-w-xl items-center px-5 py-6 supports-[min-height:100dvh]:min-h-[100dvh] sm:px-6">
         <section className="w-full overflow-hidden rounded-[2rem] border border-white/90 bg-white/96 shadow-[0_28px_72px_rgba(15,23,42,0.13),inset_0_1px_0_rgba(255,255,255,0.96)] dark:border-slate-700/80 md:bg-white/88 md:backdrop-blur-sm">

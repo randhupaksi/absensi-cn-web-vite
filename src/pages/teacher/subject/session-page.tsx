@@ -299,6 +299,7 @@ export function MapelSessionPage() {
           <BackButton
             href="/dashboard/teacher/subject/history"
             label="Kembali ke Sesi Mapel"
+            fixed={false}
           />
           {/* Session header */}
           {isAutoLoading || isExplicitSessionLoading ? (

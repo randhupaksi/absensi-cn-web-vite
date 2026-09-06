@@ -159,6 +159,7 @@ export function MapelSchedulePage() {
             <BackButton
               href="/dashboard/teacher/subject/history"
               label="Kembali ke Sesi Mapel"
+              fixed={false}
             />
             <section className="relative overflow-hidden rounded-[24px] border !border-emerald-300/70 bg-[linear-gradient(135deg,#effcf6_0%,#ffffff_58%,#f2fbf8_100%)] p-4 shadow-[0_24px_52px_rgba(15,118,110,0.11)] dark:!border-emerald-400/55 dark:bg-slate-900 dark:bg-none dark:shadow-none sm:rounded-[32px] sm:p-6">
               <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
