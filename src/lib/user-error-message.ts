@@ -42,6 +42,15 @@ const codeMessages: Record<string, string> = {
     "Silakan ganti password awal sebelum menggunakan layanan.",
   PASSWORD_RESET_REQUIRED:
     "Password akun direset oleh administrator. Silakan login ulang.",
+  PASSWORD_RESET_NOT_AVAILABLE:
+    "Reset password belum disetujui atau masa persetujuannya sudah berakhir.",
+  PASSWORD_RESET_TOKEN_INVALID:
+    "Sesi reset password tidak valid, sudah dipakai, atau sudah berakhir.",
+  ACCOUNT_VERIFICATION_REQUIRED:
+    "Admin perlu memverifikasi akun sebelum reset password dapat dilanjutkan.",
+  SESSION_REVOKED: "Sesi akun sudah dihentikan. Silakan masuk kembali.",
+  SUPPORT_RATE_LIMITED:
+    "Terlalu banyak permintaan bantuan. Tunggu sebentar lalu coba lagi.",
   BAD_GATEWAY: "Layanan sekolah belum dapat dijangkau. Silakan coba lagi.",
   GATEWAY_TIMEOUT: "Respons server terlalu lama. Silakan coba lagi.",
   INTERNAL_ERROR: "Sistem mengalami kendala saat memproses permintaan.",

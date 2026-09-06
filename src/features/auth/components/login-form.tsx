@@ -1,6 +1,7 @@
 "use client";
 
 import { PremiumInput } from "@/features/auth/components/premium-input";
+import { AppLink } from "@/components/router/app-link";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { getDashboardPathForUser, saveAuthSession } from "@/lib/auth";
@@ -247,6 +248,14 @@ export function LoginForm({ portal }: LoginFormProps) {
         ) : (
           <p className="text-xs text-slate-500 dark:text-slate-300">{content.passwordHelper}</p>
         )}
+        <div className="flex justify-end">
+          <AppLink
+            href={`/support?portal=${portal}`}
+            className="text-xs font-semibold text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
+          >
+            Lupa password? Buat tiket bantuan
+          </AppLink>
+        </div>
       </div>
 
       {isRateLimited && rateLimitKind ? (
