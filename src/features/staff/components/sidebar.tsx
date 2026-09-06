@@ -15,6 +15,7 @@ import {
   GraduationCap,
   History,
   LayoutDashboard,
+  LifeBuoy,
   LogOut,
   ShieldCheck,
   UserRound,
@@ -186,6 +187,7 @@ export const adminSidebarItems = [
   },
   { label: "Admin", href: "/dashboard/admin/admins", icon: ShieldCheck },
   { label: "Manajemen Peran", href: "/dashboard/admin/users", icon: UserCog },
+  { label: "Pusat Bantuan", href: "/dashboard/admin/support", icon: LifeBuoy },
 ] satisfies StaffSidebarItem[];
 
 export const walasSidebarItems = [
@@ -322,6 +324,12 @@ export function buildTeacherWorkspaceSidebarItems(opts: {
     );
   }
 
+  items.push({
+    label: "Pusat Bantuan",
+    href: "/dashboard/teacher/support",
+    icon: LifeBuoy,
+  });
+
   return items;
 }
 
@@ -349,4 +357,5 @@ export const studentSidebarItems = [
   { label: "Dashboard", href: "/dashboard/student", icon: LayoutDashboard },
   { label: "Histori Absen", href: "/dashboard/student/history", icon: History },
   { label: "Profil", href: "/dashboard/student/profile", icon: UserRound },
+  { label: "Pusat Bantuan", href: "/dashboard/student/support", icon: LifeBuoy },
 ] satisfies StaffSidebarItem[];

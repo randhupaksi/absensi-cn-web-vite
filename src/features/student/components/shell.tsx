@@ -17,6 +17,7 @@ export function StudentShell({ children }: StudentShellProps) {
       userLabel="Siswa"
       eyebrow="Portal Siswa"
       resolveTitle={(pathname) => {
+        if (pathname.includes("/support")) return "Pusat Bantuan";
         if (pathname.includes("/history")) return "Histori Absen";
         if (pathname.includes("/profile")) return "Profil Siswa";
         return "Dashboard Siswa";
