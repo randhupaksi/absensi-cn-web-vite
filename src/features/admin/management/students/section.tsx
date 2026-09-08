@@ -701,6 +701,7 @@ export function StudentSection({
                   placeholder="Cari siswa, kelas, atau NIS"
                 />
 
+                <div className="mobile-filter-grid sm:contents">
                 <div className="w-full sm:w-[210px]">
                   <RadixSelectField
                     value={unitFilter}
@@ -754,6 +755,7 @@ export function StudentSection({
                     />
                   </div>
                 ) : null}
+                </div>
 
                 <AddButton
                   label={activeAction.label}

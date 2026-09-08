@@ -226,7 +226,7 @@ export function BKAttendancePage() {
             />
 
             <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="mobile-filter-grid sm:flex sm:flex-row sm:flex-wrap">
                 <AttendanceDateButton
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}

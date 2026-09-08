@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Calendar } from "@/components/ui/calendar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Popover,
   PopoverContent,
@@ -10,8 +11,8 @@ import {
 } from "@/components/ui/popover";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
+  AnalyticsContentSkeleton,
   ChartSkeleton,
-  PageSkeleton,
 } from "@/components/loading/loading-system";
 import { DataTableCard } from "@/features/admin/management/shared/section-ui";
 import { AttendanceAnalyticsReportModal } from "@/features/admin/analytics/attendance-analytics-report-modal";
@@ -43,7 +44,14 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 const AnalyticsTrendChart = dynamic(
   () =>
@@ -87,10 +95,7 @@ const AnalyticsValidationChart = dynamic(
 
 const today = formatInputDate(new Date());
 const ANALYTICS_LAUNCH_DATE = "2026-08-18";
-const defaultFrom = [
-  ANALYTICS_LAUNCH_DATE,
-  formatInputDate(addDays(new Date(), -6)),
-].sort()[1];
+const defaultFrom = today;
 
 const QUICK_DATE_RANGES: Record<string, { label: string; from: string; to: string }> = {
   all: {
@@ -142,6 +147,8 @@ export function AdminAnalyticsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [shouldLoadOverall, setShouldLoadOverall] = useState(false);
+  const [shouldLoadStudents, setShouldLoadStudents] = useState(false);
 
   const yearsQuery = useQuery({
     queryKey: ["admin-school-years", "analytics"],
@@ -219,7 +226,13 @@ export function AdminAnalyticsPage() {
         date_from: dateFrom,
         date_to: dateTo,
       }),
-    enabled: Boolean(schoolYearID && dateFrom && dateTo && dateFrom <= dateTo),
+    enabled: Boolean(
+      shouldLoadOverall &&
+        schoolYearID &&
+        dateFrom &&
+        dateTo &&
+        dateFrom <= dateTo,
+    ),
     staleTime: 5 * 60_000,
   });
 
@@ -254,7 +267,9 @@ export function AdminAnalyticsPage() {
   const studentTableQuery = useQuery({
     queryKey: ["admin-attendance-analytics", "students", studentTableFilters],
     queryFn: () => getAdminAttendanceAnalytics(studentTableFilters),
-    enabled: Boolean(dateFrom && dateTo && dateFrom <= dateTo),
+    enabled: Boolean(
+      shouldLoadStudents && dateFrom && dateTo && dateFrom <= dateTo,
+    ),
     placeholderData: (previous) => previous,
     staleTime: 30_000,
   });
@@ -305,6 +320,12 @@ export function AdminAnalyticsPage() {
     [allClasses, studentGrade, studentMajorID],
   );
   const analytics = analyticsQuery.data;
+  const loadOverallAnalytics = useCallback(() => {
+    setShouldLoadOverall(true);
+  }, []);
+  const loadStudentAnalytics = useCallback(() => {
+    setShouldLoadStudents(true);
+  }, []);
   async function loadAnalyticsForExport(exportDateFrom: string, exportDateTo: string) {
     return getAdminAttendanceAnalytics({
       ...filters,
@@ -384,7 +405,7 @@ export function AdminAnalyticsPage() {
           />
 
           {analyticsQuery.isLoading && !analytics ? (
-            <PageSkeleton variant="dashboard" />
+            <AnalyticsContentSkeleton />
           ) : analyticsQuery.isError ? (
             <section className="rounded-[2rem] border border-white/80 bg-white/88 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.07)] sm:p-8">
               <EmptyState
@@ -409,6 +430,8 @@ export function AdminAnalyticsPage() {
               analytics={analytics}
               overall={overallAnalyticsQuery.data}
               studentTable={studentTableQuery.data}
+              onOverallVisible={loadOverallAnalytics}
+              onStudentsVisible={loadStudentAnalytics}
               setPage={setPage}
               pageSize={pageSize}
               setPageSize={setPageSize}
@@ -534,7 +557,7 @@ function AnalyticsFilters(props: FilterProps) {
           <RefreshCw className="size-4" /> Reset filter
         </Button>
       </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 md:grid-cols-2 xl:grid-cols-4">
         <FilterField label="Periode cepat">
           <RadixSelectField
             value={resolveQuickDateRangeValue(props.dateFrom, props.dateTo)}
@@ -692,6 +715,8 @@ function AnalyticsContent({
   analytics,
   overall,
   studentTable,
+  onOverallVisible,
+  onStudentsVisible,
   setPage,
   pageSize,
   setPageSize,
@@ -719,6 +744,8 @@ function AnalyticsContent({
   analytics: AdminAttendanceAnalytics;
   overall?: AdminAttendanceAnalytics;
   studentTable?: AdminAttendanceAnalytics;
+  onOverallVisible: () => void;
+  onStudentsVisible: () => void;
   setPage: (page: number) => void;
   pageSize: number;
   setPageSize: (size: number) => void;
@@ -781,21 +808,27 @@ function AnalyticsContent({
       ),
     [classTableClassID, classTableGrade, classTableMajorID, overallClasses],
   );
-  const usageScore = (item: AdminAnalyticsPerformance) =>
-    item.system_usage_consistency_percentage ?? item.system_usage_percentage;
-  const lowestClasses = [...overallClasses]
-    .sort((a, b) => usageScore(a) - usageScore(b))
-    .slice(0, 3);
-  const highestClasses = [...overallClasses]
-    .sort((a, b) => usageScore(b) - usageScore(a))
-    .slice(0, 3);
-  const majorCodes = new Map(
-    analytics.classes.map((item) => [item.major_id, item.major_code]),
-  );
-  const majorChartData = analytics.majors.map((item) => ({
-    ...item,
-    name: majorCodes.get(item.id) || item.name,
-  }));
+  const { lowestClasses, highestClasses } = useMemo(() => {
+    const usageScore = (item: AdminAnalyticsPerformance) =>
+      item.system_usage_consistency_percentage ?? item.system_usage_percentage;
+    const ascending = [...overallClasses].sort(
+      (left, right) => usageScore(left) - usageScore(right),
+    );
+
+    return {
+      lowestClasses: ascending.slice(0, 3),
+      highestClasses: ascending.slice(-3).reverse(),
+    };
+  }, [overallClasses]);
+  const majorChartData = useMemo(() => {
+    const majorCodes = new Map(
+      analytics.classes.map((item) => [item.major_id, item.major_code]),
+    );
+    return analytics.majors.map((item) => ({
+      ...item,
+      name: majorCodes.get(item.id) || item.name,
+    }));
+  }, [analytics.classes, analytics.majors]);
   const hasScope = analytics.summary.total_students > 0;
 	const systemUsageHelper =
 		typeof analytics.summary.system_users === "number"
@@ -844,83 +877,226 @@ function AnalyticsContent({
         </section>
       ) : (
         <>
-          <SectionHeading
-            eyebrow="Peringkat kelas"
-            title="Konsistensi penggunaan per kelas"
-            description={
-              overall
-                ? `Diurutkan berdasarkan seberapa rutin siswa melakukan absensi pada ${overall.summary.total_classes.toLocaleString("id-ID")} kelas selama periode ${formatDisplayDate(parseInputDate(overall.period.date_from))} sampai ${formatDisplayDate(parseInputDate(overall.period.date_to))}. Persentase siswa yang pernah absen ditampilkan sebagai konteks.`
-                : "Memuat data keseluruhan tahun ajaran..."
-            }
-          />
-          <section className="grid gap-4 md:grid-cols-2">
-            <RankedClassList
-              eyebrow="Perlu perhatian"
-              title="Konsistensi terendah"
-              items={lowestClasses}
-              tone="amber"
+          <DeferredAnalyticsSection
+            fallback={<RankedClassesSkeleton />}
+            onVisible={onOverallVisible}
+          >
+            <SectionHeading
+              eyebrow="Peringkat kelas"
+              title="Konsistensi penggunaan per kelas"
+              description={
+                overall
+                  ? `Diurutkan berdasarkan seberapa rutin siswa melakukan absensi pada ${overall.summary.total_classes.toLocaleString("id-ID")} kelas selama periode ${formatDisplayDate(parseInputDate(overall.period.date_from))} sampai ${formatDisplayDate(parseInputDate(overall.period.date_to))}. Persentase siswa yang pernah absen ditampilkan sebagai konteks.`
+                  : "Memuat data keseluruhan tahun ajaran..."
+              }
             />
-            <RankedClassList
-              eyebrow="Kinerja terbaik"
-              title="Konsistensi tertinggi"
-              items={highestClasses}
-              tone="emerald"
+            <section className="grid gap-4 md:grid-cols-2">
+              <RankedClassList
+                eyebrow="Perlu perhatian"
+                title="Konsistensi terendah"
+                items={lowestClasses}
+                tone="amber"
+              />
+              <RankedClassList
+                eyebrow="Kinerja terbaik"
+                title="Konsistensi tertinggi"
+                items={highestClasses}
+                tone="emerald"
+              />
+            </section>
+          </DeferredAnalyticsSection>
+          <DeferredAnalyticsSection
+            fallback={<AnalyticsChartsSkeleton />}
+          >
+            <section className="grid gap-5 xl:grid-cols-2">
+              <AnalyticsComparisonChart
+                data={analytics.grades}
+                eyebrow="Perbandingan tingkat"
+                title="Performa per tingkat"
+                description="Bandingkan kehadiran dan konsistensi absensi di setiap tingkat kelas."
+              />
+              <AnalyticsComparisonChart
+                data={majorChartData}
+                eyebrow="Perbandingan jurusan"
+                title="Performa per jurusan"
+                description="Bandingkan konsistensi absensi antarjurusan."
+              />
+            </section>
+          </DeferredAnalyticsSection>
+          <DeferredAnalyticsSection
+            fallback={<AnalyticsChartsSkeleton />}
+          >
+            <section className="grid gap-5 xl:grid-cols-2">
+              <AnalyticsTrendChart data={analytics.trend} />
+              <AnalyticsStatusTrendChart data={analytics.trend} />
+            </section>
+          </DeferredAnalyticsSection>
+          <DeferredAnalyticsSection
+            fallback={<AnalyticsChartsSkeleton type="donut" />}
+          >
+            <section className="grid gap-5 xl:grid-cols-2">
+              <AnalyticsStatusChart data={analytics.status_breakdown} />
+              <AnalyticsValidationChart operational={analytics.operational} />
+            </section>
+          </DeferredAnalyticsSection>
+          <DeferredAnalyticsSection fallback={<AnalyticsTableSkeleton rows={4} />}>
+            <ClassPerformanceTable
+              rows={classTableRows}
+              grade={classTableGrade}
+              onGradeChange={onClassTableGradeChange}
+              majorID={classTableMajorID}
+              onMajorChange={onClassTableMajorChange}
+              classID={classTableClassID}
+              onClassChange={onClassTableClassChange}
+              grades={classFilterGrades}
+              majors={classTableVisibleMajors}
+              classes={classTableVisibleClasses}
             />
-          </section>
-          <section className="grid gap-5 xl:grid-cols-2">
-            <AnalyticsComparisonChart
-              data={analytics.grades}
-              eyebrow="Perbandingan tingkat"
-              title="Performa per tingkat"
-              description="Bandingkan kehadiran dan konsistensi absensi di setiap tingkat kelas."
+          </DeferredAnalyticsSection>
+          <DeferredAnalyticsSection
+            fallback={<AnalyticsTableSkeleton rows={5} />}
+            onVisible={onStudentsVisible}
+          >
+            <StudentPerformanceTable
+              students={studentTable?.students}
+              setPage={setPage}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
+              sort={studentSort}
+              onSortChange={onStudentSortChange}
+              grade={studentGrade}
+              onGradeChange={onStudentGradeChange}
+              majorID={studentMajorID}
+              onMajorChange={onStudentMajorChange}
+              classID={studentClassID}
+              onClassChange={onStudentClassChange}
+              grades={studentGrades}
+              majors={studentMajors}
+              classes={studentClasses}
             />
-            <AnalyticsComparisonChart
-              data={majorChartData}
-              eyebrow="Perbandingan jurusan"
-              title="Performa per jurusan"
-              description="Bandingkan konsistensi absensi antarjurusan."
-            />
-          </section>
-          <section className="grid gap-5 xl:grid-cols-2">
-            <AnalyticsTrendChart data={analytics.trend} />
-            <AnalyticsStatusTrendChart data={analytics.trend} />
-          </section>
-          <section className="grid gap-5 xl:grid-cols-2">
-            <AnalyticsStatusChart data={analytics.status_breakdown} />
-            <AnalyticsValidationChart operational={analytics.operational} />
-          </section>
-          <ClassPerformanceTable
-            rows={classTableRows}
-            grade={classTableGrade}
-            onGradeChange={onClassTableGradeChange}
-            majorID={classTableMajorID}
-            onMajorChange={onClassTableMajorChange}
-            classID={classTableClassID}
-            onClassChange={onClassTableClassChange}
-            grades={classFilterGrades}
-            majors={classTableVisibleMajors}
-            classes={classTableVisibleClasses}
-          />
-          <StudentPerformanceTable
-            students={studentTable?.students}
-            setPage={setPage}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-            sort={studentSort}
-            onSortChange={onStudentSortChange}
-            grade={studentGrade}
-            onGradeChange={onStudentGradeChange}
-            majorID={studentMajorID}
-            onMajorChange={onStudentMajorChange}
-            classID={studentClassID}
-            onClassChange={onStudentClassChange}
-            grades={studentGrades}
-            majors={studentMajors}
-            classes={studentClasses}
-          />
+          </DeferredAnalyticsSection>
         </>
       )}
     </>
+  );
+}
+
+function DeferredAnalyticsSection({
+  children,
+  fallback,
+  onVisible,
+}: {
+  children: ReactNode;
+  fallback: ReactNode;
+  onVisible?: () => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element || isVisible) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setIsVisible(true);
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -10%" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (isVisible) onVisible?.();
+  }, [isVisible, onVisible]);
+
+  return <div ref={containerRef}>{isVisible ? children : fallback}</div>;
+}
+
+function RankedClassesSkeleton() {
+  return (
+    <section aria-label="Memuat peringkat kelas" className="space-y-4">
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-7 w-72 max-w-full" />
+        <Skeleton className="h-4 w-[32rem] max-w-full" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {[0, 1].map((column) => (
+          <div
+            key={column}
+            className="space-y-4 rounded-[1.5rem] border border-slate-200 bg-white/80 p-5 dark:border-slate-800 dark:bg-slate-900"
+          >
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-6 w-52" />
+            </div>
+            {[0, 1, 2].map((row) => (
+              <div key={row} className="flex items-center gap-3">
+                <Skeleton className="size-9 rounded-xl" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-3/5" />
+                  <Skeleton className="h-3 w-2/5" />
+                </div>
+                <Skeleton className="h-6 w-12 rounded-full" />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function AnalyticsChartsSkeleton({
+  type = "line",
+}: {
+  type?: "line" | "donut";
+}) {
+  return (
+    <section aria-label="Menyiapkan visualisasi" className="grid gap-5 xl:grid-cols-2">
+      <ChartSkeleton type={type} />
+      <ChartSkeleton type={type} />
+    </section>
+  );
+}
+
+function AnalyticsTableSkeleton({ rows }: { rows: number }) {
+  return (
+    <section
+      aria-label="Memuat tabel performa"
+      className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/80 dark:border-slate-800 dark:bg-slate-900"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-4 p-5">
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-32" />
+          <Skeleton className="h-6 w-60 max-w-full" />
+        </div>
+        <Skeleton className="h-10 w-28 rounded-xl" />
+      </div>
+      <div className="border-t border-slate-200 dark:border-slate-800" />
+      <div className="space-y-px bg-slate-100 dark:bg-slate-800">
+        {Array.from({ length: rows }, (_, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-[minmax(9rem,1.5fr)_repeat(3,minmax(5rem,1fr))] gap-4 bg-white px-5 py-4 dark:bg-slate-900"
+          >
+            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-4 w-3/5" />
+            <Skeleton className="h-4 w-3/5" />
+            <Skeleton className="h-4 w-2/5" />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -1110,8 +1286,8 @@ function ClassPerformanceTable({
         title="Peringkat performa kelas"
         description="Diurutkan dari konsistensi absensi tertinggi. Persentase pernah absen menunjukkan cakupan siswa yang sudah melakukan absensi setidaknya sekali."
       />
-      <div className="mt-4 flex flex-wrap gap-2">
-        <div className="w-40">
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="col-span-1 min-w-0 sm:w-40">
           <RadixSelectField
             value={grade || "ALL"}
             onValueChange={(value) => onGradeChange(value === "ALL" ? "" : value)}
@@ -1120,7 +1296,7 @@ function ClassPerformanceTable({
             options={[{ value: "ALL", label: "Semua tingkat" }, ...grades.map((item) => ({ value: item, label: `Kelas ${item}` }))]}
           />
         </div>
-        <div className="w-44">
+        <div className="col-span-1 min-w-0 sm:w-44">
           <RadixSelectField
             value={majorID || "ALL"}
             onValueChange={(value) => onMajorChange(value === "ALL" ? "" : value)}
@@ -1129,7 +1305,7 @@ function ClassPerformanceTable({
             options={[{ value: "ALL", label: "Semua jurusan" }, ...majors.map((item) => ({ value: item.id, label: item.code, description: item.name }))]}
           />
         </div>
-        <div className="w-56">
+        <div className="col-span-2 min-w-0 sm:w-56">
           <RadixSelectField
             searchable
             value={classID || "ALL"}
@@ -1249,8 +1425,8 @@ function StudentPerformanceTable({
         title="Detail per siswa"
         description="Gunakan kolom pencarian pada filter di atas untuk mempersempit daftar berdasarkan nama, NIS, atau kelas."
       />
-      <div className="mt-4 flex flex-wrap gap-2">
-        <div className="w-52">
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="col-span-1 min-w-0 sm:w-52">
           <RadixSelectField
             value={sort || "default"}
             onValueChange={(value) =>
@@ -1261,7 +1437,7 @@ function StudentPerformanceTable({
             options={STUDENT_SORT_OPTIONS}
           />
         </div>
-        <div className="w-40">
+        <div className="col-span-1 min-w-0 sm:w-40">
           <RadixSelectField
             value={grade || "ALL"}
             onValueChange={(value) =>
@@ -1278,7 +1454,7 @@ function StudentPerformanceTable({
             ]}
           />
         </div>
-        <div className="w-44">
+        <div className="col-span-1 min-w-0 sm:w-44">
           <RadixSelectField
             value={majorID || "ALL"}
             onValueChange={(value) =>
@@ -1296,7 +1472,7 @@ function StudentPerformanceTable({
             ]}
           />
         </div>
-        <div className="w-56">
+        <div className="col-span-1 min-w-0 sm:w-56">
           <RadixSelectField
             searchable
             value={classID || "ALL"}
@@ -1342,7 +1518,14 @@ function StudentPerformanceTable({
               : undefined
           }
         >
-          <table className="w-full min-w-[980px] text-left text-sm">
+          <table className="w-full min-w-[1180px] table-fixed text-left text-sm">
+            <colgroup>
+              <col style={{ width: "260px" }} />
+              <col style={{ width: "230px" }} />
+              {Array.from({ length: 8 }).map((_, index) => (
+                <col key={index} style={{ width: "86px" }} />
+              ))}
+            </colgroup>
             <thead className="bg-emerald-50/80 text-xs uppercase tracking-[0.1em] text-slate-500">
               <tr>
                 <Th>Siswa</Th>
@@ -1364,16 +1547,18 @@ function StudentPerformanceTable({
                   className="bg-white/70 hover:bg-emerald-50/40"
                 >
                   <Td>
-                    <p className="font-semibold text-slate-900">
+                    <p className="whitespace-nowrap font-semibold text-slate-900">
                       {row.student_name}
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-400">
+                    <p className="mt-0.5 whitespace-nowrap text-xs text-slate-400">
                       NIS {row.nis}
                     </p>
                   </Td>
                   <Td>
-                    <p className="text-slate-700">{row.class_name}</p>
-                    <p className="mt-0.5 text-xs text-slate-400">
+                    <p className="whitespace-nowrap text-slate-700">
+                      {row.class_name}
+                    </p>
+                    <p className="mt-0.5 whitespace-nowrap text-xs text-slate-400">
                       Tingkat {row.grade} - {row.major_code}
                     </p>
                   </Td>

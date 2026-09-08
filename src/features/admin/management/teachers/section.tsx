@@ -680,6 +680,7 @@ export function TeacherSection({
                   placeholder="Cari guru, mapel, kelas"
                 />
 
+                <div className="mobile-filter-grid sm:contents">
                 <div className="w-full sm:w-[210px]">
                   <RadixSelectField
                     value={unitFilter}
@@ -701,6 +702,7 @@ export function TeacherSection({
                     options={majorFilterOptions}
                     triggerClassName="h-14 rounded-[22px] pl-4"
                   />
+                </div>
                 </div>
 
                 <AddButton

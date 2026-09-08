@@ -18,25 +18,34 @@ export function MeasuredChart({ className, children }: MeasuredChartProps) {
       return;
     }
 
+    let frameId: number | undefined;
     const updateSize = () => {
-      const nextWidth = element.clientWidth;
-      const nextHeight = element.clientHeight;
+      if (frameId !== undefined) return;
+      frameId = window.requestAnimationFrame(() => {
+        frameId = undefined;
+        const nextWidth = element.clientWidth;
+        const nextHeight = element.clientHeight;
 
-      setSize((current) => {
-        if (current.width === nextWidth && current.height === nextHeight) {
-          return current;
-        }
+        setSize((current) => {
+          if (current.width === nextWidth && current.height === nextHeight) {
+            return current;
+          }
 
-        return {
-          width: nextWidth,
-          height: nextHeight,
-        };
+          return {
+            width: nextWidth,
+            height: nextHeight,
+          };
+        });
       });
     };
 
     updateSize();
 
-    return observeElementResize(element, updateSize);
+    const cleanupObserver = observeElementResize(element, updateSize);
+    return () => {
+      cleanupObserver();
+      if (frameId !== undefined) window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   return (

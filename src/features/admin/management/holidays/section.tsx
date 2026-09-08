@@ -235,29 +235,31 @@ export function HolidayManagementSection({
             placeholder="Cari nama atau catatan libur"
             className="xl:min-w-[280px]"
           />
-          <Filter
-            value={typeFilter}
-            onChange={setTypeFilter}
-            options={[
-              { value: "all", label: "Semua kategori" },
-              ...Object.entries(TYPE_LABEL).map(([value, label]) => ({
-                value,
-                label,
-              })),
-            ]}
-            placeholder="Kategori"
-            wide
-          />
-          <Filter
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: "all", label: "Semua status" },
-              { value: "active", label: "Aktif" },
-              { value: "inactive", label: "Nonaktif" },
-            ]}
-            placeholder="Status"
-          />
+          <div className="mobile-filter-grid sm:contents">
+            <Filter
+              value={typeFilter}
+              onChange={setTypeFilter}
+              options={[
+                { value: "all", label: "Semua kategori" },
+                ...Object.entries(TYPE_LABEL).map(([value, label]) => ({
+                  value,
+                  label,
+                })),
+              ]}
+              placeholder="Kategori"
+              wide
+            />
+            <Filter
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: "all", label: "Semua status" },
+                { value: "active", label: "Aktif" },
+                { value: "inactive", label: "Nonaktif" },
+              ]}
+              placeholder="Status"
+            />
+          </div>
           <AddButton label="Hari Libur" onClick={() => setCreateOpen(true)} />
         </div>
 

@@ -110,6 +110,7 @@ export function SubjectManagementSection({
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [subjectGroupFilter, setSubjectGroupFilter] = useState("all");
   const [dayFilter, setDayFilter] = useState("all");
   const [schoolYearFilter, setSchoolYearFilter] = useState("all");
   const [teacherFilter, setTeacherFilter] = useState("all");
@@ -245,6 +246,20 @@ export function SubjectManagementSection({
   });
 
   const normalizedQuery = deferredQuery.trim().toLowerCase();
+  const subjectGroupOptions = useMemo(() => {
+    const groups = Array.from(
+      new Set(
+        subjects
+          .map((subject) => subject.group?.trim())
+          .filter((group): group is string => Boolean(group)),
+      ),
+    ).sort((first, second) => first.localeCompare(second, "id"));
+
+    return [
+      { value: "all", label: "Semua kelompok" },
+      ...groups.map((group) => ({ value: group, label: group })),
+    ];
+  }, [subjects]);
 
   const filteredSubjects = useMemo(
     () =>
@@ -257,9 +272,12 @@ export function SubjectManagementSection({
         const matchesStatus =
           statusFilter === "all" ||
           (statusFilter === "active" ? subject.is_active : !subject.is_active);
-        return matchesQuery && matchesStatus;
+        const matchesGroup =
+          subjectGroupFilter === "all" ||
+          subject.group?.trim() === subjectGroupFilter;
+        return matchesQuery && matchesStatus && matchesGroup;
       }),
-    [normalizedQuery, statusFilter, subjects],
+    [normalizedQuery, statusFilter, subjectGroupFilter, subjects],
   );
 
   const matchingAssignmentIDs = useMemo(
@@ -573,15 +591,38 @@ export function SubjectManagementSection({
                     }
                   />
 
-                  <div className="w-full sm:w-[190px]">
-                    <RadixSelectField
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                      placeholder="Semua status"
-                      options={statusOptions}
-                      triggerClassName="h-14 rounded-[22px] pl-4"
-                    />
-                  </div>
+                  {activeTab === "subjects" ? (
+                    <div className="mobile-filter-grid sm:contents">
+                      <div className="w-full sm:w-[190px]">
+                        <RadixSelectField
+                          value={statusFilter}
+                          onValueChange={setStatusFilter}
+                          placeholder="Semua status"
+                          options={statusOptions}
+                          triggerClassName="h-14 rounded-[22px] pl-4"
+                        />
+                      </div>
+                      <div className="w-full sm:w-[210px]">
+                        <RadixSelectField
+                          value={subjectGroupFilter}
+                          onValueChange={setSubjectGroupFilter}
+                          placeholder="Semua kelompok"
+                          options={subjectGroupOptions}
+                          triggerClassName="h-14 rounded-[22px] pl-4"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full sm:w-[190px]">
+                      <RadixSelectField
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                        placeholder="Semua status"
+                        options={statusOptions}
+                        triggerClassName="h-14 rounded-[22px] pl-4"
+                      />
+                    </div>
+                  )}
                 </>
               )}
 
@@ -598,7 +639,7 @@ export function SubjectManagementSection({
 
             {/* Additional filters for schedules tab */}
             {activeTab === "schedules" && (
-              <div className="mt-3 grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <div className="mobile-filter-grid mt-3 grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <RadixSelectField
                   value={dayFilter}
                   onValueChange={setDayFilter}

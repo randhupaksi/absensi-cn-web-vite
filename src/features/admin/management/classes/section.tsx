@@ -328,6 +328,7 @@ export function ClassManagementSection({
                   placeholder="Cari kelas, jurusan, walas"
                 />
 
+                <div className="mobile-filter-grid sm:contents">
                 <div className="w-full sm:w-[210px]">
                   <RadixSelectField
                     value={unitFilter}
@@ -349,6 +350,7 @@ export function ClassManagementSection({
                     options={majorFilterOptions}
                     triggerClassName="h-14 rounded-[22px] pl-4"
                   />
+                </div>
                 </div>
 
                 <AddButton label="Kelas" onClick={() => setModalOpen(true)} />
