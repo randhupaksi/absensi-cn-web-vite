@@ -78,11 +78,8 @@ export function AttendanceHero({
   pendingReviewCount,
 }: AttendanceHeroProps) {
   return (
-    <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] px-4 pt-4 pb-3 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl sm:px-5 sm:pt-5 sm:pb-4 lg:px-6 lg:pt-6 lg:pb-5">
+    <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] px-4 pt-4 pb-3 sm:px-5 sm:pt-5 sm:pb-4 lg:px-6 lg:pt-6 lg:pb-5">
       <article className="relative">
-        <div className="pointer-events-none absolute right-[-70px] top-[-90px] h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl dark:hidden" />
-        <div className="pointer-events-none absolute bottom-[-80px] left-[8%] h-52 w-52 rounded-full bg-amber-100/35 blur-3xl dark:hidden" />
-
         <div className="relative space-y-5">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-3xl space-y-3">
