@@ -1,7 +1,7 @@
 /* oxlint-disable react/only-export-components -- Shared ticket labels and formatters belong with the support presentation components. */
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { SupportLiveStatus, SupportMessage, SupportTicket, SupportTicketStatus } from "@/types/support";
 import {
@@ -13,6 +13,7 @@ import {
   SendHorizontal,
   ShieldCheck,
 } from "lucide-react";
+import { type ReactNode } from "react";
 
 export const supportStatusLabels: Record<SupportTicketStatus, string> = {
   OPEN: "Baru",
@@ -42,18 +43,20 @@ export function mergeSupportMessages(...groups: Array<SupportMessage[] | undefin
   ));
 }
 
-export function SupportStatusBadge({ status }: { status: SupportTicketStatus }) {
+export function SupportStatusBadge({ status, adminView = false }: { status: SupportTicketStatus; adminView?: boolean }) {
+  const label = adminView && status === "WAITING_USER" ? "Menunggu Balasan Pengguna" : supportStatusLabels[status];
+
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+        "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-semibold",
         status === "WAITING_ADMIN" && "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200",
         (status === "OPEN" || status === "WAITING_USER") && "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200",
         status === "RESOLVED" && "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200",
         status === "CLOSED" && "border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300",
       )}
     >
-      {supportStatusLabels[status]}
+      {label}
     </span>
   );
 }
@@ -70,6 +73,7 @@ export function TicketConversation({
   isLoadingOlder = false,
   adminView = false,
   liveStatus,
+  adminToolbar,
 }: {
   ticket: SupportTicket;
   reply: string;
@@ -82,16 +86,18 @@ export function TicketConversation({
   isLoadingOlder?: boolean;
   adminView?: boolean;
   liveStatus?: SupportLiveStatus;
+  adminToolbar?: ReactNode;
 }) {
   const canReply = ticket.status !== "CLOSED";
   const resetApproved = ticket.password_reset.status === "APPROVED";
   const latestSystemMessage = [...(ticket.messages ?? [])].reverse().find((message) => message.sender_role === "SYSTEM");
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-950/85 dark:shadow-none">
-      <header className="border-b-2 border-slate-200/90 bg-white/95 p-5 dark:border-emerald-900/60 dark:bg-emerald-950/20 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 gap-3">
+    <section className="min-w-0 w-full overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-950/85 dark:shadow-none">
+      {adminToolbar ? <div className="border-b border-slate-200/80 bg-white/90 p-3 dark:border-slate-700 dark:bg-slate-900/90 sm:px-6">{adminToolbar}</div> : null}
+      <header className="min-w-0 border-b-2 border-slate-200/90 bg-white/95 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 sm:p-6">
+        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 w-full gap-3">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
               <MessageSquareText className="size-5" />
             </span>
@@ -102,22 +108,24 @@ export function TicketConversation({
               <h2 className="mt-1 font-heading text-xl font-semibold text-slate-950 dark:text-white">
                 {ticket.subject}
               </h2>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 break-words text-sm text-slate-500 dark:text-slate-400">
                 {supportCategoryLabels[ticket.category]} · Dibuat {formatSupportDate(ticket.created_at)}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {liveStatus ? <LiveStatus status={liveStatus} /> : null}
-            <SupportStatusBadge status={ticket.status} />
+            <div className="flex min-w-0 w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+            {liveStatus ? <span className="hidden sm:inline-flex"><LiveStatus status={liveStatus} /></span> : null}
+            <span className="inline-flex sm:hidden"><SupportStatusBadge status={ticket.status} adminView={adminView} /></span>
+            {adminView ? <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold sm:hidden ${ticket.priority === "HIGH" ? "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200" : "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300"}`}>{ticket.priority === "HIGH" ? "Prioritas tinggi" : "Prioritas normal"}</span> : null}
+            <span className="hidden sm:inline-flex"><SupportStatusBadge status={ticket.status} adminView={adminView} /></span>
           </div>
         </div>
 
         {adminView ? (
-          <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-white/75 p-4 text-sm dark:border-slate-700 dark:bg-slate-900/70 sm:grid-cols-3">
-            <Info label="Pemohon" value={ticket.requester_name} />
-            <Info label="Akun terdeteksi" value={ticket.account_name || "Belum cocok"} />
+          <div className="mt-5 grid gap-3 rounded-xl border border-slate-200 bg-white/75 p-4 text-sm dark:border-slate-700 dark:bg-slate-900/70 sm:grid-cols-3">
+            <Info label="Akun terdeteksi" value={ticket.account_name ? formatSupportRequesterName(ticket.account_name, ticket.portal) : "Belum cocok"} />
             <Info label={ticket.portal === "student" ? "NIS" : "Username"} value={ticket.account_identifier || "-"} />
+            <Info className="hidden sm:block" label="Waktu pengajuan" value={formatSupportDate(ticket.created_at)} />
           </div>
         ) : null}
 
@@ -133,7 +141,7 @@ export function TicketConversation({
         ) : null}
       </header>
 
-      <div className="max-h-[440px] space-y-4 overflow-y-auto bg-slate-100/80 p-4 dark:bg-slate-950/60 sm:p-6">
+      <div className="min-w-0 max-w-full max-h-[440px] space-y-4 overflow-y-auto bg-slate-100/80 p-4 dark:bg-slate-950/60 sm:p-6">
         {ticket.messages_page?.has_more && onLoadOlder ? (
           <div className="flex justify-center">
             <Button type="button" variant="secondary" className="h-9 rounded-xl px-4 text-xs" disabled={isLoadingOlder} onClick={onLoadOlder}>
@@ -148,11 +156,11 @@ export function TicketConversation({
           return (
             <article
               key={message.id}
-              className={cn("flex", requester ? "justify-end" : "justify-start")}
+              className={cn("flex min-w-0 max-w-full", requester ? "justify-end" : "justify-start")}
             >
               <div
                 className={cn(
-                  "max-w-[88%] rounded-[22px] border px-4 py-3 text-sm leading-6 sm:max-w-[76%]",
+                  "min-w-0 max-w-[88%] break-words rounded-[22px] border px-4 py-3 text-sm leading-6 sm:max-w-[76%]",
                   requester
                     ? "rounded-br-md border-emerald-300 bg-emerald-600 text-white shadow-[0_12px_26px_rgba(5,150,105,0.18)]"
                     : system
@@ -196,25 +204,15 @@ export function TicketConversation({
         </div>
       ) : null}
 
-      <footer className="border-t border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/80 sm:p-6">
+      <footer className="border-t border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
         {canReply ? (
-          <div className="space-y-3">
-            <Textarea
-              value={reply}
-              onChange={(event) => onReplyChange(event.target.value)}
-              maxLength={1500}
-              rows={3}
-              placeholder={adminView ? "Tulis balasan yang jelas dan tidak memuat password..." : "Tulis balasan untuk admin..."}
-              className="min-h-24 rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-950/60"
-            />
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-xs text-slate-400">{reply.length}/1500</p>
-              <Button type="button" variant="success" className="h-10 rounded-2xl px-5" disabled={isReplying || reply.trim().length < 2} onClick={onReply}>
-                {isReplying ? <LoaderCircle className="animate-spin" /> : <SendHorizontal />}
-                Kirim balasan
-              </Button>
-            </div>
-          </div>
+          <SupportReplyComposer
+            value={reply}
+            onChange={onReplyChange}
+            onSubmit={onReply}
+            isSubmitting={isReplying}
+            placeholder={adminView ? "Tulis pesan untuk user..." : "Tulis pesan untuk admin..."}
+          />
         ) : (
           <div className="flex items-center gap-3 rounded-2xl bg-slate-100 p-4 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             <CheckCircle2 className="size-5 text-emerald-500" />
@@ -223,6 +221,53 @@ export function TicketConversation({
         )}
       </footer>
     </section>
+  );
+}
+
+function SupportReplyComposer({
+  value,
+  onChange,
+  onSubmit,
+  isSubmitting,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  isSubmitting: boolean;
+  placeholder: string;
+}) {
+  return (
+    <div className="space-y-2" data-support-reply-composer>
+      <div className="relative">
+        <Input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          maxLength={1500}
+          aria-label="Pesan balasan"
+          placeholder={placeholder}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              if (!isSubmitting && value.trim().length >= 2) onSubmit();
+            }
+          }}
+          className="h-14 rounded-[1.25rem] border-white/60 bg-white px-4 pr-16 text-sm text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_30px_rgba(255,255,255,0.2)] transition duration-300 hover:border-emerald-300/85 hover:bg-white active:border-emerald-400 active:bg-white focus-visible:border-emerald-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-200/55 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:shadow-none dark:hover:!border-emerald-400/55 dark:hover:!bg-slate-900 dark:hover:!ring-1 dark:hover:!ring-emerald-400/18 dark:active:!border-emerald-300 dark:active:!bg-slate-900 dark:active:!ring-1 dark:active:!ring-emerald-400/28 dark:focus-visible:!border-emerald-300 dark:focus-visible:!bg-slate-900 dark:focus-visible:!ring-2 dark:focus-visible:!ring-emerald-400/24"
+        />
+        <Button
+          type="button"
+          variant="success"
+          size="icon"
+          aria-label="Kirim balasan"
+          title="Kirim balasan"
+          className="absolute inset-y-0 right-3 my-auto size-10 rounded-full p-0 shadow-none hover:shadow-none focus-visible:shadow-none active:shadow-none disabled:shadow-none"
+          disabled={isSubmitting || value.trim().length < 2}
+          onClick={onSubmit}
+        >
+          {isSubmitting ? <LoaderCircle className="animate-spin" /> : <SendHorizontal />}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -237,11 +282,11 @@ function LiveStatus({ status }: { status: SupportLiveStatus }) {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
-    <div>
+    <div className={cn("min-w-0", className)}>
       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-      <p className="mt-1 truncate font-semibold text-slate-800 dark:text-slate-100">{value}</p>
+      <p className="mt-1 break-words font-semibold text-slate-800 dark:text-slate-100">{value}</p>
     </div>
   );
 }
@@ -268,4 +313,8 @@ export function formatSupportName(value?: string) {
     .filter(Boolean)
     .map((word) => word.split("-").map((part) => part ? `${part.charAt(0).toLocaleUpperCase("id-ID")}${part.slice(1)}` : part).join("-"))
     .join(" ");
+}
+
+export function formatSupportRequesterName(value?: string, portal?: string) {
+  return portal === "student" ? formatSupportName(value) : (value ?? "").trim();
 }
