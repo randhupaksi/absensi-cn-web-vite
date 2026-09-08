@@ -8,11 +8,8 @@ export const publicSupportTicketSchema = z
     message: z
       .string()
       .trim()
-      .min(20, "Ceritakan kendala minimal 20 karakter")
+      .min(10, "Ceritakan kendala minimal 10 karakter")
       .max(1500, "Pesan maksimal 1500 karakter"),
-    acknowledged_risk: z
-      .boolean()
-      .refine((value) => value, "Konfirmasi keamanan wajib disetujui"),
   })
   .superRefine((value, context) => {
     if (value.portal === "student" && !/^\d{8,10}$/.test(value.identifier)) {
