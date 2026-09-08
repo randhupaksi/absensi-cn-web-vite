@@ -155,7 +155,7 @@ export function SubjectRecapReportModal({
           answered
         >
           <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-2">
-            <ReportCheckbox checked disabled label="Nama Siswa" badge="wajib" />
+            <ReportCheckbox checked disabled label="Nama Siswa" />
             <ReportCheckbox
               checked={columns.nis}
               onChange={(value) =>
@@ -167,7 +167,6 @@ export function SubjectRecapReportModal({
               checked
               disabled
               label="Rekap H I S A"
-              badge="wajib"
             />
           </div>
         </QuestionBlock>

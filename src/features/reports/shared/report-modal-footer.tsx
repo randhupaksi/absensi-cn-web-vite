@@ -72,7 +72,14 @@ export function ReportModalFooter({
             : "cursor-not-allowed bg-slate-300",
         )}
       >
-        {downloadLabel}
+        {downloadLabel === "Pilih format laporan" ? (
+          <>
+            <span className="hidden sm:inline">Pilih format laporan</span>
+            <span className="sm:hidden">Lanjutkan</span>
+          </>
+        ) : (
+          downloadLabel
+        )}
       </AsyncButton>
     </div>
   );
