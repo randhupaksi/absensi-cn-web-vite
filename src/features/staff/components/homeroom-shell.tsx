@@ -47,7 +47,7 @@ export function resolveWalasSectionTitle(pathname: string): string {
   if (pathname.startsWith("/dashboard/teacher/subject/history"))
     return "Sesi Mapel";
   if (pathname.startsWith("/dashboard/teacher/subject/recap"))
-    return "Rekap Kehadiran Mapel";
+    return "Rekap Mapel";
   if (pathname.startsWith("/dashboard/teacher/subject/session"))
     return "Sesi Mapel";
   if (pathname.startsWith("/dashboard/teacher/subject"))
