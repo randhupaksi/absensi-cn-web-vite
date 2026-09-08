@@ -47,7 +47,13 @@ export type SupportTicket = {
   messages_page?: SupportMessagePage;
   live_token?: string;
   password_reset: {
-    status: "NOT_APPLICABLE" | "PENDING" | "APPROVED" | "EXPIRED" | "COMPLETED";
+    status:
+      | "NOT_APPLICABLE"
+      | "PENDING"
+      | "APPROVED"
+      | "EXPIRED"
+      | "COMPLETED"
+      | "REJECTED";
     expires_at?: string;
   };
 };

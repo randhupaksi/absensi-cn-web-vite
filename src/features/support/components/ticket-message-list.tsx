@@ -9,12 +9,14 @@ import { Clock3, LoaderCircle, ShieldCheck } from "lucide-react";
 
 type TicketMessageListProps = {
   ticket: SupportTicket;
+  adminView: boolean;
   onLoadOlder?: () => void;
   isLoadingOlder: boolean;
 };
 
 export function TicketMessageList({
   ticket,
+  adminView,
   onLoadOlder,
   isLoadingOlder,
 }: TicketMessageListProps) {
@@ -40,19 +42,21 @@ export function TicketMessageList({
       ) : null}
       {(ticket.messages ?? []).map((message) => {
         const requester = message.sender_role === "REQUESTER";
+        const admin = message.sender_role === "ADMIN";
         const system = message.sender_role === "SYSTEM";
+        const primary = adminView ? admin : requester;
         return (
           <article
             key={message.id}
             className={cn(
               "flex min-w-0 max-w-full",
-              requester ? "justify-end" : "justify-start",
+              primary ? "justify-end" : "justify-start",
             )}
           >
             <div
               className={cn(
                 "min-w-0 max-w-[88%] break-words rounded-[22px] border px-4 py-3 text-sm leading-6 sm:max-w-[76%]",
-                requester
+                primary
                   ? "rounded-br-md border-emerald-300 bg-emerald-600 text-white shadow-[0_12px_26px_rgba(5,150,105,0.18)]"
                   : system
                     ? "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/45 dark:text-amber-100"
@@ -67,7 +71,7 @@ export function TicketMessageList({
               <p
                 className={cn(
                   "mt-2 text-[10px]",
-                  requester ? "text-emerald-50/80" : "text-slate-400",
+                  primary ? "text-emerald-50/80" : "text-slate-400",
                 )}
               >
                 {formatSupportDate(message.created_at)}

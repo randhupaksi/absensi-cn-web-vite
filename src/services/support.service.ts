@@ -5,6 +5,7 @@ import type {
   ResetSession,
   SupportNotificationList,
   SupportTicket,
+  SupportTicketCategory,
   SupportTicketList,
   SupportTicketStatus,
 } from "@/types/support";
@@ -21,7 +22,7 @@ type ApiEnvelope<T> = {
   errors?: Record<string, string>;
 };
 
-type SupportApiError = Error & { code?: string };
+type SupportApiError = Error & { code?: string; status?: number };
 
 export async function createPublicSupportTicket(
   payload: PublicSupportTicketForm,
@@ -112,7 +113,13 @@ export async function completePasswordReset(
 }
 
 export async function getMySupportTickets(
-  params: { q?: string; limit?: number; offset?: number } = {},
+  params: {
+    status?: "ALL" | SupportTicketStatus;
+    category?: "ALL" | SupportTicketCategory;
+    q?: string;
+    limit?: number;
+    offset?: number;
+  } = {},
 ) {
   return unwrap<SupportTicketList>(
     apiClient.get("/support/tickets", { params }),
@@ -141,6 +148,15 @@ export async function deleteMySupportTicket(reference: string) {
   return unwrap<{ deleted: true }>(
     apiClient.delete(
       `/support/tickets/${encodeURIComponent(reference)}`,
+      mutationConfig(),
+    ),
+  );
+}
+
+export async function deleteAdminSupportTicket(reference: string) {
+  return unwrap<{ deleted: true }>(
+    apiClient.delete(
+      `/admin/support/tickets/${encodeURIComponent(reference)}`,
       mutationConfig(),
     ),
   );
@@ -267,6 +283,7 @@ async function unwrap<T>(
           "Layanan bantuan belum dapat memproses permintaan.",
       ) as SupportApiError;
       apiError.code = body?.code;
+      apiError.status = error.response?.status;
       throw apiError;
     }
     throw error instanceof Error

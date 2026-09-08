@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import {
+  SupportTicketConversationSkeleton,
+  SupportTicketListSkeleton,
+} from "@/components/loading/loading-system";
+import {
   PremiumModal,
   premiumModalFieldClassName,
   premiumModalLabelClassName,
@@ -21,6 +25,7 @@ import {
   SearchFilterBar,
 } from "@/features/admin/management/shared/section-ui";
 import {
+  SupportDecisionBadge,
   SupportStatusBadge,
   formatSupportDate,
 } from "@/features/support/components/ticket-display";
@@ -30,7 +35,6 @@ import {
   markCachedSupportNotificationRead,
   mergeOlderTicketMessages,
   mergeTicketDetail,
-  prependCachedUserTicket,
   removeCachedUserTicket,
   supportQueryKeys,
   updateCachedTicketLists,
@@ -70,7 +74,10 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import type { SupportNotification, SupportTicket } from "@/types/support";
+import type {
+  SupportNotification,
+  SupportTicket,
+} from "@/types/support";
 
 const defaultTicketPageSize = 5;
 
@@ -87,7 +94,12 @@ export function UserSupportCenter() {
   const committedQuery = useDebouncedValue(query.trim(), 250);
 
   const ticketsQuery = useQuery({
-    queryKey: [...supportQueryKeys.userTickets(), committedQuery, ticketOffset],
+    queryKey: [
+      ...supportQueryKeys.userTickets(),
+      committedQuery,
+      ticketOffset,
+      ticketPageSize,
+    ],
     queryFn: () =>
       getMySupportTickets({
         q: committedQuery || undefined,
@@ -151,7 +163,12 @@ export function UserSupportCenter() {
   const createMutation = useMutation({
     mutationFn: createMySupportTicket,
     onSuccess: (result) => {
-      prependCachedUserTicket(queryClient, result.ticket);
+      // Refetch every cached page so a newly created ticket is reflected in
+      // the inbox immediately and the total stays consistent with pagination.
+      void queryClient.invalidateQueries({
+        queryKey: supportQueryKeys.userTickets(),
+      });
+      setTicketOffset(0);
       queryClient.setQueryData(
         supportQueryKeys.userTicket(result.ticket.reference_code),
         result.ticket,
@@ -236,7 +253,7 @@ export function UserSupportCenter() {
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-[30px] border border-white/70 bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.25),transparent_26%),linear-gradient(135deg,#ffffff_0%,#f0faf5_100%)] p-4 shadow-[0_22px_55px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none sm:p-7">
+      <section className="min-w-0 overflow-hidden rounded-[30px] border border-white/70 bg-[radial-gradient(circle_at_top_right,rgba(110,231,183,0.25),transparent_26%),linear-gradient(135deg,#ffffff_0%,#f0faf5_100%)] p-4 shadow-[0_22px_55px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:gap-4">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-[16px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 sm:size-12 sm:rounded-[18px]">
@@ -381,7 +398,7 @@ export function UserSupportCenter() {
           }
         }}
         title="Tiket bantuan baru"
-        description="Jangan tulis password atau data rahasia di dalam pesan."
+        description="Ceritakan kendala, halaman terkait, dan langkah yang sudah dicoba."
         icon={MessageSquarePlus}
         className="sm:!max-w-2xl"
         footerClassName="!border-t-0 !bg-transparent dark:!bg-transparent"
@@ -482,8 +499,8 @@ export function UserSupportCenter() {
         </form>
       </PremiumModal>
 
-      <section className="grid min-h-[560px] gap-5 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside className="h-fit self-start rounded-[28px] border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.07)] dark:border-slate-700 dark:bg-slate-900/90 dark:shadow-none">
+      <section className="grid min-w-0 min-h-[560px] gap-5 xl:grid-cols-[400px_minmax(0,1fr)]">
+        <aside className="min-w-0 h-fit self-start rounded-[28px] border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.07)] dark:border-slate-700 dark:bg-slate-900/90 dark:shadow-none">
           <SearchFilterBar
             value={query}
             onChange={(value) => {
@@ -493,12 +510,8 @@ export function UserSupportCenter() {
             placeholder="Cari kode atau judul tiket"
             className="w-full"
           />
-          <div className="mt-4 max-h-[650px] space-y-2 overflow-y-auto pr-1">
-            {ticketsQuery.isLoading ? (
-              <div className="flex min-h-40 items-center justify-center">
-                <LoaderCircle className="animate-spin text-emerald-500" />
-              </div>
-            ) : null}
+          <div className="mt-4 min-w-0 max-h-[650px] space-y-2 overflow-x-hidden overflow-y-auto overscroll-auto pr-1">
+            {ticketsQuery.isLoading ? <SupportTicketListSkeleton /> : null}
             {!ticketsQuery.isLoading && filteredTickets.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-slate-700">
                 <Headphones className="mx-auto size-7 text-slate-400" />
@@ -525,9 +538,9 @@ export function UserSupportCenter() {
                       setSearchParams({ ticket: ticket.reference_code });
                     }
                   }}
-                  className={`relative w-full rounded-[20px] border p-4 text-left transition-[border-color,transform] hover:border-emerald-300 dark:hover:!border-emerald-400/70 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${selectedReference === ticket.reference_code ? "border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/35" : "border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-950/45"}`}
+                  className={`relative min-w-0 w-full overflow-hidden rounded-[20px] border px-4 pb-4 pt-2 text-left transition-[border-color] hover:border-emerald-300 dark:hover:!border-emerald-400/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${selectedReference === ticket.reference_code ? "border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/35" : "border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-950/45"}`}
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-h-8 items-center justify-between gap-2">
                     <span className="min-w-0 truncate pr-2 text-[10px] font-bold uppercase tracking-[0.13em] text-emerald-600 dark:text-emerald-300">
                       {ticket.reference_code}
                     </span>
@@ -558,9 +571,14 @@ export function UserSupportCenter() {
                   <p className="mt-2 line-clamp-2 text-sm font-semibold text-slate-900 dark:text-white">
                     {ticket.subject}
                   </p>
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <SupportStatusBadge status={ticket.status} />
-                    <span className="text-[10px] text-slate-400">
+                  <div className="mt-3 flex min-w-0 items-center justify-between gap-2">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <SupportStatusBadge status={ticket.status} />
+                      {ticket.password_reset.status === "REJECTED" ? (
+                        <SupportDecisionBadge />
+                      ) : null}
+                    </div>
+                    <span className="max-w-[42%] shrink-0 truncate text-[10px] text-slate-400">
                       {formatSupportDate(ticket.last_message_at)}
                     </span>
                   </div>
@@ -572,7 +590,6 @@ export function UserSupportCenter() {
             total={ticketsQuery.data?.total ?? 0}
             offset={ticketOffset}
             pageSize={ticketPageSize}
-            loaded={ticketsQuery.data?.tickets.length ?? 0}
             onPageSizeChange={(nextPageSize) => {
               setTicketPageSize(nextPageSize);
               setTicketOffset(0);
@@ -588,12 +605,8 @@ export function UserSupportCenter() {
           />
         </aside>
 
-        <div>
-          {detailQuery.isLoading ? (
-            <div className="flex min-h-[500px] items-center justify-center rounded-[28px] border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900">
-              <LoaderCircle className="size-7 animate-spin text-emerald-500" />
-            </div>
-          ) : null}
+        <div className="min-w-0">
+          {detailQuery.isLoading ? <SupportTicketConversationSkeleton /> : null}
           {detailQuery.data ? (
             <TicketConversation
               ticket={detailQuery.data}

@@ -723,6 +723,11 @@ function CredentialCard({
           </Button>
         </div>
       </div>
+      <p className="mt-3 rounded-2xl border border-sky-200/80 bg-sky-50/80 p-4 text-xs leading-5 text-sky-800 dark:border-sky-800/70 dark:bg-sky-950/30 dark:text-sky-200">
+        Jelaskan masalahmu dengan jelas saat membalas tiket. Sertakan halaman
+        atau fitur yang bermasalah, langkah yang sudah dilakukan, dan pesan
+        error jika ada agar admin dapat membantu lebih cepat.
+      </p>
       <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-xs leading-5 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
         Akses sementara tersimpan selama tab browser ini belum ditutup. Jika
         kode akses hilang, buat tiket pemulihan baru. Jangan unduh atau simpan
@@ -772,10 +777,15 @@ function AccessCodeCard({ accessCode }: { accessCode: string }) {
       <div className="mt-3 flex gap-2.5 rounded-xl border border-sky-200/80 bg-sky-50/80 p-3 text-xs leading-5 text-sky-800 dark:border-sky-800/70 dark:bg-sky-950/30 dark:text-sky-200">
         <Info className="mt-0.5 size-4 shrink-0" />
         <p>
-          Jika halaman percakapan tertutup, gunakan kode akses ini untuk membuka
-          kembali tiketmu. Simpan di tempat yang aman.
+          Jika halaman percakapan tertutup, gunakan kode akses ini untuk
+          membukanya kembali. Simpan di tempat yang aman.
         </p>
       </div>
+      <p className="mt-3 px-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+        Jelaskan masalahmu dengan jelas. Sertakan halaman atau fitur yang
+        bermasalah, langkah yang sudah dilakukan, dan pesan error jika ada agar
+        admin dapat membantu lebih cepat.
+      </p>
     </section>
   );
 }

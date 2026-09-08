@@ -51,6 +51,14 @@ export function SupportStatusBadge({
   );
 }
 
+export function SupportDecisionBadge() {
+  return (
+    <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700 dark:border-rose-700 dark:bg-rose-950/50 dark:text-rose-200">
+      Ditolak
+    </span>
+  );
+}
+
 export function formatSupportDate(value?: string) {
   if (!value) return "-";
   const date = new Date(value);

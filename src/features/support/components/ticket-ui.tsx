@@ -50,6 +50,7 @@ export function TicketConversation({
       />
       <TicketMessageList
         ticket={ticket}
+        adminView={adminView}
         onLoadOlder={onLoadOlder}
         isLoadingOlder={isLoadingOlder}
       />

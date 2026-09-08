@@ -1,9 +1,15 @@
 import { AdminShell } from "@/features/admin/shell/shell";
+import {
+  SupportTicketConversationSkeleton,
+  SupportTicketListSkeleton,
+} from "@/components/loading/loading-system";
 import { Button } from "@/components/ui/button";
+import { DeleteConfirmationModal } from "@/components/modals/delete-confirmation-modal";
 import { SearchFilterBar } from "@/features/admin/management/shared/section-ui";
 import { AdminPasswordResetModal } from "@/features/support/components/admin-password-reset-modal";
 import { SupportStatCard } from "@/features/support/components/support-stat-card";
 import {
+  SupportDecisionBadge,
   SupportStatusBadge,
   formatSupportDate,
   formatSupportRequesterName,
@@ -19,6 +25,7 @@ import { useSupportTicketLive } from "@/features/support/hooks/use-support-ticke
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   approveAdminPasswordReset,
+  deleteAdminSupportTicket,
   getAdminSupportTicket,
   getAdminSupportTickets,
   rejectAdminPasswordReset,
@@ -32,25 +39,14 @@ import {
   Clock3,
   Inbox,
   KeyRound,
-  LoaderCircle,
   MessageSquareText,
   ShieldCheck,
   TicketCheck,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-
-const statusOptions: Array<{
-  value: "ALL" | SupportTicketStatus;
-  label: string;
-}> = [
-  { value: "ALL", label: "Semua" },
-  { value: "WAITING_ADMIN", label: "Perlu dibalas" },
-  { value: "WAITING_USER", label: "Menunggu pengguna" },
-  { value: "RESOLVED", label: "Selesai" },
-  { value: "CLOSED", label: "Ditutup" },
-];
 
 const defaultTicketPageSize = 5;
 
@@ -61,10 +57,10 @@ export function AdminSupportPage() {
 function AdminSupportContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedReference = searchParams.get("ticket") ?? "";
-  const [status, setStatus] = useState<"ALL" | SupportTicketStatus>("ALL");
   const [search, setSearch] = useState("");
   const [reply, setReply] = useState("");
   const [approveOpen, setApproveOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<SupportTicket | null>(null);
   const [ticketOffset, setTicketOffset] = useState(0);
   const [ticketPageSize, setTicketPageSize] = useState(defaultTicketPageSize);
   const shouldScrollToDetail = useRef(false);
@@ -72,20 +68,19 @@ function AdminSupportContent() {
   const committedSearch = useDebouncedValue(search.trim(), 250);
   const activeListQueryKey = [
     ...supportQueryKeys.adminTickets(),
-    status,
     committedSearch,
     ticketOffset,
+    ticketPageSize,
   ] as const;
 
   useEffect(() => {
     setTicketOffset(0);
-  }, [status, committedSearch]);
+  }, [committedSearch]);
 
   const ticketsQuery = useQuery({
     queryKey: activeListQueryKey,
     queryFn: () =>
       getAdminSupportTickets({
-        status,
         q: committedSearch,
         limit: ticketPageSize,
         offset: ticketOffset,
@@ -198,8 +193,44 @@ function AdminSupportContent() {
         description: "Pengguna dapat membuat password baru dari tiketnya.",
       });
     },
+    onError: (error) => {
+      if (isSupportConflict(error)) {
+        setApproveOpen(false);
+        void queryClient.invalidateQueries({
+          queryKey: supportQueryKeys.adminTicket(selectedReference),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: activeListQueryKey,
+          exact: true,
+        });
+        toast.info("Tiket sudah berubah", {
+          description:
+            "Data tiket dimuat ulang karena sudah diproses sebelumnya.",
+        });
+        return;
+      }
+      toast.error("Reset belum disetujui", { description: error.message });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteAdminSupportTicket,
+    onSuccess: (_result, reference) => {
+      queryClient.removeQueries({
+        queryKey: supportQueryKeys.adminTicket(reference),
+        exact: true,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: supportQueryKeys.adminTickets(),
+      });
+      if (selectedReference === reference) {
+        setSearchParams({}, { replace: true });
+      }
+      setDeleteTarget(null);
+      toast.success("Tiket berhasil dihapus");
+    },
     onError: (error) =>
-      toast.error("Reset belum disetujui", { description: error.message }),
+      toast.error("Tiket belum dihapus", { description: error.message }),
   });
 
   const rejectMutation = useMutation({
@@ -219,8 +250,24 @@ function AdminSupportContent() {
         description: "Alasan penolakan sudah dikirim ke pengguna.",
       });
     },
-    onError: (error) =>
-      toast.error("Penolakan belum diproses", { description: error.message }),
+    onError: (error) => {
+      if (isSupportConflict(error)) {
+        setApproveOpen(false);
+        void queryClient.invalidateQueries({
+          queryKey: supportQueryKeys.adminTicket(selectedReference),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: activeListQueryKey,
+          exact: true,
+        });
+        toast.info("Tiket sudah berubah", {
+          description:
+            "Data tiket dimuat ulang karena sudah diproses sebelumnya.",
+        });
+        return;
+      }
+      toast.error("Penolakan belum diproses", { description: error.message });
+    },
   });
 
   const loadOlderMutation = useMutation({
@@ -259,7 +306,7 @@ function AdminSupportContent() {
   const canProcessReset = Boolean(
     ticket?.category === "PASSWORD_RECOVERY" &&
     ["PENDING", "EXPIRED"].includes(ticket.password_reset.status) &&
-    !["CLOSED", "RESOLVED"].includes(ticket.status),
+    ["OPEN", "WAITING_ADMIN", "WAITING_USER"].includes(ticket.status),
   );
 
   const resetProcessPending =
@@ -323,35 +370,15 @@ function AdminSupportContent() {
         />
       </section>
 
-      <section className="grid min-w-0 min-h-[620px] gap-5 xl:grid-cols-[390px_minmax(0,1fr)]">
+      <section className="grid min-w-0 min-h-[620px] gap-5 xl:grid-cols-[430px_minmax(0,1fr)]">
         <aside className="h-fit min-w-0 w-full self-start rounded-[28px] border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.07)] dark:border-slate-700 dark:bg-slate-900/90 dark:shadow-none">
           <SearchFilterBar
             value={search}
             onChange={setSearch}
             placeholder="Mulai dari ID, nama, NIS, atau judul..."
           />
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {statusOptions.map((option) => (
-              <Button
-                key={option.value}
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setTicketOffset(0);
-                  setStatus(option.value);
-                }}
-                className={`h-auto shrink-0 rounded-full border px-3 py-2 text-xs font-semibold transition-none ${status === option.value ? "border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-600" : "border-slate-200 bg-slate-50 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-emerald-950/50"}`}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-          <div className="mt-4 max-h-[650px] space-y-2 overflow-y-auto overscroll-contain pr-0 sm:pr-3 [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
-            {ticketsQuery.isLoading ? (
-              <div className="flex min-h-48 items-center justify-center">
-                <LoaderCircle className="animate-spin text-emerald-500" />
-              </div>
-            ) : null}
+          <div className="mt-4 max-h-[650px] space-y-2 overflow-y-auto overscroll-auto pr-0 sm:pr-3 [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
+            {ticketsQuery.isLoading ? <SupportTicketListSkeleton /> : null}
             {ticketsQuery.error ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
                 {ticketsQuery.error.message}
@@ -368,54 +395,87 @@ function AdminSupportContent() {
                 </p>
               </div>
             ) : null}
-            {(ticketsQuery.data?.tickets ?? []).map((item) => (
-              <button
-                key={item.reference_code}
-                type="button"
-                onClick={() => {
-                  shouldScrollToDetail.current = true;
-                  setSearchParams({ ticket: item.reference_code });
-                }}
-                className={`w-full rounded-[20px] border p-4 text-left transition-[border-color,transform] hover:border-emerald-300 dark:hover:!border-emerald-400/70 active:scale-[0.985] ${selectedReference === item.reference_code ? "border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/35" : "border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-950/45"}`}
-              >
-                <div className="flex min-w-0 items-center justify-between gap-2">
-                  <span className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-emerald-600 dark:text-emerald-300">
-                    {item.reference_code}
-                  </span>
-                  <div className="flex shrink-0 items-center gap-2">
-                    {item.priority === "HIGH" ? (
-                      <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-bold text-rose-700 dark:bg-rose-950 dark:text-rose-300">
-                        PRIORITAS
-                      </span>
-                    ) : null}
-                    {item.unread ? (
-                      <span
-                        className="size-2 rounded-full bg-rose-500"
-                        aria-label="Belum dibaca"
-                      />
-                    ) : null}
+            {(ticketsQuery.data?.tickets ?? []).map((item) => {
+              const canDelete =
+                item.status === "RESOLVED" || item.status === "CLOSED";
+              return (
+                <article
+                  key={item.reference_code}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    shouldScrollToDetail.current = true;
+                    setSearchParams({ ticket: item.reference_code });
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSearchParams({ ticket: item.reference_code });
+                    }
+                  }}
+                  className={`w-full rounded-[20px] border px-4 pb-4 pt-2 text-left transition-[border-color,transform] hover:border-emerald-300 dark:hover:!border-emerald-400/70 active:scale-[0.985] ${selectedReference === item.reference_code ? "border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/35" : "border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-950/45"}`}
+                >
+                  <div className="flex min-h-8 min-w-0 items-center justify-between gap-2">
+                    <span className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-emerald-600 dark:text-emerald-300">
+                      {item.reference_code}
+                    </span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {item.priority === "HIGH" ? (
+                        <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-bold text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                          PRIORITAS
+                        </span>
+                      ) : null}
+                      {item.unread ? (
+                        <span
+                          className="size-2 rounded-full bg-rose-500"
+                          aria-label="Belum dibaca"
+                        />
+                      ) : null}
+                      {canDelete ? (
+                        <button
+                          type="button"
+                          aria-label={`Hapus tiket ${item.reference_code}`}
+                          title="Hapus tiket"
+                          disabled={deleteMutation.isPending}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setDeleteTarget(item);
+                          }}
+                          className="inline-flex size-8 items-center justify-center rounded-lg text-slate-400 transition-[color,background-color,transform] hover:bg-rose-50 hover:text-rose-600 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 dark:hover:bg-rose-950/50 dark:hover:text-rose-300"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-                <p className="mt-2 line-clamp-1 break-words text-sm font-semibold text-slate-900 dark:text-white">
-                  {formatSupportRequesterName(item.requester_name, item.portal)}
-                </p>
-                <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-slate-500 dark:text-slate-400">
-                  {item.subject}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <SupportStatusBadge status={item.status} adminView />
-                  <span className="shrink-0 text-[10px] text-slate-400">
-                    {formatSupportDate(item.last_message_at)}
-                  </span>
-                </div>
-              </button>
-            ))}
+                  <p className="mt-2 line-clamp-1 break-words text-sm font-semibold text-slate-900 dark:text-white">
+                    {formatSupportRequesterName(
+                      item.requester_name,
+                      item.portal,
+                    )}
+                  </p>
+                  <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-slate-500 dark:text-slate-400">
+                    {item.subject}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <SupportStatusBadge status={item.status} adminView />
+                      {item.password_reset.status === "REJECTED" ? (
+                        <SupportDecisionBadge />
+                      ) : null}
+                    </div>
+                    <span className="shrink-0 text-[10px] text-slate-400">
+                      {formatSupportDate(item.last_message_at)}
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
           <TicketPager
             total={ticketsQuery.data?.total ?? 0}
             offset={ticketOffset}
             pageSize={ticketPageSize}
-            loaded={ticketsQuery.data?.tickets.length ?? 0}
             onPageSizeChange={(nextPageSize) => {
               setTicketPageSize(nextPageSize);
               setTicketOffset(0);
@@ -435,11 +495,7 @@ function AdminSupportContent() {
           id="support-ticket-detail"
           className="min-w-0 scroll-mt-4 space-y-4"
         >
-          {detailQuery.isLoading ? (
-            <div className="flex min-h-[520px] items-center justify-center rounded-[28px] border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900">
-              <LoaderCircle className="size-7 animate-spin text-emerald-500" />
-            </div>
-          ) : null}
+          {detailQuery.isLoading ? <SupportTicketConversationSkeleton /> : null}
           {detailQuery.error ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
               {detailQuery.error.message}
@@ -521,6 +577,27 @@ function AdminSupportContent() {
         onApprove={() => approveMutation.mutate()}
         onReject={(reason) => rejectMutation.mutate(reason)}
       />
+      <DeleteConfirmationModal
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) setDeleteTarget(null);
+        }}
+        title="Hapus tiket bantuan?"
+        description={
+          deleteTarget
+            ? `Tiket "${deleteTarget.subject}" dan seluruh percakapannya akan dihapus permanen.`
+            : "Tiket bantuan ini akan dihapus permanen."
+        }
+        warning="Tindakan ini tidak dapat dibatalkan."
+        isPending={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.reference_code);
+        }}
+      />
     </div>
   );
+}
+
+function isSupportConflict(error: unknown) {
+  return error instanceof Error && "status" in error && error.status === 409;
 }

@@ -31,7 +31,12 @@ function takeFrames(buffer: string): [ParsedEvent[], string] {
 // Server-Sent Events keeps receive traffic one-way and lightweight. Sending a
 // message remains a regular POST, so all validation and audit behavior stays
 // exactly the same as the non-live ticket flow.
-export function useSupportTicketLive({ liveToken, enabled = true, onTicketUpdated, onRenew }: LiveTicketOptions) {
+export function useSupportTicketLive({
+  liveToken,
+  enabled = true,
+  onTicketUpdated,
+  onRenew,
+}: LiveTicketOptions) {
   const [status, setStatus] = useState<SupportLiveStatus>("offline");
   const updateRef = useRef(onTicketUpdated);
   const renewRef = useRef(onRenew);
@@ -59,10 +64,15 @@ export function useSupportTicketLive({ liveToken, enabled = true, onTicketUpdate
       controller = new AbortController();
       setStatus(retryAttempt === 0 ? "connecting" : "reconnecting");
       let refreshToken = false;
+      let serverRetryDelay: number | undefined;
+      const connectedAt = Date.now();
       try {
         const response = await fetch(liveEndpoint, {
           method: "GET",
-          headers: { Authorization: `Bearer ${liveToken}`, Accept: "text/event-stream" },
+          headers: {
+            Authorization: `Bearer ${liveToken}`,
+            Accept: "text/event-stream",
+          },
           credentials: "include",
           cache: "no-store",
           signal: controller.signal,
@@ -72,7 +82,6 @@ export function useSupportTicketLive({ liveToken, enabled = true, onTicketUpdate
           throw new Error(`Live ticket request failed (${response.status})`);
         }
 
-        retryAttempt = 0;
         setStatus("live");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -85,18 +94,43 @@ export function useSupportTicketLive({ liveToken, enabled = true, onTicketUpdate
           buffer = remainder;
           for (const event of events) {
             if (event.event === "ticket_updated") updateRef.current();
-            if (event.event === "reconnect") refreshToken = true;
+            if (event.event === "reconnect") {
+              refreshToken = true;
+              try {
+                const payload = JSON.parse(event.data) as {
+                  retry_after_ms?: unknown;
+                };
+                if (
+                  typeof payload.retry_after_ms === "number" &&
+                  Number.isFinite(payload.retry_after_ms)
+                ) {
+                  serverRetryDelay = Math.max(500, payload.retry_after_ms);
+                }
+              } catch {
+                // The reconnect event still works when the optional payload
+                // cannot be parsed; the client falls back to local backoff.
+              }
+            }
           }
         }
       } catch (error) {
-        if (!active || (error instanceof DOMException && error.name === "AbortError")) return;
+        if (
+          !active ||
+          (error instanceof DOMException && error.name === "AbortError")
+        )
+          return;
       }
 
       if (!active) return;
       if (refreshToken) renewRef.current();
-      retryAttempt += 1;
+      const connectionWasStable = Date.now() - connectedAt >= 15_000;
+      retryAttempt = connectionWasStable ? 0 : retryAttempt + 1;
       setStatus("reconnecting");
-      reconnect(Math.min(10_000, 750 * (2 ** Math.min(retryAttempt, 4))));
+      const backoffDelay = Math.min(
+        30_000,
+        1_000 * 2 ** Math.min(retryAttempt, 5),
+      );
+      reconnect(serverRetryDelay ?? backoffDelay);
     };
 
     void connect();

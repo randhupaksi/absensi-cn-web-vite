@@ -24,24 +24,26 @@ export function TicketConversationHeader({
     .find((message) => message.sender_role === "SYSTEM");
 
   return (
-    <header className="min-w-0 border-b-2 border-slate-200/90 bg-white/95 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 sm:p-6">
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 w-full gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-            <MessageSquareText className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">
-              {ticket.reference_code}
-            </p>
-            <h2 className="mt-1 font-heading text-xl font-semibold text-slate-950 dark:text-white">
-              {ticket.subject}
-            </h2>
-            <p className="mt-1 break-words text-sm text-slate-500 dark:text-slate-400">
-              {supportCategoryLabels[ticket.category]} · Dibuat{" "}
-              {formatSupportDate(ticket.created_at)}
-            </p>
+    <header className="min-w-0 overflow-hidden border-b-2 border-slate-200/90 bg-white/95 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 sm:p-6">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 w-full items-start gap-3 sm:items-center">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 sm:size-12">
+              <MessageSquareText className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">
+                {ticket.reference_code}
+              </p>
+              <h2 className="mt-1 break-words font-heading text-xl font-semibold leading-tight text-slate-950 dark:text-white">
+                {ticket.subject}
+              </h2>
+            </div>
           </div>
+          <p className="mt-2 break-words text-sm leading-5 text-slate-500 dark:text-slate-400 sm:ml-[60px]">
+            {supportCategoryLabels[ticket.category]} · Dibuat{" "}
+            {formatSupportDate(ticket.created_at)}
+          </p>
         </div>
         <div className="flex min-w-0 w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
           {liveStatus ? (
