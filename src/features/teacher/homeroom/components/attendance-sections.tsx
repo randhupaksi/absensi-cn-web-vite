@@ -51,7 +51,7 @@ import {
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
-import { useState, type ComponentProps } from "react";
+import { useMemo, useState, type ComponentProps } from "react";
 
 const attendanceStatusOptions = [
   { value: "Semua", label: "Semua status" },
@@ -142,9 +142,11 @@ type AttendanceTableSectionProps = {
   error: Error | null;
   query: string;
   statusFilter: string;
+  reviewFilter: string;
   selectedDate?: Date;
   onQueryChange: (value: string) => void;
   onStatusChange: (value: string) => void;
+  onReviewChange: (value: string) => void;
   onDateChange: (date?: Date) => void;
   onOpenReport: () => void;
   onOpenProof: (record: StaffAttendanceRecord) => void;
@@ -158,22 +160,33 @@ export function AttendanceTableSection({
   error,
   query,
   statusFilter,
+  reviewFilter,
   selectedDate,
   onQueryChange,
   onStatusChange,
+  onReviewChange,
   onDateChange,
   onOpenReport,
   onOpenProof,
   onOpenReview,
 }: AttendanceTableSectionProps) {
+  const filteredRecords = useMemo(
+    () =>
+      records.filter((record) => {
+        if (reviewFilter === "Sudah dikoreksi") return Boolean(record.verified_at);
+        if (reviewFilter === "Belum dikoreksi") return !record.verified_at;
+        return true;
+      }),
+    [records, reviewFilter],
+  );
   const { pageItems: pageRecords, pagination: recordsPagination } =
-    usePagination(records);
+    usePagination(filteredRecords, 50);
 
   return (
     <section className="space-y-5">
       <article className="h-fit self-start rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,252,250,0.94)_100%)] p-4 shadow-[0_20px_48px_rgba(28,77,61,0.08)] sm:p-5">
         <div className="border-b border-slate-200/80 pb-4">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <h3 className="text-[1.5rem] font-semibold tracking-[-0.03em] text-slate-950">
                 Tabel Absensi Harian
@@ -184,15 +197,26 @@ export function AttendanceTableSection({
                 {formatFriendlyDate(overview.date)}.
               </p>
             </div>
+            <div className="hidden shrink-0 md:block">
+              <ExportImportActions
+                exportAction={{
+                  onClick: onOpenReport,
+                  label: "Export Laporan",
+                  hideOutline: true,
+                }}
+              />
+            </div>
           </div>
         </div>
 
         <AttendanceFilterToolbar
           query={query}
           statusFilter={statusFilter}
+          reviewFilter={reviewFilter}
           selectedDate={selectedDate}
           onQueryChange={onQueryChange}
           onStatusChange={onStatusChange}
+          onReviewChange={onReviewChange}
           onDateChange={onDateChange}
           onOpenReport={onOpenReport}
         />
@@ -208,7 +232,7 @@ export function AttendanceTableSection({
             </div>
           ) : isLoading ? (
             <AttendanceTableSkeleton />
-          ) : records.length === 0 ? (
+          ) : filteredRecords.length === 0 ? (
             <div className="p-5">
               <EmptyState
                 icon={FileSearch}
@@ -222,6 +246,7 @@ export function AttendanceTableSection({
                 <DataTable>
                   <DataTableHeadRow
                     labels={[
+                      "No",
                       "Siswa",
                       "Absen Masuk",
                       "Status",
@@ -232,10 +257,20 @@ export function AttendanceTableSection({
                     centerLabels={["Status", "Koreksi"]}
                   />
                   <DataTableBody>
-                    {pageRecords.map((record) => {
+                    {pageRecords.map((record, index) => {
                       const reviewedByBK = isReviewedByBK(record);
+                      const rowNumber =
+                        (recordsPagination.page - 1) *
+                          recordsPagination.pageSize +
+                        index +
+                        1;
                       return (
-                        <DataTableRow key={record.id}>
+                        <DataTableRow
+                          key={`attendance-table-${record.id || record.attendance_date || "record"}-${index}`}
+                        >
+                          <DataTableCell className="text-center font-semibold text-slate-500">
+                            {rowNumber}
+                          </DataTableCell>
                           <DataTableCell>
                             <div className="space-y-1">
                               <p className="font-semibold text-slate-900">
@@ -315,12 +350,26 @@ export function AttendanceTableSection({
                 </DataTable>
               </div>
               <MobileDataList>
-                {pageRecords.map((record) => {
+                {pageRecords.map((record, index) => {
                   const reviewedByBK = isReviewedByBK(record);
+                  const rowNumber =
+                    (recordsPagination.page - 1) *
+                      recordsPagination.pageSize +
+                    index +
+                    1;
                   return (
-                    <MobileDataCard key={record.id}>
+                    <MobileDataCard
+                      key={`attendance-mobile-${record.id || record.attendance_date || "record"}-${index}`}
+                    >
                       <MobileDataHeader
-                        title={record.student_name}
+                        title={
+                          <>
+                            <span className="mr-1 text-slate-500">
+                              {rowNumber}.
+                            </span>
+                            {record.student_name}
+                          </>
+                        }
                         subtitle={`${record.nis} - ${record.class_name}`}
                         badge={<AttendanceStatusPill status={record.status} />}
                       />
@@ -387,7 +436,7 @@ export function AttendanceTableSection({
               </MobileDataList>
             </>
           )}
-          {!error && !isLoading && records.length > 0 ? (
+          {!error && !isLoading && filteredRecords.length > 0 ? (
             <DataTablePagination {...recordsPagination} />
           ) : null}
         </div>
@@ -400,9 +449,11 @@ type FilterToolbarProps = Pick<
   AttendanceTableSectionProps,
   | "query"
   | "statusFilter"
+  | "reviewFilter"
   | "selectedDate"
   | "onQueryChange"
   | "onStatusChange"
+  | "onReviewChange"
   | "onDateChange"
   | "onOpenReport"
 >;
@@ -410,35 +461,56 @@ type FilterToolbarProps = Pick<
 export function AttendanceFilterToolbar({
   query,
   statusFilter,
+  reviewFilter,
   selectedDate,
   onQueryChange,
   onStatusChange,
+  onReviewChange,
   onDateChange,
   onOpenReport,
 }: FilterToolbarProps) {
   return (
     <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <AttendanceDateButton
-          selectedDate={selectedDate}
-          onSelectDate={onDateChange}
-        />
-        <div className="w-full sm:w-[210px]">
-          <RadixSelectField
-            value={statusFilter}
-            onValueChange={onStatusChange}
-            options={attendanceStatusOptions}
-            placeholder="Pilih status"
-            triggerClassName="h-14 rounded-[22px] pl-4"
+        <div className="w-full sm:contents">
+          <AttendanceDateButton
+            selectedDate={selectedDate}
+            onSelectDate={onDateChange}
           />
         </div>
-        <ExportImportActions
-          exportAction={{
-            onClick: onOpenReport,
-            label: "Export Laporan",
-            hideOutline: true,
-          }}
-        />
+        <div className="mobile-filter-grid sm:contents">
+          <div className="w-full sm:w-[210px]">
+            <RadixSelectField
+              value={statusFilter}
+              onValueChange={onStatusChange}
+              options={attendanceStatusOptions}
+              placeholder="Pilih status"
+              triggerClassName="h-14 rounded-[22px] pl-4"
+            />
+          </div>
+          <div className="w-full sm:w-[220px]">
+            <RadixSelectField
+              value={reviewFilter}
+              onValueChange={onReviewChange}
+              options={[
+                { value: "Semua", label: "Semua koreksi" },
+                { value: "Belum dikoreksi", label: "Belum dikoreksi" },
+                { value: "Sudah dikoreksi", label: "Sudah dikoreksi" },
+              ]}
+              placeholder="Semua koreksi"
+              triggerClassName="h-14 rounded-[22px] pl-4"
+            />
+          </div>
+        </div>
+        <div className="md:hidden">
+          <ExportImportActions
+            exportAction={{
+              onClick: onOpenReport,
+              label: "Export Laporan",
+              hideOutline: true,
+            }}
+          />
+        </div>
       </div>
       <SearchFilterBar
         value={query}
@@ -483,9 +555,9 @@ export function AttentionMonitoringPanel({
             compact
           />
         ) : (
-          items.map((item) => (
+          items.map((item, index) => (
             <article
-              key={`${item.student_id}-${item.tone}`}
+              key={`attendance-focus-${item.student_id || "student"}-${item.tone || "item"}-${index}`}
               className="rounded-[22px] border border-slate-100 bg-slate-50/92 p-4"
             >
               <div className="flex items-start justify-between gap-4">
@@ -527,7 +599,7 @@ function AttendanceDateButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={<Button type="button" variant="outline" />}
-        className="h-14 rounded-[22px] border-slate-300/80 bg-white/84 px-4 text-left text-slate-700 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)]"
+        className="h-14 w-full rounded-[22px] border-slate-300/80 bg-white/84 px-4 text-left text-slate-700 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.99)_0%,rgba(236,253,245,0.98)_100%)] hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_16px_32px_rgba(15,23,42,0.07)] sm:w-auto"
       >
         <div className="flex items-center gap-3">
           <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-emerald-700 shadow-[0_8px_18px_rgba(15,23,42,0.06)]">

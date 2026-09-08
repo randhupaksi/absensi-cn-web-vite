@@ -84,6 +84,7 @@ type MonthlyAttendanceSummary = {
 export function StudentHistoryPage() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
+  const [activityFilter, setActivityFilter] = useState("Semua");
   const [activeTab, setActiveTab] = useState<StudentHistoryTab>("overview");
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [attendanceEvidence, setAttendanceEvidence] =
@@ -133,15 +134,17 @@ export function StudentHistoryPage() {
         const statusMatch =
           statusFilter === "Semua" ||
           item.status.toLowerCase() === statusFilter;
+        const activityMatch =
+          activityFilter === "Semua" || item.kind === activityFilter;
         const queryMatch =
           normalizedQuery === "" ||
           item.title.toLowerCase().includes(normalizedQuery) ||
           item.description.toLowerCase().includes(normalizedQuery) ||
           item.status.toLowerCase().includes(normalizedQuery);
-        return statusMatch && queryMatch;
+        return statusMatch && activityMatch && queryMatch;
       })
       .sort((a, b) => b.date.localeCompare(a.date));
-  }, [history?.attendance, history?.submissions, query, statusFilter]);
+  }, [activityFilter, history?.attendance, history?.submissions, query, statusFilter]);
 
   return (
     <StudentShell>
@@ -256,14 +259,29 @@ export function StudentHistoryPage() {
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                      <div className="w-full shrink-0 sm:w-[220px]">
-                        <RadixSelectField
-                          value={statusFilter}
-                          onValueChange={setStatusFilter}
-                          placeholder="Semua status"
-                          options={statusOptions}
-                          triggerClassName="min-w-0"
-                        />
+                      <div className="mobile-filter-grid sm:flex sm:items-center">
+                        <div className="w-full shrink-0 sm:w-[220px]">
+                          <RadixSelectField
+                            value={statusFilter}
+                            onValueChange={setStatusFilter}
+                            placeholder="Semua status"
+                            options={statusOptions}
+                            triggerClassName="min-w-0"
+                          />
+                        </div>
+                        <div className="w-full shrink-0 sm:w-[200px]">
+                          <RadixSelectField
+                            value={activityFilter}
+                            onValueChange={setActivityFilter}
+                            placeholder="Semua aktivitas"
+                            options={[
+                              { value: "Semua", label: "Semua aktivitas" },
+                              { value: "attendance", label: "Absensi" },
+                              { value: "submission", label: "Pengajuan" },
+                            ]}
+                            triggerClassName="min-w-0"
+                          />
+                        </div>
                       </div>
                       <SearchFilterBar
                         value={query}

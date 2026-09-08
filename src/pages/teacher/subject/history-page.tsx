@@ -500,14 +500,14 @@ export function MapelHistoryPage() {
                       centerLabels={["H", "I", "S", "A", "Status"]}
                     />
                     <DataTableBody>
-                      {pagedSessions.map((sess) => {
+                      {pagedSessions.map((sess, index) => {
                         const statusInfo = STATUS_MAP[sess.status] ?? {
                           label: sess.status,
                           cls: "bg-slate-100 text-slate-600",
                         };
                         return (
                           <DataTableRow
-                            key={sess.session_id}
+                            key={`session-desktop-${sess.session_id || sess.tanggal || "unknown"}-${index}`}
                             className="content-enter-up-4"
                           >
                             <DataTableCell className="font-semibold text-slate-950">
@@ -622,7 +622,7 @@ export function MapelHistoryPage() {
                     };
                     return (
                       <div
-                        key={sess.session_id}
+                        key={`session-mobile-${sess.session_id || sess.tanggal || "unknown"}-${i}`}
                         className="content-enter-up-6 rounded-[1.35rem] border border-emerald-100/70 bg-white/80 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.06)]"
                         style={{ animationDelay: `${i * 30}ms` }}
                       >
@@ -1084,13 +1084,13 @@ function TodaySessionCard({
 
   return (
     <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-center gap-4">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.24)]">
-            <BookOpenCheck className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
+      <div className="relative flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-5">
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-start gap-3 sm:items-center sm:gap-4">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-[0_10px_22px_rgba(5,150,105,0.24)] sm:size-12">
+              <BookOpenCheck className="size-5" />
+            </span>
+            <div className="flex flex-wrap items-start gap-2">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">
                 {stateCopy.eyebrow}
               </p>
@@ -1098,7 +1098,9 @@ function TodaySessionCard({
                 {focusDate}
               </span>
             </div>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-slate-950">
+          </div>
+          <div className="mt-3 lg:ml-[60px]">
+            <h2 className="text-xl font-semibold tracking-[-0.02em] text-slate-950">
               {stateCopy.title}
             </h2>
             {focus ? (
@@ -1124,38 +1126,40 @@ function TodaySessionCard({
           </div>
         </div>
 
-        <div className="relative flex shrink-0 flex-wrap items-center gap-3 lg:justify-end">
+        <div className="relative flex w-full shrink-0 flex-col gap-3 lg:w-auto lg:flex-row lg:flex-wrap lg:items-center lg:justify-end">
           {focus?.status ? (
             <span
-              className={`rounded-full px-3 py-2 text-xs font-semibold ${STATUS_MAP[focus.status]?.cls ?? "bg-slate-100 text-slate-600"}`}
+              className={`self-start rounded-full border px-3 py-1 text-[10px] font-semibold lg:self-auto ${STATUS_MAP[focus.status]?.cls ?? "border-slate-200 bg-slate-100 text-slate-600"}`}
             >
               {STATUS_MAP[focus.status]?.label ?? focus.status}
             </span>
           ) : null}
-          <Link
-            href="/dashboard/teacher/subject/schedule"
-            className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] border border-emerald-200 bg-white/90 px-4 text-sm font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(15,118,110,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 active:translate-y-px active:scale-[0.97] active:!border-emerald-500 active:!bg-emerald-100 active:!text-emerald-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80"
-          >
-            Lihat jadwal
-            <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-          {sessionHref ? (
+          <div className="grid w-full grid-cols-2 gap-3 lg:contents">
             <Link
-              href={sessionHref}
-              className="group inline-flex h-11 items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800 active:translate-y-px active:scale-[0.97] active:!bg-emerald-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80"
+              href="/dashboard/teacher/subject/schedule"
+              className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-emerald-200 bg-white/90 px-4 text-sm font-semibold text-emerald-800 shadow-[0_12px_24px_rgba(15,118,110,0.08)] transition hover:border-emerald-300 hover:bg-emerald-50 active:translate-y-px active:scale-[0.97] active:!border-emerald-500 active:!bg-emerald-100 active:!text-emerald-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80 lg:w-auto"
             >
-              Masuk
+              Lihat jadwal
               <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
-          ) : (
-            <span
-              title="Ticket sesi akan tersedia saat jadwal sudah dimulai."
-              className="inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-[16px] bg-slate-200 px-4 text-sm font-semibold text-slate-500"
-            >
-              Masuk
-              <ArrowUpRight className="size-4" />
-            </span>
-          )}
+            {sessionHref ? (
+              <Link
+                href={sessionHref}
+                className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_14px_26px_rgba(5,150,105,0.2)] transition hover:bg-emerald-800 active:translate-y-px active:scale-[0.97] active:!bg-emerald-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80 lg:w-auto"
+              >
+                Masuk
+                <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            ) : (
+              <span
+                title="Ticket sesi akan tersedia saat jadwal sudah dimulai."
+                className="inline-flex h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-[16px] bg-slate-200 px-4 text-sm font-semibold text-slate-500 lg:w-auto"
+              >
+                Masuk
+                <ArrowUpRight className="size-4" />
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

@@ -248,7 +248,7 @@ export function WalasSubmissionsPage() {
             </div>
 
             <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="mobile-filter-grid gap-3 sm:flex sm:flex-row sm:flex-wrap sm:items-center">
                 <div className="w-full sm:w-[210px]">
                   <RadixSelectField
                     value={statusFilter}

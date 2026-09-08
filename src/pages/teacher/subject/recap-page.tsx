@@ -36,10 +36,12 @@ import {
   BookOpenCheck,
   CalendarDays,
   ChartColumnBig,
-  LoaderCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { HistoryPageSkeleton } from "@/components/loading/loading-system";
+import {
+  SubjectRecapPageSkeleton,
+  SubjectRecapResultsSkeleton,
+} from "@/components/loading/loading-system";
 
 const SubjectSessionHistoryReportModal = dynamic(
   () =>
@@ -170,7 +172,7 @@ export function MapelRecapPage() {
     <WalasShell>
       {() =>
         assignmentsQuery.isLoading && !assignmentsQuery.data ? (
-          <HistoryPageSkeleton />
+          <SubjectRecapPageSkeleton />
         ) : (
           <>
             {/* Filter */}
@@ -298,12 +300,7 @@ export function MapelRecapPage() {
                 />
               </section>
             ) : recapQuery.isLoading && !recapQuery.data ? (
-              <section className="flex min-h-56 items-center justify-center rounded-[32px] border border-white/70 bg-white/88 p-6 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
-                <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
-                  <LoaderCircle className="size-5 animate-spin text-emerald-600" />
-                  Memuat rekap mata pelajaran...
-                </div>
-              </section>
+              <SubjectRecapResultsSkeleton />
             ) : recapQuery.error ? (
               <section className="rounded-[32px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_52px_rgba(150,163,184,0.12)]">
                 <EmptyState
@@ -563,15 +560,15 @@ function DateFilterModeSwitch({
   onChange: (value: DateFilterMode) => void;
 }) {
   return (
-    <div className="grid h-14 grid-cols-2 rounded-[1.25rem] border border-slate-300/80 bg-white/70 p-1 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)]">
+    <div className="grid h-14 grid-cols-2 rounded-[1.25rem] border border-slate-300/80 bg-white/70 p-1 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] dark:border-slate-700 dark:bg-slate-800/80 dark:shadow-[inset_0_1px_0_rgba(148,163,184,0.08)]">
       <Button
         type="button"
         variant="ghost"
         onClick={() => onChange("single")}
         className={`h-full rounded-[1rem] !border-transparent !ring-0 px-2 text-xs font-semibold focus-visible:!border-transparent focus-visible:!ring-0 ${
           value === "single"
-            ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
-            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!text-slate-300 dark:hover:!bg-emerald-950/40 dark:hover:!text-emerald-200"
+            ? "!bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
+            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!bg-slate-900/40 dark:!text-slate-300 dark:hover:!bg-slate-700/70 dark:hover:!text-slate-100 dark:active:!bg-slate-700"
         }`}
       >
         Tanggal
@@ -582,8 +579,8 @@ function DateFilterModeSwitch({
         onClick={() => onChange("range")}
         className={`h-full rounded-[1rem] !border-transparent !ring-0 px-2 text-xs font-semibold focus-visible:!border-transparent focus-visible:!ring-0 ${
           value === "range"
-            ? "bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
-            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!text-slate-300 dark:hover:!bg-emerald-950/40 dark:hover:!text-emerald-200"
+            ? "!bg-emerald-600 !text-white hover:!bg-emerald-700 hover:!text-white active:!bg-emerald-800 active:!text-white"
+            : "!bg-transparent !text-slate-500 shadow-none hover:!bg-emerald-50 hover:!text-emerald-700 active:!bg-emerald-100 active:!text-emerald-800 dark:!bg-slate-900/40 dark:!text-slate-300 dark:hover:!bg-slate-700/70 dark:hover:!text-slate-100 dark:active:!bg-slate-700"
         }`}
       >
         Rentang

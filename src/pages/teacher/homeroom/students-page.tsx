@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "@/lib/dynamic";
-import { getAccentTone } from "@/lib/ui/accent-tone";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
+import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import {
   ActionIconButton,
   DataTable,
@@ -28,7 +28,6 @@ import {
   StatusPill,
   StudentDetailModal,
 } from "@/features/teacher/homeroom/components/students-modals";
-import { RadixSelectField } from "@/components/ui/radix-select";
 import { WalasShell } from "@/features/staff/components/homeroom-shell";
 import {
   getTeacherHomeroom,
@@ -56,13 +55,6 @@ const WalasSiswaReportModal = dynamic(
   { ssr: false },
 );
 
-const studentStatusOptions = [
-  { value: "Semua", label: "Semua" },
-  { value: "Aktif", label: "Aktif" },
-  { value: "Perlu Perhatian", label: "Perlu Perhatian" },
-  { value: "Stabil", label: "Stabil" },
-];
-
 const emptyHomeroom: StaffHomeroomContext = {
   assignment_id: "",
   teacher_id: "",
@@ -79,7 +71,6 @@ const emptyStudents: Awaited<ReturnType<typeof getTeacherHomeroomStudents>> =
 export function WalasStudentsPage() {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [statusFilter, setStatusFilter] = useState("Semua");
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
     null,
   );
@@ -107,23 +98,15 @@ export function WalasStudentsPage() {
 
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
-      const needsAttention = student.alpha_count > 0;
-
-      const matchesStatus =
-        statusFilter === "Semua" ||
-        (statusFilter === "Aktif" && student.is_active) ||
-        (statusFilter === "Perlu Perhatian" && needsAttention) ||
-        (statusFilter === "Stabil" && !needsAttention);
-
       const matchesQuery =
         normalizedQuery.length === 0 ||
         student.name.toLowerCase().includes(normalizedQuery) ||
         student.nis.toLowerCase().includes(normalizedQuery) ||
         (student.nisn ?? "").toLowerCase().includes(normalizedQuery);
 
-      return matchesStatus && matchesQuery;
+      return matchesQuery;
     });
-  }, [normalizedQuery, statusFilter, students]);
+  }, [normalizedQuery, students]);
 
   const { pageItems: pageStudents, pagination: studentsPagination } =
     usePagination(filteredStudents);
@@ -202,13 +185,13 @@ export function WalasStudentsPage() {
                   accentClass="from-teal-500 via-emerald-500 to-green-500"
                 />
                 <StaffStatCard
-                  label="Perlu Perhatian"
+                  label="Perhatian"
                   value={studentMetrics.studentsNeedingAttention}
                   icon={TriangleAlert}
                   accentClass="from-amber-400 via-orange-400 to-rose-500"
                 />
                 <StaffStatCard
-                  label="Akumulasi Alfa"
+                  label="Alfa"
                   value={studentMetrics.totalAlphaCount}
                   icon={ShieldCheck}
                   accentClass="from-sky-500 via-cyan-500 to-emerald-500"
@@ -227,16 +210,6 @@ export function WalasStudentsPage() {
                     onChange={setQuery}
                     placeholder="Cari siswa, NIS, atau NISN"
                   />
-
-                  <div className="w-full sm:w-[210px]">
-                    <RadixSelectField
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                      placeholder="Pilih status"
-                      options={studentStatusOptions}
-                      triggerClassName="h-14 rounded-[22px] pl-4"
-                    />
-                  </div>
 
                   <ExportImportActions
                     exportAction={{
@@ -470,25 +443,12 @@ function StaffStatCard({
   accentClass: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[26px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(244,252,248,0.96)_100%)] p-4 shadow-none transition duration-300 hover:-translate-y-1 hover:shadow-none">
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="space-y-2">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-            {label}
-          </p>
-          <p className="text-[2.15rem] font-semibold tracking-[-0.04em] text-slate-950">
-            {value}
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-col items-center text-right">
-          <span
-            className={`inline-flex size-12 items-center justify-center rounded-full border-2 bg-transparent shadow-none ${getAccentTone(accentClass)}`}
-          >
-            <Icon className="size-5 stroke-[1.8]" />
-          </span>
-        </div>
-      </div>
-    </div>
+    <KpiCard
+      label={label}
+      value={String(value)}
+      icon={Icon}
+      accentClass={accentClass}
+    />
   );
 }
 

@@ -69,6 +69,7 @@ export function WalasAttendancePage() {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query);
   const [statusFilter, setStatusFilter] = useState("Semua");
+  const [reviewFilter, setReviewFilter] = useState("Semua");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date(),
   );
@@ -207,9 +208,11 @@ export function WalasAttendancePage() {
             error={overviewQuery.error}
             query={query}
             statusFilter={statusFilter}
+            reviewFilter={reviewFilter}
             selectedDate={selectedDate}
             onQueryChange={setQuery}
             onStatusChange={setStatusFilter}
+            onReviewChange={setReviewFilter}
             onDateChange={setSelectedDate}
             onOpenReport={() => setReportModalOpen(true)}
             onOpenProof={setProofTarget}

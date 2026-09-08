@@ -367,21 +367,21 @@ export function DataTablePagination({
   rangeEnd,
 }: PaginationControls) {
   return (
-    <div className="mx-2 mb-2 flex min-w-0 flex-col gap-3 rounded-[22px] border border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-3 py-3.5 sm:mx-3 sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700 dark:bg-slate-900 dark:bg-none">
-      <div className="flex items-center justify-center gap-2 sm:justify-start sm:gap-4">
-        <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 dark:border-slate-700 dark:bg-slate-800">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+    <div className="mx-2 mb-2 flex min-w-0 w-[calc(100%_-_1rem)] max-w-full flex-col gap-3 overflow-hidden rounded-[22px] border border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-2.5 py-3.5 sm:mx-3 sm:mt-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700 dark:bg-slate-900 dark:bg-none">
+      <div className="grid min-w-0 w-full grid-cols-2 items-center gap-2 sm:flex sm:w-auto sm:justify-start sm:gap-4">
+        <div className="flex w-fit min-w-0 items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3 py-2 sm:gap-2.5 sm:px-3.5 dark:border-slate-700 dark:bg-slate-800">
+          <span className="shrink-0 text-xs font-semibold text-slate-500 sm:uppercase sm:tracking-[0.14em]">
             Baris
           </span>
           <RowsPerPageSelect value={pageSize} onChange={setPageSize} />
         </div>
 
-        <div className="flex items-center gap-4 rounded-[18px] border border-emerald-100/80 bg-white px-4 py-2 dark:border-slate-700 dark:bg-slate-800">
+        <div className="flex min-w-0 items-center gap-2 rounded-[18px] border border-emerald-100/80 bg-white px-2.5 py-2 sm:gap-4 sm:px-4 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col items-start gap-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               Rentang
             </span>
-            <span className="whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-100">
+            <span className="whitespace-nowrap text-xs font-bold text-slate-800 sm:text-sm dark:text-slate-100">
               {totalItems === 0 ? "0" : `${rangeStart}–${rangeEnd}`}
             </span>
           </div>
@@ -390,20 +390,20 @@ export function DataTablePagination({
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               Total
             </span>
-            <span className="text-sm font-bold text-emerald-600">
+            <span className="text-xs font-bold text-emerald-600 sm:text-sm">
               {totalItems}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="flex w-full items-center gap-3 sm:w-auto">
+      <div className="flex min-w-0 w-full items-center gap-2 sm:w-auto sm:gap-3">
         <span className="hidden whitespace-nowrap text-xs font-medium text-slate-400 sm:inline">
           Halaman <b className="font-semibold text-slate-700">{page}</b> dari{" "}
           <b className="font-semibold text-slate-700">{totalPages}</b>
         </span>
 
-        <div className="flex w-full items-center justify-between gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
+        <div className="flex min-w-0 w-full items-center justify-between gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
           <PaginationNavButton
             onClick={() => setPage(1)}
             disabled={page <= 1}
@@ -481,7 +481,7 @@ function RowsPerPageSelect({
         value: String(size),
         label: String(size),
       }))}
-      triggerClassName="h-10 w-[5.25rem] min-w-[5.25rem] rounded-[14px] border-emerald-200/80 px-3.5 text-sm font-bold text-slate-800 shadow-none hover:!shadow-none active:!shadow-none focus-visible:!shadow-none data-[state=open]:!shadow-none dark:border-emerald-600/70 dark:text-slate-100"
+      triggerClassName="h-9 w-[4.5rem] min-w-[4.5rem] rounded-[14px] border-emerald-200/80 px-2 text-sm font-bold text-slate-800 shadow-none hover:!shadow-none active:!shadow-none focus-visible:!shadow-none data-[state=open]:!shadow-none sm:h-10 sm:w-[5.25rem] sm:min-w-[5.25rem] sm:px-3.5 dark:border-emerald-600/70 dark:text-slate-100"
       contentClassName="rounded-[1.15rem] p-1.5"
       hideIndicator
       itemClassName="justify-center text-center font-semibold hover:!border-emerald-400 hover:!bg-emerald-200 hover:!text-emerald-950 data-[highlighted]:!border-emerald-300 data-[highlighted]:!bg-emerald-100 data-[highlighted]:!text-emerald-950 data-[state=checked]:!border-emerald-400 data-[state=checked]:!bg-emerald-200 data-[state=checked]:!text-emerald-950 dark:hover:!border-emerald-600 dark:hover:!bg-emerald-950/70 dark:hover:!text-emerald-100 dark:data-[highlighted]:!border-emerald-600 dark:data-[highlighted]:!bg-emerald-950/60 dark:data-[highlighted]:!text-emerald-100 dark:data-[state=checked]:!border-emerald-600 dark:data-[state=checked]:!bg-emerald-950/75 dark:data-[state=checked]:!text-emerald-100"

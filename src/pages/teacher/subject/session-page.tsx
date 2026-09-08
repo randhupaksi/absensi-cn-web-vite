@@ -50,7 +50,10 @@ import {
 import { useRouter, useSearchParams } from "@/lib/router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { TableSkeleton } from "@/components/loading/loading-system";
+import {
+  SubjectSessionPageSkeleton,
+  TableSkeleton,
+} from "@/components/loading/loading-system";
 
 function getDayIndonesian(date: Date): string {
   return ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"][
@@ -303,14 +306,7 @@ export function MapelSessionPage() {
           />
           {/* Session header */}
           {isAutoLoading || isExplicitSessionLoading ? (
-            <section className="flex items-center gap-3 rounded-[28px] border border-white/70 bg-white/88 p-5">
-              <Loader2 className="size-5 animate-spin text-emerald-600" />
-              <p className="text-sm text-slate-500">
-                {isExplicitSessionLoading
-                  ? "Memuat detail sesi mapel..."
-                  : "Mendeteksi sesi mapel aktif..."}
-              </p>
-            </section>
+            <SubjectSessionPageSkeleton />
           ) : !session ? (
             <section className="rounded-[28px] border border-white/70 bg-white/88 p-5">
               <EmptyState
