@@ -123,7 +123,7 @@ export function SearchFilterBar({
   return (
     <div
       onClick={() => inputRef.current?.focus()}
-      className={`flex h-14 cursor-text items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 focus-within:border-emerald-500 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] active:border-emerald-500 active:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-600 dark:bg-slate-900 dark:shadow-none dark:hover:!border-emerald-400/70 dark:hover:!bg-slate-900 dark:hover:!shadow-[0_0_0_2px_rgba(52,211,153,0.08)] dark:focus-within:!border-emerald-400/75 dark:focus-within:!bg-slate-900 dark:focus-within:!shadow-[0_0_0_2px_rgba(52,211,153,0.15)] dark:active:!border-emerald-400/75 dark:active:!bg-slate-900 ${className}`}
+      className={`flex h-14 cursor-text items-center gap-3 rounded-[24px] border border-slate-300/80 bg-white/84 px-4 shadow-[0_14px_28px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.92)] transition-[border-color,box-shadow,background-color] duration-200 hover:border-emerald-400 focus-within:border-emerald-500 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] active:border-emerald-500 active:shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_16px_32px_rgba(15,23,42,0.08)] dark:border-slate-600 dark:bg-slate-800/60 dark:shadow-none dark:hover:!border-emerald-400/70 dark:hover:!bg-slate-800/60 dark:hover:!shadow-[0_0_0_2px_rgba(52,211,153,0.08)] dark:focus-within:!border-emerald-400/75 dark:focus-within:!bg-slate-800/60 dark:focus-within:!shadow-[0_0_0_2px_rgba(52,211,153,0.15)] dark:active:!border-emerald-400/75 dark:active:!bg-slate-900 ${className}`}
     >
       <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#f4faf7_100%)] text-slate-400 shadow-[0_8px_18px_rgba(15,23,42,0.06)] dark:bg-none dark:bg-slate-800 dark:text-slate-300 dark:shadow-none">
         <SlidersHorizontal className="size-4" />
@@ -186,6 +186,8 @@ export function ModalActions({
   className,
   showCancel = true,
   submitIcon = Save,
+  submitDisabled = false,
+  submitVariant = "success",
 }: {
   isPending: boolean;
   onCancel: () => void;
@@ -194,6 +196,8 @@ export function ModalActions({
   className?: string;
   showCancel?: boolean;
   submitIcon?: LucideIcon;
+  submitDisabled?: boolean;
+  submitVariant?: "success" | "destructive";
 }) {
   return (
     <div className={cn(premiumModalActionsClassName, className)}>
@@ -209,9 +213,14 @@ export function ModalActions({
       ) : null}
       <AsyncButton
         data-modal-submit
-        className="h-12 min-w-0 flex-1 rounded-[1.1rem] bg-emerald-700 px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:active:bg-emerald-700 dark:shadow-none sm:flex-none sm:px-5"
+        variant={submitVariant}
+        className={cn(
+          "h-12 min-w-0 flex-1 rounded-[1.1rem] px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:active:bg-emerald-700 dark:shadow-none sm:flex-none sm:px-5",
+          submitVariant === "destructive" && "!bg-rose-600 !text-white !shadow-[0_20px_40px_rgba(225,29,72,0.2)] hover:!bg-rose-700 active:!bg-rose-800 dark:!bg-rose-600 dark:hover:!bg-rose-500 dark:active:!bg-rose-700",
+        )}
         onClick={onSubmit}
         isPending={isPending}
+        disabled={submitDisabled}
         pendingLabel="Menyimpan..."
         icon={submitIcon}
       >
