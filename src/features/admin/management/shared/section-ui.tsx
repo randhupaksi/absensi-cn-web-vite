@@ -47,10 +47,8 @@ export function actionIconButtonClass(tone: ActionIconTone) {
   const toneClass = {
     emerald:
       "border-emerald-100 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:!border-emerald-500/60 dark:!text-emerald-300 dark:hover:!border-emerald-400 dark:hover:!bg-emerald-950/60 dark:hover:!text-emerald-200",
-    sky:
-      "border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 dark:!border-sky-500/60 dark:!text-sky-300 dark:hover:!border-sky-400 dark:hover:!bg-sky-950/60 dark:hover:!text-sky-200",
-    rose:
-      "border-rose-100 text-rose-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:!border-rose-500/60 dark:!text-rose-300 dark:hover:!border-rose-400 dark:hover:!bg-rose-950/60 dark:hover:!text-rose-200",
+    sky: "border-sky-100 text-sky-700 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 dark:!border-sky-500/60 dark:!text-sky-300 dark:hover:!border-sky-400 dark:hover:!bg-sky-950/60 dark:hover:!text-sky-200",
+    rose: "border-rose-100 text-rose-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:!border-rose-500/60 dark:!text-rose-300 dark:hover:!border-rose-400 dark:hover:!bg-rose-950/60 dark:hover:!text-rose-200",
     slate:
       "border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 dark:!border-slate-600 dark:!text-slate-300 dark:hover:!border-sky-500/60 dark:hover:!bg-sky-950/50 dark:hover:!text-sky-200",
   }[tone];
@@ -216,7 +214,8 @@ export function ModalActions({
         variant={submitVariant}
         className={cn(
           "h-12 min-w-0 flex-1 rounded-[1.1rem] px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:active:bg-emerald-700 dark:shadow-none sm:flex-none sm:px-5",
-          submitVariant === "destructive" && "!bg-rose-600 !text-white !shadow-[0_20px_40px_rgba(225,29,72,0.2)] hover:!bg-rose-700 active:!bg-rose-800 dark:!bg-rose-600 dark:hover:!bg-rose-500 dark:active:!bg-rose-700",
+          submitVariant === "destructive" &&
+            "!bg-rose-600 !text-white !shadow-[0_20px_40px_rgba(225,29,72,0.2)] hover:!bg-rose-700 active:!bg-rose-800 dark:!bg-rose-600 dark:hover:!bg-rose-500 dark:active:!bg-rose-700",
         )}
         onClick={onSubmit}
         isPending={isPending}
@@ -368,16 +367,16 @@ export function DataTablePagination({
   rangeEnd,
 }: PaginationControls) {
   return (
-    <div className="mx-2 mb-2 flex min-w-0 flex-col gap-3 rounded-[22px] border border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-3 py-3.5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] sm:mx-3 sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700 dark:bg-slate-900 dark:bg-none dark:shadow-none">
+    <div className="mx-2 mb-2 flex min-w-0 flex-col gap-3 rounded-[22px] border border-emerald-100/70 bg-[linear-gradient(180deg,#f6fbf8_0%,#edf7f1_100%)] px-3 py-3.5 sm:mx-3 sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 dark:border-slate-700 dark:bg-slate-900 dark:bg-none">
       <div className="flex items-center justify-center gap-2 sm:justify-start sm:gap-4">
-        <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-none">
+        <div className="flex items-center gap-2.5 rounded-[18px] border border-emerald-100/80 bg-white px-3.5 py-2 dark:border-slate-700 dark:bg-slate-800">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
             Baris
           </span>
           <RowsPerPageSelect value={pageSize} onChange={setPageSize} />
         </div>
 
-        <div className="flex items-center gap-4 rounded-[18px] border border-emerald-100/80 bg-white px-4 py-2 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-none">
+        <div className="flex items-center gap-4 rounded-[18px] border border-emerald-100/80 bg-white px-4 py-2 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col items-start gap-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               Rentang
@@ -404,7 +403,7 @@ export function DataTablePagination({
           <b className="font-semibold text-slate-700">{totalPages}</b>
         </span>
 
-        <div className="flex w-full items-center justify-between gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 shadow-[0_10px_22px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-none sm:w-auto sm:justify-start">
+        <div className="flex w-full items-center justify-between gap-1 rounded-[16px] border border-emerald-100/80 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
           <PaginationNavButton
             onClick={() => setPage(1)}
             disabled={page <= 1}
@@ -419,7 +418,7 @@ export function DataTablePagination({
           >
             <ChevronLeft className="size-4" />
           </PaginationNavButton>
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(180deg,#10b981_0%,#0d9488_100%)] text-sm font-semibold text-white shadow-[0_10px_20px_rgba(16,185,129,0.32),inset_0_1px_0_rgba(255,255,255,0.35)]">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(180deg,#10b981_0%,#0d9488_100%)] text-sm font-semibold text-white">
             {page}
           </span>
           <PaginationNavButton
@@ -482,7 +481,7 @@ function RowsPerPageSelect({
         value: String(size),
         label: String(size),
       }))}
-      triggerClassName="h-10 w-[5.25rem] min-w-[5.25rem] rounded-[14px] border-emerald-200/80 px-3.5 text-sm font-bold text-slate-800 dark:border-emerald-600/70 dark:text-slate-100"
+      triggerClassName="h-10 w-[5.25rem] min-w-[5.25rem] rounded-[14px] border-emerald-200/80 px-3.5 text-sm font-bold text-slate-800 shadow-none hover:!shadow-none active:!shadow-none focus-visible:!shadow-none data-[state=open]:!shadow-none dark:border-emerald-600/70 dark:text-slate-100"
       contentClassName="rounded-[1.15rem] p-1.5"
       hideIndicator
       itemClassName="justify-center text-center font-semibold hover:!border-emerald-400 hover:!bg-emerald-200 hover:!text-emerald-950 data-[highlighted]:!border-emerald-300 data-[highlighted]:!bg-emerald-100 data-[highlighted]:!text-emerald-950 data-[state=checked]:!border-emerald-400 data-[state=checked]:!bg-emerald-200 data-[state=checked]:!text-emerald-950 dark:hover:!border-emerald-600 dark:hover:!bg-emerald-950/70 dark:hover:!text-emerald-100 dark:data-[highlighted]:!border-emerald-600 dark:data-[highlighted]:!bg-emerald-950/60 dark:data-[highlighted]:!text-emerald-100 dark:data-[state=checked]:!border-emerald-600 dark:data-[state=checked]:!bg-emerald-950/75 dark:data-[state=checked]:!text-emerald-100"
@@ -546,7 +545,11 @@ export function ActionButtons({
 }
 
 export function MobileDataList({ children }: { children: ReactNode }) {
-  return <div className="space-y-3 bg-white/90 p-3 dark:bg-slate-900 md:hidden">{children}</div>;
+  return (
+    <div className="space-y-3 bg-white/90 p-3 dark:bg-slate-900 md:hidden">
+      {children}
+    </div>
+  );
 }
 
 export function MobileDataCard({
@@ -747,12 +750,14 @@ export function DataTableHeadRow({
   roundedCells?: boolean;
 }) {
   return (
-    <thead className={cn(
-      "text-left text-slate-700 dark:text-slate-200",
-      roundedCells
-        ? "bg-transparent"
-        : "bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] dark:bg-none dark:bg-slate-800",
-    )}>
+    <thead
+      className={cn(
+        "text-left text-slate-700 dark:text-slate-200",
+        roundedCells
+          ? "bg-transparent"
+          : "bg-[linear-gradient(180deg,#eef8f2_0%,#e5f4eb_100%)] dark:bg-none dark:bg-slate-800",
+      )}
+    >
       <tr>
         {labels.map((label) => (
           <th
@@ -780,7 +785,9 @@ export function DataTableHeadRow({
 
 export function DataTableBody({ children }: { children: ReactNode }) {
   return (
-    <tbody className="divide-y divide-emerald-50 bg-white/92 dark:divide-slate-700 dark:!bg-slate-900">{children}</tbody>
+    <tbody className="divide-y divide-emerald-50 bg-white/92 dark:divide-slate-700 dark:!bg-slate-900">
+      {children}
+    </tbody>
   );
 }
 
@@ -812,7 +819,10 @@ export function DataTableCell({
   return (
     <td
       colSpan={colSpan}
-      className={cn("whitespace-nowrap px-5 py-4 text-slate-600 dark:text-slate-300", className)}
+      className={cn(
+        "whitespace-nowrap px-5 py-4 text-slate-600 dark:text-slate-300",
+        className,
+      )}
     >
       {children}
     </td>

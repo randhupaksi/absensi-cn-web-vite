@@ -179,8 +179,7 @@ export function StudentSection({
     const grades = new Set(
       classes
         .filter(
-          (item) =>
-            unitFilter === "all" || item.school_unit_id === unitFilter,
+          (item) => unitFilter === "all" || item.school_unit_id === unitFilter,
         )
         .map((item) => item.grade)
         .filter(Boolean),
@@ -227,7 +226,7 @@ export function StudentSection({
       new Set(
         classes
           .filter(
-              (item) =>
+            (item) =>
               (unitFilter === "all" || item.school_unit_id === unitFilter) &&
               (gradeFilter === "all" || item.grade === gradeFilter) &&
               (majorFilter === "all" || item.major_id === majorFilter) &&
@@ -611,9 +610,7 @@ export function StudentSection({
 
   return (
     <>
-      <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 shadow-[0_28px_80px_rgba(28,77,61,0.1)] backdrop-blur-xl dark:border-slate-700 dark:bg-slate-950 dark:shadow-none sm:p-5 lg:p-6">
-        <div className="pointer-events-none absolute bottom-[-90px] left-[12%] h-52 w-52 rounded-full bg-emerald-100/30 blur-3xl" />
-
+      <section className="relative overflow-hidden rounded-[30px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(250,253,252,0.94)_52%,rgba(245,252,249,0.96)_100%)] p-4 dark:border-slate-700 dark:bg-slate-950 sm:p-5 lg:p-6">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as StudentTab)}
@@ -896,7 +893,11 @@ export function StudentSection({
                       </DataTableCell>
                       <DataTableCell>
                         <div className="space-y-1">
-                          <p>{formatPasswordChangedAt(student.password_changed_at)}</p>
+                          <p>
+                            {formatPasswordChangedAt(
+                              student.password_changed_at,
+                            )}
+                          </p>
                           <p className="text-xs text-slate-400 dark:text-slate-500">
                             {formatPasswordStatus(student.must_change_password)}
                           </p>
