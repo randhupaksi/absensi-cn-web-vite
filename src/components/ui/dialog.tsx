@@ -37,7 +37,10 @@ function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
     };
 
     document.addEventListener("pointerdown", rememberSelectDismissal, true);
-    document.addEventListener("touchstart", rememberSelectDismissal, true);
+    document.addEventListener("touchstart", rememberSelectDismissal, {
+      capture: true,
+      passive: true,
+    });
 
     return () => {
       document.removeEventListener(
@@ -45,7 +48,9 @@ function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
         rememberSelectDismissal,
         true,
       );
-      document.removeEventListener("touchstart", rememberSelectDismissal, true);
+      document.removeEventListener("touchstart", rememberSelectDismissal, {
+        capture: true,
+      });
     };
   }, []);
 

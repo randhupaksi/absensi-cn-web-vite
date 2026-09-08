@@ -7,9 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useModalScrollLock } from "@/components/modals/modal-scroll-lock";
+import { ModalActions } from "@/features/admin/management/shared/section-ui";
 import { cn } from "@/lib/utils";
 import { Trash2, X } from "lucide-react";
-import { AsyncButton } from "@/components/ui/async-button";
 
 type DeleteConfirmationModalProps = {
   open: boolean;
@@ -18,7 +18,6 @@ type DeleteConfirmationModalProps = {
   description: string;
   warning?: string;
   confirmLabel?: string;
-  cancelLabel?: string;
   isPending?: boolean;
   onConfirm: () => void;
   className?: string;
@@ -31,7 +30,6 @@ export function DeleteConfirmationModal({
   description,
   warning = "Tindakan ini tidak dapat dibatalkan.",
   confirmLabel = "Ya, Hapus",
-  cancelLabel = "Batal",
   isPending = false,
   onConfirm,
   className,
@@ -75,26 +73,15 @@ export function DeleteConfirmationModal({
           </button>
         </div>
 
-        <div className="flex flex-row items-center justify-between gap-2.5 border-t border-slate-200 bg-slate-50/65 px-5 py-4 sm:justify-end sm:px-6 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none dark:border-slate-700 dark:bg-slate-900">
-          <button
-            type="button"
-            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.07)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 active:shadow-inner disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:shadow-none dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:active:bg-slate-700"
-            onClick={() => onOpenChange(false)}
-            disabled={isPending}
-          >
-            {cancelLabel}
-          </button>
-          <AsyncButton
-            type="button"
-            className="inline-flex h-11 min-w-0 items-center justify-center rounded-[0.95rem] bg-red-500 px-3 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(239,68,68,0.24)] transition-colors hover:bg-red-600 active:!bg-red-800 active:!shadow-[inset_0_2px_5px_rgba(127,29,29,0.3)] disabled:cursor-not-allowed disabled:opacity-70 sm:px-5"
-            onClick={onConfirm}
-            isPending={isPending}
-            pendingLabel="Menghapus..."
-            icon={Trash2}
-          >
-            {confirmLabel}
-          </AsyncButton>
-        </div>
+        <ModalActions
+          isPending={isPending}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={onConfirm}
+          submitLabel={confirmLabel}
+          submitIcon={Trash2}
+          submitVariant="destructive"
+          className="!mt-0 !px-5 !pb-5 !pt-4 sm:!px-6 sm:!pb-6"
+        />
       </DialogContent>
     </Dialog>
   );

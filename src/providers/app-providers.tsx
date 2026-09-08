@@ -95,6 +95,41 @@ export function AppProviders({ children }: AppProvidersProps) {
   }, []);
 
   useEffect(() => {
+    // Browser zoom emits a burst of viewport resize events. Temporarily pause
+    // expensive visual effects while the viewport is settling so cards do not
+    // repaint through several intermediate scales. The class is removed only
+    // after resize activity has stopped, restoring the normal UI afterward.
+    const root = document.documentElement;
+    let settleTimer: number | undefined;
+
+    const markViewportSettling = () => {
+      root.classList.add("viewport-settling");
+      if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(() => {
+        root.classList.remove("viewport-settling");
+        settleTimer = undefined;
+      }, 180);
+    };
+
+    window.addEventListener("resize", markViewportSettling, {
+      passive: true,
+    });
+    window.visualViewport?.addEventListener("resize", markViewportSettling, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("resize", markViewportSettling);
+      window.visualViewport?.removeEventListener(
+        "resize",
+        markViewportSettling,
+      );
+      if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+      root.classList.remove("viewport-settling");
+    };
+  }, []);
+
+  useEffect(() => {
     const watermarkKey = "__absensi_cn_credit_logged__";
     if (window[watermarkKey as keyof Window]) return;
     Object.defineProperty(window, watermarkKey, {
