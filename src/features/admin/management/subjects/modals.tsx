@@ -189,7 +189,7 @@ export function SubjectFormModal({
             </label>
             <Textarea
               id="subject-description"
-              className="min-h-14 rounded-[1.25rem] border-slate-200/80 bg-white dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+              className="min-h-14 rounded-xl border-slate-200/80 bg-white dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
               placeholder="Keterangan singkat mapel"
               {...form.register("description")}
             />

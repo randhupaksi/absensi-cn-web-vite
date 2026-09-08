@@ -218,7 +218,7 @@ export function ScheduleOverrideModal({
         <div className={`${premiumModalFieldClassName} sm:col-span-2`}>
           <label className={premiumModalLabelClassName}>Alasan</label>
           <Textarea
-            className="min-h-24 rounded-[1.25rem] border-slate-200"
+            className="min-h-24 rounded-xl border-slate-200"
             placeholder="Jelaskan alasan perubahan jadwal ini…"
             {...form.register("reason")}
           />

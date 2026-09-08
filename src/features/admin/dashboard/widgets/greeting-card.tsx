@@ -8,9 +8,9 @@ import {
   Building2,
   CalendarDays,
   GraduationCap,
+  LifeBuoy,
   RadioTower,
   ShieldCheck,
-  UserCog,
   Users,
 } from "lucide-react";
 
@@ -56,9 +56,9 @@ const quickActions = [
     iconClass: "bg-rose-50 text-rose-700 group-hover:bg-rose-100",
   },
   {
-    label: "Role dan Akses",
-    href: "/dashboard/admin/users",
-    icon: UserCog,
+    label: "Pusat Bantuan",
+    href: "/dashboard/admin/support",
+    icon: LifeBuoy,
     iconClass: "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-100",
   },
 ];
