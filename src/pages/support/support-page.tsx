@@ -6,7 +6,6 @@ import { AppImage } from "@/components/media/app-image";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -42,7 +41,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -58,6 +57,7 @@ export default function SupportPage() {
   const [accessInput, setAccessInput] = useState("");
   const [showAccessCode, setShowAccessCode] = useState(false);
   const [reply, setReply] = useState("");
+  const [identityError, setIdentityError] = useState("");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -68,10 +68,18 @@ export default function SupportPage() {
       identifier: "",
       requester_name: "",
       message: "",
-      acknowledged_risk: false,
     },
   });
-  const portal = form.watch("portal");
+  // Keep the active tab in local state so the switch paints immediately. The
+  // form value is synchronized without validation; validation still runs once
+  // on submit, so changing tabs never waits on the resolver.
+  const [portal, setPortal] = useState<PublicSupportTicketForm["portal"]>(requestedPortal);
+  const switchPortal = (value: PublicSupportTicketForm["portal"]) => {
+    setPortal(value);
+    form.setValue("portal", value, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+    form.clearErrors(["identifier", "requester_name"]);
+    setIdentityError("");
+  };
 
   const ticketQuery = useQuery({
     queryKey: ["public-support-ticket", credentials?.referenceCode],
@@ -109,17 +117,23 @@ export default function SupportPage() {
   const createMutation = useMutation({
     mutationFn: createPublicSupportTicket,
     onSuccess: (result) => {
+      setIdentityError("");
       const next = { referenceCode: result.ticket.reference_code, accessCode: result.access_code };
       saveCredentials(next);
       setCredentials(next);
       toast.success("Tiket berhasil dibuat", { description: "Simpan kode akses sebelum meninggalkan halaman." });
     },
     onError: (error) => {
-      if (portal === "student" && error.message.includes("Data nama dan NIS belum sesuai")) {
-        const message = "Nama lengkap dan NIS belum sesuai dengan data sekolah.";
-        form.setError("requester_name", { type: "validate", message });
-        form.setError("identifier", { type: "validate", message });
+      const apiError = error as Error & { code?: string };
+      if (apiError.code === "ACCOUNT_DETAILS_NOT_MATCHED") {
+        setIdentityError(
+          portal === "student"
+            ? "Nama lengkap dan NIS belum cocok dengan data sekolah. Periksa kembali keduanya."
+            : "Nama lengkap dan username guru belum cocok dengan data akun. Periksa kembali keduanya.",
+        );
+        return;
       }
+      setIdentityError("");
       toast.error("Tiket belum berhasil dibuat", { description: error.message });
     },
   });
@@ -211,7 +225,7 @@ export default function SupportPage() {
           <aside className="rounded-[30px] border border-emerald-200/40 bg-emerald-950 p-5 text-white shadow-[0_26px_70px_rgba(6,78,59,0.22)] dark:border-emerald-800/55 sm:p-6 lg:flex lg:items-center lg:justify-between lg:gap-10">
             <div className="lg:max-w-[52%]">
               <span className="flex size-10 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-300"><LifeBuoy className="size-5" /></span>
-              <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">Bantuan tanpa WhatsApp</p>
+              <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">Pusat dukungan akun</p>
               <h1 className="mt-2 font-heading text-2xl font-semibold tracking-tight sm:text-3xl">Pulihkan akses akun dengan aman</h1>
               <p className="mt-2 text-sm leading-6 text-emerald-50/75">Kirim kendala, simpan kode akses, lalu pantau konfirmasi admin langsung dari halaman ini.</p>
             </div>
@@ -234,8 +248,7 @@ export default function SupportPage() {
               <ModeButton active={mode === "track"} onClick={() => setMode("track")} icon={Search} label="Lacak tiket" />
             </div>
 
-            {mode === "create" && !justCreated ? (
-              <form onSubmit={form.handleSubmit((values) => createMutation.mutate(values))} className="rounded-[30px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-900/90 sm:p-7">
+            <form onSubmit={form.handleSubmit((values) => createMutation.mutate(values))} aria-hidden={mode !== "create" || Boolean(justCreated)} className={`${mode === "create" && !justCreated ? "" : "hidden"} rounded-[30px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-900/90 sm:p-7`}>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-300">Form pemulihan akun</p>
                   <h2 className="mt-2 font-heading text-2xl font-semibold">Ceritakan kendala loginmu</h2>
@@ -244,7 +257,7 @@ export default function SupportPage() {
 
                 <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200/80 bg-slate-100 p-1.5 dark:border-slate-700/80 dark:bg-slate-950/70">
                   {(["student", "staff"] as const).map((value) => (
-                    <Button key={value} type="button" variant="ghost" aria-pressed={portal === value} onClick={() => form.setValue("portal", value)} className={`group relative inline-flex min-h-12 flex-col items-center justify-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold leading-none outline-none transition-[transform,background-color,border-color,color,box-shadow] duration-200 ease-out hover:-translate-y-px active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 dark:focus-visible:ring-offset-slate-950 sm:flex-row ${portal === value ? "border-emerald-500 bg-emerald-600 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-emerald-600 dark:border-emerald-400/80 dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[inset_0_1px_0_rgba(110,231,183,0.12)] dark:hover:bg-emerald-950/80" : "border-transparent text-slate-500 hover:border-emerald-200/70 hover:bg-white/75 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.28)] dark:border-transparent dark:text-slate-400 dark:hover:border-emerald-700/70 dark:hover:bg-slate-800/80 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(110,231,183,0.16)]"}`}>
+                    <Button key={value} type="button" variant="ghost" aria-pressed={portal === value} onClick={() => switchPortal(value)} className={`group relative inline-flex min-h-12 flex-col items-center justify-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold leading-none transition-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 dark:focus-visible:ring-offset-slate-950 sm:flex-row ${portal === value ? "border-emerald-500 bg-emerald-600 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-emerald-600 dark:border-emerald-400/80 dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[inset_0_1px_0_rgba(110,231,183,0.12)] dark:hover:bg-emerald-950/80" : "border-transparent text-slate-500 hover:border-emerald-200/70 hover:bg-white/75 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.28)] dark:border-transparent dark:text-slate-400 dark:hover:border-emerald-700/70 dark:hover:bg-slate-800/80 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(110,231,183,0.16)]"}`}>
                       {value === "student" ? <UserRound className="size-4 shrink-0" aria-hidden="true" /> : <GraduationCap className="size-4 shrink-0" aria-hidden="true" />}
                       {value === "student" ? "Akun Siswa" : "Akun Guru"}
                     </Button>
@@ -253,7 +266,16 @@ export default function SupportPage() {
 
                 <div className="mt-6 grid gap-5 sm:grid-cols-2">
                   <FormField label="Nama lengkap" error={form.formState.errors.requester_name?.message}>
-                    <PremiumInput icon={portal === "student" ? IdCard : Signature} placeholder="Nama sesuai data sekolah" autoComplete="name" {...form.register("requester_name")} />
+                    <PremiumInput
+                      icon={portal === "student" ? IdCard : Signature}
+                      placeholder="Nama sesuai data sekolah"
+                      autoComplete="name"
+                      {...form.register("requester_name")}
+                      onChange={(event) => {
+                        setIdentityError("");
+                        form.setValue("requester_name", event.currentTarget.value, { shouldValidate: Boolean(form.formState.errors.requester_name) });
+                      }}
+                    />
                   </FormField>
                   <FormField label={portal === "student" ? "NIS" : "Username guru"} error={form.formState.errors.identifier?.message}>
                     <PremiumInput
@@ -264,6 +286,7 @@ export default function SupportPage() {
                       maxLength={portal === "student" ? 10 : 50}
                       {...form.register("identifier")}
                       onChange={(event) => {
+                        setIdentityError("");
                         if (portal === "student") {
                           const value = event.currentTarget.value.replace(/\D/g, "").slice(0, 10);
                           event.currentTarget.value = value;
@@ -276,33 +299,25 @@ export default function SupportPage() {
                   </FormField>
                 </div>
 
+                {identityError ? (
+                  <p role="alert" className="mt-3 rounded-lg border border-rose-300/80 bg-rose-50 px-3 py-2.5 text-sm leading-5 text-rose-800 dark:border-rose-800 dark:bg-rose-950/35 dark:text-rose-200">
+                    {identityError}
+                  </p>
+                ) : null}
+
                 <div className="mt-5">
                   <FormField label="Keterangan kendala" error={form.formState.errors.message?.message}>
                     <Textarea rows={5} maxLength={1500} placeholder="Jelaskan kendala yang kamu alami secara singkat..." className="min-h-32 rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-950/60" {...form.register("message")} />
                   </FormField>
                 </div>
 
-                <Controller
-                  control={form.control}
-                  name="acknowledged_risk"
-                  render={({ field }) => (
-                    <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100">
-                      <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} className="mt-1" />
-                      <span>Saya memahami bahwa password tidak akan dikirim melalui tiket dan admin mungkin meminta konfirmasi identitas tambahan.</span>
-                    </label>
-                  )}
-                />
-                {form.formState.errors.acknowledged_risk ? <p className="mt-2 text-sm text-rose-600">{form.formState.errors.acknowledged_risk.message}</p> : null}
-
                 <Button type="submit" variant="success" disabled={createMutation.isPending} className="mt-6 h-12 w-full rounded-xl text-sm font-semibold">
                   {createMutation.isPending ? <LoaderCircle className="animate-spin" /> : <MessageSquareText />}
                   Kirim tiket ke admin
                 </Button>
-              </form>
-            ) : null}
+            </form>
 
-            {mode === "track" && !ticketQuery.data ? (
-              <div className="rounded-[30px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-900/90 sm:p-7">
+            <div aria-hidden={mode !== "track" || Boolean(ticketQuery.data)} className={`${mode === "track" && !ticketQuery.data ? "" : "hidden"} rounded-[30px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-900/90 sm:p-7`}>
                 <h2 className="font-heading text-2xl font-semibold">Lacak tiket bantuan</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">Masukkan kode akses yang kamu simpan saat tiket dibuat. Kode ini adalah kunci untuk membuka tiketmu.</p>
                 <div className="mt-6 space-y-5">
@@ -313,8 +328,7 @@ export default function SupportPage() {
                     {accessMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Search />} Buka tiket
                   </Button>
                 </div>
-              </div>
-            ) : null}
+            </div>
 
             {ticketQuery.isLoading ? <div className="flex min-h-64 items-center justify-center rounded-[30px] border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900"><LoaderCircle className="size-7 animate-spin text-emerald-500" /></div> : null}
             {ticketQuery.error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">{ticketQuery.error.message}</div> : null}
@@ -347,7 +361,7 @@ export default function SupportPage() {
 }
 
 function ModeButton({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: typeof Search; label: string }) {
-  return <Button type="button" variant="ghost" aria-pressed={active} onClick={onClick} className={`h-11 w-full rounded-xl px-4 text-sm font-semibold ${active ? "bg-emerald-600 text-white shadow-[0_3px_10px_rgba(5,150,105,0.12)] hover:bg-emerald-600 hover:shadow-[0_3px_10px_rgba(5,150,105,0.12)] dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[0_2px_8px_rgba(16,185,129,0.08)] dark:hover:bg-emerald-950/80" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-800 dark:text-slate-300 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-200"}`}><Icon className="size-4" />{label}</Button>;
+  return <Button type="button" variant="ghost" aria-pressed={active} onClick={onClick} className={`h-11 w-full rounded-xl px-4 text-sm font-semibold transition-none ${active ? "bg-emerald-600 text-white shadow-[0_3px_10px_rgba(5,150,105,0.12)] hover:bg-emerald-600 hover:shadow-[0_3px_10px_rgba(5,150,105,0.12)] dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[0_2px_8px_rgba(16,185,129,0.08)] dark:hover:bg-emerald-950/80" : "border border-transparent text-slate-600 hover:border-emerald-300/70 hover:bg-emerald-50 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)] dark:border-transparent dark:text-slate-300 dark:hover:border-emerald-700/70 dark:hover:bg-emerald-950/45 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(52,211,153,0.14)]"}`}><Icon className="size-4" />{label}</Button>;
 }
 
 function FormField({ label, error, children }: { label: string; error?: string; children: ReactNode }) {

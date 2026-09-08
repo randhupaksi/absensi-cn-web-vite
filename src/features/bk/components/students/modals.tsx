@@ -325,7 +325,7 @@ export function CounselingNoteCreateModal({
             value={note}
             onChange={(event) => setNote(event.target.value)}
             placeholder="Tulis catatan BK"
-            className="min-h-[150px] rounded-[20px]"
+            className="min-h-[150px] rounded-xl"
           />
           <FieldError message={errors.note} />
         </div>

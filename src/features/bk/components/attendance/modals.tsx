@@ -204,7 +204,7 @@ export function AttendanceReviewModal({
             value={verificationNote}
             onChange={(event) => setVerificationNote(event.target.value)}
             placeholder="Tulis alasan koreksi BK"
-            className="min-h-[140px] rounded-[20px]"
+            className="min-h-[140px] rounded-xl"
           />
           <FieldError message={errors.verification_note} />
         </div>

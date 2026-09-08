@@ -71,7 +71,7 @@ export function StaffSidebar({
         }`}
       >
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="px-2 pb-5">
+          <div className="px-2 pb-1">
             <div className="flex items-center gap-3">
               <div className="flex size-16 items-center justify-center">
                 <Image
@@ -93,7 +93,7 @@ export function StaffSidebar({
                 </p>
               </div>
             </div>
-            <div className="staff-sidebar-divider mt-5 h-px w-full bg-white/14" />
+            <div className="staff-sidebar-divider mt-5 w-full" />
           </div>
 
           <nav
@@ -135,7 +135,7 @@ export function StaffSidebar({
           </nav>
 
           <div className="mt-auto shrink-0 pt-4">
-            <div className="staff-sidebar-divider mb-4 h-px w-full bg-white/14" />
+            <div className="staff-sidebar-divider mb-4 w-full" />
             <button
               type="button"
               onClick={onLogout}
@@ -168,6 +168,7 @@ export const adminSidebarItems = [
     href: "/dashboard/admin/analytics",
     icon: ChartColumnBig,
   },
+  { label: "Pusat Bantuan", href: "/dashboard/admin/support", icon: LifeBuoy },
   { label: "Guru", href: "/dashboard/admin/teachers", icon: GraduationCap },
   {
     label: "Manajemen Mapel",
@@ -187,7 +188,6 @@ export const adminSidebarItems = [
   },
   { label: "Admin", href: "/dashboard/admin/admins", icon: ShieldCheck },
   { label: "Manajemen Peran", href: "/dashboard/admin/users", icon: UserCog },
-  { label: "Pusat Bantuan", href: "/dashboard/admin/support", icon: LifeBuoy },
 ] satisfies StaffSidebarItem[];
 
 export const walasSidebarItems = [

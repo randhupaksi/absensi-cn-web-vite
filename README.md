@@ -117,7 +117,7 @@ The usual local URLs are:
 | `/` | Landing page |
 | `/login/student` | Student login with NIS and password |
 | `/login/staff` | Teacher, homeroom, BK, and admin login |
-| `/dashboard/siswa` | Student dashboard |
+| `/dashboard/student` | Student dashboard |
 | `/dashboard/teacher` | Teacher workspace based on role and scope |
 | `/dashboard/admin` | Administrator dashboard |
 | `/dashboard/admin/classes` | Academic structure and classes |

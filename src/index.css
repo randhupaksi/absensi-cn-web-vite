@@ -667,14 +667,20 @@ html.dark .staff-logout-button:active {
   transform: scale(0.98);
 }
 
-html:not(.dark) .staff-sidebar-divider {
-  background-color: rgb(255 255 255 / 14%) !important;
+html:not(.dark) .staff-sidebar-divider,
+html.dark .staff-sidebar-divider {
+  display: block !important;
+  height: 1px !important;
+  min-height: 1px !important;
   box-shadow: none !important;
 }
 
+html:not(.dark) .staff-sidebar-divider {
+  background-color: rgb(255 255 255 / 18%) !important;
+}
+
 html.dark .staff-sidebar-divider {
-  background-color: rgb(255 255 255 / 22%) !important;
-  box-shadow: none !important;
+  background-color: rgb(148 163 184 / 22%) !important;
 }
 
 /*
@@ -1576,4 +1582,21 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 html.dark table tbody tr:hover,
 html.dark [role="row"]:hover {
   background-color: rgb(6 78 59 / 0.58) !important;
+}
+#support-rejection-reason {
+  resize: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+#support-rejection-reason:focus,
+#support-rejection-reason:focus-visible {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+label[for="support-rejection-reason"] > .text-rose-500 {
+  display: none;
 }

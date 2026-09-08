@@ -20,7 +20,7 @@ import { toast } from "sonner";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
-  const [token] = useState(() => readResetToken(searchParams));
+  const [token] = useState(readResetToken);
   const portal = searchParams.get("portal") === "staff" ? "staff" : "student";
   const navigate = useNavigate();
   const loginHref = portal === "staff" ? "/login/staff" : "/login/student";
@@ -76,14 +76,12 @@ export default function ResetPasswordPage() {
   );
 }
 
-function readResetToken(searchParams: URLSearchParams) {
+function readResetToken() {
   if (typeof window !== "undefined") {
     const tokenFromFragment = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("token");
     if (tokenFromFragment) return tokenFromFragment;
   }
-  // Temporary backward compatibility for links produced before tokens were
-  // moved into the fragment, which never reaches the server or referrer.
-  return searchParams.get("token") ?? "";
+  return "";
 }
 
 function PasswordField({ id, label, error, show, onToggle, registration }: { id: string; label: string; error?: string; show: boolean; onToggle: () => void; registration: UseFormRegisterReturn }) {

@@ -19,6 +19,7 @@ import {
 } from "@/features/student/components/common";
 import { Button } from "@/components/ui/button";
 import { formatPersonName } from "@/lib/format-person-name";
+import { normalizeAppRoute } from "@/lib/route-compat";
 import { formatDisplayLabel } from "@/lib/utils";
 import { observeElementResize } from "@/lib/observe-element-resize";
 import {
@@ -1314,7 +1315,7 @@ function StudentNotificationCard({
 
   if (item.action_url) {
     return (
-      <Link href={item.action_url} onClick={onRead} className={className}>
+      <Link href={normalizeAppRoute(item.action_url)} onClick={onRead} className={className}>
         {content}
       </Link>
     );
@@ -1336,7 +1337,8 @@ function getNotificationPresentation(item: StudentNotification): {
   if (
     item.category === "support" ||
     item.type === "support_reply" ||
-    item.type === "password_reset_approved"
+    item.type === "password_reset_approved" ||
+    item.type === "password_reset_rejected"
   ) {
     return {
       icon: MessageSquareText,
