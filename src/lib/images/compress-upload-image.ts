@@ -6,7 +6,6 @@ import { isCompatibilityRenderMode } from "@/lib/runtime-compatibility";
 const TARGET_IMAGE_BYTES = 200 * 1024;
 const MAX_UPLOAD_IMAGE_BYTES = 300 * 1024;
 const IMAGE_DECODE_TIMEOUT_MS = 12_000;
-const HEIC_CONVERSION_TIMEOUT_MS = 18_000;
 // Attendance is a time-critical mobile flow. A long quality-search can freeze
 // the browser after a camera photo is selected, so use a deliberately small
 // set of attempts that still reaches the API's 300 KB ceiling in practice.
@@ -31,41 +30,26 @@ const SUPPORTED_IMAGE_EXTENSIONS = new Set([
   "png",
   "webp",
 ]);
-const HEIC_IMAGE_TYPES = new Set([
-  "image/heic",
-  "image/heif",
-  "image/heic-sequence",
-  "image/heif-sequence",
-  "image/x-heic",
-  "image/x-heif",
-]);
-const HEIC_IMAGE_EXTENSIONS = new Set(["heic", "heif"]);
-
 export async function compressUploadImage(file: File): Promise<File> {
-  const sourceFile = isHeicImageFile(file)
-    ? await convertHeicToJpeg(file)
-    : file;
   const useCompatibilityProfile = isCompatibilityRenderMode();
 
-  if (!isSupportedImageFile(sourceFile)) {
-    throw new Error(
-      "Format foto harus JPG/JPEG/JFIF, PNG, WEBP, HEIC, atau HEIF.",
-    );
+  if (!isSupportedImageFile(file)) {
+    throw new Error("Format foto harus JPG/JPEG/JFIF, PNG, atau WEBP.");
   }
 
-  if (sourceFile.size <= TARGET_IMAGE_BYTES && !useCompatibilityProfile) {
-    const normalizedFile = await normalizeImageOrientation(sourceFile);
+  if (file.size <= TARGET_IMAGE_BYTES && !useCompatibilityProfile) {
+    const normalizedFile = await normalizeImageOrientation(file);
     if (normalizedFile.size <= MAX_UPLOAD_IMAGE_BYTES) {
       return normalizedFile;
     }
     return compressUploadImage(normalizedFile);
   }
 
-  if (sourceFile.size <= MAX_UPLOAD_IMAGE_BYTES && useCompatibilityProfile) {
-    return sourceFile;
+  if (file.size <= MAX_UPLOAD_IMAGE_BYTES && useCompatibilityProfile) {
+    return file;
   }
 
-  const image = await loadImageSource(sourceFile, useCompatibilityProfile);
+  const image = await loadImageSource(file, useCompatibilityProfile);
   try {
     let bestBlob: Blob | null = null;
     const maxDimensionSteps = useCompatibilityProfile
@@ -90,7 +74,7 @@ export async function compressUploadImage(file: File): Promise<File> {
             bestBlob = blob;
           }
           if (blob.size <= TARGET_IMAGE_BYTES) {
-            return createCompressedFile(sourceFile, blob);
+            return createCompressedFile(file, blob);
           }
         }
       } finally {
@@ -99,11 +83,11 @@ export async function compressUploadImage(file: File): Promise<File> {
     }
 
     if (bestBlob && bestBlob.size <= MAX_UPLOAD_IMAGE_BYTES) {
-      return createCompressedFile(sourceFile, bestBlob);
+      return createCompressedFile(file, bestBlob);
     }
 
-    if (sourceFile.size <= MAX_UPLOAD_IMAGE_BYTES) {
-      return sourceFile;
+    if (file.size <= MAX_UPLOAD_IMAGE_BYTES) {
+      return file;
     }
 
     throw new Error(
@@ -118,43 +102,6 @@ export async function compressUploadImage(file: File): Promise<File> {
     throw error;
   } finally {
     image.cleanup();
-  }
-}
-
-function isHeicImageFile(file: File) {
-  if (HEIC_IMAGE_TYPES.has(file.type.toLowerCase())) return true;
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  return Boolean(extension && HEIC_IMAGE_EXTENSIONS.has(extension));
-}
-
-async function convertHeicToJpeg(file: File): Promise<File> {
-  try {
-    const { default: heic2any } = await withTimeout(
-      import("heic2any"),
-      HEIC_CONVERSION_TIMEOUT_MS,
-      "Pemrosesan foto HEIC/HEIF terlalu lama.",
-    );
-    const converted = await withTimeout(
-      heic2any({
-        blob: file,
-        toType: "image/jpeg",
-        quality: 0.82,
-      }),
-      HEIC_CONVERSION_TIMEOUT_MS,
-      "Pemrosesan foto HEIC/HEIF terlalu lama.",
-    );
-    const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
-    if (!jpegBlob) throw new Error("hasil konversi tidak tersedia");
-    return createCompressedFile(file, jpegBlob);
-  } catch (error) {
-    if (isPhotoProcessingTimeout(error)) {
-      throw new Error(
-        "Foto HEIC/HEIF terlalu lama diproses. Silakan ambil foto baru dengan kamera langsung.",
-      );
-    }
-    throw new Error(
-      "Foto HEIC/HEIF belum dapat dikonversi. Silakan ambil foto baru dengan kamera langsung.",
-    );
   }
 }
 
@@ -263,11 +210,6 @@ function isDeviceMemoryError(error: unknown) {
   return /memory|allocation|out of space|not enough space|bitmap|canvas/i.test(
     message,
   );
-}
-
-function isPhotoProcessingTimeout(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  return /terlalu lama/i.test(message);
 }
 
 function withTimeout<T>(
