@@ -1,20 +1,22 @@
 import { AdminShell } from "@/features/admin/shell/shell";
 import { Button } from "@/components/ui/button";
-import { RadixSelectField } from "@/components/ui/radix-select";
-import { Textarea } from "@/components/ui/textarea";
+import { SearchFilterBar } from "@/features/admin/management/shared/section-ui";
+import { AdminPasswordResetModal } from "@/features/support/components/admin-password-reset-modal";
+import { SupportStatCard } from "@/features/support/components/support-stat-card";
 import {
-  ModalActions,
-  SearchFilterBar,
-} from "@/features/admin/management/shared/section-ui";
-import { PremiumModal } from "@/components/modals/premium-modal";
-import {
-  mergeSupportMessages,
-  TicketConversation,
   SupportStatusBadge,
   formatSupportDate,
   formatSupportRequesterName,
-} from "@/features/support/components/ticket-ui";
+} from "@/features/support/components/ticket-display";
+import { TicketConversation } from "@/features/support/components/ticket-ui";
+import { TicketPager } from "@/features/support/components/ticket-pager";
+import {
+  mergeOlderTicketMessages,
+  mergeTicketDetail,
+  supportQueryKeys,
+} from "@/features/support/lib/ticket-cache";
 import { useSupportTicketLive } from "@/features/support/hooks/use-support-ticket-live";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   approveAdminPasswordReset,
   getAdminSupportTicket,
@@ -26,19 +28,14 @@ import {
 import type { SupportTicket, SupportTicketStatus } from "@/types/support";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronLeft,
-  ChevronRight,
   CircleAlert,
   Clock3,
-  Fingerprint,
   Inbox,
   KeyRound,
   LoaderCircle,
   MessageSquareText,
   ShieldCheck,
   TicketCheck,
-  Ticket,
-  UserRound,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -55,7 +52,7 @@ const statusOptions: Array<{
   { value: "CLOSED", label: "Ditutup" },
 ];
 
-const ticketPageSize = 5;
+const defaultTicketPageSize = 5;
 
 export function AdminSupportPage() {
   return <AdminShell>{() => <AdminSupportContent />}</AdminShell>;
@@ -64,41 +61,28 @@ export function AdminSupportPage() {
 function AdminSupportContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedReference = searchParams.get("ticket") ?? "";
-  const [status, setStatus] = useState("ALL");
+  const [status, setStatus] = useState<"ALL" | SupportTicketStatus>("ALL");
   const [search, setSearch] = useState("");
-  const [committedSearch, setCommittedSearch] = useState("");
   const [reply, setReply] = useState("");
   const [approveOpen, setApproveOpen] = useState(false);
-  const [resetDecision, setResetDecision] = useState<"APPROVE" | "REJECT">(
-    "APPROVE",
-  );
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [rejectionHovered, setRejectionHovered] = useState(false);
-  const [rejectionFocused, setRejectionFocused] = useState(false);
   const [ticketOffset, setTicketOffset] = useState(0);
+  const [ticketPageSize, setTicketPageSize] = useState(defaultTicketPageSize);
   const shouldScrollToDetail = useRef(false);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!approveOpen) return;
-    setResetDecision("APPROVE");
-    setRejectionReason("");
-  }, [approveOpen]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(
-      () => setCommittedSearch(search.trim()),
-      250,
-    );
-    return () => window.clearTimeout(timer);
-  }, [search]);
+  const committedSearch = useDebouncedValue(search.trim(), 250);
+  const activeListQueryKey = [
+    ...supportQueryKeys.adminTickets(),
+    status,
+    committedSearch,
+    ticketOffset,
+  ] as const;
 
   useEffect(() => {
     setTicketOffset(0);
   }, [status, committedSearch]);
 
   const ticketsQuery = useQuery({
-    queryKey: ["admin-support-tickets", status, committedSearch, ticketOffset],
+    queryKey: activeListQueryKey,
     queryFn: () =>
       getAdminSupportTickets({
         status,
@@ -107,27 +91,18 @@ function AdminSupportContent() {
         offset: ticketOffset,
       }),
     refetchInterval: 60_000,
+    placeholderData: (previousData) => previousData,
   });
   const detailQuery = useQuery({
-    queryKey: ["admin-support-ticket", selectedReference],
+    queryKey: supportQueryKeys.adminTicket(selectedReference),
     queryFn: () => getAdminSupportTicket(selectedReference),
     enabled: Boolean(selectedReference),
     refetchInterval: 60_000,
-    structuralSharing: (current, next) => {
-      const currentTicket = current as SupportTicket | undefined;
-      const nextTicket = next as SupportTicket;
-      return (currentTicket?.messages?.length ?? 0) >
-        (nextTicket.messages?.length ?? 0)
-        ? {
-            ...nextTicket,
-            messages: mergeSupportMessages(
-              currentTicket?.messages,
-              nextTicket.messages,
-            ),
-            messages_page: currentTicket?.messages_page,
-          }
-        : nextTicket;
-    },
+    structuralSharing: (current, next) =>
+      mergeTicketDetail(
+        current as SupportTicket | undefined,
+        next as SupportTicket,
+      ),
   });
 
   const liveStatus = useSupportTicketLive({
@@ -135,15 +110,16 @@ function AdminSupportContent() {
     enabled: Boolean(selectedReference),
     onTicketUpdated: () => {
       void queryClient.invalidateQueries({
-        queryKey: ["admin-support-ticket", selectedReference],
+        queryKey: supportQueryKeys.adminTicket(selectedReference),
       });
       void queryClient.invalidateQueries({
-        queryKey: ["admin-support-tickets"],
+        queryKey: activeListQueryKey,
+        exact: true,
       });
     },
     onRenew: () => {
       void queryClient.invalidateQueries({
-        queryKey: ["admin-support-ticket", selectedReference],
+        queryKey: supportQueryKeys.adminTicket(selectedReference),
       });
     },
   });
@@ -167,32 +143,18 @@ function AdminSupportContent() {
     });
   }, [selectedReference]);
 
-  const invalidate = (reference?: string) => {
-    queryClient.invalidateQueries({ queryKey: ["admin-support-tickets"] });
-    if (reference)
-      queryClient.invalidateQueries({
-        queryKey: ["admin-support-ticket", reference],
-      });
-  };
-
   const replyMutation = useMutation({
     mutationFn: () => replyAdminSupportTicket(selectedReference, reply),
     onSuccess: (ticket) => {
       queryClient.setQueryData(
-        ["admin-support-ticket", selectedReference],
+        supportQueryKeys.adminTicket(selectedReference),
         (current: typeof ticket | undefined) =>
-          current
-            ? {
-                ...ticket,
-                messages: mergeSupportMessages(
-                  current.messages,
-                  ticket.messages,
-                ),
-                messages_page: current.messages_page ?? ticket.messages_page,
-              }
-            : ticket,
+          mergeTicketDetail(current, ticket),
       );
-      invalidate();
+      void queryClient.invalidateQueries({
+        queryKey: activeListQueryKey,
+        exact: true,
+      });
       setReply("");
       toast.success("Balasan admin terkirim");
     },
@@ -201,14 +163,19 @@ function AdminSupportContent() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: { status?: string; priority?: string }) =>
-      updateAdminSupportTicket(selectedReference, payload),
+    mutationFn: (payload: {
+      status?: SupportTicketStatus;
+      priority?: "NORMAL" | "HIGH";
+    }) => updateAdminSupportTicket(selectedReference, payload),
     onSuccess: (ticket) => {
       queryClient.setQueryData(
-        ["admin-support-ticket", selectedReference],
+        supportQueryKeys.adminTicket(selectedReference),
         ticket,
       );
-      invalidate();
+      void queryClient.invalidateQueries({
+        queryKey: activeListQueryKey,
+        exact: true,
+      });
       toast.success("Status tiket diperbarui");
     },
     onError: (error) =>
@@ -219,10 +186,13 @@ function AdminSupportContent() {
     mutationFn: () => approveAdminPasswordReset(selectedReference),
     onSuccess: (ticket) => {
       queryClient.setQueryData(
-        ["admin-support-ticket", selectedReference],
+        supportQueryKeys.adminTicket(selectedReference),
         ticket,
       );
-      invalidate();
+      void queryClient.invalidateQueries({
+        queryKey: activeListQueryKey,
+        exact: true,
+      });
       setApproveOpen(false);
       toast.success("Reset password disetujui", {
         description: "Pengguna dapat membuat password baru dari tiketnya.",
@@ -233,16 +203,18 @@ function AdminSupportContent() {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: () =>
-      rejectAdminPasswordReset(selectedReference, rejectionReason.trim()),
+    mutationFn: (reason: string) =>
+      rejectAdminPasswordReset(selectedReference, reason),
     onSuccess: (ticket) => {
       queryClient.setQueryData(
-        ["admin-support-ticket", selectedReference],
+        supportQueryKeys.adminTicket(selectedReference),
         ticket,
       );
-      invalidate();
+      void queryClient.invalidateQueries({
+        queryKey: activeListQueryKey,
+        exact: true,
+      });
       setApproveOpen(false);
-      setRejectionReason("");
       toast.success("Pengajuan reset password ditolak", {
         description: "Alasan penolakan sudah dikirim ke pengguna.",
       });
@@ -259,17 +231,9 @@ function AdminSupportContent() {
       ),
     onSuccess: (olderTicket) => {
       queryClient.setQueryData(
-        ["admin-support-ticket", selectedReference],
+        supportQueryKeys.adminTicket(selectedReference),
         (current: typeof olderTicket | undefined) =>
-          current
-            ? {
-                ...olderTicket,
-                messages: mergeSupportMessages(
-                  olderTicket.messages,
-                  current.messages,
-                ),
-              }
-            : olderTicket,
+          mergeOlderTicketMessages(current, olderTicket),
       );
     },
     onError: (error) =>
@@ -300,29 +264,11 @@ function AdminSupportContent() {
 
   const resetProcessPending =
     approveMutation.isPending || rejectMutation.isPending;
-  const rejectionReasonLength = rejectionReason.trim().length;
-  const resetDecisionInvalid =
-    resetDecision === "REJECT" && rejectionReasonLength < 10;
-  const rejectionReasonInvalid =
-    resetDecision === "REJECT" &&
-    rejectionReasonLength > 0 &&
-    rejectionReasonLength < 10;
-  const rejectionSurfaceStyle = rejectionReasonInvalid
-    ? rejectionFocused
-      ? { borderColor: "rgba(244,63,94,0.82)", boxShadow: "0 0 0 3px rgba(244,63,94,0.22)" }
-      : rejectionHovered
-        ? { borderColor: "rgba(251,113,133,0.78)", boxShadow: "0 0 0 1px rgba(244,63,94,0.12)" }
-        : undefined
-    : rejectionFocused
-      ? { borderColor: "rgba(16,185,129,0.82)", boxShadow: "0 0 0 3px rgba(16,185,129,0.22)" }
-      : rejectionHovered
-        ? { borderColor: "rgba(52,211,153,0.72)", boxShadow: "0 0 0 1px rgba(16,185,129,0.12)" }
-        : { boxShadow: "0 14px 30px rgba(15,23,42,0.05)" };
   const resetActionLabel =
     ticket?.password_reset.status === "APPROVED"
       ? "Reset disetujui"
       : ticket?.password_reset.status === "COMPLETED"
-      ? "Berhasil"
+        ? "Berhasil"
         : ticket?.status === "RESOLVED"
           ? "Pengajuan selesai"
           : "Proses pengajuan";
@@ -330,7 +276,7 @@ function AdminSupportContent() {
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-[30px] border border-white/70 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_24%),linear-gradient(135deg,#ffffff_0%,#eef9f4_100%)] p-5 shadow-[0_22px_55px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-none dark:bg-slate-900 dark:shadow-none sm:p-7">
-        <div className="flex min-w-0 gap-4">
+        <div className="grid min-w-0 gap-x-4 gap-y-3 sm:grid-cols-[3rem_minmax(0,1fr)]">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-[18px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
             <Inbox className="size-6" />
           </span>
@@ -341,35 +287,35 @@ function AdminSupportContent() {
             <h1 className="mt-1 break-words font-heading text-2xl font-semibold text-slate-950 dark:text-white sm:text-3xl">
               Inbox Bantuan<span className="hidden sm:inline"> Pengguna</span>
             </h1>
-            <p className="mt-2 hidden max-w-3xl break-words text-sm leading-6 text-slate-500 dark:text-slate-400 sm:block">
-              Kelola percakapan bantuan, cocokkan identitas pemohon, berikan
-              keputusan pemulihan akun, dan pastikan setiap tindak lanjut
-              tersampaikan dengan aman tanpa mengirim password melalui chat.
-            </p>
           </div>
+          <p className="col-span-full max-w-5xl break-words text-sm leading-6 text-slate-500 dark:text-slate-400 sm:block">
+            Kelola percakapan bantuan, cocokkan identitas pemohon, berikan
+            keputusan pemulihan akun, dan pastikan setiap tindak lanjut
+            tersampaikan dengan aman tanpa mengirim password melalui chat.
+          </p>
         </div>
       </section>
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <Stat
+        <SupportStatCard
           label="Total tiket"
           value={stats.total}
           icon={MessageSquareText}
           tone="sky"
         />
-        <Stat
+        <SupportStatCard
           label="Perlu dibalas"
           value={stats.waiting}
           icon={Clock3}
           tone="amber"
         />
-        <Stat
+        <SupportStatCard
           label="Belum dibaca"
           value={stats.unread}
           icon={CircleAlert}
           tone="rose"
         />
-        <Stat
+        <SupportStatCard
           label="Pemulihan akun"
           value={stats.recovery}
           icon={KeyRound}
@@ -470,6 +416,10 @@ function AdminSupportContent() {
             offset={ticketOffset}
             pageSize={ticketPageSize}
             loaded={ticketsQuery.data?.tickets.length ?? 0}
+            onPageSizeChange={(nextPageSize) => {
+              setTicketPageSize(nextPageSize);
+              setTicketOffset(0);
+            }}
             onPrevious={() =>
               setTicketOffset((current) =>
                 Math.max(0, current - ticketPageSize),
@@ -538,11 +488,7 @@ function AdminSupportContent() {
                         variant="success"
                         className="h-10 min-w-0 flex-1 rounded-xl px-3 sm:flex-none sm:px-4"
                         disabled={!canProcessReset || resetProcessPending}
-                        onClick={() => {
-                          setResetDecision("APPROVE");
-                          setRejectionReason("");
-                          setApproveOpen(true);
-                        }}
+                        onClick={() => setApproveOpen(true)}
                       >
                         <ShieldCheck /> {resetActionLabel}
                       </Button>
@@ -567,236 +513,14 @@ function AdminSupportContent() {
         </div>
       </section>
 
-      <PremiumModal
+      <AdminPasswordResetModal
         open={approveOpen}
-        onOpenChange={(open) => {
-          setApproveOpen(open);
-          setResetDecision("APPROVE");
-          setRejectionReason("");
-        }}
-        title="Proses pengajuan reset password"
-        description="Tentukan keputusan setelah memeriksa kecocokan data pemohon."
-        icon={resetDecision === "REJECT" ? CircleAlert : ShieldCheck}
-        className="sm:!max-w-[620px]"
-        footerClassName="!border-t-0 !bg-transparent dark:!bg-transparent"
-        footer={
-          <ModalActions
-            className="!mt-0 !pt-4"
-            isPending={resetProcessPending}
-            onCancel={() => setApproveOpen(false)}
-            onSubmit={() => {
-              if (resetDecision === "APPROVE") approveMutation.mutate();
-              else rejectMutation.mutate();
-            }}
-            submitLabel="Konfirmasi"
-            submitIcon={resetDecision === "APPROVE" ? ShieldCheck : CircleAlert}
-            submitDisabled={resetDecisionInvalid}
-            submitVariant={
-              resetDecision === "REJECT" ? "destructive" : "success"
-            }
-          />
-        }
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-100">
-              Keputusan pengajuan
-            </label>
-            <RadixSelectField
-              value={resetDecision}
-              onValueChange={(value) =>
-                setResetDecision(value as "APPROVE" | "REJECT")
-              }
-              placeholder="Pilih keputusan"
-              options={[
-                { value: "APPROVE", label: "Setujui pengajuan" },
-                { value: "REJECT", label: "Tolak pengajuan" },
-              ]}
-              triggerClassName="h-12"
-            />
-          </div>
-          {resetDecision === "APPROVE" ? (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/35 dark:text-emerald-100">
-              <strong>
-                Jika disetujui, pengguna akan menerima pemberitahuan.
-              </strong>{" "}
-              Mereka dapat membuat password baru dari tiket ini. Tiket akan
-              selesai otomatis setelah password baru berhasil dibuat.
-            </div>
-          ) : (
-            <div>
-              <label
-                htmlFor="support-rejection-reason"
-                className={`mb-2 block text-sm font-semibold ${rejectionReasonInvalid ? "text-rose-600 dark:text-rose-300" : "text-slate-800 dark:text-slate-100"}`}
-              >
-                Alasan penolakan <span className="text-rose-500">*</span>
-              </label>
-              <div
-                className={`relative min-h-28 rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-sm shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] transition-[border-color,box-shadow,background-color] hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.12),0_14px_30px_rgba(15,23,42,0.05)] focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-200/80 active:border-emerald-500 active:ring-4 active:ring-emerald-200/60 dark:border-slate-600 dark:bg-slate-900 dark:shadow-none dark:hover:border-emerald-400 dark:hover:bg-slate-800 dark:hover:shadow-[0_0_0_3px_rgba(52,211,153,0.2)] dark:focus-within:border-emerald-400 dark:focus-within:ring-4 dark:focus-within:ring-emerald-400/45 dark:active:border-emerald-400 dark:active:ring-4 dark:active:ring-emerald-400/35 ${rejectionReasonInvalid ? "!border-rose-500/80 !bg-rose-50/30 hover:!border-rose-500 focus-within:!border-rose-500 focus-within:!ring-rose-200/80 dark:!border-rose-500/70 dark:!bg-rose-950/20 dark:hover:!border-rose-400 dark:focus-within:!border-rose-400 dark:focus-within:!ring-rose-400/25" : ""}`}
-                onMouseEnter={() => setRejectionHovered(true)}
-                onMouseLeave={() => setRejectionHovered(false)}
-                onPointerMove={() => setRejectionHovered(true)}
-                onPointerLeave={() => setRejectionHovered(false)}
-                onFocus={() => setRejectionFocused(true)}
-                onBlur={() => setRejectionFocused(false)}
-                style={rejectionSurfaceStyle}
-              >
-                <Textarea
-                  id="support-rejection-reason"
-                  value={rejectionReason}
-                  onChange={(event) => setRejectionReason(event.target.value)}
-                  maxLength={1000}
-                  placeholder="Jelaskan data atau syarat yang belum sesuai..."
-                  className="min-h-24 resize-none rounded-none border-0 bg-transparent px-0 py-3 hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:ring-0 dark:!bg-transparent dark:hover:!bg-transparent dark:focus-visible:!bg-transparent"
-                  aria-invalid={rejectionReasonInvalid}
-                />
-              </div>
-              <p
-                className={`mt-2 text-xs ${rejectionReasonInvalid ? "text-rose-600 dark:text-rose-300" : "text-slate-500 dark:text-slate-400"}`}
-              >
-                {rejectionReasonLength < 10
-                  ? "Alasan wajib diisi minimal 10 karakter."
-                  : "Alasan ini akan terlihat oleh pengguna pada tiketnya."}{" "}
-                {rejectionReason.length}/1000
-              </p>
-            </div>
-          )}
-          {ticket ? (
-            <div className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-900">
-              <ApprovalDetailRow
-                icon={Ticket}
-                label="Tiket"
-                value={ticket.reference_code}
-              />
-              <ApprovalDetailRow
-                icon={UserRound}
-                label="Pemohon"
-                value={formatSupportRequesterName(
-                  ticket.requester_name,
-                  ticket.portal,
-                )}
-              />
-              <ApprovalDetailRow
-                icon={UserRound}
-                label="Akun"
-                value={ticket.account_name || "Belum terdeteksi"}
-              />
-              <ApprovalDetailRow
-                icon={Fingerprint}
-                label="Identitas"
-                value={ticket.account_identifier || "-"}
-              />
-            </div>
-          ) : null}
-        </div>
-      </PremiumModal>
+        ticket={ticket}
+        isSubmitting={resetProcessPending}
+        onOpenChange={setApproveOpen}
+        onApprove={() => approveMutation.mutate()}
+        onReject={(reason) => rejectMutation.mutate(reason)}
+      />
     </div>
-  );
-}
-
-function TicketPager({
-  total,
-  offset,
-  pageSize,
-  loaded,
-  onPrevious,
-  onNext,
-}: {
-  total: number;
-  offset: number;
-  pageSize: number;
-  loaded: number;
-  onPrevious: () => void;
-  onNext: () => void;
-}) {
-  if (total <= pageSize) return null;
-  const start = loaded === 0 ? 0 : offset + 1;
-  const end = Math.min(offset + loaded, total);
-  return (
-    <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-200 pt-3 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
-      <span>
-        {start}–{end} dari {total}
-      </span>
-      <div className="flex gap-1">
-        <Button
-          type="button"
-          variant="secondary"
-          size="icon-sm"
-          aria-label="Halaman sebelumnya"
-          disabled={offset === 0}
-          onClick={onPrevious}
-        >
-          <ChevronLeft />
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="icon-sm"
-          aria-label="Halaman berikutnya"
-          disabled={offset + pageSize >= total}
-          onClick={onNext}
-        >
-          <ChevronRight />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function ApprovalDetailRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Ticket;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="grid grid-cols-[1rem_5.5rem_0.5rem_minmax(0,1fr)] items-start gap-x-2">
-      <Icon className="mt-0.5 size-4 text-slate-400" />
-      <span className="text-slate-500">{label}</span>
-      <span className="text-slate-400">:</span>
-      <strong className="min-w-0 break-words text-slate-800 dark:text-slate-100">
-        {value}
-      </strong>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  icon: Icon,
-  tone,
-}: {
-  label: string;
-  value: number;
-  icon: typeof Inbox;
-  tone: "sky" | "amber" | "rose" | "emerald";
-}) {
-  const colors = {
-    sky: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-    amber: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-    rose: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
-    emerald:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  }[tone];
-  return (
-    <article className="relative flex items-start justify-between gap-3 rounded-[24px] border border-white/70 bg-white/90 p-3 shadow-[0_14px_34px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:p-4">
-      <div className="min-w-0">
-        <p className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400 sm:text-[10px] sm:tracking-[0.14em]">
-          {label}
-        </p>
-        <p className="mt-2 font-heading text-2xl font-semibold text-slate-950 dark:text-white">
-          {value}
-        </p>
-      </div>
-      <span
-        className={`absolute right-3 top-3 flex size-10 shrink-0 items-center justify-center rounded-full sm:static sm:size-11 ${colors}`}
-      >
-        <Icon className="size-5" />
-      </span>
-    </article>
   );
 }
