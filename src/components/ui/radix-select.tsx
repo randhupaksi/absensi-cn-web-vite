@@ -22,6 +22,7 @@ type RadixSelectProps = {
   searchable?: boolean;
   searchPlaceholder?: string;
   emptyText?: string;
+  disabled?: boolean;
   className?: string;
   contentClassName?: string;
   triggerClassName?: string;
@@ -39,6 +40,7 @@ export function RadixSelectField({ searchable, ...props }: RadixSelectProps) {
         options={props.options}
         searchPlaceholder={props.searchPlaceholder}
         emptyText={props.emptyText}
+        disabled={props.disabled}
         className={props.className}
         contentClassName={props.contentClassName}
         triggerClassName={props.triggerClassName}
@@ -56,6 +58,7 @@ function RadixSelectFieldBase({
   options,
   searchPlaceholder = "Cari data...",
   emptyText = "Tidak ditemukan.",
+  disabled = false,
   className,
   contentClassName,
   triggerClassName,
@@ -133,8 +136,9 @@ function RadixSelectFieldBase({
       }}
     >
       <Select.Trigger
+        disabled={disabled}
         className={cn(
-          "group flex h-14 w-full touch-manipulation items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color,color] duration-150 ease-out hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] active:border-emerald-400 active:bg-emerald-50/70 active:shadow-[0_0_0_2px_rgba(16,185,129,0.12),0_10px_22px_rgba(15,23,42,0.04)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[state=open]:border-emerald-500 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/80 data-[placeholder]:text-slate-400 dark:border-slate-600 dark:bg-none dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-500 dark:focus-visible:ring-emerald-500/25 dark:data-[state=open]:ring-emerald-500/25 dark:data-[placeholder]:text-slate-500 [&>span:first-child]:min-w-0 [&>span:first-child]:flex-1 [&>span:first-child]:truncate",
+          "group flex h-14 w-full touch-manipulation items-center justify-between rounded-[1.25rem] border border-slate-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#f5fbf7_100%)] px-4 text-left text-sm font-medium text-slate-700 shadow-[0_14px_30px_rgba(15,23,42,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition-[border-color,box-shadow,background-color,color] duration-150 ease-out hover:border-emerald-400 hover:shadow-[0_0_0_3px_rgba(16,185,129,0.16),0_14px_30px_rgba(15,23,42,0.05)] active:border-emerald-400 active:bg-emerald-50/70 active:shadow-[0_0_0_2px_rgba(16,185,129,0.12),0_10px_22px_rgba(16,185,129,0.04)] focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-200/80 data-[state=open]:border-emerald-500 data-[state=open]:ring-4 data-[state=open]:ring-emerald-200/80 data-[placeholder]:text-slate-400 dark:border-slate-600 dark:!bg-none dark:!bg-input/30 dark:text-slate-100 dark:shadow-none dark:hover:border-emerald-500 dark:hover:bg-input/50 dark:active:border-emerald-400 dark:active:bg-emerald-950/30 dark:active:shadow-[0_0_0_0.15rem_rgba(52,211,153,0.16)] dark:focus-visible:ring-emerald-500/25 dark:data-[state=open]:ring-emerald-500/25 dark:data-[placeholder]:text-slate-500 [&>span:first-child]:min-w-0 [&>span:first-child]:flex-1 [&>span:first-child]:truncate",
           triggerClassName,
           className,
         )}
@@ -200,7 +204,7 @@ function RadixSelectFieldBase({
                 className={itemClassName}
               >
                 <div className="min-w-0 flex-1 overflow-hidden">
-                    <p className="truncate font-medium text-slate-700 dark:text-slate-200 dark:group-data-[state=checked]/item:text-emerald-100 dark:group-hover/item:text-emerald-100">
+                  <p className="truncate font-medium text-slate-700 dark:text-slate-200 dark:group-data-[state=checked]/item:text-emerald-100 dark:group-hover/item:text-emerald-100">
                     {option.label}
                   </p>
                   {option.description ? (
