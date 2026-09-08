@@ -6,6 +6,7 @@ import type {
   SupportNotificationList,
   SupportTicket,
   SupportTicketList,
+  SupportTicketStatus,
 } from "@/types/support";
 import type {
   PublicSupportTicketForm,
@@ -22,23 +23,37 @@ type ApiEnvelope<T> = {
 
 type SupportApiError = Error & { code?: string };
 
-export async function createPublicSupportTicket(payload: PublicSupportTicketForm) {
+export async function createPublicSupportTicket(
+  payload: PublicSupportTicketForm,
+) {
   return unwrap<CreatedSupportTicket>(
     apiClient.post("/public/support/tickets", payload, mutationConfig(20_000)),
   );
 }
 
-export async function accessPublicSupportTicket(reference: string, accessCode: string, messageOffset = 0, messageLimit = 50) {
+export async function accessPublicSupportTicket(
+  reference: string,
+  accessCode: string,
+  messageOffset = 0,
+  messageLimit = 50,
+) {
   return unwrap<SupportTicket>(
-    apiClient.post(`/public/support/tickets/${encodeURIComponent(reference)}/access`, {
-      access_code: accessCode,
-      message_offset: messageOffset,
-      message_limit: messageLimit,
-    }),
+    apiClient.post(
+      `/public/support/tickets/${encodeURIComponent(reference)}/access`,
+      {
+        access_code: accessCode,
+        message_offset: messageOffset,
+        message_limit: messageLimit,
+      },
+    ),
   );
 }
 
-export async function accessPublicSupportTicketByCode(accessCode: string, messageOffset = 0, messageLimit = 50) {
+export async function accessPublicSupportTicketByCode(
+  accessCode: string,
+  messageOffset = 0,
+  messageLimit = 50,
+) {
   return unwrap<SupportTicket>(
     apiClient.post("/public/support/tickets/access", {
       access_code: accessCode,
@@ -48,94 +63,184 @@ export async function accessPublicSupportTicketByCode(accessCode: string, messag
   );
 }
 
-export async function replyPublicSupportTicket(reference: string, accessCode: string, message: string) {
+export async function replyPublicSupportTicket(
+  reference: string,
+  accessCode: string,
+  message: string,
+) {
   return unwrap<SupportTicket>(
-    apiClient.post(`/public/support/tickets/${encodeURIComponent(reference)}/messages`, {
-      access_code: accessCode,
-      message,
-    }, mutationConfig()),
+    apiClient.post(
+      `/public/support/tickets/${encodeURIComponent(reference)}/messages`,
+      {
+        access_code: accessCode,
+        message,
+      },
+      mutationConfig(),
+    ),
   );
 }
 
-export async function startPasswordReset(reference: string, accessCode: string) {
+export async function startPasswordReset(
+  reference: string,
+  accessCode: string,
+) {
   return unwrap<ResetSession>(
-    apiClient.post(`/public/support/tickets/${encodeURIComponent(reference)}/reset-session`, {
-      access_code: accessCode,
-    }, mutationConfig()),
+    apiClient.post(
+      `/public/support/tickets/${encodeURIComponent(reference)}/reset-session`,
+      {
+        access_code: accessCode,
+      },
+      mutationConfig(),
+    ),
   );
 }
 
-export async function completePasswordReset(token: string, newPassword: string) {
+export async function completePasswordReset(
+  token: string,
+  newPassword: string,
+) {
   return unwrap<{ completed: true }>(
-    apiClient.post("/public/support/password/reset", {
-      token,
-      new_password: newPassword,
-    }, mutationConfig()),
+    apiClient.post(
+      "/public/support/password/reset",
+      {
+        token,
+        new_password: newPassword,
+      },
+      mutationConfig(),
+    ),
   );
 }
 
-export async function getMySupportTickets(params: { q?: string; limit?: number; offset?: number } = {}) {
-  return unwrap<SupportTicketList>(apiClient.get("/support/tickets", { params }));
+export async function getMySupportTickets(
+  params: { q?: string; limit?: number; offset?: number } = {},
+) {
+  return unwrap<SupportTicketList>(
+    apiClient.get("/support/tickets", { params }),
+  );
 }
 
 export async function createMySupportTicket(payload: SupportTicketForm) {
-  return unwrap<CreatedSupportTicket>(apiClient.post("/support/tickets", payload, mutationConfig()));
+  return unwrap<CreatedSupportTicket>(
+    apiClient.post("/support/tickets", payload, mutationConfig()),
+  );
 }
 
-export async function getMySupportTicket(reference: string, messageOffset = 0, messageLimit = 50) {
-  return unwrap<SupportTicket>(apiClient.get(`/support/tickets/${encodeURIComponent(reference)}`, {
-    params: { message_offset: messageOffset, message_limit: messageLimit },
-  }));
+export async function getMySupportTicket(
+  reference: string,
+  messageOffset = 0,
+  messageLimit = 50,
+) {
+  return unwrap<SupportTicket>(
+    apiClient.get(`/support/tickets/${encodeURIComponent(reference)}`, {
+      params: { message_offset: messageOffset, message_limit: messageLimit },
+    }),
+  );
+}
+
+export async function deleteMySupportTicket(reference: string) {
+  return unwrap<{ deleted: true }>(
+    apiClient.delete(
+      `/support/tickets/${encodeURIComponent(reference)}`,
+      mutationConfig(),
+    ),
+  );
 }
 
 export async function replyMySupportTicket(reference: string, message: string) {
   return unwrap<SupportTicket>(
-    apiClient.post(`/support/tickets/${encodeURIComponent(reference)}/messages`, { message }, mutationConfig()),
+    apiClient.post(
+      `/support/tickets/${encodeURIComponent(reference)}/messages`,
+      { message },
+      mutationConfig(),
+    ),
   );
 }
 
 export async function getMySupportNotifications() {
-  return unwrap<SupportNotificationList>(apiClient.get("/support/notifications"));
+  return unwrap<SupportNotificationList>(
+    apiClient.get("/support/notifications"),
+  );
 }
 
 export async function markMySupportNotificationRead(notificationID: string) {
-  return unwrap<{ read: true }>(apiClient.patch(`/support/notifications/${encodeURIComponent(notificationID)}/read`));
+  return unwrap<{ read: true }>(
+    apiClient.patch(
+      `/support/notifications/${encodeURIComponent(notificationID)}/read`,
+    ),
+  );
 }
 
-export async function getAdminSupportTickets(params: { status?: string; q?: string; limit?: number; offset?: number }) {
-  return unwrap<SupportTicketList>(apiClient.get("/admin/support/tickets", { params }));
+export type SupportTicketListParams = {
+  status?: "ALL" | SupportTicketStatus;
+  q?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export async function getAdminSupportTickets(params: SupportTicketListParams) {
+  return unwrap<SupportTicketList>(
+    apiClient.get("/admin/support/tickets", { params }),
+  );
 }
 
-export async function getAdminSupportTicket(reference: string, messageOffset = 0, messageLimit = 50) {
-  return unwrap<SupportTicket>(apiClient.get(`/admin/support/tickets/${encodeURIComponent(reference)}`, {
-    params: { message_offset: messageOffset, message_limit: messageLimit },
-  }));
-}
-
-export async function replyAdminSupportTicket(reference: string, message: string) {
+export async function getAdminSupportTicket(
+  reference: string,
+  messageOffset = 0,
+  messageLimit = 50,
+) {
   return unwrap<SupportTicket>(
-    apiClient.post(`/admin/support/tickets/${encodeURIComponent(reference)}/messages`, { message }, mutationConfig()),
+    apiClient.get(`/admin/support/tickets/${encodeURIComponent(reference)}`, {
+      params: { message_offset: messageOffset, message_limit: messageLimit },
+    }),
+  );
+}
+
+export async function replyAdminSupportTicket(
+  reference: string,
+  message: string,
+) {
+  return unwrap<SupportTicket>(
+    apiClient.post(
+      `/admin/support/tickets/${encodeURIComponent(reference)}/messages`,
+      { message },
+      mutationConfig(),
+    ),
   );
 }
 
 export async function updateAdminSupportTicket(
   reference: string,
-  payload: { status?: string; priority?: string },
+  payload: { status?: SupportTicketStatus; priority?: "NORMAL" | "HIGH" },
 ) {
   return unwrap<SupportTicket>(
-    apiClient.patch(`/admin/support/tickets/${encodeURIComponent(reference)}`, payload, mutationConfig()),
+    apiClient.patch(
+      `/admin/support/tickets/${encodeURIComponent(reference)}`,
+      payload,
+      mutationConfig(),
+    ),
   );
 }
 
 export async function approveAdminPasswordReset(reference: string) {
   return unwrap<SupportTicket>(
-    apiClient.post(`/admin/support/tickets/${encodeURIComponent(reference)}/approve-password-reset`, undefined, mutationConfig()),
+    apiClient.post(
+      `/admin/support/tickets/${encodeURIComponent(reference)}/approve-password-reset`,
+      undefined,
+      mutationConfig(),
+    ),
   );
 }
 
-export async function rejectAdminPasswordReset(reference: string, reason: string) {
+export async function rejectAdminPasswordReset(
+  reference: string,
+  reason: string,
+) {
   return unwrap<SupportTicket>(
-    apiClient.post(`/admin/support/tickets/${encodeURIComponent(reference)}/reject-password-reset`, { reason }, mutationConfig()),
+    apiClient.post(
+      `/admin/support/tickets/${encodeURIComponent(reference)}/reject-password-reset`,
+      { reason },
+      mutationConfig(),
+    ),
   );
 }
 
@@ -146,7 +251,9 @@ function mutationConfig(timeout?: number) {
   };
 }
 
-async function unwrap<T>(request: Promise<{ data: ApiEnvelope<T> }>): Promise<T> {
+async function unwrap<T>(
+  request: Promise<{ data: ApiEnvelope<T> }>,
+): Promise<T> {
   try {
     const response = await request;
     return response.data.data;
@@ -154,10 +261,16 @@ async function unwrap<T>(request: Promise<{ data: ApiEnvelope<T> }>): Promise<T>
     if (axios.isAxiosError<ApiEnvelope<unknown>>(error)) {
       const body = error.response?.data;
       const fieldMessage = Object.values(body?.errors ?? {})[0];
-      const apiError = new Error(fieldMessage || body?.message || "Layanan bantuan belum dapat memproses permintaan.") as SupportApiError;
+      const apiError = new Error(
+        fieldMessage ||
+          body?.message ||
+          "Layanan bantuan belum dapat memproses permintaan.",
+      ) as SupportApiError;
       apiError.code = body?.code;
       throw apiError;
     }
-    throw error instanceof Error ? error : new Error("Layanan bantuan belum dapat dihubungi.");
+    throw error instanceof Error
+      ? error
+      : new Error("Layanan bantuan belum dapat dihubungi.");
   }
 }

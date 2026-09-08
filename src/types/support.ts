@@ -1,13 +1,11 @@
 export type SupportTicketStatus =
-  | "OPEN"
-  | "WAITING_ADMIN"
-  | "WAITING_USER"
-  | "RESOLVED"
-  | "CLOSED";
+  "OPEN" | "WAITING_ADMIN" | "WAITING_USER" | "RESOLVED" | "CLOSED";
 
 export type SupportTicketCategory =
   | "PASSWORD_RECOVERY"
   | "ACCOUNT_ACCESS"
+  | "ATTENDANCE"
+  | "SCHEDULE"
   | "TECHNICAL"
   | "OTHER";
 
@@ -25,7 +23,8 @@ export type SupportMessagePage = {
   has_more: boolean;
 };
 
-export type SupportLiveStatus = "connecting" | "live" | "reconnecting" | "offline";
+export type SupportLiveStatus =
+  "connecting" | "live" | "reconnecting" | "offline";
 
 export type SupportTicket = {
   id?: string;
