@@ -248,12 +248,12 @@ export function LoginForm({ portal }: LoginFormProps) {
         ) : (
           <p className="text-xs text-slate-500 dark:text-slate-300">{content.passwordHelper}</p>
         )}
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-1.5">
           <AppLink
             href={`/support?portal=${portal}`}
             className="text-xs font-semibold text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
           >
-            Lupa password? Buat tiket bantuan
+            Lupa password? klik di sini
           </AppLink>
         </div>
       </div>
