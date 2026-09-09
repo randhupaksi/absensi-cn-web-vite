@@ -3,13 +3,11 @@
 import { KpiCard } from "@/features/admin/dashboard/widgets/kpi-card";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AttendanceLocationEvidence } from "@/features/attendance/components/location-evidence";
-import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import {
   AttendanceStatusChangeNotice,
   hasAttendanceStatusChange,
 } from "@/features/attendance/components/attendance-status-change-notice";
 import { StudentShell } from "@/features/student/components/shell";
-import { CameraCaptureModal } from "@/features/student/components/camera-capture-modal";
 import {
   formatClock,
   formatStudentDate,
@@ -22,6 +20,7 @@ import { formatPersonName } from "@/lib/format-person-name";
 import { normalizeAppRoute } from "@/lib/route-compat";
 import { formatDisplayLabel } from "@/lib/utils";
 import { observeElementResize } from "@/lib/observe-element-resize";
+import dynamic from "@/lib/dynamic";
 import {
   PremiumModal,
   premiumModalActionsClassName,
@@ -31,6 +30,7 @@ import {
   premiumModalSubmitButtonClassName,
   premiumModalSurfaceClassName,
 } from "@/components/modals/premium-modal";
+
 import { FieldError } from "@/components/ui/field-error";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import { Textarea } from "@/components/ui/textarea";
@@ -100,6 +100,18 @@ import {
   type ProcessStep,
 } from "@/components/loading/process-status";
 
+const AttendanceEvidenceModal = dynamic(() =>
+  import("@/features/attendance/components/attendance-evidence-modal").then(
+    (module) => ({ default: module.AttendanceEvidenceModal }),
+  ),
+);
+
+const CameraCaptureModal = dynamic(() =>
+  import("@/features/student/components/camera-capture-modal").then(
+    (module) => ({ default: module.CameraCaptureModal }),
+  ),
+);
+
 const reportTypeOptions = [
   { value: "HADIR", label: "Hadir", description: "Absensi masuk sekolah" },
   {
@@ -152,6 +164,7 @@ export function StudentDashboardPage() {
     useState<AttendanceLocationCaptureResult | null>(null);
   const [evidenceRecord, setEvidenceRecord] =
     useState<StaffAttendanceRecord | null>(null);
+  const [hasEvidenceModalMounted, setHasEvidenceModalMounted] = useState(false);
   const [greetingNow, setGreetingNow] = useState(() => new Date());
   const greetingRowRef = useRef<HTMLDivElement | null>(null);
   const greetingTextRef = useRef<HTMLSpanElement | null>(null);
@@ -226,7 +239,7 @@ export function StudentDashboardPage() {
   });
 
   useEffect(() => {
-    if (submissionStage !== "queueing" || queueSeconds <= 0) return;
+    if (submissionStage !== "queueing") return;
     const timer = window.setInterval(() => {
       setQueueSeconds((seconds) => {
         if (seconds <= 1) {
@@ -237,7 +250,7 @@ export function StudentDashboardPage() {
       });
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, [queueSeconds, submissionStage]);
+  }, [submissionStage]);
 
   useEffect(
     () => () => {
@@ -255,12 +268,17 @@ export function StudentDashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (dashboardRetrySeconds <= 0) return;
+    if (evidenceRecord) setHasEvidenceModalMounted(true);
+  }, [evidenceRecord]);
+
+  const isDashboardRetryCountingDown = dashboardRetrySeconds > 0;
+  useEffect(() => {
+    if (!isDashboardRetryCountingDown) return;
     const timer = window.setInterval(() => {
       setDashboardRetrySeconds((seconds) => Math.max(0, seconds - 1));
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, [dashboardRetrySeconds]);
+  }, [isDashboardRetryCountingDown]);
 
   useEffect(() => {
     const row = greetingRowRef.current;
@@ -1182,10 +1200,12 @@ export function StudentDashboardPage() {
               </div>
             </PremiumModal>
 
-            <AttendanceEvidenceModal
-              record={evidenceRecord}
-              onOpenChange={(open) => !open && setEvidenceRecord(null)}
-            />
+            {evidenceRecord || hasEvidenceModalMounted ? (
+              <AttendanceEvidenceModal
+                record={evidenceRecord}
+                onOpenChange={(open) => !open && setEvidenceRecord(null)}
+              />
+            ) : null}
 
             {cameraModalOpen ? (
               <CameraCaptureModal

@@ -18,12 +18,10 @@ import { ExportImportActions } from "@/components/ui/export-import-actions";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import dynamic from "@/lib/dynamic";
 import { formatPersonName } from "@/lib/format-person-name";
-import { AttendanceEvidenceModal } from "@/features/attendance/components/attendance-evidence-modal";
 import {
   AttendanceStatusChangeNotice,
   hasAttendanceStatusChange,
 } from "@/features/attendance/components/attendance-status-change-notice";
-import { StudentSubmissionEvidenceModal } from "@/features/student/components/submission-evidence-modal";
 import {
   formatStudentDate,
   formatStudentDateTime,
@@ -51,7 +49,7 @@ import {
   List,
   ShieldAlert,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HistoryPageSkeleton } from "@/components/loading/loading-system";
 
 const statusOptions = [
@@ -65,6 +63,18 @@ const statusOptions = [
 const StudentHistoryReportModal = dynamic(() =>
   import("@/features/reports/student/student-history-report-modal").then(
     (module) => module.StudentHistoryReportModal,
+  ),
+);
+
+const AttendanceEvidenceModal = dynamic(() =>
+  import("@/features/attendance/components/attendance-evidence-modal").then(
+    (module) => ({ default: module.AttendanceEvidenceModal }),
+  ),
+);
+
+const StudentSubmissionEvidenceModal = dynamic(() =>
+  import("@/features/student/components/submission-evidence-modal").then(
+    (module) => ({ default: module.StudentSubmissionEvidenceModal }),
   ),
 );
 
@@ -87,10 +97,29 @@ export function StudentHistoryPage() {
   const [activityFilter, setActivityFilter] = useState("Semua");
   const [activeTab, setActiveTab] = useState<StudentHistoryTab>("overview");
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [mountedModals, setMountedModals] = useState({
+    attendance: false,
+    submission: false,
+    report: false,
+  });
   const [attendanceEvidence, setAttendanceEvidence] =
     useState<StaffAttendanceRecord | null>(null);
   const [submissionEvidence, setSubmissionEvidence] =
     useState<StudentSubmission | null>(null);
+
+  useEffect(() => {
+    const nextKey = attendanceEvidence
+      ? "attendance"
+      : submissionEvidence
+        ? "submission"
+        : reportModalOpen
+          ? "report"
+          : null;
+    if (!nextKey) return;
+    setMountedModals((current) =>
+      current[nextKey] ? current : { ...current, [nextKey]: true },
+    );
+  }, [attendanceEvidence, reportModalOpen, submissionEvidence]);
 
   const historyQuery = useQuery({
     queryKey: ["student-history"],
@@ -353,21 +382,27 @@ export function StudentHistoryPage() {
               </TabsContent>
             </Tabs>
 
-            <AttendanceEvidenceModal
-              record={attendanceEvidence}
-              onOpenChange={(open) => !open && setAttendanceEvidence(null)}
-            />
-            <StudentSubmissionEvidenceModal
-              submission={submissionEvidence}
-              onOpenChange={(open) => !open && setSubmissionEvidence(null)}
-            />
-            <StudentHistoryReportModal
-              open={reportModalOpen}
-              onOpenChange={setReportModalOpen}
-              profile={history?.profile}
-              stats={stats}
-              attendance={history?.attendance ?? []}
-            />
+            {attendanceEvidence || mountedModals.attendance ? (
+              <AttendanceEvidenceModal
+                record={attendanceEvidence}
+                onOpenChange={(open) => !open && setAttendanceEvidence(null)}
+              />
+            ) : null}
+            {submissionEvidence || mountedModals.submission ? (
+              <StudentSubmissionEvidenceModal
+                submission={submissionEvidence}
+                onOpenChange={(open) => !open && setSubmissionEvidence(null)}
+              />
+            ) : null}
+            {reportModalOpen || mountedModals.report ? (
+              <StudentHistoryReportModal
+                open={reportModalOpen}
+                onOpenChange={setReportModalOpen}
+                profile={history?.profile}
+                stats={stats}
+                attendance={history?.attendance ?? []}
+              />
+            ) : null}
           </div>
         )
       }
