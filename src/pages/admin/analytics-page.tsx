@@ -15,7 +15,6 @@ import {
   ChartSkeleton,
 } from "@/components/loading/loading-system";
 import { DataTableCard } from "@/features/admin/management/shared/section-ui";
-import { AttendanceAnalyticsReportModal } from "@/features/admin/analytics/attendance-analytics-report-modal";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { AdminShell } from "@/features/admin/shell/shell";
 import dynamic from "@/lib/dynamic";
@@ -59,6 +58,12 @@ const AnalyticsTrendChart = dynamic(
       default: module.AnalyticsTrendChart,
     })),
   { ssr: false, fallback: <ChartSkeleton /> },
+);
+
+const AttendanceAnalyticsReportModal = dynamic(() =>
+  import("@/features/admin/analytics/attendance-analytics-report-modal").then(
+    (module) => ({ default: module.AttendanceAnalyticsReportModal }),
+  ),
 );
 
 const AnalyticsStatusChart = dynamic(
@@ -147,6 +152,11 @@ export function AdminAnalyticsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [hasExportModalMounted, setHasExportModalMounted] = useState(false);
+
+  useEffect(() => {
+    if (isExportModalOpen) setHasExportModalMounted(true);
+  }, [isExportModalOpen]);
   const [shouldLoadOverall, setShouldLoadOverall] = useState(false);
   const [shouldLoadStudents, setShouldLoadStudents] = useState(false);
 
@@ -361,14 +371,16 @@ export function AdminAnalyticsPage() {
             period={analytics?.period}
           />
 
-          <AttendanceAnalyticsReportModal
-            open={isExportModalOpen}
-            onOpenChange={setIsExportModalOpen}
-            analytics={analytics}
-            fullPeriod={{ dateFrom: ANALYTICS_LAUNCH_DATE, dateTo: today }}
-            onLoadAnalytics={loadAnalyticsForExport}
-            onLoadStudents={loadAllStudentsForExport}
-          />
+          {isExportModalOpen || hasExportModalMounted ? (
+            <AttendanceAnalyticsReportModal
+              open={isExportModalOpen}
+              onOpenChange={setIsExportModalOpen}
+              analytics={analytics}
+              fullPeriod={{ dateFrom: ANALYTICS_LAUNCH_DATE, dateTo: today }}
+              onLoadAnalytics={loadAnalyticsForExport}
+              onLoadStudents={loadAllStudentsForExport}
+            />
+          ) : null}
 
           <AnalyticsFilters
             dateFrom={dateFrom}
