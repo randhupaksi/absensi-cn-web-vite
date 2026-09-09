@@ -52,7 +52,16 @@ export function useSupportTicketLive({
     let active = true;
     let retryAttempt = 0;
     let retryTimer: number | undefined;
+    let updateFrame: number | undefined;
     let controller: AbortController | undefined;
+
+    const scheduleTicketUpdate = () => {
+      if (updateFrame !== undefined) return;
+      updateFrame = window.requestAnimationFrame(() => {
+        updateFrame = undefined;
+        updateRef.current();
+      });
+    };
 
     const reconnect = (delay: number) => {
       if (!active) return;
@@ -93,7 +102,7 @@ export function useSupportTicketLive({
           const [events, remainder] = takeFrames(buffer);
           buffer = remainder;
           for (const event of events) {
-            if (event.event === "ticket_updated") updateRef.current();
+            if (event.event === "ticket_updated") scheduleTicketUpdate();
             if (event.event === "reconnect") {
               refreshToken = true;
               try {
@@ -137,6 +146,7 @@ export function useSupportTicketLive({
     return () => {
       active = false;
       if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+      if (updateFrame !== undefined) window.cancelAnimationFrame(updateFrame);
       controller?.abort();
     };
   }, [enabled, liveToken]);

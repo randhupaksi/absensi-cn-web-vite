@@ -4,7 +4,7 @@ import type {
   SupportTicket,
   SupportTicketList,
 } from "@/types/support";
-import type { QueryClient } from "@tanstack/react-query";
+import { replaceEqualDeep, type QueryClient } from "@tanstack/react-query";
 
 type TicketListScope = "admin" | "user";
 
@@ -40,11 +40,11 @@ export function mergeTicketDetail(
 ) {
   if (!current) return next;
 
-  return {
+  return replaceEqualDeep(current, {
     ...next,
     messages: mergeSupportMessages(current.messages, next.messages),
     messages_page: current.messages_page ?? next.messages_page,
-  };
+  });
 }
 
 export function mergeOlderTicketMessages(
@@ -53,7 +53,7 @@ export function mergeOlderTicketMessages(
 ) {
   if (!current) return older;
 
-  return {
+  return replaceEqualDeep(current, {
     ...older,
     messages: mergeSupportMessages(older.messages, current.messages),
     messages_page: {
@@ -62,7 +62,7 @@ export function mergeOlderTicketMessages(
       limit: (older.messages?.length ?? 0) + (current.messages?.length ?? 0),
       has_more: older.messages_page?.has_more ?? false,
     },
-  };
+  });
 }
 
 export function updateCachedTicketLists(

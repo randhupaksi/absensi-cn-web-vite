@@ -20,6 +20,15 @@ export const supportCategoryLabels = {
   OTHER: "Lainnya",
 } as const;
 
+const supportDateFormatter = new Intl.DateTimeFormat("id-ID", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
 export function SupportStatusBadge({
   status,
   adminView = false,
@@ -74,14 +83,7 @@ export function formatSupportDate(value?: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
 
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
+  return supportDateFormatter.format(date);
 }
 
 export function formatSupportName(value?: string) {
