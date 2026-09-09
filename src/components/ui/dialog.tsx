@@ -25,8 +25,13 @@ function hasOpenSelectLayer() {
 
 function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
   const selectDismissalStartedAt = React.useRef(0);
+  const shouldTrackSelectDismissal = props.open !== false;
 
   React.useEffect(() => {
+    // Controlled dialogs make up nearly every modal in the app. Avoid keeping
+    // two document-level listeners alive for every closed modal instance.
+    if (!shouldTrackSelectDismissal) return;
+
     const rememberSelectDismissal = (event: Event) => {
       if (!hasOpenSelectLayer() || isSelectLayer(event.target)) return;
 
@@ -52,7 +57,7 @@ function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
         capture: true,
       });
     };
-  }, []);
+  }, [shouldTrackSelectDismissal]);
 
   return (
     <DialogPrimitive.Root

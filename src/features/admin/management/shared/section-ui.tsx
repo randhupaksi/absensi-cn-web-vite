@@ -146,7 +146,7 @@ export function SearchFilterBar({
           startTransition(() => onChange(""));
           inputRef.current?.focus();
         }}
-        className={`flex size-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-all duration-200 hover:bg-emerald-100 hover:text-emerald-700 focus-visible:bg-emerald-100 focus-visible:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 active:scale-90 dark:text-slate-400 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-200 dark:focus-visible:bg-emerald-950/60 dark:focus-visible:text-emerald-200 dark:focus-visible:ring-emerald-400/30 ${draftValue ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`flex size-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-[background-color,color,box-shadow,opacity,transform] duration-200 hover:bg-emerald-100 hover:text-emerald-700 focus-visible:bg-emerald-100 focus-visible:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 active:scale-90 dark:text-slate-400 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-200 dark:focus-visible:bg-emerald-950/60 dark:focus-visible:text-emerald-200 dark:focus-visible:ring-emerald-400/30 ${draftValue ? "opacity-100" : "pointer-events-none opacity-0"}`}
         aria-hidden={!draftValue}
       >
         <X className="size-4" />
@@ -202,7 +202,7 @@ export function ModalActions({
       {showCancel ? (
         <Button
           variant="outline"
-          className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:shadow-none dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-white dark:hover:shadow-none dark:active:bg-slate-700 sm:flex-none sm:px-5"
+          className="h-12 min-w-0 flex-1 rounded-[1.1rem] border-slate-200 px-3 text-sm font-semibold text-slate-600 transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-950 hover:shadow-[0_14px_28px_rgba(15,23,42,0.14)] active:translate-y-0 active:scale-[0.96] active:bg-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:shadow-none dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-white dark:hover:shadow-none dark:active:bg-slate-700 sm:flex-none sm:px-5"
           onClick={onCancel}
           disabled={isPending}
         >
@@ -213,7 +213,7 @@ export function ModalActions({
         data-modal-submit
         variant={submitVariant}
         className={cn(
-          "h-12 min-w-0 flex-1 rounded-[1.1rem] px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-all duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:active:bg-emerald-700 dark:shadow-none sm:flex-none sm:px-5",
+          "h-12 min-w-0 flex-1 rounded-[1.1rem] px-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(22,101,52,0.2)] transition-[background-color,color,box-shadow,transform] duration-200 hover:bg-emerald-800 active:scale-[0.96] active:bg-emerald-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:active:bg-emerald-700 dark:shadow-none sm:flex-none sm:px-5",
           submitVariant === "destructive" &&
             "!bg-rose-600 !text-white !shadow-[0_20px_40px_rgba(225,29,72,0.2)] hover:!bg-rose-700 active:!bg-rose-800 dark:!bg-rose-600 dark:hover:!bg-rose-500 dark:active:!bg-rose-700",
         )}
@@ -458,7 +458,7 @@ function PaginationNavButton({
       aria-label={ariaLabel}
       onClick={onClick}
       disabled={disabled}
-      className="pagination-nav-button flex size-9 flex-1 items-center justify-center rounded-[11px] text-emerald-700 transition-all duration-150 hover:bg-emerald-50 hover:text-emerald-800 active:scale-90 active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:hover:text-slate-300 disabled:active:scale-100 dark:text-emerald-300 dark:hover:bg-emerald-950/80 dark:hover:text-emerald-100 dark:active:bg-emerald-900/80 dark:active:text-white dark:disabled:bg-slate-950/70 dark:disabled:text-slate-600 dark:disabled:hover:bg-slate-950/70 dark:disabled:hover:text-slate-600 dark:disabled:active:scale-100 sm:flex-none"
+      className="pagination-nav-button flex size-9 flex-1 items-center justify-center rounded-[11px] text-emerald-700 transition-[background-color,color,box-shadow,transform] duration-150 hover:bg-emerald-50 hover:text-emerald-800 active:scale-90 active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent disabled:hover:text-slate-300 disabled:active:scale-100 dark:text-emerald-300 dark:hover:bg-emerald-950/80 dark:hover:text-emerald-100 dark:active:bg-emerald-900/80 dark:active:text-white dark:disabled:bg-slate-950/70 dark:disabled:text-slate-600 dark:disabled:hover:bg-slate-950/70 dark:disabled:hover:text-slate-600 dark:disabled:active:scale-100 sm:flex-none"
     >
       {children}
     </button>
