@@ -15,7 +15,12 @@ import {
   useSyncExternalStore,
 } from "react";
 import { getStoredTheme, subscribeToTheme, type AppTheme } from "@/lib/theme";
-import { SystemStatusAlert } from "@/components/errors/system-status-alert";
+
+const SystemStatusAlert = lazy(() =>
+  import("@/components/errors/system-status-alert").then((module) => ({
+    default: module.SystemStatusAlert,
+  })),
+);
 
 const Toaster = lazy(() =>
   import("sonner").then((module) => ({ default: module.Toaster })),
@@ -46,6 +51,35 @@ function ThemeAwareToaster() {
       }}
     />
   );
+}
+
+function DeferredSystemStatusAlert() {
+  const [shouldMount, setShouldMount] = useState(
+    () => typeof navigator !== "undefined" && !navigator.onLine,
+  );
+
+  useEffect(() => {
+    if (shouldMount) return;
+    const showAlert = () => setShouldMount(true);
+    const handleSystemStatus = (event: Event) => {
+      if ((event as CustomEvent).detail) showAlert();
+    };
+    window.addEventListener("absensi-cn:system-status", handleSystemStatus);
+    window.addEventListener("offline", showAlert);
+    return () => {
+      window.removeEventListener(
+        "absensi-cn:system-status",
+        handleSystemStatus,
+      );
+      window.removeEventListener("offline", showAlert);
+    };
+  }, [shouldMount]);
+
+  return shouldMount ? (
+    <Suspense fallback={null}>
+      <SystemStatusAlert />
+    </Suspense>
+  ) : null;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
@@ -170,7 +204,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <SystemStatusAlert />
+      <DeferredSystemStatusAlert />
       <Suspense fallback={null}>
         <ThemeAwareToaster />
       </Suspense>

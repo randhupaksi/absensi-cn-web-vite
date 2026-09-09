@@ -1,17 +1,19 @@
 import {
   getAuthSession,
+  getCurrentAuthSecurityNotice,
   getDashboardPathForUser,
   requiresInitialPasswordChange,
+  subscribeAuthSecurityNotice,
 } from "@/lib/auth";
 import type { PortalType } from "@/lib/validations/login-schema";
 import { RouteLoadingFallback } from "@/components/loading/loading-system";
 import { AppErrorBoundary } from "@/components/errors/app-error-boundary";
-import { AuthSecurityNoticeModal } from "@/components/auth/auth-security-notice-modal";
 import {
   lazy,
   Suspense,
   useEffect,
   useLayoutEffect,
+  useState,
   type ReactNode,
 } from "react";
 import {
@@ -23,6 +25,11 @@ import {
 } from "react-router-dom";
 
 const HomePage = lazy(() => import("@/pages/home/home-page"));
+const AuthSecurityNoticeModal = lazy(() =>
+  import("@/components/auth/auth-security-notice-modal").then((module) => ({
+    default: module.AuthSecurityNoticeModal,
+  })),
+);
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
 const PublicSupportPage = lazy(() => import("@/pages/support/support-page"));
 const ResetPasswordPage = lazy(
@@ -228,6 +235,23 @@ function DismissInitialLoader() {
   return null;
 }
 
+function DeferredAuthSecurityNotice() {
+  const [shouldMount, setShouldMount] = useState(
+    () => getCurrentAuthSecurityNotice() !== null,
+  );
+
+  useEffect(() => {
+    if (shouldMount) return;
+    return subscribeAuthSecurityNotice(() => setShouldMount(true));
+  }, [shouldMount]);
+
+  return shouldMount ? (
+    <Suspense fallback={null}>
+      <AuthSecurityNoticeModal />
+    </Suspense>
+  ) : null;
+}
+
 function DashboardRedirect() {
   const session = getAuthSession();
   return (
@@ -294,7 +318,7 @@ export default function App() {
     <BrowserRouter>
       <DismissInitialLoader />
       <ScrollToTopOnNavigate />
-      <AuthSecurityNoticeModal />
+      <DeferredAuthSecurityNotice />
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />

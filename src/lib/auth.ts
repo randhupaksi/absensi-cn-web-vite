@@ -70,8 +70,11 @@ export type AuthSecurityNotice = {
   loginPath: string;
 };
 
+let currentAuthSecurityNotice: AuthSecurityNotice | null = null;
+
 export function publishAuthSecurityNotice(notice: AuthSecurityNotice) {
   if (typeof window === "undefined") return;
+  currentAuthSecurityNotice = notice;
   window.dispatchEvent(
     new CustomEvent<AuthSecurityNotice>(AUTH_SECURITY_NOTICE_EVENT, {
       detail: notice,
@@ -79,10 +82,20 @@ export function publishAuthSecurityNotice(notice: AuthSecurityNotice) {
   );
 }
 
+export function getCurrentAuthSecurityNotice() {
+  return currentAuthSecurityNotice;
+}
+
+export function clearAuthSecurityNotice() {
+  currentAuthSecurityNotice = null;
+}
+
 export function subscribeAuthSecurityNotice(
   onNotice: (notice: AuthSecurityNotice) => void,
 ) {
   if (typeof window === "undefined") return () => {};
+
+  if (currentAuthSecurityNotice) onNotice(currentAuthSecurityNotice);
 
   const handleNotice = (event: Event) => {
     const notice = (event as CustomEvent<AuthSecurityNotice>).detail;

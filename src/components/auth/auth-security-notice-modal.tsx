@@ -4,6 +4,8 @@ import { PremiumModal } from "@/components/modals/premium-modal";
 import { ModalActions } from "@/features/admin/management/shared/section-ui";
 import {
   clearAuthSession,
+  clearAuthSecurityNotice,
+  getCurrentAuthSecurityNotice,
   subscribeAuthSecurityNotice,
   type AuthSecurityNotice,
 } from "@/lib/auth";
@@ -38,13 +40,16 @@ function formatGreetingName(name?: string) {
 }
 
 export function AuthSecurityNoticeModal() {
-  const [notice, setNotice] = useState<AuthSecurityNotice | null>(null);
+  const [notice, setNotice] = useState<AuthSecurityNotice | null>(
+    getCurrentAuthSecurityNotice,
+  );
 
   useEffect(() => subscribeAuthSecurityNotice(setNotice), []);
 
   const logoutAndLoginAgain = () => {
     if (!notice) return;
     const loginPath = notice.loginPath;
+    clearAuthSecurityNotice();
     clearAuthSession();
     setNotice(null);
     window.location.replace(loginPath);
