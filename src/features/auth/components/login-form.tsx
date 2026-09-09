@@ -169,6 +169,7 @@ export function LoginForm({ portal }: LoginFormProps) {
             inputMode="numeric"
             maxLength={10}
             placeholder={content.identifierPlaceholder}
+            className="border-slate-200/90 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]"
             {...form.register("nis")}
             onChange={(e) => {
               const filtered = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -197,6 +198,7 @@ export function LoginForm({ portal }: LoginFormProps) {
             id="username"
             icon={ShieldCheck}
             placeholder={content.identifierPlaceholder}
+            className="border-slate-200/90 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]"
             {...form.register("username")}
           />
           {form.formState.errors.username ? (
@@ -222,6 +224,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           type={showPassword ? "text" : "password"}
           autoComplete="current-password"
           placeholder="Masukkan Password"
+          className="border-slate-200/90 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.12)]"
           trailing={
             <button
               type="button"
