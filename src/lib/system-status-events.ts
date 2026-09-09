@@ -9,6 +9,7 @@ export type SystemIssue = {
   kind: SystemIssueKind;
   title: string;
   message: string;
+  isServerOutage?: boolean;
   retryAfterSeconds?: number;
   requestId?: string;
   traceId?: string;
@@ -43,6 +44,7 @@ export function reportApiFailure(error: unknown) {
     dispatchIssue({
       kind: "maintenance",
       title: "Pembaruan sistem sedang berlangsung",
+      isServerOutage: true,
       message:
         error.response?.data?.message ??
         "Tunggu sekitar 30 detik, lalu coba lagi.",
@@ -71,6 +73,7 @@ export function reportApiFailure(error: unknown) {
     title: navigator.onLine
       ? "Server sedang mengalami gangguan"
       : "Koneksi internet terputus",
+    isServerOutage: Boolean(isTransientGatewayFailure),
     message: navigator.onLine
       ? "Login belum dapat diproses. Silakan coba lagi beberapa saat."
       : "Periksa koneksi Wi-Fi atau data seluler, lalu coba lagi.",
