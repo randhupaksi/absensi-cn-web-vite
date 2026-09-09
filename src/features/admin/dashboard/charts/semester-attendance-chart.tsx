@@ -12,6 +12,7 @@ import {
 import { ChartNoAxesCombined } from "lucide-react";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { MeasuredChart } from "@/features/admin/dashboard/charts/measured-chart";
+import { memo } from "react";
 
 type SemesterPoint = {
   label: string;
@@ -25,7 +26,7 @@ type SemesterAttendanceChartProps = {
   data: SemesterPoint[];
 };
 
-export function SemesterAttendanceChart({
+export const SemesterAttendanceChart = memo(function SemesterAttendanceChart({
   data,
 }: SemesterAttendanceChartProps) {
   const chartData = data;
@@ -144,4 +145,4 @@ export function SemesterAttendanceChart({
       ) : null}
     </article>
   );
-}
+});

@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
 import { BarChart3 } from "lucide-react";
 import { EmptyState } from "@/features/admin/dashboard/widgets/empty-state";
 import { MeasuredChart } from "@/features/admin/dashboard/charts/measured-chart";
+import { memo } from "react";
 
 type ClassPerformanceChartProps = {
   data: Array<{
@@ -13,7 +14,7 @@ type ClassPerformanceChartProps = {
   }>;
 };
 
-export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
+export const ClassPerformanceChart = memo(function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
   const chartData = data;
   const isEmpty = chartData.every((item) => item.percentage === 0);
 
@@ -95,4 +96,4 @@ export function ClassPerformanceChart({ data }: ClassPerformanceChartProps) {
       ) : null}
     </article>
   );
-}
+});

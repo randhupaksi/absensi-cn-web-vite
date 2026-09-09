@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { observeElementResize } from "@/lib/observe-element-resize";
 
 type MeasuredChartProps = {
@@ -12,7 +12,7 @@ export function MeasuredChart({ className, children }: MeasuredChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = containerRef.current;
     if (!element) {
       return;
@@ -39,7 +39,11 @@ export function MeasuredChart({ className, children }: MeasuredChartProps) {
       });
     };
 
-    updateSize();
+    // Measure before the browser paints the mounted chart container. This
+    // avoids the visible zero-size frame that used to precede every chart.
+    const initialWidth = element.clientWidth;
+    const initialHeight = element.clientHeight;
+    setSize({ width: initialWidth, height: initialHeight });
 
     const cleanupObserver = observeElementResize(element, updateSize);
     return () => {

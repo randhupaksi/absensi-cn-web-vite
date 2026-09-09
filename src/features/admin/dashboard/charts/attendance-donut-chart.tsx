@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import { MeasuredChart } from "@/features/admin/dashboard/charts/measured-chart";
+import { memo, useMemo } from "react";
 
 type AttendanceSegment = {
   name: string;
@@ -22,7 +23,7 @@ type AttendanceDonutChartProps = {
   badgeText?: string;
 };
 
-export function AttendanceDonutChart({
+export const AttendanceDonutChart = memo(function AttendanceDonutChart({
   present,
   permission,
   sick,
@@ -38,42 +39,45 @@ export function AttendanceDonutChart({
     typeof totalStudents === "number"
       ? Math.max(totalStudents - recordedTotal, 0)
       : 0;
-  const data: AttendanceSegment[] = [
-    {
-      name: "Hadir",
-      value: present || 0,
-      color: "var(--color-emerald-500)",
-      dotClassName: "bg-emerald-500",
-    },
-    {
-      name: "Izin",
-      value: permission || 0,
-      color: "var(--color-sky-400)",
-      dotClassName: "bg-sky-400",
-    },
-    {
-      name: "Sakit",
-      value: sick || 0,
-      color: "var(--color-violet-400)",
-      dotClassName: "bg-violet-400",
-    },
-    {
-      name: "Alfa",
-      value: alpha || 0,
-      color: "var(--color-rose-500)",
-      dotClassName: "bg-rose-500",
-    },
-    ...(typeof totalStudents === "number"
-      ? [
-          {
-            name: "Belum Absen",
-            value: pending,
-            color: "var(--color-slate-300)",
-            dotClassName: "bg-slate-300",
-          },
-        ]
-      : []),
-  ];
+  const data = useMemo<AttendanceSegment[]>(
+    () => [
+      {
+        name: "Hadir",
+        value: present || 0,
+        color: "var(--color-emerald-500)",
+        dotClassName: "bg-emerald-500",
+      },
+      {
+        name: "Izin",
+        value: permission || 0,
+        color: "var(--color-sky-400)",
+        dotClassName: "bg-sky-400",
+      },
+      {
+        name: "Sakit",
+        value: sick || 0,
+        color: "var(--color-violet-400)",
+        dotClassName: "bg-violet-400",
+      },
+      {
+        name: "Alfa",
+        value: alpha || 0,
+        color: "var(--color-rose-500)",
+        dotClassName: "bg-rose-500",
+      },
+      ...(typeof totalStudents === "number"
+        ? [
+            {
+              name: "Belum Absen",
+              value: pending,
+              color: "var(--color-slate-300)",
+              dotClassName: "bg-slate-300",
+            },
+          ]
+        : []),
+    ],
+    [alpha, pending, permission, present, sick, totalStudents],
+  );
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const chartData =
     total > 0
@@ -177,4 +181,4 @@ export function AttendanceDonutChart({
       </div>
     </article>
   );
-}
+});
