@@ -107,13 +107,13 @@ export function UserSupportCenter() {
         offset: ticketOffset,
       }),
     placeholderData: (previousData) => previousData,
-    refetchInterval: 60_000,
+    refetchInterval: 10_000,
   });
   const detailQuery = useQuery({
     queryKey: supportQueryKeys.userTicket(selectedReference),
     queryFn: () => getMySupportTicket(selectedReference),
     enabled: Boolean(selectedReference),
-    refetchInterval: 60_000,
+    refetchInterval: 10_000,
     structuralSharing: (current, next) =>
       mergeTicketDetail(
         current as SupportTicket | undefined,
@@ -123,7 +123,7 @@ export function UserSupportCenter() {
   const notificationsQuery = useQuery({
     queryKey: supportQueryKeys.userNotifications(),
     queryFn: getMySupportNotifications,
-    refetchInterval: 60_000,
+    refetchInterval: 10_000,
   });
   const liveStatus = useSupportTicketLive({
     liveToken: detailQuery.data?.live_token,
@@ -523,7 +523,11 @@ export function UserSupportCenter() {
             ) : null}
             {filteredTickets.map((ticket) => {
               const canDelete =
-                ticket.status === "RESOLVED" || ticket.status === "CLOSED";
+                ticket.status === "RESOLVED" ||
+                ticket.status === "CLOSED" ||
+                (ticket.status === "WAITING_USER" &&
+                  ticket.category === "PASSWORD_RECOVERY" &&
+                  ticket.password_reset.status === "APPROVED");
               return (
                 <article
                   key={ticket.reference_code}
@@ -638,10 +642,10 @@ export function UserSupportCenter() {
         title="Hapus tiket bantuan?"
         description={
           deleteTarget
-            ? `Tiket "${deleteTarget.subject}" dan seluruh percakapannya akan dihapus permanen.`
-            : "Tiket bantuan ini akan dihapus permanen."
+            ? `Tiket "${deleteTarget.subject}" akan dihapus dari riwayat akunmu.`
+            : "Tiket bantuan ini akan dihapus dari riwayat akunmu."
         }
-        warning="Tindakan ini tidak dapat dibatalkan."
+        warning="Percakapan tetap tersimpan dan masih dapat dilihat oleh admin."
         isPending={deleteMutation.isPending}
         onConfirm={() => {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.reference_code);

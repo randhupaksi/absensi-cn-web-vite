@@ -6,7 +6,7 @@ import {
 } from "@/features/support/components/ticket-display";
 import { cn } from "@/lib/utils";
 import type { SupportLiveStatus, SupportTicket } from "@/types/support";
-import { MessageSquareText, ShieldCheck } from "lucide-react";
+import { MessageSquareText } from "lucide-react";
 
 type TicketConversationHeaderProps = {
   ticket: SupportTicket;
@@ -19,10 +19,6 @@ export function TicketConversationHeader({
   adminView,
   liveStatus,
 }: TicketConversationHeaderProps) {
-  const latestSystemMessage = [...(ticket.messages ?? [])]
-    .reverse()
-    .find((message) => message.sender_role === "SYSTEM");
-
   return (
     <header className="min-w-0 overflow-hidden border-b-2 border-slate-200/90 bg-white/95 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/20 sm:p-6">
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
@@ -52,19 +48,27 @@ export function TicketConversationHeader({
             </span>
           ) : null}
           <span className="inline-flex sm:hidden">
-            <SupportStatusBadge status={ticket.status} adminView={adminView} />
+            <SupportStatusBadge
+              status={ticket.status}
+              adminView={adminView}
+              passwordResetStatus={ticket.password_reset.status}
+            />
           </span>
           {adminView ? (
             <PriorityBadge priority={ticket.priority} className="sm:hidden" />
           ) : null}
           <span className="hidden sm:inline-flex">
-            <SupportStatusBadge status={ticket.status} adminView={adminView} />
+            <SupportStatusBadge
+              status={ticket.status}
+              adminView={adminView}
+              passwordResetStatus={ticket.password_reset.status}
+            />
           </span>
         </div>
       </div>
 
       {adminView ? (
-        <div className="mt-5 grid gap-3 rounded-xl border border-slate-200 bg-white/75 p-4 text-sm dark:border-slate-700 dark:bg-slate-900/70 sm:grid-cols-3">
+        <div className="mt-5 grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white/75 p-4 text-sm dark:border-slate-700 dark:bg-slate-900/70 sm:grid-cols-4">
           <SupportInfo
             label="Akun terdeteksi"
             value={
@@ -77,26 +81,14 @@ export function TicketConversationHeader({
             label={ticket.portal === "student" ? "NIS" : "Username"}
             value={ticket.account_identifier || "-"}
           />
+          <SupportInfo label="Kelas" value={ticket.class_name || "-"} />
           <SupportInfo
-            className="hidden sm:block"
             label="Waktu pengajuan"
             value={formatSupportDate(ticket.created_at)}
           />
         </div>
       ) : null}
 
-      {latestSystemMessage ? (
-        <div className="mt-5 rounded-2xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100">
-          <div className="flex items-center gap-2 text-xs font-bold">
-            <ShieldCheck className="size-4 shrink-0" />
-            <span>Pemberitahuan sistem</span>
-          </div>
-          <p className="mt-2 text-sm leading-6">{latestSystemMessage.body}</p>
-          <p className="mt-2 text-[10px] text-amber-800/70 dark:text-amber-200/70">
-            {formatSupportDate(latestSystemMessage.created_at)}
-          </p>
-        </div>
-      ) : null}
     </header>
   );
 }

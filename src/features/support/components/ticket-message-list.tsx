@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   formatSupportDate,
   formatSupportName,
+  formatSupportSystemMessage,
 } from "@/features/support/components/ticket-display";
 import { cn } from "@/lib/utils";
 import type { SupportTicket } from "@/types/support";
@@ -67,7 +68,11 @@ export function TicketMessageList({
                 {system ? <ShieldCheck className="size-3.5" /> : null}
                 <span>{formatSupportName(message.sender_name)}</span>
               </div>
-              <p className="whitespace-pre-wrap break-words">{message.body}</p>
+              <p className="whitespace-pre-wrap break-words">
+                {system
+                  ? formatSupportSystemMessage(message.body)
+                  : message.body}
+              </p>
               <p
                 className={cn(
                   "mt-2 text-[10px]",

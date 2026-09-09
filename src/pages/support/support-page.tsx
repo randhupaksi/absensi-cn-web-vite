@@ -1,5 +1,4 @@
 import { AnimatedBackground } from "@/features/auth/components/animated-background";
-import { PremiumInput } from "@/features/auth/components/premium-input";
 import { TicketConversation } from "@/features/support/components/ticket-ui";
 import {
   mergeOlderTicketMessages,
@@ -11,6 +10,7 @@ import { AppImage } from "@/components/media/app-image";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -33,8 +33,6 @@ import {
   Eye,
   EyeOff,
   GraduationCap,
-  Hash,
-  IdCard,
   Info,
   KeyRound,
   LifeBuoy,
@@ -42,7 +40,6 @@ import {
   MessageSquareText,
   Search,
   ShieldAlert,
-  Signature,
   UserRound,
 } from "lucide-react";
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
@@ -101,7 +98,7 @@ export default function SupportPage() {
         credentials!.accessCode,
       ),
     enabled: Boolean(credentials),
-    refetchInterval: 60_000,
+    refetchInterval: 15_000,
     retry: false,
     structuralSharing: (current, next) =>
       mergeTicketDetail(
@@ -370,7 +367,7 @@ export default function SupportPage() {
                         variant="ghost"
                         aria-pressed={portal === value}
                         onClick={() => switchPortal(value)}
-                        className={`group relative inline-flex min-h-12 flex-col items-center justify-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold leading-none transition-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 dark:focus-visible:ring-offset-slate-950 sm:flex-row ${portal === value ? "border-emerald-500 bg-emerald-600 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-emerald-600 dark:border-emerald-400/80 dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[inset_0_1px_0_rgba(110,231,183,0.12)] dark:hover:bg-emerald-950/80" : "border-transparent text-slate-500 hover:border-emerald-200/70 hover:bg-white/75 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.28)] dark:border-transparent dark:text-slate-400 dark:hover:border-emerald-700/70 dark:hover:bg-slate-800/80 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(110,231,183,0.16)]"}`}
+                        className={`support-tab group relative inline-flex min-h-12 flex-col items-center justify-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold leading-none transition-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 dark:focus-visible:ring-offset-slate-950 sm:flex-row ${portal === value ? "border-emerald-500 bg-emerald-600 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:!translate-y-0 hover:!bg-emerald-600 hover:!text-white hover:!shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] dark:border-emerald-400/80 dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[inset_0_1px_0_rgba(110,231,183,0.12)] dark:hover:!translate-y-0 dark:hover:!bg-emerald-950/80 dark:hover:!text-emerald-100 dark:hover:!shadow-[inset_0_1px_0_rgba(110,231,183,0.12)]" : "border-transparent text-slate-500 hover:border-emerald-200/70 hover:bg-white/75 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.28)] dark:border-transparent dark:text-slate-400 dark:hover:border-emerald-700/70 dark:hover:bg-slate-800/80 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(110,231,183,0.16)]"}`}
                       >
                         {value === "student" ? (
                           <UserRound
@@ -393,10 +390,10 @@ export default function SupportPage() {
                       label="Nama lengkap"
                       error={form.formState.errors.requester_name?.message}
                     >
-                      <PremiumInput
-                        icon={portal === "student" ? IdCard : Signature}
+                      <Input
                         placeholder="Nama sesuai data sekolah"
                         autoComplete="name"
+                        className="h-14 rounded-[1.2rem] px-4"
                         {...form.register("requester_name")}
                         onChange={(event) => {
                           setIdentityError("");
@@ -416,8 +413,7 @@ export default function SupportPage() {
                       label={portal === "student" ? "NIS" : "Username guru"}
                       error={form.formState.errors.identifier?.message}
                     >
-                      <PremiumInput
-                        icon={portal === "student" ? Hash : ShieldAlert}
+                      <Input
                         placeholder={
                           portal === "student"
                             ? "Masukkan NIS (8–10 digit)"
@@ -426,6 +422,7 @@ export default function SupportPage() {
                         inputMode={portal === "student" ? "numeric" : "text"}
                         pattern={portal === "student" ? "[0-9]*" : undefined}
                         maxLength={portal === "student" ? 10 : 50}
+                        className="h-14 rounded-[1.2rem] px-4"
                         {...form.register("identifier")}
                         onChange={(event) => {
                           setIdentityError("");
@@ -507,15 +504,17 @@ export default function SupportPage() {
                   </p>
                   <div className="mt-6 space-y-5">
                     <FormField label="Kode akses tiket">
-                      <PremiumInput
-                        icon={KeyRound}
-                        type={showAccessCode ? "text" : "password"}
-                        value={accessInput}
-                        onChange={(event) =>
-                          setAccessInput(event.target.value.toUpperCase())
-                        }
-                        placeholder="XXXX-XXXX-XXXX"
-                        trailing={
+                      <div className="relative">
+                        <Input
+                          type={showAccessCode ? "text" : "password"}
+                          value={accessInput}
+                          onChange={(event) =>
+                            setAccessInput(event.target.value.toUpperCase())
+                          }
+                          placeholder="XXXX-XXXX-XXXX"
+                          className="h-14 rounded-[1.2rem] pr-12"
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
                           <button
                             type="button"
                             onClick={() => setShowAccessCode((value) => !value)}
@@ -530,8 +529,8 @@ export default function SupportPage() {
                               <Eye className="size-4" />
                             )}
                           </button>
-                        }
-                      />
+                        </div>
+                      </div>
                     </FormField>
                     <Button
                       type="button"
@@ -649,7 +648,7 @@ function ModeButton({
       variant="ghost"
       aria-pressed={active}
       onClick={onClick}
-      className={`h-11 w-full rounded-xl px-4 text-sm font-semibold transition-none ${active ? "bg-emerald-600 text-white shadow-[0_3px_10px_rgba(5,150,105,0.12)] hover:bg-emerald-600 hover:shadow-[0_3px_10px_rgba(5,150,105,0.12)] dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[0_2px_8px_rgba(16,185,129,0.08)] dark:hover:bg-emerald-950/80" : "border border-transparent text-slate-600 hover:border-emerald-300/70 hover:bg-emerald-50 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)] dark:border-transparent dark:text-slate-300 dark:hover:border-emerald-700/70 dark:hover:bg-emerald-950/45 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(52,211,153,0.14)]"}`}
+      className={`support-tab h-11 w-full rounded-xl px-4 text-sm font-semibold transition-none ${active ? "bg-emerald-600 text-white shadow-[0_3px_10px_rgba(5,150,105,0.12)] hover:!translate-y-0 hover:!bg-emerald-600 hover:!text-white hover:!shadow-[0_3px_10px_rgba(5,150,105,0.12)] dark:bg-emerald-950/80 dark:text-emerald-100 dark:shadow-[0_2px_8px_rgba(16,185,129,0.08)] dark:hover:!translate-y-0 dark:hover:!bg-emerald-950/80 dark:hover:!text-emerald-100 dark:hover:!shadow-[0_2px_8px_rgba(16,185,129,0.08)]" : "border border-transparent text-slate-600 hover:border-emerald-300/70 hover:bg-emerald-50 hover:text-emerald-800 hover:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.12)] dark:border-transparent dark:text-slate-300 dark:hover:border-emerald-700/70 dark:hover:bg-emerald-950/45 dark:hover:text-emerald-200 dark:hover:shadow-[inset_0_0_0_1px_rgba(52,211,153,0.14)]"}`}
     >
       <Icon className="size-4" />
       {label}

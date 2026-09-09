@@ -33,6 +33,7 @@ export type SupportTicket = {
   portal: "student" | "staff";
   account_identifier?: string;
   account_name?: string;
+  class_name?: string;
   account_role?: string;
   category: SupportTicketCategory;
   subject: string;

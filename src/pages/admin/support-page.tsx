@@ -50,6 +50,10 @@ import { toast } from "sonner";
 
 const defaultTicketPageSize = 5;
 
+function recoveryIdentityKey(ticket: SupportTicket) {
+  return `${ticket.portal}:${(ticket.account_identifier || ticket.requester_name).trim().toLocaleLowerCase("id-ID")}`;
+}
+
 export function AdminSupportPage() {
   return <AdminShell>{() => <AdminSupportContent />}</AdminShell>;
 }
@@ -85,7 +89,7 @@ function AdminSupportContent() {
         limit: ticketPageSize,
         offset: ticketOffset,
       }),
-    refetchInterval: 60_000,
+    refetchInterval: 10_000,
     placeholderData: (previousData) => previousData,
   });
   const detailQuery = useQuery({
@@ -302,7 +306,31 @@ function AdminSupportContent() {
     };
   }, [ticketsQuery.data]);
 
+  const completedRecoveryIdentities = useMemo(() => {
+    const identities = new Set<string>();
+    for (const item of ticketsQuery.data?.tickets ?? []) {
+      if (
+        item.category === "PASSWORD_RECOVERY" &&
+        item.password_reset.status === "COMPLETED"
+      ) {
+        identities.add(recoveryIdentityKey(item));
+      }
+    }
+    return identities;
+  }, [ticketsQuery.data]);
+
   const ticket = detailQuery.data;
+  const ticketHasCompletedRelatedReset = Boolean(
+    ticket &&
+      ticket.category === "PASSWORD_RECOVERY" &&
+      ticket.password_reset.status === "APPROVED" &&
+      completedRecoveryIdentities.has(recoveryIdentityKey(ticket)),
+  );
+  const displayTicketStatus: SupportTicketStatus | undefined = ticket
+    ? ticketHasCompletedRelatedReset
+      ? "RESOLVED"
+      : ticket.status
+    : undefined;
   const canProcessReset = Boolean(
     ticket?.category === "PASSWORD_RECOVERY" &&
     ["PENDING", "EXPIRED"].includes(ticket.password_reset.status) &&
@@ -312,10 +340,12 @@ function AdminSupportContent() {
   const resetProcessPending =
     approveMutation.isPending || rejectMutation.isPending;
   const resetActionLabel =
-    ticket?.password_reset.status === "APPROVED"
+    ticketHasCompletedRelatedReset
+      ? "Reset selesai"
+      : ticket?.password_reset.status === "APPROVED"
       ? "Reset disetujui"
       : ticket?.password_reset.status === "COMPLETED"
-        ? "Berhasil"
+        ? "Reset selesai"
         : ticket?.status === "RESOLVED"
           ? "Pengajuan selesai"
           : "Proses pengajuan";
@@ -397,7 +427,11 @@ function AdminSupportContent() {
             ) : null}
             {(ticketsQuery.data?.tickets ?? []).map((item) => {
               const canDelete =
-                item.status === "RESOLVED" || item.status === "CLOSED";
+                item.status === "RESOLVED" ||
+                item.status === "CLOSED" ||
+                (item.status === "WAITING_USER" &&
+                  item.category === "PASSWORD_RECOVERY" &&
+                  item.password_reset.status === "APPROVED");
               return (
                 <article
                   key={item.reference_code}
@@ -459,7 +493,19 @@ function AdminSupportContent() {
                   </p>
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <SupportStatusBadge status={item.status} adminView />
+                      <SupportStatusBadge
+                        status={
+                          item.category === "PASSWORD_RECOVERY" &&
+                          item.password_reset.status === "APPROVED" &&
+                          completedRecoveryIdentities.has(
+                            recoveryIdentityKey(item),
+                          )
+                            ? "RESOLVED"
+                            : item.status
+                        }
+                        adminView
+                        passwordResetStatus={item.password_reset.status}
+                      />
                       {item.password_reset.status === "REJECTED" ? (
                         <SupportDecisionBadge />
                       ) : null}
@@ -503,7 +549,11 @@ function AdminSupportContent() {
           ) : null}
           {ticket ? (
             <TicketConversation
-              ticket={ticket}
+              ticket={
+                displayTicketStatus && displayTicketStatus !== ticket.status
+                  ? { ...ticket, status: displayTicketStatus }
+                  : ticket
+              }
               reply={reply}
               onReplyChange={setReply}
               onReply={() => replyMutation.mutate()}
@@ -515,7 +565,11 @@ function AdminSupportContent() {
               adminToolbar={
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <span className="hidden sm:inline-flex">
-                    <SupportStatusBadge status={ticket.status} adminView />
+                    <SupportStatusBadge
+                      status={displayTicketStatus ?? ticket.status}
+                      adminView
+                      passwordResetStatus={ticket.password_reset.status}
+                    />
                   </span>
                   <span
                     className={`hidden items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold sm:inline-flex ${ticket.priority === "HIGH" ? "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200" : "border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300"}`}
@@ -585,10 +639,10 @@ function AdminSupportContent() {
         title="Hapus tiket bantuan?"
         description={
           deleteTarget
-            ? `Tiket "${deleteTarget.subject}" dan seluruh percakapannya akan dihapus permanen.`
-            : "Tiket bantuan ini akan dihapus permanen."
+            ? `Tiket "${deleteTarget.subject}" akan dihapus dari inbox admin.`
+            : "Tiket bantuan ini akan dihapus dari inbox admin."
         }
-        warning="Tindakan ini tidak dapat dibatalkan."
+        warning="Percakapan tetap tersimpan dan masih dapat dilihat oleh user terkait."
         isPending={deleteMutation.isPending}
         onConfirm={() => {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.reference_code);

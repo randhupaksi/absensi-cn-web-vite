@@ -917,6 +917,22 @@ html.viewport-settling *::after {
   }
 }
 
+/* Active support tabs keep their selected appearance when the shared Button
+ * hover/pressed styles are applied, including in dark mode. */
+.support-tab[aria-pressed="true"]:hover {
+  transform: none !important;
+}
+
+html:not(.dark) .support-tab[aria-pressed="true"]:hover {
+  background-color: rgb(5 150 105) !important;
+  color: #ffffff !important;
+}
+
+html.dark .support-tab[aria-pressed="true"]:hover {
+  background-color: rgb(2 44 34 / 0.8) !important;
+  color: #d1fae5 !important;
+}
+
 /* Shared fallback for legacy loading placeholders that still use Tailwind's
  * animate-pulse directly instead of the Skeleton primitive. */
 html.dark [data-slot="skeleton"] {
