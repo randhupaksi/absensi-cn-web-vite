@@ -3,7 +3,7 @@
 import * as Select from "@radix-ui/react-select";
 import { ComboboxField } from "@/components/ui/combobox-field";
 import { cn } from "@/lib/utils";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 const MAX_RENDERED_OPTIONS = 100;
@@ -56,6 +56,7 @@ function RadixSelectFieldBase({
   onValueChange,
   placeholder,
   options,
+  searchPlaceholder = "Cari data...",
   emptyText = "Tidak ditemukan.",
   disabled = false,
   className,
@@ -64,21 +65,49 @@ function RadixSelectFieldBase({
   hideIndicator = false,
   itemClassName,
 }: Omit<RadixSelectProps, "searchable">) {
+  const searchable = false;
   const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [visibleOptionCount, setVisibleOptionCount] =
     useState(MAX_RENDERED_OPTIONS);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open || !searchable) return;
+    const frame = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, searchable]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const indexedOptions = useMemo(
+    () =>
+      options.map((option) => ({
+        option,
+        searchText: `${option.label} ${option.description ?? ""}`.toLowerCase(),
+      })),
+    [options],
+  );
+  const filteredOptions = useMemo(
+    () =>
+      !searchable || normalizedQuery.length === 0
+        ? indexedOptions
+        : indexedOptions.filter((item) =>
+            item.searchText.includes(normalizedQuery),
+          ),
+    [indexedOptions, normalizedQuery, searchable],
+  );
+
   useEffect(() => {
     setVisibleOptionCount(MAX_RENDERED_OPTIONS);
-  }, [options.length, open]);
+  }, [normalizedQuery, options.length, open]);
 
   useEffect(() => {
     if (!open) return;
     const body = document.body;
     body.setAttribute("data-radix-select-open", "true");
     const frame = window.requestAnimationFrame(() => {
-      // Radix Select mounts RemoveScroll internally. With the app's stable
-      // scrollbar gutter, its body lock can reset the active scroll context
-      // and clip sticky navigation. Release only the select's own lock.
       if (body.getAttribute("data-scroll-locked") === "1") {
         body.removeAttribute("data-scroll-locked");
       }
@@ -88,17 +117,24 @@ function RadixSelectFieldBase({
       body.removeAttribute("data-radix-select-open");
     };
   }, [open]);
+
   const renderedOptions = useMemo(
-    () => options.slice(0, visibleOptionCount),
-    [options, visibleOptionCount],
+    () => filteredOptions.slice(0, visibleOptionCount),
+    [filteredOptions, visibleOptionCount],
   );
 
   return (
     <Select.Root
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={(nextValue) => {
+        onValueChange(nextValue);
+        setSearchQuery("");
+      }}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) setSearchQuery("");
+      }}
     >
       <Select.Trigger
         disabled={disabled}
@@ -124,6 +160,21 @@ function RadixSelectFieldBase({
             contentClassName,
           )}
         >
+          {searchable ? (
+            <div className="relative mb-1.5 shrink-0 px-1.5 pb-1 pt-1.5">
+              <Search className="pointer-events-none absolute left-4.5 top-[calc(50%+1px)] size-4 -translate-y-1/2 text-slate-400" />
+              <input
+                ref={searchInputRef}
+                autoFocus
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => event.stopPropagation()}
+                placeholder={searchPlaceholder}
+                className="h-11 w-full rounded-[1rem] border border-transparent bg-slate-50/90 pl-10 pr-3 text-sm text-slate-700 outline-none transition-[border-color,box-shadow,background-color] placeholder:text-slate-400 hover:border-emerald-300 hover:bg-emerald-50/60 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-200/70 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-emerald-500 dark:hover:bg-emerald-950/60 dark:focus:bg-slate-800 dark:focus:ring-emerald-400/25"
+              />
+            </div>
+          ) : null}
+
           <Select.Viewport
             className="max-h-[280px] space-y-1 overscroll-contain"
             onScroll={(event) => {
@@ -135,18 +186,18 @@ function RadixSelectFieldBase({
                 setVisibleOptionCount((count) =>
                   Math.min(
                     count + MAX_RENDERED_OPTIONS,
-                    options.length,
+                    filteredOptions.length,
                   ),
                 );
               }
             }}
           >
-            {options.length === 0 ? (
+            {filteredOptions.length === 0 ? (
               <div className="px-3 py-6 text-center text-sm text-slate-400">
                 {emptyText}
               </div>
             ) : null}
-            {renderedOptions.map((option) => (
+            {renderedOptions.map(({ option }) => (
               <SelectItem
                 key={option.value}
                 value={option.value}
@@ -165,10 +216,10 @@ function RadixSelectFieldBase({
                 </div>
               </SelectItem>
             ))}
-            {options.length > renderedOptions.length ? (
+            {filteredOptions.length > renderedOptions.length ? (
               <p className="px-3 py-2 text-center text-xs text-slate-400">
                 Menampilkan {renderedOptions.length} dari{" "}
-                {options.length}. Gulir untuk memuat lebih banyak.
+                {filteredOptions.length}. Gulir untuk memuat lebih banyak.
               </p>
             ) : null}
           </Select.Viewport>

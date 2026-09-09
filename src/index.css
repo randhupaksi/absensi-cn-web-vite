@@ -1049,7 +1049,6 @@ html.dark [data-slot="loading-shell"] {
   /* Radix Select temporarily locks body scroll. The page already reserves a
      stable scrollbar gutter, so suppress the library's extra compensation to
      prevent the layout from shifting when a plain dropdown opens. */
-  body[data-radix-select-open],
   body[data-radix-select-open][data-scroll-locked] {
     margin-right: 0 !important;
     padding-right: 0 !important;
