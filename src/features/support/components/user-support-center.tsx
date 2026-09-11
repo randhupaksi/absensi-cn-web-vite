@@ -30,6 +30,7 @@ import {
   formatSupportDate,
 } from "@/features/support/components/ticket-display";
 import { TicketConversation } from "@/features/support/components/ticket-ui";
+import { SupportNotificationPermissionModal } from "@/features/support/components/support-notification-permission-modal";
 import { TicketPager } from "@/features/support/components/ticket-pager";
 import {
   markCachedSupportNotificationRead,
@@ -78,6 +79,7 @@ import type {
   SupportNotification,
   SupportTicket,
 } from "@/types/support";
+import { requestSupportNotificationPermission } from "@/lib/support-notifications";
 
 const defaultTicketPageSize = 5;
 
@@ -90,6 +92,7 @@ export function UserSupportCenter() {
   const [ticketOffset, setTicketOffset] = useState(0);
   const [ticketPageSize, setTicketPageSize] = useState(defaultTicketPageSize);
   const [deleteTarget, setDeleteTarget] = useState<SupportTicket | null>(null);
+  const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
   const queryClient = useQueryClient();
   const committedQuery = useDebouncedValue(query.trim(), 250);
 
@@ -125,6 +128,21 @@ export function UserSupportCenter() {
     queryFn: getMySupportNotifications,
     refetchInterval: 10_000,
   });
+
+  useEffect(() => {
+    const latest = notificationsQuery.data?.notifications[0];
+    if (!latest || latest.read) return;
+    const seenKey = `absensi-cn-support-notification:${latest.id}`;
+    try {
+      if (window.localStorage.getItem(seenKey)) return;
+      window.localStorage.setItem(seenKey, "1");
+    } catch {
+      // Private-mode storage restrictions must not break the support inbox.
+    }
+    import("@/lib/support-notifications").then(({ notifySupportUpdate }) => {
+      notifySupportUpdate(latest.title, latest.description, latest.action_url);
+    });
+  }, [notificationsQuery.data]);
   const liveStatus = useSupportTicketLive({
     liveToken: detailQuery.data?.live_token,
     enabled: Boolean(selectedReference),
@@ -176,6 +194,7 @@ export function UserSupportCenter() {
       setSearchParams({ ticket: result.ticket.reference_code });
       setShowCreate(false);
       form.reset();
+      setNotificationPromptOpen(true);
       toast.success("Tiket bantuan dibuat");
     },
     onError: (error) =>
@@ -200,13 +219,19 @@ export function UserSupportCenter() {
   const deleteMutation = useMutation({
     mutationFn: deleteMySupportTicket,
     onSuccess: (_result, reference) => {
+      const nextReference = ticketsQuery.data?.tickets.find(
+        (ticket) => ticket.reference_code !== reference,
+      )?.reference_code;
       removeCachedUserTicket(queryClient, reference);
       queryClient.removeQueries({
         queryKey: supportQueryKeys.userTicket(reference),
         exact: true,
       });
       if (selectedReference === reference) {
-        setSearchParams({}, { replace: true });
+        setSearchParams(
+          nextReference ? { ticket: nextReference } : {},
+          { replace: true },
+        );
       }
       setDeleteTarget(null);
       toast.success("Tiket berhasil dihapus");
@@ -650,6 +675,11 @@ export function UserSupportCenter() {
         onConfirm={() => {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.reference_code);
         }}
+      />
+      <SupportNotificationPermissionModal
+        open={notificationPromptOpen}
+        onOpenChange={setNotificationPromptOpen}
+        onEnable={() => requestSupportNotificationPermission()}
       />
     </div>
   );

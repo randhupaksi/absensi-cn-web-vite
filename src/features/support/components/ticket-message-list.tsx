@@ -7,7 +7,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { SupportMessage, SupportTicket } from "@/types/support";
 import { Clock3, LoaderCircle, ShieldCheck } from "lucide-react";
-import { memo } from "react";
+import { memo, useLayoutEffect, useRef } from "react";
 
 type TicketMessageListProps = {
   ticket: SupportTicket;
@@ -71,8 +71,36 @@ export function TicketMessageList({
   onLoadOlder,
   isLoadingOlder,
 }: TicketMessageListProps) {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const previousTicketReference = useRef<string | undefined>(undefined);
+  const previousLatestMessageID = useRef<string | undefined>(undefined);
+  const latestMessageID = ticket.messages?.at(-1)?.id;
+
+  useLayoutEffect(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea || !latestMessageID) return;
+
+    const ticketChanged = previousTicketReference.current !== ticket.reference_code;
+    const latestMessageChanged =
+      previousLatestMessageID.current !== undefined &&
+      previousLatestMessageID.current !== latestMessageID;
+
+    previousTicketReference.current = ticket.reference_code;
+    previousLatestMessageID.current = latestMessageID;
+
+    if (!ticketChanged && !latestMessageChanged) return;
+
+    scrollArea.scrollTo({
+      top: scrollArea.scrollHeight,
+      behavior: ticketChanged ? "auto" : "smooth",
+    });
+  }, [latestMessageID, ticket.reference_code]);
+
   return (
-    <div className="min-w-0 max-w-full max-h-[440px] space-y-4 overflow-y-auto bg-slate-100/80 p-4 dark:bg-slate-950/60 sm:p-6">
+    <div
+      ref={scrollAreaRef}
+      className="min-w-0 max-w-full max-h-[440px] space-y-4 overflow-y-auto bg-slate-100/80 p-4 dark:bg-slate-950/60 sm:p-6"
+    >
       {ticket.messages_page?.has_more && onLoadOlder ? (
         <div className="flex justify-center">
           <Button

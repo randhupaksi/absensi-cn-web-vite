@@ -183,6 +183,7 @@ export function ModalActions({
   submitLabel,
   className,
   showCancel = true,
+  cancelLabel = "Batal",
   submitIcon = Save,
   submitDisabled = false,
   submitVariant = "success",
@@ -193,6 +194,7 @@ export function ModalActions({
   submitLabel: string;
   className?: string;
   showCancel?: boolean;
+  cancelLabel?: string;
   submitIcon?: LucideIcon;
   submitDisabled?: boolean;
   submitVariant?: "success" | "destructive";
@@ -206,7 +208,7 @@ export function ModalActions({
           onClick={onCancel}
           disabled={isPending}
         >
-          Batal
+          {cancelLabel}
         </Button>
       ) : null}
       <AsyncButton
