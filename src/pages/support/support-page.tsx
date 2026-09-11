@@ -1,5 +1,6 @@
 import { AnimatedBackground } from "@/features/auth/components/animated-background";
 import { TicketConversation } from "@/features/support/components/ticket-ui";
+import { SupportNotificationPermissionModal } from "@/features/support/components/support-notification-permission-modal";
 import {
   mergeOlderTicketMessages,
   mergeTicketDetail,
@@ -42,10 +43,20 @@ import {
   ShieldAlert,
   UserRound,
 } from "lucide-react";
-import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  notifySupportUpdate,
+  requestPublicSupportNotificationPermission,
+} from "@/lib/support-notifications";
 
 const SESSION_KEY = "absensi-cn-support-ticket";
 
@@ -62,6 +73,8 @@ export default function SupportPage() {
   const [showAccessCode, setShowAccessCode] = useState(false);
   const [reply, setReply] = useState("");
   const [identityError, setIdentityError] = useState("");
+  const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
+  const lastPublicMessageID = useRef<string | undefined>(undefined);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -129,6 +142,20 @@ export default function SupportPage() {
     }
   }, [credentials]);
 
+  useEffect(() => {
+    const latest = ticketQuery.data?.messages?.at(-1);
+    if (!latest) return;
+    if (!lastPublicMessageID.current) {
+      lastPublicMessageID.current = latest.id;
+      return;
+    }
+    if (lastPublicMessageID.current === latest.id) return;
+    lastPublicMessageID.current = latest.id;
+    if (latest.sender_role === "ADMIN" || latest.sender_role === "SYSTEM") {
+      notifySupportUpdate("Pembaruan tiket bantuan", latest.body);
+    }
+  }, [ticketQuery.data?.messages]);
+
   const createMutation = useMutation({
     mutationFn: createPublicSupportTicket,
     onSuccess: (result) => {
@@ -139,6 +166,7 @@ export default function SupportPage() {
       };
       saveCredentials(next);
       setCredentials(next);
+      setNotificationPromptOpen(true);
       toast.success("Tiket berhasil dibuat", {
         description: "Simpan kode akses sebelum meninggalkan halaman.",
       });
@@ -203,7 +231,7 @@ export default function SupportPage() {
       startPasswordReset(credentials!.referenceCode, credentials!.accessCode),
     onSuccess: (session) => {
       navigate(
-        `/support/reset-password?portal=${session.portal}#token=${encodeURIComponent(session.token)}`,
+        `/support/reset-password?portal=${session.portal}#token=${encodeURIComponent(session.token)}&expires_at=${encodeURIComponent(session.expires_at)}`,
         { replace: false },
       );
     },
@@ -393,7 +421,7 @@ export default function SupportPage() {
                       <Input
                         placeholder="Nama sesuai data sekolah"
                         autoComplete="name"
-                        className="h-14 rounded-[1.2rem] px-4"
+                        className="h-14 rounded-[1.2rem] px-4 dark:!bg-[#172532]"
                         {...form.register("requester_name")}
                         onChange={(event) => {
                           setIdentityError("");
@@ -422,7 +450,7 @@ export default function SupportPage() {
                         inputMode={portal === "student" ? "numeric" : "text"}
                         pattern={portal === "student" ? "[0-9]*" : undefined}
                         maxLength={portal === "student" ? 10 : 50}
-                        className="h-14 rounded-[1.2rem] px-4"
+                        className="h-14 rounded-[1.2rem] px-4 dark:!bg-[#172532]"
                         {...form.register("identifier")}
                         onChange={(event) => {
                           setIdentityError("");
@@ -470,7 +498,7 @@ export default function SupportPage() {
                         rows={5}
                         maxLength={1500}
                         placeholder="Jelaskan kendala yang kamu alami secara singkat..."
-                        className="min-h-32 rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-950/60"
+                        className="min-h-32 rounded-xl bg-slate-50 px-4 py-3 dark:!bg-[#172532]"
                         {...form.register("message")}
                       />
                     </FormField>
@@ -502,7 +530,15 @@ export default function SupportPage() {
                     Masukkan kode akses yang kamu simpan saat tiket dibuat. Kode
                     ini adalah kunci untuk membuka tiketmu.
                   </p>
-                  <div className="mt-6 space-y-5">
+                  <form
+                    className="mt-6 space-y-5"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      if (!accessMutation.isPending && accessInput.trim()) {
+                        accessMutation.mutate();
+                      }
+                    }}
+                  >
                     <FormField label="Kode akses tiket">
                       <div className="relative">
                         <Input
@@ -512,7 +548,7 @@ export default function SupportPage() {
                             setAccessInput(event.target.value.toUpperCase())
                           }
                           placeholder="XXXX-XXXX-XXXX"
-                          className="h-14 rounded-[1.2rem] pr-12"
+                          className="h-14 rounded-[1.2rem] pr-12 dark:!bg-slate-900"
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
                           <button
@@ -533,11 +569,10 @@ export default function SupportPage() {
                       </div>
                     </FormField>
                     <Button
-                      type="button"
+                      type="submit"
                       variant="success"
                       className="h-12 w-full rounded-2xl"
                       disabled={accessMutation.isPending || !accessInput.trim()}
-                      onClick={() => accessMutation.mutate()}
                     >
                       {accessMutation.isPending ? (
                         <LoaderCircle className="animate-spin" />
@@ -546,7 +581,7 @@ export default function SupportPage() {
                       )}{" "}
                       Buka tiket
                     </Button>
-                  </div>
+                  </form>
                 </div>
 
                 {ticketQuery.isLoading ? (
@@ -627,6 +662,18 @@ export default function SupportPage() {
           ) : null}
         </section>
       </div>
+      <SupportNotificationPermissionModal
+        open={notificationPromptOpen}
+        onOpenChange={setNotificationPromptOpen}
+        onEnable={() =>
+          credentials
+            ? requestPublicSupportNotificationPermission(
+                credentials.referenceCode,
+                credentials.accessCode,
+              )
+            : Promise.resolve<NotificationPermission>("denied")
+        }
+      />
     </main>
   );
 }
