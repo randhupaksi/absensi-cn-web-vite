@@ -30,6 +30,13 @@ const AuthSecurityNoticeModal = lazy(() =>
     default: module.AuthSecurityNoticeModal,
   })),
 );
+const AdminSupportNotificationBootstrap = lazy(() =>
+  import(
+    "@/features/support/components/admin-support-notification-bootstrap"
+  ).then((module) => ({
+    default: module.AdminSupportNotificationBootstrap,
+  })),
+);
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
 const PublicSupportPage = lazy(() => import("@/pages/support/support-page"));
 const ResetPasswordPage = lazy(
@@ -252,6 +259,20 @@ function DeferredAuthSecurityNotice() {
   ) : null;
 }
 
+function DeferredAdminSupportNotifications() {
+  const { pathname } = useLocation();
+  const session = getAuthSession();
+  if (session?.user.role !== "ADMIN" || !pathname.startsWith("/dashboard/admin")) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <AdminSupportNotificationBootstrap />
+    </Suspense>
+  );
+}
+
 function DashboardRedirect() {
   const session = getAuthSession();
   return (
@@ -319,6 +340,7 @@ export default function App() {
       <DismissInitialLoader />
       <ScrollToTopOnNavigate />
       <DeferredAuthSecurityNotice />
+      <DeferredAdminSupportNotifications />
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />

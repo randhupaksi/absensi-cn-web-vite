@@ -15,6 +15,7 @@ import {
   formatSupportRequesterName,
 } from "@/features/support/components/ticket-display";
 import { TicketConversation } from "@/features/support/components/ticket-ui";
+import { SupportNotificationPermissionModal } from "@/features/support/components/support-notification-permission-modal";
 import { TicketPager } from "@/features/support/components/ticket-pager";
 import {
   mergeOlderTicketMessages,
@@ -43,10 +44,12 @@ import {
   ShieldCheck,
   TicketCheck,
   Trash2,
+  BellRing,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { requestSupportNotificationPermission } from "@/lib/support-notifications";
 
 const defaultTicketPageSize = 5;
 
@@ -67,8 +70,11 @@ function AdminSupportContent() {
   const [deleteTarget, setDeleteTarget] = useState<SupportTicket | null>(null);
   const [ticketOffset, setTicketOffset] = useState(0);
   const [ticketPageSize, setTicketPageSize] = useState(defaultTicketPageSize);
+  const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
   const shouldScrollToDetail = useRef(false);
   const queryClient = useQueryClient();
+
+  const enableNotifications = () => setNotificationPromptOpen(true);
   const committedSearch = useDebouncedValue(search.trim(), 250);
   const activeListQueryKey = [
     ...supportQueryKeys.adminTickets(),
@@ -220,6 +226,9 @@ function AdminSupportContent() {
   const deleteMutation = useMutation({
     mutationFn: deleteAdminSupportTicket,
     onSuccess: (_result, reference) => {
+      const nextReference = ticketsQuery.data?.tickets.find(
+        (ticket) => ticket.reference_code !== reference,
+      )?.reference_code;
       queryClient.removeQueries({
         queryKey: supportQueryKeys.adminTicket(reference),
         exact: true,
@@ -228,7 +237,10 @@ function AdminSupportContent() {
         queryKey: supportQueryKeys.adminTickets(),
       });
       if (selectedReference === reference) {
-        setSearchParams({}, { replace: true });
+        setSearchParams(
+          nextReference ? { ticket: nextReference } : {},
+          { replace: true },
+        );
       }
       setDeleteTarget(null);
       toast.success("Tiket berhasil dihapus");
@@ -365,11 +377,14 @@ function AdminSupportContent() {
               Inbox Bantuan<span className="hidden sm:inline"> Pengguna</span>
             </h1>
           </div>
-          <p className="col-span-full max-w-5xl break-words text-sm leading-6 text-slate-500 dark:text-slate-400 sm:block">
+            <p className="col-span-full max-w-5xl break-words text-sm leading-6 text-slate-500 dark:text-slate-400 sm:block">
             Kelola percakapan bantuan, cocokkan identitas pemohon, berikan
             keputusan pemulihan akun, dan pastikan setiap tindak lanjut
             tersampaikan dengan aman tanpa mengirim password melalui chat.
-          </p>
+            </p>
+            <Button type="button" variant="outline" onClick={enableNotifications} className="col-span-full w-fit rounded-xl">
+              <BellRing className="size-4" /> Aktifkan notifikasi tiket
+            </Button>
         </div>
       </section>
 
@@ -646,6 +661,15 @@ function AdminSupportContent() {
         isPending={deleteMutation.isPending}
         onConfirm={() => {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.reference_code);
+        }}
+      />
+      <SupportNotificationPermissionModal
+        open={notificationPromptOpen}
+        onOpenChange={setNotificationPromptOpen}
+        onEnable={async () => {
+          const permission = await requestSupportNotificationPermission(true);
+          if (permission === "granted") toast.success("Notifikasi tiket admin diaktifkan");
+          return permission;
         }}
       />
     </div>
