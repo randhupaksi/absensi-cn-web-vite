@@ -59,12 +59,12 @@ Designer, Frontend Engineer, and Backend Engineer.
 
 ## Prerequisites
 
-| Requirement | Recommendation |
-| --- | --- |
-| Node.js | LTS, v22 or newer recommended |
-| npm | Included with Node.js |
-| Backend API | Required for login and real data |
-| Git | Optional when cloned from a repository |
+| Requirement | Recommendation                         |
+| ----------- | -------------------------------------- |
+| Node.js     | LTS, v22 or newer recommended          |
+| npm         | Included with Node.js                  |
+| Backend API | Required for login and real data       |
+| Git         | Optional when cloned from a repository |
 
 This project does not require PHP or XAMPP. XAMPP may be used only to run MySQL
 for the Go API.
@@ -105,23 +105,23 @@ frontend environment variables. `VITE_*` values are visible in the browser bundl
 
 The usual local URLs are:
 
-| Service | URL |
-| --- | --- |
-| API | `http://localhost:8080` |
+| Service  | URL                     |
+| -------- | ----------------------- |
+| API      | `http://localhost:8080` |
 | Frontend | `http://localhost:5173` |
 
 ## Main routes
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Landing page |
-| `/login/student` | Student login with NIS and password |
-| `/login/staff` | Teacher, homeroom, BK, and admin login |
-| `/dashboard/student` | Student dashboard |
-| `/dashboard/teacher` | Teacher workspace based on role and scope |
-| `/dashboard/admin` | Administrator dashboard |
-| `/dashboard/admin/classes` | Academic structure and classes |
-| `/dashboard/admin/students` | Student profiles and class placement |
+| Route                       | Purpose                                     |
+| --------------------------- | ------------------------------------------- |
+| `/`                         | Landing page                                |
+| `/login/student`            | Student login with NIS and password         |
+| `/login/staff`              | Teacher, homeroom, BK, and admin login      |
+| `/dashboard/student`        | Student dashboard                           |
+| `/dashboard/teacher`        | Teacher workspace based on role and scope   |
+| `/dashboard/admin`          | Administrator dashboard                     |
+| `/dashboard/admin/classes`  | Academic structure and classes              |
+| `/dashboard/admin/students` | Student profiles and class placement        |
 | `/dashboard/admin/subjects` | Subjects, assignments, schedules, and rooms |
 
 The app is an SPA. Direct dashboard URLs require a rewrite to `index.html`; the
@@ -149,7 +149,9 @@ public/                   # logos, favicon, and static assets
 npm run dev
 npm run typecheck
 npm run lint
+npm test
 npm run build
+npm run test:e2e
 npm run preview
 ```
 
@@ -158,8 +160,13 @@ Recommended pre-push sequence:
 ```powershell
 npm run typecheck
 npm run lint
+npm test
 npm run build
 ```
+
+The end-to-end suite starts a local Vite server and uses Playwright. Install its
+Chromium runtime once on a new development machine with
+`npx playwright install chromium`.
 
 ## Build and aaPanel deployment
 
@@ -271,14 +278,14 @@ Before a frontend release, verify at least:
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Solution |
-| --- | --- | --- |
-| `node` or `npm` is not recognized | Node.js is missing or the terminal is old | Install Node.js LTS and open a new terminal. |
-| Network error during login | API is stopped or the API URL is wrong | Start the API and check `VITE_API_BASE_URL`. |
-| CORS error | Frontend origin is not allowed by the API | Update `APP_ALLOWED_ORIGINS` and restart the API. |
-| Blank page after an update | Browser cache or runtime error | Check the browser console, run typecheck, then hard refresh. |
-| Port `5173` is busy | Another Vite process is running | Stop it or use the port shown by Vite. |
-| Data is missing | API/database is unavailable | Check `/api/v1/health` and both environment files. |
+| Symptom                           | Likely cause                              | Solution                                                     |
+| --------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| `node` or `npm` is not recognized | Node.js is missing or the terminal is old | Install Node.js LTS and open a new terminal.                 |
+| Network error during login        | API is stopped or the API URL is wrong    | Start the API and check `VITE_API_BASE_URL`.                 |
+| CORS error                        | Frontend origin is not allowed by the API | Update `APP_ALLOWED_ORIGINS` and restart the API.            |
+| Blank page after an update        | Browser cache or runtime error            | Check the browser console, run typecheck, then hard refresh. |
+| Port `5173` is busy               | Another Vite process is running           | Stop it or use the port shown by Vite.                       |
+| Data is missing                   | API/database is unavailable               | Check `/api/v1/health` and both environment files.           |
 
 Do not change API payloads, routes, or authorization assumptions only from the
 frontend. The backend remains the source of truth for business rules and access.
