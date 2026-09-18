@@ -15,6 +15,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { getStoredTheme, subscribeToTheme, type AppTheme } from "@/lib/theme";
+import { subscribeAuthSession } from "@/lib/auth";
 
 const SystemStatusAlert = lazy(() =>
   import("@/components/errors/system-status-alert").then((module) => ({
@@ -102,6 +103,13 @@ export function AppProviders({ children }: AppProvidersProps) {
         },
       }),
   );
+
+  useEffect(() => {
+    // Server-state may contain student, teacher, BK, or admin data. Clear it
+    // whenever authentication changes, including session revocation from an
+    // API response and account changes made in another browser tab.
+    return subscribeAuthSession(() => queryClient.clear());
+  }, [queryClient]);
 
   useEffect(() => {
     // Dialogs/menus restore focus to their trigger button when they close

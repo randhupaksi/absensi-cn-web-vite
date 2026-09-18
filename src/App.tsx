@@ -31,11 +31,11 @@ const AuthSecurityNoticeModal = lazy(() =>
   })),
 );
 const AdminSupportNotificationBootstrap = lazy(() =>
-  import(
-    "@/features/support/components/admin-support-notification-bootstrap"
-  ).then((module) => ({
-    default: module.AdminSupportNotificationBootstrap,
-  })),
+  import("@/features/support/components/admin-support-notification-bootstrap").then(
+    (module) => ({
+      default: module.AdminSupportNotificationBootstrap,
+    }),
+  ),
 );
 const LoginPage = lazy(() => import("@/pages/auth/login-page"));
 const PublicSupportPage = lazy(() => import("@/pages/support/support-page"));
@@ -262,7 +262,10 @@ function DeferredAuthSecurityNotice() {
 function DeferredAdminSupportNotifications() {
   const { pathname } = useLocation();
   const session = getAuthSession();
-  if (session?.user.role !== "ADMIN" || !pathname.startsWith("/dashboard/admin")) {
+  if (
+    session?.user.role !== "ADMIN" ||
+    !pathname.startsWith("/dashboard/admin")
+  ) {
     return null;
   }
 
@@ -334,6 +337,15 @@ function TeacherRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function AdminRoute({ children }: { children: ReactNode }) {
+  const session = getAuthSession();
+  if (!session) return <Navigate replace to="/login/staff" />;
+  if (session.user.role !== "ADMIN") {
+    return <Navigate replace to={getDashboardPathForUser(session.user)} />;
+  }
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -367,36 +379,85 @@ export default function App() {
           <Route path="/admin/dashboard" element={<DashboardRedirect />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />
 
-          <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
+          <Route
+            path="/dashboard/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboardPage />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/dashboard/admin/analytics"
-            element={<AdminAnalyticsPage />}
+            element={
+              <AdminRoute>
+                <AdminAnalyticsPage />
+              </AdminRoute>
+            }
           />
-          <Route path="/dashboard/admin/admins" element={<AdminAdminsPage />} />
+          <Route
+            path="/dashboard/admin/admins"
+            element={
+              <AdminRoute>
+                <AdminAdminsPage />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/dashboard/admin/classes"
-            element={<AdminClassesPage />}
+            element={
+              <AdminRoute>
+                <AdminClassesPage />
+              </AdminRoute>
+            }
           />
           <Route
             path="/dashboard/admin/holidays"
-            element={<AdminHolidaysPage />}
+            element={
+              <AdminRoute>
+                <AdminHolidaysPage />
+              </AdminRoute>
+            }
           />
           <Route
             path="/dashboard/admin/students"
-            element={<AdminStudentsPage />}
+            element={
+              <AdminRoute>
+                <AdminStudentsPage />
+              </AdminRoute>
+            }
           />
           <Route
             path="/dashboard/admin/subjects"
-            element={<AdminSubjectsPage />}
+            element={
+              <AdminRoute>
+                <AdminSubjectsPage />
+              </AdminRoute>
+            }
           />
           <Route
             path="/dashboard/admin/teachers"
-            element={<AdminTeachersPage />}
+            element={
+              <AdminRoute>
+                <AdminTeachersPage />
+              </AdminRoute>
+            }
           />
-          <Route path="/dashboard/admin/users" element={<AdminUsersPage />} />
+          <Route
+            path="/dashboard/admin/users"
+            element={
+              <AdminRoute>
+                <AdminUsersPage />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/dashboard/admin/support"
-            element={<AdminSupportPage />}
+            element={
+              <AdminRoute>
+                <AdminSupportPage />
+              </AdminRoute>
+            }
           />
           <Route
             path="/dashboard/teacher"

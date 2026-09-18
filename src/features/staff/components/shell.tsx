@@ -17,7 +17,6 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { getTeacherMe } from "@/services/staff.service";
 import {
@@ -50,7 +49,6 @@ export function StaffShell({
 }: StaffShellProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const queryClient = useQueryClient();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const session = useSyncExternalStore(
     subscribeAuthSession,
@@ -111,15 +109,13 @@ export function StaffShell({
   const handleLogout = () => {
     const loginPath = getLoginPathForCurrentContext(pathname);
     clearAuthSession();
-    // Logout stays client-side (no hard reload), so the QueryClient created in
-    // AppProviders would otherwise survive into the next login on this tab and
-    // serve the previous account's cached data until staleTime expires.
-    queryClient.clear();
     router.replace(loginPath);
   };
 
   return (
-    <div className={`staff-workspace ${surfaceClassName ?? ""} min-h-[100svh] overflow-x-clip bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.13),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_20%),linear-gradient(180deg,#101b2a_0%,#0b1220_100%)] dark:text-slate-100 supports-[min-height:100dvh]:min-h-[100dvh]`}>
+    <div
+      className={`staff-workspace ${surfaceClassName ?? ""} min-h-[100svh] overflow-x-clip bg-[radial-gradient(circle_at_top_left,rgba(126,182,155,0.22),transparent_26%),radial-gradient(circle_at_top_right,rgba(111,166,208,0.12),transparent_18%),linear-gradient(180deg,#f7f5ee_0%,#f2f0e8_100%)] text-slate-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.13),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_20%),linear-gradient(180deg,#101b2a_0%,#0b1220_100%)] dark:text-slate-100 supports-[min-height:100dvh]:min-h-[100dvh]`}
+    >
       <div className="min-h-[100svh] min-w-0 overflow-x-clip lg:pl-[272px] supports-[min-height:100dvh]:min-h-[100dvh]">
         <StaffSidebar
           items={visibleSidebarItems}
@@ -138,7 +134,9 @@ export function StaffShell({
             onToggleSidebar={() => setMobileSidebarOpen(true)}
           />
 
-          <AppErrorBoundary key={pathname}>{children(session)}</AppErrorBoundary>
+          <AppErrorBoundary key={pathname}>
+            {children(session)}
+          </AppErrorBoundary>
         </main>
       </div>
     </div>
