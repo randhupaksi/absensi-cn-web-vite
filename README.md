@@ -61,7 +61,7 @@ Designer, Frontend Engineer, and Backend Engineer.
 
 | Requirement | Recommendation                         |
 | ----------- | -------------------------------------- |
-| Node.js     | LTS, v22 or newer recommended          |
+| Node.js     | v22 LTS or v24+ (avoid odd-numbered releases) |
 | npm         | Included with Node.js                  |
 | Backend API | Required for login and real data       |
 | Git         | Optional when cloned from a repository |
@@ -164,8 +164,8 @@ npm test
 npm run build
 ```
 
-The end-to-end suite starts a local Vite server and uses Playwright. Install its
-Chromium runtime once on a new development machine with
+The end-to-end suite builds the production bundle, starts Vite Preview, and
+uses Playwright. Install its Chromium runtime once on a new development machine with
 `npx playwright install chromium`.
 
 ## Build and aaPanel deployment

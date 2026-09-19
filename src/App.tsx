@@ -376,7 +376,14 @@ export default function App() {
             path="/auth/change-password"
             element={<ChangePasswordRoute />}
           />
-          <Route path="/admin/dashboard" element={<DashboardRedirect />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <Navigate replace to="/dashboard/admin" />
+              </AdminRoute>
+            }
+          />
           <Route path="/dashboard" element={<DashboardRedirect />} />
 
           <Route

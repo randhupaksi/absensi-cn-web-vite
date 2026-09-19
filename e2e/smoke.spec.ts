@@ -15,3 +15,11 @@ test("unauthenticated admin route redirects to staff login", async ({
 
   await expect(page).toHaveURL(/\/login\/staff$/);
 });
+
+test("legacy admin dashboard alias also redirects to staff login", async ({
+  page,
+}) => {
+  await page.goto("/admin/dashboard");
+
+  await expect(page).toHaveURL(/\/login\/staff$/);
+});
