@@ -20,7 +20,6 @@ import {
   usePagination,
 } from "@/features/admin/management/shared/section-ui";
 import { ExportImportActions } from "@/components/ui/export-import-actions";
-import { Badge } from "@/components/ui/badge";
 import {
   formatGender,
   getInitials,
@@ -38,10 +37,10 @@ import type { StaffHomeroomContext } from "@/types/staff";
 import { useQuery } from "@tanstack/react-query";
 import {
   BadgeCheck,
+  ClipboardX,
   Eye,
   GraduationCap,
   LayoutPanelTop,
-  ShieldCheck,
   TriangleAlert,
   UsersRound,
 } from "lucide-react";
@@ -185,15 +184,15 @@ export function WalasStudentsPage() {
                   accentClass="from-teal-500 via-emerald-500 to-green-500"
                 />
                 <StaffStatCard
-                  label="Perhatian"
+                  label="Siswa Perlu Perhatian"
                   value={studentMetrics.studentsNeedingAttention}
                   icon={TriangleAlert}
                   accentClass="from-amber-400 via-orange-400 to-rose-500"
                 />
                 <StaffStatCard
-                  label="Alfa"
+                  label="Total Alfa"
                   value={studentMetrics.totalAlphaCount}
-                  icon={ShieldCheck}
+                  icon={ClipboardX}
                   accentClass="from-sky-500 via-cyan-500 to-emerald-500"
                 />
               </div>
@@ -295,11 +294,6 @@ export function WalasStudentsPage() {
                             <DataTableCell>
                               <div className="flex flex-wrap justify-center gap-2">
                                 <StatusPill isActive={student.is_active} />
-                                {student.alpha_count > 0 ? (
-                                  <Badge className="border-amber-200 bg-amber-50 text-amber-700">
-                                    Perlu perhatian
-                                  </Badge>
-                                ) : null}
                               </div>
                             </DataTableCell>
                             <DataTableCell className="text-center">

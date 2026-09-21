@@ -43,8 +43,8 @@ export function StatusPill({ isActive }: { isActive: boolean }) {
     <Badge
       className={
         isActive
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-slate-200 bg-slate-100 text-slate-500"
+          ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+          : "border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
       }
     >
       {isActive ? "Aktif" : "Nonaktif"}
@@ -82,26 +82,36 @@ function formatDateTime(value?: string) {
 
 function AttendanceStatusPill({ status }: { status: string }) {
   const normalizedStatus = status.toUpperCase();
-  let className = "border-slate-200 bg-slate-100 text-slate-600";
+  let className =
+    "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
 
   if (normalizedStatus === "HADIR")
-    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
+    className =
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300";
   else if (normalizedStatus === "ALFA")
-    className = "border-rose-200 bg-rose-50 text-rose-700";
-  else if (normalizedStatus === "SAKIT" || normalizedStatus === "IZIN")
-    className = "border-sky-200 bg-sky-50 text-sky-700";
+    className =
+      "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300";
+  else if (normalizedStatus === "IZIN")
+    className =
+      "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300";
+  else if (normalizedStatus === "SAKIT")
+    className =
+      "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/60 dark:text-violet-300";
 
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;
 }
 
 function SubmissionStatusPill({ status }: { status: string }) {
   const normalizedStatus = status.toLowerCase();
-  let className = "border-amber-200 bg-amber-50 text-amber-700";
+  let className =
+    "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
 
-  if (normalizedStatus === "approved")
-    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  else if (normalizedStatus === "rejected")
-    className = "border-rose-200 bg-rose-50 text-rose-700";
+  if (normalizedStatus === "diterima")
+    className =
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300";
+  else if (normalizedStatus === "ditolak")
+    className =
+      "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300";
 
   return <Badge className={className}>{formatDisplayLabel(status)}</Badge>;
 }
@@ -235,8 +245,8 @@ export function StudentDetailModal({
               />
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="rounded-[24px] border border-emerald-100/70 bg-white/94 p-4">
+            <div className="grid items-start gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+              <div className="h-fit self-start rounded-[24px] border border-emerald-100/70 bg-white/94 p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-base font-semibold text-slate-900">
@@ -313,7 +323,7 @@ export function StudentDetailModal({
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-slate-900">
-                                {submission.type}
+                                {formatDisplayLabel(submission.type)}
                               </p>
                               <p className="line-clamp-2 text-xs leading-5 text-slate-500">
                                 {submission.reason}

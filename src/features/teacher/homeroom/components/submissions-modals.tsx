@@ -85,11 +85,14 @@ export function SubmissionTypePill({
   bordered?: boolean;
 }) {
   const normalized = type.toUpperCase();
-  let className = "border-slate-200 bg-slate-100 text-slate-600";
+  let className =
+    "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
   if (normalized === "IZIN")
-    className = "border-sky-200 bg-sky-50 text-sky-700";
+    className =
+      "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300";
   else if (normalized === "SAKIT")
-    className = "border-rose-200 bg-rose-50 text-rose-700";
+    className =
+      "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300";
 
   return (
     <span
@@ -108,13 +111,17 @@ export function SubmissionStatusPill({
   bordered?: boolean;
 }) {
   const normalized = normalizeSubmissionStatus(status);
-  let className = "border-slate-200 bg-slate-100 text-slate-600";
+  let className =
+    "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
   if (normalized === "menunggu")
-    className = "border-amber-200 bg-amber-50 text-amber-700";
+    className =
+      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
   else if (normalized === "diterima")
-    className = "border-emerald-200 bg-emerald-50 text-emerald-700";
+    className =
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300";
   else if (normalized === "ditolak")
-    className = "border-rose-200 bg-rose-50 text-rose-700";
+    className =
+      "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300";
 
   return (
     <span
