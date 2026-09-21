@@ -96,6 +96,16 @@ export async function startPasswordReset(
   );
 }
 
+export async function resumePasswordReset(token: string) {
+  return unwrap<ResetSession>(
+    apiClient.post(
+      "/public/support/password/resume",
+      { token },
+      mutationConfig(),
+    ),
+  );
+}
+
 export async function completePasswordReset(
   token: string,
   newPassword: string,

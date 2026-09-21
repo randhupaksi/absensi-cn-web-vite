@@ -23,6 +23,7 @@ import {
   accessPublicSupportTicketByCode,
   createPublicSupportTicket,
   replyPublicSupportTicket,
+  resumePasswordReset,
   startPasswordReset,
 } from "@/services/support.service";
 import type { PublicTicketCredentials, SupportTicket } from "@/types/support";
@@ -62,6 +63,13 @@ const SESSION_KEY = "absensi-cn-support-ticket";
 
 export default function SupportPage() {
   const [searchParams] = useSearchParams();
+  const resumeTokenRef = useRef(
+    new URLSearchParams(window.location.hash.slice(1)).get("resume")?.trim() ??
+      "",
+  );
+  const [resumingPasswordReset, setResumingPasswordReset] = useState(
+    Boolean(resumeTokenRef.current),
+  );
   const requestedPortal =
     searchParams.get("portal") === "staff" ? "staff" : "student";
   const [mode, setMode] = useState<"create" | "track">(
@@ -241,6 +249,34 @@ export default function SupportPage() {
       }),
   });
 
+  const resumeResetMutation = useMutation({
+    mutationFn: resumePasswordReset,
+    onSuccess: (session) => {
+      navigate(
+        `/support/reset-password?portal=${session.portal}#token=${encodeURIComponent(session.token)}&expires_at=${encodeURIComponent(session.expires_at)}`,
+        { replace: true },
+      );
+    },
+    onError: (error) => {
+      setResumingPasswordReset(false);
+      setMode("track");
+      toast.error("Tautan pemulihan tidak dapat digunakan", {
+        description:
+          error.message || "Masukkan kode akses tiket untuk melanjutkan.",
+      });
+    },
+  });
+
+  useEffect(() => {
+    const token = resumeTokenRef.current;
+    if (!token) return;
+    resumeTokenRef.current = "";
+    const url = new URL(window.location.href);
+    url.hash = "";
+    window.history.replaceState(window.history.state, "", url);
+    resumeResetMutation.mutate(token);
+  }, [resumeResetMutation]);
+
   const loadOlderMutation = useMutation({
     mutationFn: () =>
       accessPublicSupportTicket(
@@ -281,6 +317,10 @@ export default function SupportPage() {
     setMode("create");
     navigate("/support", { replace: true });
   };
+
+  if (resumingPasswordReset) {
+    return <PasswordResetResumeLoading />;
+  }
 
   return (
     <main className="relative min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,#f3fbf7_0%,#e3f3ec_52%,#edf7f3_100%)] px-3 py-4 text-slate-800 dark:bg-none dark:bg-slate-950 dark:text-slate-100 sm:px-6 sm:py-5">
@@ -674,6 +714,26 @@ export default function SupportPage() {
             : Promise.resolve<NotificationPermission>("denied")
         }
       />
+    </main>
+  );
+}
+
+function PasswordResetResumeLoading() {
+  return (
+    <main className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,#f3fbf7_0%,#e3f3ec_52%,#edf7f3_100%)] p-5 text-slate-800 dark:bg-none dark:bg-slate-950 dark:text-slate-100">
+      <AnimatedBackground />
+      <ThemeToggle placement="fixed" />
+      <section className="relative w-full max-w-md rounded-[30px] border border-slate-200/80 bg-white/95 p-7 text-center shadow-[0_22px_60px_rgba(15,23,42,0.09)] dark:border-slate-700 dark:bg-slate-900/90">
+        <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+          <LoaderCircle className="size-6 animate-spin" />
+        </span>
+        <h1 className="mt-5 font-heading text-xl font-semibold tracking-tight">
+          Menyiapkan reset password
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+          Tautan notifikasi sedang diverifikasi dengan aman.
+        </p>
+      </section>
     </main>
   );
 }
