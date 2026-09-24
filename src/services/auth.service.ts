@@ -24,7 +24,7 @@ type ApiEnvelope<T> = {
   errors?: Record<string, string>;
 };
 
-export type LoginRateLimitKind = "locked" | "busy";
+export type LoginRateLimitKind = "throttled" | "busy";
 
 export class LoginRateLimitError extends Error {
   readonly kind: LoginRateLimitKind;
@@ -32,7 +32,7 @@ export class LoginRateLimitError extends Error {
 
   constructor(kind: LoginRateLimitKind, retryAfterSeconds: number) {
     super(
-      kind === "locked"
+      kind === "throttled"
         ? "Terlalu banyak percobaan login."
         : "Server sedang ramai menerima login.",
     );
@@ -51,11 +51,17 @@ function getRetryAfterSeconds(error: unknown) {
 function getLoginRateLimitError(error: unknown) {
   if (!axios.isAxiosError<ApiEnvelope<unknown>>(error)) return null;
   const code = error.response?.data?.code;
-  if (code !== "LOGIN_LOCKED" && code !== "SERVER_BUSY") return null;
+  if (
+    code !== "LOGIN_THROTTLED" &&
+    code !== "LOGIN_LOCKED" &&
+    code !== "SERVER_BUSY"
+  ) return null;
   const retryAfterSeconds = getRetryAfterSeconds(error);
   return new LoginRateLimitError(
-    code === "LOGIN_LOCKED" ? "locked" : "busy",
-    retryAfterSeconds || (code === "LOGIN_LOCKED" ? 120 : 3),
+    code === "LOGIN_THROTTLED" || code === "LOGIN_LOCKED"
+      ? "throttled"
+      : "busy",
+    retryAfterSeconds || (code === "LOGIN_LOCKED" ? 120 : 30),
   );
 }
 

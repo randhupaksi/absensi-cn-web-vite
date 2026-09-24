@@ -50,7 +50,7 @@ export async function retryTransientRequest<T>(
 function isRetryableRequestError(error: unknown) {
   if (!axios.isAxiosError(error)) return false;
   if (!error.response) return error.code === "ERR_NETWORK";
-  if (error.response.data?.code === "LOGIN_LOCKED") return false;
+  if (["LOGIN_THROTTLED", "LOGIN_LOCKED"].includes(error.response.data?.code ?? "")) return false;
   return RETRYABLE_STATUS_CODES.has(error.response.status);
 }
 

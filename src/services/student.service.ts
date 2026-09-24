@@ -230,6 +230,8 @@ function isServerBusyAttendanceRequest(error: unknown) {
   if (!axios.isAxiosError<{ code?: string }>(error)) return false;
   return (
     error.response?.status === 429 &&
-    error.response.data?.code !== "LOGIN_LOCKED"
+    !["LOGIN_THROTTLED", "LOGIN_LOCKED"].includes(
+      error.response.data?.code ?? "",
+    )
   );
 }
