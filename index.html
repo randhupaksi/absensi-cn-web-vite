@@ -20,52 +20,7 @@
     <meta name="theme-color" content="#101b2a" />
     <meta name="color-scheme" content="light dark" />
     <link rel="manifest" href="/manifest.webmanifest?v=2" />
-    <script>
-      (function () {
-        try {
-          var supports = window.CSS && window.CSS.supports;
-          var mode = supports &&
-            supports("color", "color-mix(in srgb, red, blue)") &&
-            (supports("backdrop-filter", "blur(1px)") || supports("-webkit-backdrop-filter", "blur(1px)"))
-            ? "standard"
-            : "compat";
-          document.documentElement.setAttribute("data-render-mode", mode);
-        } catch (_) {
-          document.documentElement.setAttribute("data-render-mode", "compat");
-        }
-      })();
-    </script>
-    <script>
-      (function () {
-        try {
-          var storedTheme = localStorage.getItem("absensi-cn-theme");
-          var theme = storedTheme === "light" ? "light" : "dark";
-          document.documentElement.classList.toggle("dark", theme === "dark");
-          document.documentElement.style.colorScheme = theme;
-          var themeColor = document.querySelector('meta[name="theme-color"]');
-          if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#101b2a" : "#047857");
-        } catch (_) {
-          document.documentElement.classList.add("dark");
-          document.documentElement.style.colorScheme = "dark";
-        }
-      })();
-    </script>
-    <script>
-      try {
-        if (location.pathname === "/" && !localStorage.getItem("absensi-cn-auth")) {
-          const heroPreload = document.createElement("link");
-          heroPreload.rel = "preload";
-          heroPreload.as = "image";
-          heroPreload.href = "/images/optimized/cn-hero.jpg";
-          heroPreload.imageSrcset = "/images/optimized/cn-panel.jpg 960w, /images/optimized/cn-hero.jpg 1920w";
-          heroPreload.imageSizes = "100vw";
-          heroPreload.fetchPriority = "high";
-          document.head.appendChild(heroPreload);
-        }
-      } catch (_) {
-        // Storage can be unavailable in strict privacy mode; the page still loads normally.
-      }
-    </script>
+    <script src="/initial-boot.js"></script>
     <style>
       #initial-loader {
         position: fixed;
@@ -254,40 +209,10 @@
         <div class="initial-loader__track" aria-hidden="true">
           <span class="initial-loader__bar"></span>
         </div>
-        <button class="initial-loader__retry" type="button" onclick="window.__absensiReloadFresh ? window.__absensiReloadFresh() : window.location.reload()">Muat ulang halaman</button>
+        <button class="initial-loader__retry" type="button">Muat ulang halaman</button>
       </div>
     </div>
     <div id="root"></div>
-    <script>
-      (function () {
-        function reloadFreshDocument() {
-          try {
-            var url = new URL(window.location.href);
-            url.searchParams.set("__app_reload", String(Date.now()));
-            window.location.replace(url.toString());
-          } catch (_) {
-            window.location.reload();
-          }
-        }
-
-        function showInitialLoadError() {
-          if (window.__absensiAppReady) return;
-
-          var loader = document.getElementById("initial-loader");
-          if (!loader) return;
-
-          loader.className += " is-error";
-          var title = loader.querySelector(".initial-loader__title");
-          var subtitle = loader.querySelector(".initial-loader__subtitle");
-          if (title) title.textContent = "Halaman belum berhasil dimuat";
-          if (subtitle) subtitle.textContent = "Periksa koneksi lalu muat ulang halaman.";
-        }
-
-        window.__absensiShowInitialLoadError = showInitialLoadError;
-        window.__absensiReloadFresh = reloadFreshDocument;
-        window.__absensiInitialLoaderTimeout = window.setTimeout(showInitialLoadError, 15000);
-      })();
-    </script>
-    <script type="module" src="/src/main.tsx" onerror="window.__absensiShowInitialLoadError && window.__absensiShowInitialLoadError()"></script>
+    <script type="module" src="/src/main.tsx" data-app-entry></script>
   </body>
 </html>
