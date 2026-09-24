@@ -38,6 +38,8 @@ describe("auth session storage", () => {
 
     auth.saveAuthSession(session);
     expect(auth.getAuthSession()).toEqual(session);
+    expect(window.sessionStorage.getItem("absensi-cn-auth")).toBe(JSON.stringify(session));
+    expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
 
     auth.clearAuthSession();
     expect(auth.getAuthSession()).toBeNull();
@@ -46,6 +48,14 @@ describe("auth session storage", () => {
 
   it("removes malformed persisted sessions", async () => {
     window.localStorage.setItem("absensi-cn-auth", "not-json");
+    const auth = await loadAuthModule();
+
+    expect(auth.getAuthSession()).toBeNull();
+    expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
+  });
+
+  it("discards a legacy persistent token instead of restoring it", async () => {
+    window.localStorage.setItem("absensi-cn-auth", JSON.stringify({ accessToken: "old-token", user: admin }));
     const auth = await loadAuthModule();
 
     expect(auth.getAuthSession()).toBeNull();

@@ -17,7 +17,7 @@ function getAvailableStorages() {
   if (typeof window === "undefined") return [] as Storage[];
 
   const storages: Storage[] = [];
-  for (const storageName of ["localStorage", "sessionStorage"] as const) {
+  for (const storageName of ["sessionStorage"] as const) {
     try {
       const storage = window[storageName];
       if (storage && !storages.includes(storage)) storages.push(storage);
@@ -26,6 +26,14 @@ function getAvailableStorages() {
     }
   }
   return storages;
+}
+
+function removeLegacyPersistentSession() {
+  try {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  } catch {
+    // Storage may be unavailable in private browsing mode.
+  }
 }
 
 function emitAuthSessionChange() {
@@ -40,6 +48,8 @@ export function saveAuthSession(session: AuthSession) {
   if (typeof window === "undefined") {
     return;
   }
+
+  removeLegacyPersistentSession();
 
   const serializedSession = JSON.stringify(session);
   const storage = getAvailableStorages().find((candidate) => {
@@ -112,6 +122,8 @@ export function getAuthSession(): AuthSession | null {
     return null;
   }
 
+  removeLegacyPersistentSession();
+
   let rawSession: string | null = null;
   for (const storage of getAvailableStorages()) {
     try {
@@ -154,6 +166,8 @@ export function clearAuthSession() {
   if (typeof window === "undefined") {
     return;
   }
+
+  removeLegacyPersistentSession();
 
   for (const storage of getAvailableStorages()) {
     try {
