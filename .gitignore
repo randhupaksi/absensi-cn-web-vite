@@ -29,10 +29,6 @@ test-results
 *.sln
 *.sw?
 
-# AI Agent instructions are local project guidance and are not committed.
-AGENTS.md
-CLAUDE.md
-
 # Guidebook deliverables
 docs/guidebook/deliverables/*.docx
 docs/guidebook/deliverables/~$*.docx
