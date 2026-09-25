@@ -63,7 +63,7 @@ Designer, Frontend Engineer, and Backend Engineer.
 | Requirement | Recommendation                         |
 | ----------- | -------------------------------------- |
 | Node.js     | v22 LTS or v24+ (avoid odd-numbered releases) |
-| npm         | Included with Node.js                  |
+| npm         | v10 or newer (included with Node.js)   |
 | Backend API | Required for login and real data       |
 | Git         | Optional when cloned from a repository |
 
@@ -184,7 +184,10 @@ origin through `VITE_API_BASE_URL` before building; do not put secrets in it.
 
 For frontend hosting requirements and the manual upload workflow, read
 [DEPLOYMENT.md](docs/DEPLOYMENT.md). API deployment is documented in the API
-repository's `docs/OPERATIONS.md`.
+repository's operations runbook. In the full Absensi CN workspace, that runbook
+is `../docs/OPERATIONS.md`; it is outside this standalone frontend repository
+and may not exist in an isolated clone. If unavailable, use the API repository
+README and the deployment host's current operational runbook.
 
 ## Frontend architecture
 

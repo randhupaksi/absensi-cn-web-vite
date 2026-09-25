@@ -40,15 +40,26 @@ upload. Never put credentials or private keys in frontend environment values.
   not automatically applied by aaPanel/Nginx; configure equivalent rules on
   that host and validate them there. In particular, do not assume a successful
   Vercel CSP rollout means a separately hosted aaPanel site has the same policy.
+  The current policy is defense in depth and still allows `'unsafe-inline'` and
+  `data:` in `script-src`; do not describe it as a strict script CSP.
 
 Example Nginx SPA fallback (adapt to the existing site config; do not replace
-production configuration blindly):
+production configuration blindly). Keep missing generated assets as 404s so
+the browser does not receive `index.html` as JavaScript or CSS:
 
 ```nginx
+location ^~ /assets/ {
+    try_files $uri =404;
+}
+
 location / {
     try_files $uri $uri/ /index.html;
 }
 ```
+
+Apply an equivalent missing-file rule to any other public static-asset paths
+used by the app. Configure the response security headers separately; this
+example only shows SPA routing and missing generated-asset handling.
 
 ## Manual release and rollback
 

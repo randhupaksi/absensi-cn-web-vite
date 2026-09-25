@@ -255,7 +255,7 @@ export default function ResetPasswordPage() {
               <Button
                 type="submit"
                 variant="success"
-                className="h-12 w-full rounded-2xl"
+                className="h-12 w-full rounded-2xl shadow-none"
                 disabled={mutation.isPending}
               >
                 {mutation.isPending ? (
@@ -269,8 +269,7 @@ export default function ResetPasswordPage() {
               </Button>
               <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-500 dark:text-slate-400">
                 <LockKeyhole className="size-3.5 text-emerald-600 dark:text-emerald-300" />{" "}
-                Password disimpan aman dan tidak dapat dilihat oleh pihak
-                sekolah.
+                Password disimpan dengan aman dan terenkripsi
               </p>
             </div>
           </form>
