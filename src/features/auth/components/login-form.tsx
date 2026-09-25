@@ -265,20 +265,20 @@ export function LoginForm({ portal }: LoginFormProps) {
         <div
           role="alert"
           className={`flex items-start gap-3 rounded-[var(--radius-md)] border px-4 py-3 text-left text-sm ${
-            rateLimitKind === "locked"
+            rateLimitKind === "throttled"
               ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/45 dark:text-amber-100"
               : "border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-700/60 dark:bg-sky-950/45 dark:text-sky-100"
           }`}
         >
           <AlertTriangle
             className={`mt-0.5 size-4 shrink-0 ${
-              rateLimitKind === "locked" ? "text-amber-600 dark:text-amber-300" : "text-sky-600 dark:text-sky-300"
+              rateLimitKind === "throttled" ? "text-amber-600 dark:text-amber-300" : "text-sky-600 dark:text-sky-300"
             }`}
             aria-hidden="true"
           />
           <p>
             <span className="font-semibold">
-              {rateLimitKind === "locked"
+              {rateLimitKind === "throttled"
                 ? "Terlalu banyak percobaan login"
                 : "Server sedang ramai menerima login"}
             </span>{" "}

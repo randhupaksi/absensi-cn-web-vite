@@ -10,10 +10,11 @@ Designer, Frontend Engineer, and Backend Engineer.
 
 ## Documentation
 
-- [System architecture](../docs/ARCHITECTURE.md)
-- [API reference](../docs/API-REFERENCE.md)
-- [Operations and aaPanel deployment](../docs/OPERATIONS.md)
-- [Contribution guide](../docs/CONTRIBUTING.md)
+- [Frontend architecture](docs/ARCHITECTURE.md)
+- [Development and quality checks](docs/DEVELOPMENT.md)
+- [Deployment (manual aaPanel/static hosting)](docs/DEPLOYMENT.md)
+- [Security notes](docs/SECURITY.md)
+- [API integration contract](docs/API-INTEGRATION.md)
 
 ## Technology stack
 
@@ -124,8 +125,8 @@ The usual local URLs are:
 | `/dashboard/admin/students` | Student profiles and class placement        |
 | `/dashboard/admin/subjects` | Subjects, assignments, schedules, and rooms |
 
-The app is an SPA. Direct dashboard URLs require a rewrite to `index.html`; the
-aaPanel deployment package includes the required Nginx `try_files` rule.
+The app is an SPA. Direct dashboard URLs require the web server to fall back to
+`index.html`; this repository does not include an aaPanel deployment package.
 
 ## Important structure
 
@@ -170,19 +171,20 @@ uses Playwright. Install its Chromium runtime once on a new development machine 
 
 ## Build and aaPanel deployment
 
-Build the production bundle on the laptop:
+Build the production bundle on the development machine:
 
 ```powershell
+npm ci
 npm run build
-tar -czf "..\aaPanel-deploy\frontend-dist.tar.gz" -C dist .
 ```
 
-Upload the archive to the aaPanel website document root and extract it directly
-there. Node.js is not required on the production server. Configure the API
+Upload the generated `dist/` contents through aaPanel to the website document
+root. Node.js is not required on the production server. Configure the API
 origin through `VITE_API_BASE_URL` before building; do not put secrets in it.
 
-For the complete API build, upload, restart, backup, rollback, and verification
-procedure, read [OPERATIONS.md](../docs/OPERATIONS.md).
+For frontend hosting requirements and the manual upload workflow, read
+[DEPLOYMENT.md](docs/DEPLOYMENT.md). API deployment is documented in the API
+repository's `docs/OPERATIONS.md`.
 
 ## Frontend architecture
 
