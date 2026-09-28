@@ -20,6 +20,7 @@ import type {
   AdminSchoolUnit,
   AdminSchoolYear,
 } from "@/types/admin";
+import { isClassPlacementAllowed } from "@/lib/validations/academic-structure-schema";
 import { Building2 } from "lucide-react";
 import { useState } from "react";
 
@@ -115,6 +116,11 @@ export function ClassFormModal({
     GRADE_OPTIONS_BY_LEVEL[
       selectedLevel as keyof typeof GRADE_OPTIONS_BY_LEVEL
     ] ?? ALL_GRADE_OPTIONS;
+  const compatibleMajors = majors.filter(
+    (major) =>
+      (!form.school_unit_id || major.school_unit_id === form.school_unit_id) &&
+      isClassPlacementAllowed(selectedLevel, form.grade, major.program_type),
+  );
 
   const validate = () => {
     const nextErrors: FieldErrors<ClassFormField> = {};
@@ -126,6 +132,13 @@ export function ClassFormModal({
       "Unit sekolah",
     );
     validateRequired(nextErrors, "major_id", form.major_id, "Jurusan");
+    if (
+      form.major_id &&
+      !compatibleMajors.some((major) => major.id === form.major_id)
+    ) {
+      nextErrors.major_id =
+        "Program tidak sesuai dengan jenjang dan tingkat kelas yang dipilih";
+    }
     validateRequired(
       nextErrors,
       "school_year_id",
@@ -172,7 +185,23 @@ export function ClassFormModal({
             <RadixSelectField
               value={form.grade}
               onValueChange={(value) =>
-                setForm((prev) => ({ ...prev, grade: value }))
+                setForm((prev) => ({
+                  ...prev,
+                  grade: value,
+                  major_id: majors.some(
+                    (major) =>
+                      major.id === prev.major_id &&
+                      (!form.school_unit_id ||
+                        major.school_unit_id === form.school_unit_id) &&
+                      isClassPlacementAllowed(
+                        selectedLevel,
+                        value,
+                        major.program_type,
+                      ),
+                  )
+                    ? prev.major_id
+                    : "",
+                }))
               }
               placeholder="Pilih tingkat"
               options={gradeOptions.map((grade) => ({
@@ -236,16 +265,10 @@ export function ClassFormModal({
                 setForm((prev) => ({ ...prev, major_id: value }))
               }
               placeholder="Pilih jurusan / program"
-              options={majors
-                .filter(
-                  (major) =>
-                    !form.school_unit_id ||
-                    major.school_unit_id === form.school_unit_id,
-                )
-                .map((major) => ({
-                  value: major.id,
-                  label: `${major.code} - ${major.name}`,
-                }))}
+              options={compatibleMajors.map((major) => ({
+                value: major.id,
+                label: `${major.code} - ${major.name}`,
+              }))}
             />
             <FieldError message={errors.major_id} />
           </FieldGroup>

@@ -29,6 +29,8 @@ import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { RadixSelectField } from "@/components/ui/radix-select";
 import {
+  defaultProgramTypeForLevel,
+  getProgramTypesForLevel,
   programSchema,
   schoolUnitSchema,
   type ProgramFormValues,
@@ -513,6 +515,11 @@ function MajorModal({
     resolver: zodResolver(programSchema),
     defaultValues: majorValues(item),
   });
+  const selectedUnitID = form.watch("school_unit_id");
+  const selectedUnit = units.find((unit) => unit.id === selectedUnitID);
+  const programTypeOptions = getProgramTypesForLevel(
+    selectedUnit?.education_level ?? selectedUnit?.code ?? "",
+  );
 
   useEffect(() => {
     if (open) form.reset(majorValues(item));
@@ -543,6 +550,16 @@ function MajorModal({
           control={form.control}
           name="school_unit_id"
           label="Unit Sekolah"
+          onValueChange={(value) => {
+            const unit = units.find((item) => item.id === value);
+            form.setValue(
+              "program_type",
+              defaultProgramTypeForLevel(
+                unit?.education_level ?? unit?.code ?? "",
+              ),
+              { shouldValidate: true },
+            );
+          }}
           options={units
             .filter((unit) => unit.is_active)
             .map((unit) => ({
@@ -568,12 +585,10 @@ function MajorModal({
           control={form.control}
           name="program_type"
           label="Tipe Program"
-          options={[
-            { value: "VOCATIONAL", label: "Kejuruan" },
-            { value: "GENERAL", label: "Umum" },
-            { value: "SCIENCE", label: "Sains" },
-            { value: "SOCIAL", label: "Sosial" },
-          ]}
+          options={programTypeOptions.map((value) => ({
+            value,
+            label: programTypeLabel(value),
+          }))}
         />
         <SelectControl
           control={form.control}
@@ -623,11 +638,13 @@ function SelectControl<T extends SchoolUnitFormValues | ProgramFormValues>({
   name,
   label,
   options,
+  onValueChange,
 }: {
   control: ReturnType<typeof useForm<T>>["control"];
   name: string;
   label: string;
   options: { value: string; label: string }[];
+  onValueChange?: (value: string) => void;
 }) {
   return (
     <div className={premiumModalFieldClassName}>
@@ -642,9 +659,10 @@ function SelectControl<T extends SchoolUnitFormValues | ProgramFormValues>({
                 ? String(field.value)
                 : String(field.value ?? "")
             }
-            onValueChange={(value) =>
-              field.onChange(name === "is_active" ? value === "true" : value)
-            }
+            onValueChange={(value) => {
+              field.onChange(name === "is_active" ? value === "true" : value);
+              onValueChange?.(value);
+            }}
             placeholder={`Pilih ${label.toLowerCase()}`}
             options={options}
           />
