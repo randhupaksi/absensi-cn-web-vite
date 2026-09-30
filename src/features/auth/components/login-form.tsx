@@ -280,7 +280,9 @@ export function LoginForm({ portal }: LoginFormProps) {
             <span className="font-semibold">
               {rateLimitKind === "throttled"
                 ? "Terlalu banyak percobaan login"
-                : "Server sedang ramai menerima login"}
+                : rateLimitKind === "in_progress"
+                  ? "Login akun ini sedang diproses"
+                  : "Server sedang ramai menerima login"}
             </span>{" "}
             Coba lagi dalam{" "}
             <span className="font-semibold tabular-nums">

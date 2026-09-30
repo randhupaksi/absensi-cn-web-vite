@@ -42,7 +42,9 @@ request ID in its standard JSON envelope when available. Preserve safe request
 context in support/debug reports, but avoid displaying raw internal errors or
 sensitive values to end users. Retry only transient, safe-to-repeat requests;
 never blindly replay a non-idempotent write. In particular, do not retry
-`LOGIN_THROTTLED` automatically; honor `Retry-After` and present the cooldown.
+`LOGIN_THROTTLED` or `LOGIN_IN_PROGRESS` automatically; honor `Retry-After` and
+present the cooldown or short in-progress message. A concurrent login for the
+same portal identifier is not another failed-password attempt.
 
 ## Coordination checklist
 

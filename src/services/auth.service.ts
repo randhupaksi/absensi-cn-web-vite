@@ -24,7 +24,7 @@ type ApiEnvelope<T> = {
   errors?: Record<string, string>;
 };
 
-export type LoginRateLimitKind = "throttled" | "busy";
+export type LoginRateLimitKind = "throttled" | "busy" | "in_progress";
 
 export class LoginRateLimitError extends Error {
   readonly kind: LoginRateLimitKind;
@@ -34,7 +34,9 @@ export class LoginRateLimitError extends Error {
     super(
       kind === "throttled"
         ? "Terlalu banyak percobaan login."
-        : "Server sedang ramai menerima login.",
+        : kind === "in_progress"
+          ? "Login untuk akun ini sedang diproses."
+          : "Server sedang ramai menerima login.",
     );
     this.name = "LoginRateLimitError";
     this.kind = kind;
@@ -54,14 +56,18 @@ function getLoginRateLimitError(error: unknown) {
   if (
     code !== "LOGIN_THROTTLED" &&
     code !== "LOGIN_LOCKED" &&
+    code !== "LOGIN_IN_PROGRESS" &&
     code !== "SERVER_BUSY"
   ) return null;
   const retryAfterSeconds = getRetryAfterSeconds(error);
   return new LoginRateLimitError(
     code === "LOGIN_THROTTLED" || code === "LOGIN_LOCKED"
       ? "throttled"
-      : "busy",
-    retryAfterSeconds || (code === "LOGIN_LOCKED" ? 120 : 30),
+      : code === "LOGIN_IN_PROGRESS"
+        ? "in_progress"
+        : "busy",
+    retryAfterSeconds ||
+      (code === "LOGIN_IN_PROGRESS" ? 1 : code === "LOGIN_LOCKED" ? 120 : 30),
   );
 }
 

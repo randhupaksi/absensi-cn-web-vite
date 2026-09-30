@@ -40,4 +40,23 @@ describe("login throttling response", () => {
       retryAfterSeconds: 30,
     });
   });
+
+  it("shows a short in-progress wait without automatically replaying login", async () => {
+    const post = vi.spyOn(apiClient, "post").mockRejectedValue({
+      isAxiosError: true,
+      response: {
+        status: 429,
+        data: { code: "LOGIN_IN_PROGRESS", message: "wait" },
+        headers: { "retry-after": "1" },
+      },
+    });
+
+    await expect(
+      login({ portal: "student", nis: "12345678", password: "wrong" }),
+    ).rejects.toMatchObject({
+      kind: "in_progress",
+      retryAfterSeconds: 1,
+    });
+    expect(post).toHaveBeenCalledTimes(1);
+  });
 });
