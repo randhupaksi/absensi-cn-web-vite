@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, ORIGIN } from "./fixture";
 import { readFileSync } from "node:fs";
 
 const deploymentConfig = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8")) as {
@@ -27,11 +27,11 @@ test("unauthenticated admin route redirects to staff login", async ({
 test("landing page boots under the deployment CSP", async ({ page }) => {
   expect(contentSecurityPolicy).toBeTruthy();
   await page.route("**/*", async (route) => {
-    if (!route.request().isNavigationRequest()) {
-      await route.continue();
+    if (!route.request().isNavigationRequest() || new URL(route.request().url()).origin !== ORIGIN) {
+      await route.fallback();
       return;
     }
-    const response = await route.fetch();
+    const response = await route.fetch({ maxRedirects: 0 });
     await route.fulfill({ response, headers: { ...response.headers(), "content-security-policy": contentSecurityPolicy! } });
   });
   await page.goto("/");
