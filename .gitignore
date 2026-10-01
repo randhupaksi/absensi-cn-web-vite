@@ -11,6 +11,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+/.e2e-dist/
 dist
 dist-ssr
 coverage

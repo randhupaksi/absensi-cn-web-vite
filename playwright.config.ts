@@ -2,14 +2,26 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
+  workers: 2,
+  timeout: 45_000,
+  expect: { timeout: 10_000 },
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? "github" : "list",
+  reporter: [[process.env.CI ? "github" : "list"], ["json", { outputFile: "test-results/e2e-results.json" }]],
   use: {
     baseURL: "http://127.0.0.1:4173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    serviceWorkers: "block",
+    timezoneId: "Asia/Jakarta",
+    locale: "id-ID",
+    reducedMotion: "reduce",
+    actionTimeout: 10_000,
+    launchOptions: {
+      args: ["--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--disable-background-networking"],
+    },
   },
   projects: [
     {
@@ -21,11 +33,4 @@ export default defineConfig({
       use: { ...devices["Pixel 5"] },
     },
   ],
-  webServer: {
-    // Exercise the production bundle built by the test:e2e script.
-    command: "npm run preview -- --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
 });
