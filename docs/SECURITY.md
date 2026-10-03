@@ -6,10 +6,15 @@
   must be authorized by the API.
 - Do not log bearer tokens, passwords, student identifiers/photos, GPS evidence,
   or other private data. Keep error messages useful without exposing internals.
-- The auth session is stored in `sessionStorage` per tab; legacy persistent auth
-  entries in `localStorage` are removed rather than restored. This reduces
-  persistence after a tab session ends but does not protect a live token from
-  same-origin malicious JavaScript or XSS.
+- The auth session is stored in `localStorage` when available, with
+  `sessionStorage` as a fallback when persistent storage is unavailable. This
+  preserves sessions across tabs and browser restarts, but can leave a token on
+  a shared device until logout or app cleanup; the API still rejects an expired
+  token. Both stores are readable by same-origin JavaScript and neither prevents
+  token theft through XSS; use this as a compatibility trade-off, not as an XSS
+  defense. A future
+  `HttpOnly; Secure` cookie design requires a coordinated API/frontend change
+  and CSRF review.
 - Clear user-specific query/cache state on logout, invalid authentication, and
   account changes.
 - Keep dependencies lockfile-managed (`npm ci` for reproducible installs) and

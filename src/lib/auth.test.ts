@@ -38,12 +38,53 @@ describe("auth session storage", () => {
 
     auth.saveAuthSession(session);
     expect(auth.getAuthSession()).toEqual(session);
-    expect(window.sessionStorage.getItem("absensi-cn-auth")).toBe(JSON.stringify(session));
-    expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
+    expect(window.localStorage.getItem("absensi-cn-auth")).toBe(JSON.stringify(session));
+    expect(window.sessionStorage.getItem("absensi-cn-auth")).toBeNull();
 
     auth.clearAuthSession();
     expect(auth.getAuthSession()).toBeNull();
     expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
+    expect(window.sessionStorage.getItem("absensi-cn-auth")).toBeNull();
+  });
+
+  it("falls back to sessionStorage when localStorage cannot be written", async () => {
+    const originalLocalStorage = Object.getOwnPropertyDescriptor(
+      window,
+      "localStorage",
+    );
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: {
+        get length() {
+          return 0;
+        },
+        clear() {},
+        getItem() {
+          return null;
+        },
+        key() {
+          return null;
+        },
+        removeItem() {},
+        setItem() {
+          throw new DOMException("Storage unavailable", "QuotaExceededError");
+        },
+      } satisfies Storage,
+    });
+    const auth = await loadAuthModule();
+    const session: AuthSession = { accessToken: "test-token", user: student };
+
+    try {
+      auth.saveAuthSession(session);
+
+      expect(auth.getAuthSession()).toEqual(session);
+      expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
+      expect(window.sessionStorage.getItem("absensi-cn-auth")).toBe(JSON.stringify(session));
+    } finally {
+      if (originalLocalStorage) {
+        Object.defineProperty(window, "localStorage", originalLocalStorage);
+      }
+    }
   });
 
   it("removes malformed persisted sessions", async () => {
@@ -54,13 +95,6 @@ describe("auth session storage", () => {
     expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
   });
 
-  it("discards a legacy persistent token instead of restoring it", async () => {
-    window.localStorage.setItem("absensi-cn-auth", JSON.stringify({ accessToken: "old-token", user: admin }));
-    const auth = await loadAuthModule();
-
-    expect(auth.getAuthSession()).toBeNull();
-    expect(window.localStorage.getItem("absensi-cn-auth")).toBeNull();
-  });
 });
 
 describe("dashboard authorization helpers", () => {

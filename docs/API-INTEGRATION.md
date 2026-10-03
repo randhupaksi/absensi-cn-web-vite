@@ -30,10 +30,14 @@ switch, clear private query state as well as auth state. Do not log tokens,
 passwords, student photos, or unnecessary personal data. Do not copy secrets
 into `.env` values prefixed with `VITE_`.
 
-The current frontend keeps the auth session in `sessionStorage` per tab and
-deletes the legacy `localStorage` entry; do not reintroduce persistent token
-storage. This does not mitigate active XSS. The app clears TanStack Query state
-when the auth session changes, so new users do not inherit cached private data.
+The frontend stores the auth session in `localStorage` when available and uses
+`sessionStorage` only as a fallback. This preserves cross-tab and browser-restart
+convenience but can leave a token on shared devices until logout or app cleanup;
+the API still rejects an expired token. Both stores are readable by same-origin
+JavaScript, so this does not protect against XSS. A future `HttpOnly; Secure` cookie flow requires
+coordinated API/frontend changes and CSRF review. The app clears TanStack Query
+state when the auth session changes, so new users do not inherit cached private
+data.
 
 ## Correlation and errors
 
