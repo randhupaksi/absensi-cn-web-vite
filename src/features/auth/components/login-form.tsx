@@ -283,7 +283,7 @@ export function LoginForm({ portal }: LoginFormProps) {
                 : rateLimitKind === "in_progress"
                   ? "Login akun ini sedang diproses"
                   : "Server sedang ramai menerima login"}
-            </span>{" "}
+            </span>{rateLimitKind === "throttled" ? "." : ""}{" "}
             Coba lagi dalam{" "}
             <span className="font-semibold tabular-nums">
               {formatCountdown(rateLimitSeconds)}

@@ -97,6 +97,11 @@ for (const code of ["LOGIN_THROTTLED", "LOGIN_IN_PROGRESS"] as const) {
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Masuk sebagai Siswa", exact: true }).click();
     await expect(page.getByRole("alert")).toContainText(code === "LOGIN_THROTTLED" ? "Terlalu banyak percobaan login" : "Login akun ini sedang diproses");
+    if (code === "LOGIN_THROTTLED") {
+      await expect(page.getByRole("alert")).toContainText(
+        /Terlalu banyak percobaan login\. Coba lagi dalam \d{2}:\d{2}/,
+      );
+    }
     await expect(page.getByRole("button", { name: "Tunggu sebentar", exact: true })).toBeDisabled();
     expect(api.count("POST", "/auth/login")).toBe(1);
   });
