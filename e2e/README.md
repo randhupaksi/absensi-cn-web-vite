@@ -37,7 +37,7 @@ Semua endpoint pada tabel menggunakan prefix `/api/v1`, kecuali `/uploads/*`.
 
 | Halaman / role | Alur browser | API yang dimock | Spec |
 | --- | --- | --- | --- |
-| Publik `/`, `/login/student`, `/login/staff`, `/deveran`, `/randhu` | Landing, navigasi bantuan kedua portal/back, profil developer/log publik, tema, redirect alias/fallback, desktop/mobile, CSP smoke lama | GET `/public/attendance-window` | `smoke`, `public-and-access` |
+| Publik `/`, `/login/student`, `/login/staff`, `/randhu` | Landing, navigasi bantuan kedua portal/back, profil developer, tema, redirect alias/fallback termasuk route lama `/deveran`, desktop/mobile, CSP smoke lama | GET `/public/attendance-window` | `smoke`, `public-and-access` |
 | Login STUDENT, TEACHER, ADMIN | Input kosong/salah, payload portal, sukses ke dashboard role, reload session, loading/duplicate, rate limit, error | POST `/auth/login`; GET dashboard role | `auth` |
 | `/auth/change-password` | Gate password awal, validasi panjang/konfirmasi, sukses/gagal | POST `/auth/change-password` | `auth` |
 | `/dashboard/student` | Kamera ditolak, foto/cancel/ambil ulang, hadir/izin/sakit, lokasi captured/denied/unavailable, multipart, pending, gagal/retry, konflik duplikat, antrean 429, hari libur | GET `/student/today`, `/student/dashboard`; POST `/student/daily-report` | `student` |

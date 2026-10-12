@@ -182,11 +182,6 @@ const MapelSessionPage = lazy(() =>
     default: module.MapelSessionPage,
   })),
 );
-const DevFixLogPage = lazy(() =>
-  import("@/pages/dev/fix-log-page").then((module) => ({
-    default: module.DevFixLogPage,
-  })),
-);
 const RandhuPage = lazy(() =>
   import("@/pages/randhu/randhu-page").then((module) => ({
     default: module.RandhuPage,
@@ -356,7 +351,6 @@ export default function App() {
       <PageBoundary>
         <Routes>
           <Route path="/" element={<HomeRoute />} />
-          <Route path="/deveran" element={<DevFixLogPage />} />
           <Route path="/randhu" element={<RandhuPage />} />
           <Route path="/support" element={<PublicSupportPage />} />
           <Route

@@ -34,9 +34,13 @@ test("staff recovery navigation uses the staff portal", async ({ page }) => {
   await expect(page.getByLabel("Username Staff", { exact: true })).toBeVisible();
 });
 
-test("public developer pages render without private API calls", async ({ page, api }) => {
+test("removed /deveran route redirects home without exposing build details", async ({ page }) => {
   await page.goto("/deveran");
-  await expect(page.locator("main pre")).toContainText('"route": "/deveran"');
+  await expect(page).toHaveURL("http://127.0.0.1:4173/");
+  await expect(page.locator("main pre")).toHaveCount(0);
+});
+
+test("public developer profile renders without private API calls", async ({ page, api }) => {
   await page.goto("/randhu");
   await expect(page.getByRole("heading", { name: /Randhu Paksi.*Membumi/ })).toBeVisible();
   await page.getByRole("link", { name: "CITRA NEGARA ATTENDANCE SYSTEM", exact: true }).click();
