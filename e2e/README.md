@@ -1,111 +1,112 @@
-# Browser E2E ABSENSI CN
+# Absensi CN Browser E2E
 
-Suite ini menguji frontend asli melalui browser Chromium desktop dan emulasi Pixel 5. Semua respons API berasal dari fixture sintetis; ini bukan pengujian integrasi Go/MySQL atau bukti otorisasi server.
+This suite tests the real frontend in desktop Chromium and Pixel 5 emulation. All API responses come from synthetic fixtures; this is not a Go/MySQL integration test and does not prove server-side authorization.
 
-## Menjalankan
+## Running the suite
 
-Dari root repository `absensi-cn-web-vite`, dengan dependency dan browser Playwright yang sudah tersedia:
+From the `absensi-cn-web-vite` repository root, with dependencies and the Playwright browser already installed:
 
 ```sh
 npm run test:e2e:typecheck
 npm run test:e2e
-# Pilih proyek/file, melalui CLI lokal agar forwarding argumen shell konsisten:
+# Select a project or file. Use the local CLI to keep shell argument forwarding consistent:
 node node_modules/playwright/cli.js test --project=chromium e2e/student.spec.ts
 node node_modules/playwright/cli.js test --project=mobile-chromium
 node node_modules/playwright/cli.js test --list
 ```
 
-Gunakan versi Node yang didukung `package.json` (22.x atau >=24). Runner membangun bundle sendiri ke `.e2e-dist`, kemudian menjalankan preview pada **127.0.0.1:4173**, tanpa memakai server yang sudah berjalan. Build legacy juga dijalankan sehingga persiapan dapat memerlukan beberapa menit. Port tersebut harus kosong. Tidak perlu menyalakan API, database, Docker, atau menjalankan migrasi. Tidak ada dependency baru atau browser yang diunduh oleh perintah test.
+Use a Node version supported by `package.json` (22.x or >=24). The runner builds its own bundle in `.e2e-dist` and starts a preview at **127.0.0.1:4173**; it does not use an already-running server. The legacy build also runs, so setup may take several minutes. The port must be free. The API, database, Docker, and migrations do not need to be started. The test command does not add dependencies or download a browser.
 
-Hasil JSON: `test-results/e2e-results.json`; screenshot dan konteks DOM tersedia untuk kegagalan. Trace disimpan pada retry pertama. Di CI, retry maksimal dua kali; hasil flaky harus ditinjau, bukan dianggap bukti stabilitas.
+JSON results are written to `test-results/e2e-results.json`. Screenshots and DOM context are attached to failures. Traces are saved on the first retry. CI retries up to twice; review flaky results instead of treating them as proof of stability.
 
-## Isolasi
+## Isolation
 
-- `global-setup.ts` membangun dan menghentikan preview dalam proses runner. `vite.config.ts` memakai konfigurasi aplikasi dengan environment bundle dan proxy khusus test.
-- `fixture.ts` memasang routing pada **browser context**, sehingga tab/popup juga terlindungi. Hanya origin preview boleh lewat; `/api/*` dan `/uploads/*` wajib dijawab mock. API yang belum dipetakan menyebabkan test gagal.
-- Semua `DELETE` diblokir dan menyebabkan test gagal, termasuk jika ada handler mock. Tidak ada operasi migrasi, startup backend, hapus histori, penghapusan akun, atau reset database.
-- DNS eksternal Chromium diblokir, background networking dikurangi, WebSocket ditutup, service worker dinonaktifkan. Request domain luar dan port layanan lokal lain dibatalkan sebelum dikirim. Tes isolasi menggunakan domain `.invalid` dan port lokal yang tetap diblokir interceptor.
-- Kamera fisik dan lokasi asli tidak dipanggil. Kamera menggunakan stream canvas bertuliskan `SYNTHETIC E2E`; koordinat uji 0,0. Default izin perangkat ditolak.
-- Setiap test mendapat context, mock map, dan session baru. Tanggal browser dikunci ke 30 September 2026, Asia/Jakarta; timer tetap berjalan agar debounce/retry/loading aplikasi tetap diuji.
-- Token, nama, NIS, foto, tiket, file import, dan password seluruhnya dibuat untuk test. Tidak membaca akun/dataset sekolah. Audit request yang dilampirkan hanya memuat method/path, bukan password atau body.
+- `global-setup.ts` builds and stops the preview within the test runner. `vite.config.ts` uses the application configuration with a test-specific bundle environment and proxy.
+- `fixture.ts` installs routing on the **browser context**, protecting tabs and popups too. Only the preview origin may pass through; `/api/*` and `/uploads/*` must be mocked. An unmapped API request fails the test.
+- All `DELETE` requests are blocked and fail the test, even if a mock handler exists. No migrations, backend startup, history deletion, account deletion, or database reset occurs.
+- External Chromium DNS is blocked, background networking is reduced, WebSockets are closed, and service workers are disabled. Requests to external domains and other local service ports are cancelled before sending. Isolation tests use a `.invalid` domain and local ports that remain blocked by the interceptor.
+- Physical cameras and real device location are not accessed. The camera uses a canvas stream labelled `SYNTHETIC E2E`; test coordinates are 0,0. Device permissions are denied by default.
+- Every test gets a new context, mock map, and session. The browser date is fixed to September 30, 2026, in Asia/Jakarta; timers keep running so app debounce/retry/loading behavior is still tested.
+- Tokens, names, NIS values, photos, tickets, import files, and passwords are synthetic. No school account or dataset is read. Attached request audits contain method/path only, never passwords or request bodies.
 
-## Peta alur dari implementasi
+## Flow map from the implementation
 
-Sumber pemetaan: `src/App.tsx`, halaman dan komponen form terkait, `src/services/*`, tipe respons frontend, serta router/kontrak API sibling saat discovery. BK adalah **TEACHER dengan `has_bk_scope`**, bukan role baru. Scope wali kelas/mapel mengikuti `/teacher/me` dan penugasan yang dikembalikan API.
+Mapping sources: `src/App.tsx`, related pages and form components, `src/services/*`, frontend response types, and the sibling API router/contract discovered during setup. BK is **a TEACHER with `has_bk_scope`**, not a separate role. Homeroom/subject scope follows `/teacher/me` and the assignments returned by the API.
 
-Semua endpoint pada tabel menggunakan prefix `/api/v1`, kecuali `/uploads/*`.
+Every endpoint in the table uses the `/api/v1` prefix, except `/uploads/*`.
 
-| Halaman / role | Alur browser | API yang dimock | Spec |
+| Page / role | Browser flow | Mocked API | Spec |
 | --- | --- | --- | --- |
-| Publik `/`, `/login/student`, `/login/staff`, `/randhu` | Landing, navigasi bantuan kedua portal/back, profil developer, tema, redirect alias/fallback termasuk route lama `/deveran`, desktop/mobile, CSP smoke lama | GET `/public/attendance-window` | `smoke`, `public-and-access` |
-| Login STUDENT, TEACHER, ADMIN | Input kosong/salah, payload portal, sukses ke dashboard role, reload session, loading/duplicate, rate limit, error | POST `/auth/login`; GET dashboard role | `auth` |
-| `/auth/change-password` | Gate password awal, validasi panjang/konfirmasi, sukses/gagal | POST `/auth/change-password` | `auth` |
-| `/dashboard/student` | Kamera ditolak, foto/cancel/ambil ulang, hadir/izin/sakit, lokasi captured/denied/unavailable, multipart, pending, gagal/retry, konflik duplikat, antrean 429, hari libur | GET `/student/today`, `/student/dashboard`; POST `/student/daily-report` | `student` |
-| Siswa `/history`, `/profile` | Identitas API, loading/403 profil, histori/search/empty, foto terlindungi, export kosong, regresi offline/online | GET `/student/history`, `/student/profile`, `/uploads/e2e/photo.png` | `student` |
-| Guru `/dashboard/teacher` | Menu sesuai capability, scope BK terpisah, data dashboard | GET `/teacher/me`, `/teacher/homeroom/dashboard`, `/teacher/subject-assignments`, `/teacher/subject/current-session`, `/bk/dashboard` sesuai scope | `staff`, `public-and-access` |
-| Guru `/homeroom/students` | Daftar/search/detail siswa kelas, kosong, 403 | GET `/teacher/homeroom`, `/teacher/homeroom/students`, `/teacher/homeroom/students/:id` | `staff` |
-| Guru `/homeroom/attendance` | Filter API, validasi catatan koreksi, sukses/error, invalidasi data | GET `/teacher/homeroom/attendance-overview`; PATCH `/teacher/homeroom/attendance/:id/review` | `staff` |
-| Guru `/homeroom/submissions` | Kosong/403, review wajib catatan, sukses/error, data setelah refresh | GET `/teacher/homeroom/submissions-overview`; PATCH `/teacher/homeroom/submissions/:id/review` | `staff` |
-| Guru `/subject/schedule`, `/subject/session` | Jadwal ke sesi aktif, kosong/error, edit topik/catatan, draft, finalisasi, error draft | GET `/teacher/subject-assignments`, `/teacher/subject/schedule-day-status`, `/teacher/subject/current-session`, `/teacher/subject/attendance`; PUT `/teacher/subject/sessions/:id/draft`; POST `/teacher/subject/attendance/validate` | `staff` |
-| Guru `/subject/history`, `/subject/recap` | Filter status, buka sesi/back, pilih assignment/mode periode, rekap populated/empty/403 | GET `/teacher/subject/sessions`, `/teacher/subject/recap` beserta lookup penugasan | `staff` |
-| BK `/bk/students`, `/bk/attendance`, `/bk/submissions`, `/bk/counseling` | Scope guru BK, kosong/403, pencarian konseling, validasi/buat catatan | GET `/bk/*-overview`; POST `/bk/students/:id/counseling-notes` | `staff`, `public-and-access` |
-| Admin dashboard, `/analytics` | Data ringkasan, analitik kosong/error | GET `/admin/dashboard`, `/admin/analytics/attendance`, lookup akademik | `admin` |
-| Admin `/students`, `/teachers`, `/classes`, `/subjects`, `/holidays`, `/users`, `/admins` | List/search/empty/error, tab unit/jurusan, validasi dan buat mapel mock, validasi/cancel libur | GET endpoint eksplisit di `defaultReads()`; POST `/admin/subjects` | `admin` |
-| Admin import siswa/guru | File salah/terlalu besar ditolak, upload XLSX sintetis, hasil parsial | POST `/admin/import/siswa`, `/admin/import/guru` | `admin` |
-| Admin `/support` | Cari dan buka tiket yang dikembalikan mock | GET `/admin/support/tickets`, `/admin/support/tickets/:reference` | `admin` |
-| Publik `/support` | Validasi dua portal, buat tiket, pending/error, lacak kode, salah kode, balas, session tiket/reload | POST `/public/support/tickets`, `/public/support/tickets/access`, `/public/support/tickets/:reference/access`, `/public/support/tickets/:reference/messages` | `support` |
-| Publik `/support/reset-password` | Tiket disetujui → sesi reset → validasi password → login, token hilang/expired/ditolak | POST `/public/support/tickets/:reference/reset-session`, `/public/support/password/reset` | `support` |
-| Siswa/guru `/support` | List kosong, validasi/buat tiket, detail | GET/POST `/support/tickets`, GET `/support/tickets/:reference`, `/support/notifications`, endpoint push-key nonaktif | `support` |
-| Seluruh halaman terlindungi | Tanpa sesi, role berbeda, BK tanpa scope, 401, logout, session rusak/legacy, back setelah session hilang | Tidak ada private API untuk role yang ditolak route guard; 403 eksplisit untuk scope | `public-and-access` |
+| Public `/`, `/login/student`, `/login/staff`, `/randhu` | Landing, help navigation from both portals/back, developer profile, theme, alias/fallback redirects including the removed `/deveran` route, desktop/mobile, legacy CSP smoke | GET `/public/attendance-window` | `smoke`, `public-and-access` |
+| STUDENT, TEACHER, ADMIN login | Empty/invalid input, portal payload, success to role dashboard, session reload, loading/duplicate submit, rate limit, errors | POST `/auth/login`; GET role dashboard | `auth` |
+| `/auth/change-password` | Initial-password gate, length/confirmation validation, success/failure | POST `/auth/change-password` | `auth` |
+| `/dashboard/student` | Camera denied, photo/cancel/retake, present/permission/sick leave, captured/denied/unavailable location, multipart, pending, failure/retry, duplicate conflict, 429 queue, school holiday | GET `/student/today`, `/student/dashboard`; POST `/student/daily-report` | `student` |
+| Student `/history`, `/profile` | API identity, profile loading/403, history/search/empty state, protected photo, empty export, offline/online regression | GET `/student/history`, `/student/profile`, `/uploads/e2e/photo.png` | `student` |
+| Teacher `/dashboard/teacher` | Capability-aware menus, separate BK scope, dashboard data | GET `/teacher/me`, `/teacher/homeroom/dashboard`, `/teacher/subject-assignments`, `/teacher/subject/current-session`, `/bk/dashboard` for applicable scope | `staff`, `public-and-access` |
+| Teacher `/homeroom/students` | Class roster/search/student detail, empty state, 403 | GET `/teacher/homeroom`, `/teacher/homeroom/students`, `/teacher/homeroom/students/:id` | `staff` |
+| Teacher `/homeroom/attendance` | API filters, correction-note validation, success/error, query invalidation | GET `/teacher/homeroom/attendance-overview`; PATCH `/teacher/homeroom/attendance/:id/review` | `staff` |
+| Teacher `/homeroom/submissions` | Empty/403, review requires a note, success/error, refreshed data | GET `/teacher/homeroom/submissions-overview`; PATCH `/teacher/homeroom/submissions/:id/review` | `staff` |
+| Teacher `/subject/schedule`, `/subject/session` | Schedule to active session, empty/error, edit topic/notes, save draft, finalize, draft error | GET `/teacher/subject-assignments`, `/teacher/subject/schedule-day-status`, `/teacher/subject/current-session`, `/teacher/subject/attendance`; PUT `/teacher/subject/sessions/:id/draft`; POST `/teacher/subject/attendance/validate` | `staff` |
+| Teacher `/subject/history`, `/subject/recap` | Status filters, open session/back, assignment/period selection, populated/empty/403 recap | GET `/teacher/subject/sessions`, `/teacher/subject/recap` and assignment lookups | `staff` |
+| BK `/bk/students`, `/bk/attendance`, `/bk/submissions`, `/bk/counseling` | BK teacher scope, empty/403, counseling search, validate/create notes | GET `/bk/*-overview`; POST `/bk/students/:id/counseling-notes` | `staff`, `public-and-access` |
+| Admin dashboard, `/analytics` | Summary data, empty/error analytics | GET `/admin/dashboard`, `/admin/analytics/attendance`, academic lookups | `admin` |
+| Admin `/students`, `/teachers`, `/classes`, `/subjects`, `/holidays`, `/users`, `/admins` | List/search/empty/error, unit/major tabs, mock subject validation/create, holiday validation/cancel | GET endpoints listed in `defaultReads()`; POST `/admin/subjects` | `admin` |
+| Admin student/teacher imports | Reject invalid/oversized files, synthetic XLSX upload, partial results | POST `/admin/import/siswa`, `/admin/import/guru` | `admin` |
+| Admin `/support` | Search and open only the ticket returned by the mock | GET `/admin/support/tickets`, `/admin/support/tickets/:reference` | `admin` |
+| Public `/support` | Two-portal validation, create ticket, pending/error, track code, invalid code, reply, ticket session/reload | POST `/public/support/tickets`, `/public/support/tickets/access`, `/public/support/tickets/:reference/access`, `/public/support/tickets/:reference/messages` | `support` |
+| Public `/support/reset-password` | Approved ticket → reset session → password validation → login; missing/expired/rejected token | POST `/public/support/tickets/:reference/reset-session`, `/public/support/password/reset` | `support` |
+| Student/teacher `/support` | Empty list, validate/create ticket, ticket details | GET/POST `/support/tickets`, GET `/support/tickets/:reference`, `/support/notifications`, disabled push-key endpoint | `support` |
+| All protected pages | No session, wrong role, BK without scope, 401, logout, corrupt/legacy session, browser back after session removal | No private API call for roles rejected by the route guard; explicit 403 for scope | `public-and-access` |
 
-`fixtures.ts` adalah inventori lengkap respons GET, dengan tipe domain untuk identitas/absensi/mapel/tiket. Mutasi didaftarkan per test; tidak ada handler sukses umum. Assertion payload/query/bearer memeriksa integrasi frontend dengan kontrak API, bukan hanya teks tampilan.
+`fixtures.ts` is the complete inventory of mocked GET responses, with domain types for identity/attendance/subjects/tickets. Mutations are registered per test; there is no generic success handler. Payload/query/bearer assertions check frontend integration with the API contract, not just visible text.
 
-## Batas dan gap yang disengaja
+## Deliberate limits and coverage gaps
 
-- **Penghapusan histori, migrasi startup, dan prioritas keputusan BK vs wali kelas tidak ditetapkan sebagai expected behavior.** Tidak dieksekusi. Perlu konfirmasi aturan bisnis terpisah.
-- Mock 403 menguji reaksi frontend; otorisasi, SQL, isolasi tenant, race antar akun, dan konsistensi database harus diuji di backend dengan lingkungan sintetis tersendiri.
-- Tidak mengakses hardware, geofence nyata, push provider, SSE server nyata, SMTP, atau layanan eksternal. Emulasi Pixel 5 bukan perangkat Android fisik; Safari/Firefox dan engine legacy belum diuji.
-- Operasi admin sensitif (hapus/nonaktifkan massal/reset akun langsung), seluruh kombinasi CRUD akademik, review berantai BK/walas, dan pembukaan sesi terlambat belum menjadi cakupan suite.
-- Export PDF/XLSX berisi banyak variasi format, notifikasi realtime/pagination percakapan, dan semua kombinasi periode/filter bukan cakupan lengkap. Jangan menyimpulkan 100% coverage dari jumlah kasus.
-- Kegagalan karena aplikasi harus tetap terlihat dalam hasil run. Jangan memakai `force`, `test.fail`, `skip`, atau mengganti assertion menjadi perilaku bug agar suite hijau. Temuan terkonfirmasi dan hasil validasi dicatat setelah run lengkap.
+- **History deletion, startup migrations, and priority between BK and homeroom decisions are not defined as expected behavior.** They are not executed; business rules require separate confirmation.
+- Mocked 403 responses test frontend behavior. Authorization, SQL, tenant isolation, cross-account races, and database consistency require separate backend tests in a synthetic environment.
+- The suite does not access physical hardware, real geofencing, push providers, a real SSE server, SMTP, or external services. Pixel 5 emulation is not a physical Android device; Safari/Firefox and legacy browser engines are not tested.
+- Sensitive admin operations (bulk delete/deactivation/direct account reset), all academic CRUD combinations, chained BK/homeroom review, and late session opening are outside current coverage.
+- PDF/XLSX format variations, real-time notifications/conversation pagination, and every period/filter combination are not fully covered. Test count does not imply 100% coverage.
+- Application failures must remain visible in the results. Do not use `force`, `test.fail`, `skip`, or change assertions to match a bug just to make the suite green. Record confirmed findings and validation results after a complete run.
 
-## Temuan aplikasi yang dipertahankan sebagai test gagal
+## Browser E2E findings
 
-1. **Tombol tampilkan password tidak bisa diklik.** Playwright menemukan tombol tetapi input `#password` menghalangi pointer. Pada `src/features/auth/components/premium-input.tsx:93`, input memiliki `z-[1]`; wrapper trailing pada baris 100 tidak memiliki stacking level yang mengatasinya. Test memakai klik pengguna biasa dan memeriksa perubahan tipe input. Tidak memakai `force` atau mengubah CSS aplikasi.
-2. **503 generik ditampilkan sebagai pembaruan versi.** Dua respons login 503 dengan kode `SERVER_UNAVAILABLE` seharusnya memberikan feedback gangguan layanan. `system-status-events.ts` sudah membuat judul gangguan, tetapi `src/components/errors/system-status-alert.tsx:117` selalu menampilkan “Web sedang update versi terbaru” untuk `isServerOutage`. Test tidak menganggap gangguan umum sebagai maintenance. Terjadi pada portal siswa dan staff.
-3. **Peringatan offline gagal pada pemuatan pertama.** Setelah profil selesai dimuat, `context.setOffline(true)` memicu lazy import `SystemStatusAlert` dari `src/providers/app-providers.tsx:20`. Audit browser mencatat chunk `system-status-alert` dan dependensinya gagal dengan `net::ERR_INTERNET_DISCONNECTED`; alert tidak tampil. Reproduksi menggunakan context baru dan service worker diblokir sesuai isolasi suite. Bagian pemulihan online dalam test belum tercapai karena assertion alert gagal terlebih dahulu.
+1. **The password visibility button cannot be clicked.** Playwright locates the button, but the `#password` input intercepts pointer events. The test uses a normal user click and checks the input type; it does not use `force` or modify application CSS.
+2. **Generic 503 responses do not show the expected service outage feedback.** A login response with status 503 and code `SERVER_UNAVAILABLE` does not display the expected localized service-outage message. The test does not treat a general outage as maintenance. This affects both student and staff portals.
+3. **The offline warning fails on first load.** After the profile loads, `context.setOffline(true)` triggers a lazy import of `SystemStatusAlert`. The browser audit records the alert chunk and its dependencies failing with `net::ERR_INTERNET_DISCONNECTED`, so the alert does not appear. The test uses a fresh context and blocks the service worker as part of suite isolation.
+4. **Six persistence assertions in `auth.spec.ts` no longer match the application contract.** The source intentionally stores the session in `localStorage` with `sessionStorage` as a fallback, while these assertions still expect `localStorage` to be empty after login. This is a test specification failure, not evidence that login persistence is broken. Update the assertions separately to verify session reload according to the current contract.
 
-Ketiganya direproduksi pada bundle build lokal; perbaikan aplikasi berada di luar izin tugas ini. Screenshot, DOM, dan `mock-network-audit` tersedia pada laporan run. Request font Google yang dicoba halaman diblokir oleh harness; font eksternal tidak diunduh.
+The first three findings were reproduced against the local build; application fixes are outside this documentation update. Screenshots, DOM context, and `mock-network-audit` are available in the test report. A Google Fonts request attempted by the page was blocked by the harness; no external font was downloaded.
 
-## Inventori perubahan
+## Change inventory
 
-- Suite baru: `auth.spec.ts`, `public-and-access.spec.ts`, `student.spec.ts`, `staff.spec.ts`, `support.spec.ts`, `admin.spec.ts`.
-- Harness/data baru: `fixture.ts`, `fixtures.ts`, `global-setup.ts`, `vite.config.ts`, `tsconfig.json`; dokumentasi: `README.md` ini.
-- `smoke.spec.ts`: empat test lama dan seluruh assertion dipertahankan; import menggunakan fixture isolasi, route CSP memakai fallback dan tidak mengikuti redirect fetch.
-- `../playwright.config.ts`: dua proyek, isolasi browser, lifecycle server lokal, laporan, batas waktu.
-- `../package.json`: `test:e2e` dan `test:e2e:typecheck`; tidak mengubah dependency/lockfile.
-- `../.gitignore`: mengabaikan `.e2e-dist`.
+- New suites: `auth.spec.ts`, `public-and-access.spec.ts`, `student.spec.ts`, `staff.spec.ts`, `support.spec.ts`, `admin.spec.ts`.
+- New harness/data: `fixture.ts`, `fixtures.ts`, `global-setup.ts`, `vite.config.ts`, `tsconfig.json`; documentation: this `README.md`.
+- `smoke.spec.ts`: all four existing tests and assertions were retained; imports use the isolation fixture, and the CSP route uses a fallback without following fetch redirects.
+- `../playwright.config.ts`: two projects, browser isolation, local server lifecycle, reporting, and timeouts.
+- `../package.json`: `test:e2e` and `test:e2e:typecheck` scripts; no dependency or lockfile changes.
+- `../.gitignore`: ignores `.e2e-dist`.
 
-Source aplikasi, backend, database, migrasi, dan konfigurasi deployment tidak diubah. Tidak ada commit/push. Perubahan backend `internal/modules/support/live.go` yang sudah ada sebelum pekerjaan dibiarkan utuh.
+Application source, backend, database, migrations, and deployment configuration were not changed. No commit or push was made. The pre-existing backend change in `internal/modules/support/live.go` was left intact.
 
-## Hasil validasi terakhir — 1 Oktober 2026
+## Latest validation results — October 15, 2026
 
-Perintah aktual: `node node_modules/playwright/cli.js test`. **113 skenario × 2 proyek = 226 eksekusi**, durasi sekitar 7 menit 53 detik termasuk persiapan. Hasil dari `test-results/e2e-results.json`:
+Command run: `npm run test:e2e`. **114 scenarios × 2 projects = 228 executions**, taking about 9 minutes 49 seconds including setup. Results were read from `test-results/e2e-results.json`:
 
-| Spec | Lulus | Gagal | Dilewati |
+| Spec | Passed | Failed | Skipped |
 | --- | ---: | ---: | ---: |
-| `smoke.spec.ts` (lama) | 8 | 0 | 0 |
-| `auth.spec.ts` | 34 | 6 | 0 |
-| `public-and-access.spec.ts` | 44 | 0 | 0 |
+| `smoke.spec.ts` (existing) | 8 | 0 | 0 |
+| `auth.spec.ts` | 28 | 12 | 0 |
+| `public-and-access.spec.ts` | 46 | 0 | 0 |
 | `student.spec.ts` | 32 | 2 | 0 |
 | `staff.spec.ts` | 48 | 0 | 0 |
 | `admin.spec.ts` | 30 | 0 | 0 |
 | `support.spec.ts` | 22 | 0 | 0 |
-| **Total** | **218** | **8** | **0** |
+| **Total** | **214** | **14** | **0** |
 
-Tidak ada test yang belum dijalankan dalam suite terdaftar; gap fitur di atas belum menjadi kasus test. Enam kegagalan auth adalah 503 siswa/staff dan tombol password pada dua proyek; dua kegagalan siswa adalah alert offline. Runner exit code **1**, sesuai delapan assertion yang gagal. Test tidak ditandai expected failure. Flaky menurut laporan: 0; error runner: 0. Seluruh 226 audit tersedia dan total request API tanpa mock: **0**.
+No registered test was left unrun; the feature gaps above are not test cases. Six auth failures are the student/staff 503 case and the password button in both projects; six more are the outdated `localStorage` assertions that must be aligned with the current persistence contract. Two student failures are the offline alert. The runner exit code was **1**, matching the 14 failed assertions. No tests were marked as expected failures. Reported flaky tests: 0; runner errors: 0. All 228 request audits are available, and requests to an unmocked API total **0**.
 
-Validasi tambahan lulus:
+Additional validation passed:
 
 ```sh
 node node_modules/typescript/bin/tsc -p e2e/tsconfig.json
@@ -113,4 +114,4 @@ node node_modules/oxlint/bin/oxlint e2e playwright.config.ts
 git diff --check
 ```
 
-Global setup juga menyelesaikan `tsc -b` dan Vite build khusus E2E. Build memberi peringatan ukuran chunk/biaya plugin legacy yang sudah berasal dari konfigurasi aplikasi; tidak diubah dalam tugas test ini. Run dilakukan lokal Windows memakai Node **v23.8.0** yang tersedia (di luar rentang engines repo); CI dan pengulangan pada Node 22/24 belum dijalankan. Gunakan versi yang didukung untuk run CI.
+Global setup also completed `tsc -b` and the E2E-specific Vite build. The build emitted existing warnings about chunk size and legacy-plugin cost; they were not changed during the test work. The run used Node **v23.8.0** on Windows, outside the repository’s supported engine range. CI and reruns on Node 22/24 were not performed. Use a supported Node version for CI.

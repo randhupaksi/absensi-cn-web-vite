@@ -10,9 +10,11 @@ Do not infer production readiness or deploy merely from a successful build.
 
 ## Build
 
-Choose the production API URL before building. Vite embeds `VITE_API_BASE_URL`
-in generated JavaScript, so changing the server-side environment after build
-does not change the bundle.
+Choose the production API URL before building. For the current same-origin
+aaPanel deployment, use `/api/v1`; Nginx then owns the HTTPS connection and
+proxies requests to the local Go API. Vite embeds `VITE_API_BASE_URL` in
+generated JavaScript, so changing the server-side environment after build does
+not change the bundle.
 
 ```powershell
 npm ci
@@ -33,6 +35,14 @@ upload. Never put credentials or private keys in frontend environment values.
   host can distinguish existing files from route paths.
 - Keep hashed `/assets/` files cacheable as immutable; use shorter or revalidate
   caching for `index.html` so a new deployment is picked up.
+- Proxy both `/api` and `/api/` to the Go API. Proxy `/uploads/` too: attendance
+  evidence is authenticated API content, never a public static directory.
+- Every Nginx location that proxies to the API must send
+  `X-Forwarded-Proto $scheme`. Do not use `$http_x_forwarded_proto`, because it
+  is supplied by the client and could make plain HTTP appear secure to the API.
+- Preserve `Authorization` for `/uploads/` and the support SSE location. The
+  SSE location also needs buffering disabled; see the API repository's
+  `docs/SUPPORT-OPERATIONS.md`.
 - The API must allow the exact browser origin in `APP_ALLOWED_ORIGINS` and use
   HTTPS when the site is HTTPS.
 - `vercel.json` applies only to Vercel. It configures an enforcing Content
@@ -61,6 +71,32 @@ Apply an equivalent missing-file rule to any other public static-asset paths
 used by the app. Configure the response security headers separately; this
 example only shows SPA routing and missing generated-asset handling.
 
+Minimal proxy shape (merge it into the active vhost/rewrite configuration; do
+not paste it over an existing production config blindly):
+
+```nginx
+location ^~ /api/ {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header Authorization $http_authorization;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location ^~ /uploads/ {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header Authorization $http_authorization;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+Also add `location = /api` with the same proxy headers if the API root is used.
+The `^~ /api/` block does not match the exact `/api` path.
+
 ## Manual release and rollback
 
 1. Record the source commit and confirm the release diff and checks.
@@ -73,6 +109,10 @@ example only shows SPA routing and missing generated-asset handling.
    browser console/network, API connectivity, and mobile layout.
 6. If the release is faulty, restore the previous artifact and confirm the
    previous `index.html` and assets are again served.
+
+Run `nginx -t` and reload Nginx only when its configuration changed. A static
+frontend artifact replacement alone does not require an Nginx restart; use a
+hard refresh or fresh browser session to verify the new `index.html` is served.
 
 These are operational recommendations, not an automated aaPanel integration.
 Coordinate API deploys separately; schema/API compatibility may affect the

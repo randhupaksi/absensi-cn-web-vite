@@ -6,4 +6,4 @@ Creator: Randhu Paksi Membumi - Creator, Fullstack Developer, System Analyst, UI
 Copyright 2026 Randhu Paksi Membumi. All rights reserved.
 
 /* NOTE */
-Citra Negara Attendance System dibuat sepenuhnya oleh Randhu Paksi Membumi.
+Citra Negara Attendance System was created entirely by Randhu Paksi Membumi.

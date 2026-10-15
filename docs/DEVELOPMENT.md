@@ -27,6 +27,7 @@ relative `/api/...` URL, the Vite development proxy forwards requests to
 | `npm run test:coverage` | Tests with V8 coverage |
 | `npm run build` | Typecheck and production Vite build into `dist/` |
 | `npm run test:e2e` | Build then Playwright against Vite Preview |
+| `npm run test:e2e:typecheck` | Type-check Playwright helpers/specs only |
 | `npm run preview` | Serve the existing production build locally |
 
 Playwright runs desktop Chromium and Pixel 5 emulation. Install Chromium on a
@@ -51,6 +52,12 @@ responsive behavior, or client/server interaction. Review snapshots and test
 artifacts before treating a browser test as meaningful. There is currently no
 repository CI workflow; these commands run only when invoked locally unless a
 separate CI system is configured.
+
+The E2E harness uses synthetic API fixtures, blocks external network access, and
+does not start the Go API or a database. It is a frontend contract/regression
+suite, not proof of production authorization or data integrity. Read
+[`e2e/README.md`](../e2e/README.md) before changing fixtures or interpreting a
+failed browser run.
 
 ## Change guidance
 

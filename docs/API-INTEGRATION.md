@@ -1,12 +1,11 @@
 # API integration contract
 
 The Go API is maintained in the sibling `absensi-cn-api` Git repository. Its
-router is the source of truth for endpoint paths and role middleware. In the
-full Absensi CN workspace, the shared API reference is at
-`../docs/API-REFERENCE.md`; that file is outside this standalone frontend repo
-and may not exist in an isolated clone. If it is unavailable, inspect the API
-repository's `internal/router/router.go`, handlers, services, and tests before
-changing integration code.
+router is the source of truth for endpoint paths and role middleware. When both
+repositories are checked out beside each other, read
+`../absensi-cn-api/docs/API-REFERENCE.md`. In an isolated frontend clone,
+inspect the API repository's `internal/router/router.go`, handlers, services,
+and tests before changing integration code.
 
 ## Client conventions
 
@@ -22,6 +21,19 @@ changing integration code.
 - For mutations, avoid duplicate submissions and invalidate the smallest set of
   affected TanStack Query keys. Do not present optimistic state as authoritative
   when the server result may reject or normalize the change.
+- Support live updates use `fetch` with a bearer header to open the short-lived
+  SSE stream; do not replace it with `EventSource`, which cannot send the
+  standard authorization header. Browser-push subscription is separate from
+  stream connectivity and requires an explicit user action/permission.
+
+## Endpoint boundary
+
+The client consumes public health/meta/attendance-window data, authentication,
+student attendance/history, teacher/homeroom/BK workflows, admin management,
+private uploads, notifications, and support/reset flows. Paths and DTO fields
+must be taken from the API router and target service module, not inferred from
+frontend page names. Private upload URLs remain API requests with bearer auth;
+they are not static assets or public links.
 
 ## Session and privacy
 

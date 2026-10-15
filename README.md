@@ -15,6 +15,7 @@ Designer, Frontend Engineer, and Backend Engineer.
 - [Deployment (manual aaPanel/static hosting)](docs/DEPLOYMENT.md)
 - [Security notes](docs/SECURITY.md)
 - [API integration contract](docs/API-INTEGRATION.md)
+- [Browser E2E guide and latest local result](e2e/README.md)
 
 ## Technology stack
 
@@ -116,17 +117,19 @@ The usual local URLs are:
 | Route                       | Purpose                                     |
 | --------------------------- | ------------------------------------------- |
 | `/`                         | Landing page                                |
+| `/randhu`                   | Developer profile                           |
+| `/support`                  | Public/user support ticket centre           |
+| `/support/reset-password`   | Public password-reset flow from support     |
 | `/login/student`            | Student login with NIS and password         |
 | `/login/staff`              | Teacher, homeroom, BK, and admin login      |
-| `/dashboard/student`        | Student dashboard                           |
-| `/dashboard/teacher`        | Teacher workspace based on role and scope   |
-| `/dashboard/admin`          | Administrator dashboard                     |
-| `/dashboard/admin/classes`  | Academic structure and classes              |
-| `/dashboard/admin/students` | Student profiles and class placement        |
-| `/dashboard/admin/subjects` | Subjects, assignments, schedules, and rooms |
+| `/dashboard/student/*`      | Student dashboard, history, profile, support |
+| `/dashboard/teacher/*`      | Teacher/homeroom/BK workspace and support   |
+| `/dashboard/admin/*`        | Administrator management, reports, support  |
 
 The app is an SPA. Direct dashboard URLs require the web server to fall back to
-`index.html`; this repository does not include an aaPanel deployment package.
+`index.html`. Unknown routes, including the removed historical `/deveran` route,
+fall back to the landing page rather than exposing build metadata. This repository
+does not include an aaPanel deployment package.
 
 ## Important structure
 
@@ -184,9 +187,9 @@ origin through `VITE_API_BASE_URL` before building; do not put secrets in it.
 
 For frontend hosting requirements and the manual upload workflow, read
 [DEPLOYMENT.md](docs/DEPLOYMENT.md). API deployment is documented in the API
-repository's operations runbook. In the full Absensi CN workspace, that runbook
-is `../docs/OPERATIONS.md`; it is outside this standalone frontend repository
-and may not exist in an isolated clone. If unavailable, use the API repository
+repository's operations runbook at `docs/OPERATIONS.md`. When both repositories
+are checked out beside each other, it is available at
+`../absensi-cn-api/docs/OPERATIONS.md`. If unavailable, use the API repository
 README and the deployment host's current operational runbook.
 
 ## Frontend architecture

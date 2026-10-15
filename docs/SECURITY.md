@@ -30,6 +30,11 @@
   nonce/hash-compatible boot flow and the actual hosting response is verified.
 - Serve the SPA via HTTPS, apply an SPA fallback, and use an explicit API CORS
   allowlist. Host configuration is part of the security boundary.
+- For aaPanel/Nginx, `/api` and `/uploads` must be reverse-proxied to the Go
+  API, not served from the SPA document root. The proxy must set
+  `X-Forwarded-Proto $scheme`; never forward a client-provided
+  `$http_x_forwarded_proto` as the trusted scheme signal. Preserve the bearer
+  `Authorization` header for protected uploads and support SSE.
 
 The API remains authoritative for identity, permissions, and protected data.
 Attendance evidence URLs are not public capabilities: the API requires a valid

@@ -47,6 +47,18 @@ Preserve API payload fields, status codes, role/scope semantics, identifiers,
 and server-calculated totals. Consult `API-INTEGRATION.md` and the API
 repository's endpoint reference before changing a service contract.
 
+## Live support and browser push
+
+Ticket detail can open a short-lived, authenticated SSE connection through
+`useSupportTicketLive`. It uses `fetch` so the bearer token stays in an HTTP
+header; the stream only signals a refresh and the app reloads ticket data from
+the API. Periodic refresh remains the fallback when a stream reconnects.
+
+Support browser notifications are a separate path: an explicit user action asks
+for browser permission, registers `public/support-notifications-sw.js`, then
+sends the VAPID subscription to the API. Permission granted in the browser does
+not guarantee the subscription was persisted or a notification was delivered.
+
 ## UI boundaries
 
 - Prefer existing design tokens, shared controls, and feature patterns.
@@ -64,6 +76,7 @@ repository's endpoint reference before changing a service contract.
 | Routes and lazy-loading | `src/App.tsx` |
 | Application entry | `src/main.tsx`, `src/providers/` |
 | API transport and endpoint services | `src/services/` |
+| Support live stream and browser push | `src/features/support/hooks/use-support-ticket-live.ts`, `src/lib/support-notifications.ts`, `public/support-notifications-sw.js` |
 | Domain and role features | `src/features/`, `src/pages/` |
 | Shared types and validation | `src/types/`, `src/lib/validations/` |
 | Global styles and tokens | `src/index.css` |
